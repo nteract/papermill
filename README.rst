@@ -1,9 +1,10 @@
 |Logo|
 =========
 
-Papermill is map reduce for jupyter notebooks.
+Papermill is map reduce for Jupyter notebooks.
 
-Stepping away from the hyperbole, the goals are to assist in:
+Stepping away from the hyperbole, our goals for Papermill include simplifying
+and streamlining:
 
 * Parametrizing notebooks
 * Executing and collecting metrics across the notebooks
@@ -22,17 +23,17 @@ Usage
 
 Executing a parametrized notebook::
 
-  import papermill as pm
+    import papermill as pm
 
-  pm.execute_notebook(
-      notebook="template.ipynb",
-      output="output.ipynb",
-      params=dict(alpha=0.1, l1_ratio=0.001)
-  )
+    pm.execute_notebook(
+        notebook="template.ipynb",
+        output="output.ipynb",
+        params=dict(alpha=0.1, l1_ratio=0.001)
+    )
 
-  nb = pm.read_notebook("output.ipynb")
+    nb = pm.read_notebook("output.ipynb")
 
-Creating a parametrized notebook, recording metrics::
+Creating a parametrized notebook and recording metrics::
 
     ### template.ipynb
     import papermill as pm
