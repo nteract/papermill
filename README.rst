@@ -58,7 +58,7 @@ Creating a parametrized notebook and recording metrics::
     pm.display_image(plot)
 
 
-.. |Logo| image:: https://user-images.githubusercontent.com/836375/27926581-b4f3291e-623d-11e7-90f6-dd56c0fdcdfa.png
+.. |Logo| image:: https://user-images.githubusercontent.com/836375/27929844-6bb34e62-6249-11e7-9a2a-00849a64940c.png
    :width: 200px
    :target: https://github.com/nteract/papermill
    :alt: Papermill
