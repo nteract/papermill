@@ -28,7 +28,7 @@ Executing a parametrized notebook::
     pm.execute_notebook(
         notebook="template.ipynb",
         output="output.ipynb",
-        params=dict(alpha=0.1, l1_ratio=0.001)
+        params=dict(alpha=0.1, ratio=0.001)
     )
 
     nb = pm.read_notebook("output.ipynb")
@@ -46,7 +46,7 @@ Creating a parametrized notebook and recording metrics::
     pm.execute_notebook(
         notebook="template.ipynb",
         output="output.ipynb",
-        params=dict(alpha=0.1, l1_ratio=0.001)
+        params=dict(alpha=0.1, ratio=0.001)
     )
 
     nb = pm.read_notebook("output.ipynb")
