@@ -20,24 +20,41 @@ Installation
 Usage
 -----
 
-::
+Executing a parametrized notebook::
 
-  # Single notebook
-  papermill.execute_notebook(
+  import papermill as pm
+
+  pm.execute_notebook(
       notebook="template.ipynb",
-      params=dict(C=-4, gamma=-4, class_weight='balanced')
+      output="output.ipynb",
+      params=dict(alpha=0.1, l1_ratio=0.001)
   )
 
-  # Multiple notebooks
-  param_space = {'C': np.logspace(-4, 4, 9),
-                 'gamma': np.logspace(-4, 4, 9),
-                 'class_weight': [None, 'balanced']}
-  future = papermill.sweep(
-      "template.ipynb",
-      param_space=param_space,
-      output_dir='s3://somewhere',
-      driver=papermill.LocalDriver, # If it obeys the driver interface, we know how to submit
-  )
+  nb = pm.read_notebook("output.ipynb")
+
+Creating a parametrized notebook, recording metrics::
+
+    ### template.ipynb
+    import papermill as pm
+
+    rmse = metrics.mean_squared_error(...)
+    pm.record_value("rmse", rmse)
+    plot() # Tag this cell as "results" for extraction later
+
+    ### run_and_summarize.ipynb
+    pm.execute_notebook(
+        notebook="template.ipynb",
+        output="output.ipynb",
+        params=dict(alpha=0.1, l1_ratio=0.001)
+    )
+
+    nb = pm.read_notebook("output.ipynb")
+    result_cell = pm.get_tagged_cell(nb, 'results')
+
+    rmse = pm.fetch_record(result_cell, 'rmse')
+    plot = pm.get_image_from_cell(result_cell)
+    print('rmse', rmse)
+    pm.display_image(plot)
 
 
 .. |Logo| image:: https://user-images.githubusercontent.com/836375/27926581-b4f3291e-623d-11e7-90f6-dd56c0fdcdfa.png
