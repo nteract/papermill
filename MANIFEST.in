@@ -1,0 +1,9 @@
+recursive-include papermill *.py
+
+include setup.py
+include README.rst
+include LICENSE
+include MANIFEST.in
+
+include versioneer.py
+include papermill/_version.py

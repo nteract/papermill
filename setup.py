@@ -3,13 +3,20 @@
 
 #!/usr/bin/env python
 
-from distutils.core import setup
 
-setup(name='Papermill',
-      version='0.0.1',
+from os.path import exists
+from setuptools import setup
+import versioneer
+
+setup(name='papermill',
+      version=versioneer.get_version(),
+      cmdclass=versioneer.get_cmdclass(),
       description='Map Reduce for Notebooks',
       author='nteract contributors',
       author_email='jupyter@googlegroups.com',
+      license='BSD',
+      keywords="jupyter mapreduce",
+      long_description=(open('README.rst').read() if exists('README.rst') else ''),
       url='https://github.com/nteract/papermill',
       packages=['papermill'],
      )
