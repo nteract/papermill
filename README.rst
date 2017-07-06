@@ -50,11 +50,11 @@ Creating a parametrized notebook and recording metrics::
     )
 
     nb = pm.read_notebook("output.ipynb")
-    result_cell = pm.get_tagged_cell(nb, 'results')
+    result_cell = pm.get_tagged_cell(nb, "results")
 
-    rmse = pm.fetch_record(result_cell, 'rmse')
+    rmse = pm.fetch_record(result_cell, "rmse")
     plot = pm.get_image_from_cell(result_cell)
-    print('rmse', rmse)
+    print("rmse", rmse)
     pm.display_image(plot)
 
 
