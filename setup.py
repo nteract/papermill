@@ -19,4 +19,9 @@ setup(name='papermill',
       long_description=(open('README.rst').read() if exists('README.rst') else ''),
       url='https://github.com/nteract/papermill',
       packages=['papermill'],
+      entry_points={
+              'console_scripts': [
+                  'papermill = papermill.cli:papermill'
+              ]
+          }
      )
