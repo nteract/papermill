@@ -4,12 +4,12 @@ from ._version import get_versions
 __version__ = get_versions()['version']
 del get_versions
 
-from execute import (
+from papermill.execute import (
     execute_notebook,
     set_environment_variable_names,
     PapermillException
 )
-from api import (
+from papermill.api import (
     read_notebook,
     save_notebook,
     display_image,
