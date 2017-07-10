@@ -21,7 +21,9 @@ Installation
 Usage
 -----
 
-Executing a parametrized notebook::
+Executing a parametrized notebook
+
+.. code-block:: python
 
     import papermill as pm
 
@@ -33,7 +35,10 @@ Executing a parametrized notebook::
 
     nb = pm.read_notebook("output.ipynb")
 
-Creating a parametrized notebook and recording metrics::
+Creating a parametrized notebook and record metrics
+
+
+.. code-block:: python
 
     ### template.ipynb
     import papermill as pm
@@ -41,6 +46,8 @@ Creating a parametrized notebook and recording metrics::
     rmse = metrics.mean_squared_error(...)
     pm.record_value("rmse", rmse)
     plot() # Tag this cell as "results" for extraction later
+
+.. code-block:: python
 
     ### run_and_summarize.ipynb
     pm.execute_notebook(
