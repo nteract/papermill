@@ -35,7 +35,7 @@ def _parameterize_notebook(notebook_path, output_path, parameters):
 
     # Pull out variable names and values from the parameters argument.
     param_content = "# Parameters\n"
-    for var, val in parameters.iteritems():
+    for var, val in parameters.items():
         if isinstance(val, basestring):
             val = '"%s"' % val  # TODO: Handle correctly escaping input strings.
         param_content += '%s = %s\n' % (var, val)
@@ -104,7 +104,7 @@ def set_environment_variable_names(*args):
 
 def _fetch_environment_variables():
     ret = dict()
-    for name, value in os.environ.iteritems():
+    for name, value in os.environ.items():
         if name in _execution_configuration['environment_variables']:
             ret[name] = value
     return ret
