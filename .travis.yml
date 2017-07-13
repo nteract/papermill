@@ -4,11 +4,15 @@ python:
   - "3.5"
 # command to install dependencies
 install:
-  - python -m pip install ipykernel "ipython<6"
-  - python -m ipykernel install --user
   - python2 -m pip install ipykernel "ipython<6"
   - python2 -m ipykernel install --user
+  - python -m pip install ipykernel "ipython<6"
+  - python -m ipykernel install --user
   - pip install -e .
   - pip install pytest
 # command to run tests
 script: py.test
+python3 -m pip install jupyterhub notebook ipykernel
+python3 -m ipykernel install # register Python 3 kernel (not technically necessary at this point, but a good idea)
+python2 -m pip install ipykernel
+python2 -m ipykernel install # register Python 2 kernel
