@@ -15,22 +15,22 @@ from papermill.execute import execute_notebook
 def papermill(notebook, output, parameters, raw_parameters, parameters_file, parameters_yaml, parameters_base64):
     """Utility for executing a single notebook on a container."""
     if parameters_base64:
-        kwargs = yaml.load(base64.b64decode(parameters_base64))
+        parameters_final = yaml.load(base64.b64decode(parameters_base64))
     elif parameters_yaml:
-        kwargs = yaml.load(parameters_yaml)
+        parameters_final = yaml.load(parameters_yaml)
     elif parameters_file:
         with open(parameters_file, 'r') as infile:
-            kwargs = yaml.load(infile)
+            parameters_final = yaml.load(infile)
     else:
         # Read in Parameters
-        kwargs = {}
+        parameters_final = {}
         for name, value in parameters:
-            kwargs[name] = _resolve_type(value)
+            parameters_final[name] = _resolve_type(value)
         for name, value in raw_parameters:
-            kwargs[name] = value
+            parameters_final[name] = value
 
     # Notebook Execution
-    execute_notebook(notebook, output, **kwargs)
+    execute_notebook(notebook, output, parameters_final)
 
 
 def _resolve_type(value):

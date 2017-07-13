@@ -8,34 +8,36 @@ import nbformat
 
 from papermill.api import read_notebook, save_notebook
 
+from six import string_types
 
-def execute_notebook(notebook, output, **kwargs):
+def execute_notebook(notebook, output, parameters=None):
     """Executes a single notebook locally.
 
     Args:
         notebook (str): Path to input notebook.
         output (str): Path to save exexuted notebook.
-        **kwargs: Arbitrary keyword arguments to pass to the notebook preface.
+        parameters: (dict) Arbitrary keyword arguments to pass to the notebook preface.
 
     """
+    parameters = parameters or {}
     tmp_dir = tempfile.gettempdir()
     tmp_path = os.path.join(tmp_dir, 'parameterized.ipynb')
-    _parameterize_notebook(notebook, tmp_path, **kwargs)
+    _parameterize_notebook(notebook, tmp_path, parameters)
     _execute_notebook(tmp_path, output)
     os.remove(tmp_path)
 
 
-def _parameterize_notebook(notebook_path, output_path, **kwargs):
+def _parameterize_notebook(notebook_path, output_path, parameters):
 
-    if not kwargs:
+    if not parameters:
         # No parameters, just copy the notebook.
         shutil.copyfile(notebook_path, output_path)
         return
 
     # Pull out variable names and values from the parameters argument.
     param_content = "# Parameters\n"
-    for var, val in kwargs.iteritems():
-        if isinstance(val, basestring):
+    for var, val in parameters.items():
+        if isinstance(val, string_types):
             val = '"%s"' % val  # TODO: Handle correctly escaping input strings.
         param_content += '%s = %s\n' % (var, val)
 
@@ -51,7 +53,7 @@ def _parameterize_notebook(notebook_path, output_path, **kwargs):
     nb.cells = before + [newcell] + after
 
     # Apply papermill metadata
-    nb.metadata.papermill['parameters'] = kwargs
+    nb.metadata.papermill['parameters'] = parameters
     save_notebook(nb, output_path)
 
 
@@ -103,7 +105,7 @@ def set_environment_variable_names(*args):
 
 def _fetch_environment_variables():
     ret = dict()
-    for name, value in os.environ.iteritems():
+    for name, value in os.environ.items():
         if name in _execution_configuration['environment_variables']:
             ret[name] = value
     return ret

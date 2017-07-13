@@ -3,6 +3,12 @@ python:
   - "2.7"
   - "3.5"
 # command to install dependencies
-install: pip install -e .
+install:
+  - python2 -m pip install --user ipykernel "ipython<6" || python2 -m pip install ipykernel "ipython<6"
+  - python2 -m ipykernel install --user
+  - python -m pip install ipykernel "ipython<6"
+  - python -m ipykernel install --user
+  - pip install -e .
+  - pip install pytest
 # command to run tests
-script: echo ":("
+script: py.test
