@@ -30,6 +30,7 @@ setup(name='papermill',
           'pyyaml',
           'nbformat',
           ipython_req,
+          'ipykernel',
           'nbconvert',
           'six',
           'jupyter_client'
