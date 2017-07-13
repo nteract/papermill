@@ -31,6 +31,7 @@ setup(name='papermill',
           'nbformat',
           ipython_req,
           'nbconvert',
+          'six',
           'jupyter_client'
       ],
       entry_points={
