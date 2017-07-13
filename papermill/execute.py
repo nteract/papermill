@@ -8,6 +8,7 @@ import nbformat
 
 from papermill.api import read_notebook, save_notebook
 
+from builtins import str
 
 def execute_notebook(notebook, output, parameters=None):
     """Executes a single notebook locally.
@@ -36,7 +37,7 @@ def _parameterize_notebook(notebook_path, output_path, parameters):
     # Pull out variable names and values from the parameters argument.
     param_content = "# Parameters\n"
     for var, val in parameters.items():
-        if isinstance(val, basestring):
+        if isinstance(val, str):
             val = '"%s"' % val  # TODO: Handle correctly escaping input strings.
         param_content += '%s = %s\n' % (var, val)
 
