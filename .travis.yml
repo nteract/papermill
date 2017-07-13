@@ -3,6 +3,8 @@ python:
   - "2.7"
   - "3.5"
 # command to install dependencies
-install: pip install -e .
+install:
+  - pip install -e .
+  - pip install pytest
 # command to run tests
-script: echo ":("
+script: py.test
