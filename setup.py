@@ -32,7 +32,8 @@ setup(name='papermill',
           ipython_req,
           'nbconvert',
           'six',
-          'jupyter_client'
+          'jupyter_client',
+          'pandas'
       ],
       entry_points={
               'console_scripts': [

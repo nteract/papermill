@@ -1,6 +1,10 @@
 import io
+import os
+
 import nbformat
+import pandas as pd
 from IPython.display import display
+from six import string_types
 
 
 RECORD_OUTPUT_TYPE = 'application/papermill.record+json'
@@ -33,6 +37,24 @@ def read_notebook(notebook_path):
         if not hasattr(cell.metadata, 'papermill'):
             cell.metadata['papermill'] = dict()
     return nb
+
+
+def read_notebooks(notebook_dir):
+    """Returns a list of NotebookNode objects read in from the directory specified at notebook_dir.
+
+    Args:
+        notebook_dir (str): Path to the notebooks directory.
+
+    Returns:
+        List of NotebookNode objects.
+
+    """
+    nbs = {}
+    for filename in os.listdir(notebook_dir):
+        notebook_path = os.path.join(notebook_dir, filename)
+        if notebook_path.endswith('.ipynb'):
+            nbs[filename] = read_notebook(notebook_path)
+    return nbs
 
 
 def save_notebook(nb, notebook_path):
@@ -140,43 +162,51 @@ def record_value(name, value):
     display({RECORD_OUTPUT_TYPE: {name: value}}, raw=True)
 
 
-def fetch_record(cell, name):
+def fetch_notebook_data(notebook):
     """
-    Fetches a recorded value from the cell under inspection.
+    Returns a dict of all the recorded data from the execution of the notebook.
 
     Args:
-        cell (nbformat.NotebookNode): The cell to pull the value from.
-        name (str): Then name of the value.
+        notebook (nbformat.NotebookNode or str): Notebook or path to notebook under inspection.
 
     Returns:
-        The value retrieved from the cell's output at the specified name.
-
+        Dictionary of parameters for the notebook and the recorded notebook data.
     """
-    value = None
-    for output in cell.get('outputs', []):
-        if 'data' in output and RECORD_OUTPUT_TYPE in output['data']:
-            if name in output['data'][RECORD_OUTPUT_TYPE]:
-                value = output['data'][RECORD_OUTPUT_TYPE][name]
-    return value
-
-
-def _split_bucket_and_prefix(path):
-    """
-    splits an s3 path into bucket and prefix, like os.path.split, only it can only be used once
-    ie s3://foo/bar/baz would return ['foo','bar/baz']
-    note: because a trailing / is significant in s3, it will not be stripped,
-        ie s3://foo/bar/baz/ will return ['foo','bar/baz/']
-    """
-    if not path.startswith('s3://'):
-        raise ValueError('path must start with s3://')
-    path = path[5:]
-    if path:
-        if '/' in path:
-            return path.split('/', 1)
-        else:
-            return [path, '']
+    if isinstance(notebook, string_types):
+        # Pull from path if notebook is a string.
+        nb = read_notebook(notebook)
     else:
-        return ['', '']
+        nb = notebook
+
+    ret = {}
+    ret.update(nb.metadata.papermill['parameters'])
+    for cell in nb.cells:
+        for output in cell.get('outputs', []):
+            if 'data' in output and RECORD_OUTPUT_TYPE in output['data']:
+                ret.update(output['data'][RECORD_OUTPUT_TYPE])
+    return ret
+
+
+def fetch_notebooks_dataframe(notebooks):
+    """
+    Returns a dataframe where each row is a notebook in a directory and each column is a parameter
+    or recorded data value from the notebooks.
+
+    Args:
+        notebooks (list): List of NotebookNode or paths to the notebook directory.
+
+    Returns:
+        pd.DataFrame containing the data from the notebooks in the directory.
+    """
+    if isinstance(notebooks, string_types):
+        # Pull from path if notebook is a string.
+        nbs = read_notebooks(notebooks)
+    else:
+        nbs = notebooks
+
+    fnames = sorted(nbs.keys())
+    notebook_datas = [fetch_notebook_data(nbs[fname]) for fname in fnames]
+    return pd.DataFrame(notebook_datas, index=fnames)
 
 
 """Dict for mapping notebook reader and writing fucntions."""
