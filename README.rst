@@ -56,12 +56,14 @@ Creating a parametrized notebook and record metrics
         params=dict(alpha=0.1, ratio=0.001)
     )
 
+    # Print RMSE value saved in "output.ipynb"
     nb = pm.read_notebook("output.ipynb")
-    result_cell = pm.get_tagged_cell(nb, "results")
+    nb_data = pm.fetch_notebook_data(nb)
+    print("rmse", nb_data["rmse"])
 
-    rmse = pm.fetch_record(result_cell, "rmse")
+    # Show plot found in "output.ipynb"
+    result_cell = pm.get_tagged_cell(nb, "results")
     plot = pm.get_image_from_cell(result_cell)
-    print("rmse", rmse)
     pm.display_image(plot)
 
 

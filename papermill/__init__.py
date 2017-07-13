@@ -19,7 +19,8 @@ from papermill.api import (
     get_images_from_cell,
     display_tagged_cell_image,
     record_value,
-    fetch_record,
+    fetch_notebook_data,
+    fetch_notebooks_dataframe,
     set_reader,
     set_writer
 )
