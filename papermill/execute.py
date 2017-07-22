@@ -6,9 +6,12 @@ import time
 
 import nbformat
 
-from papermill.api import read_notebook, save_notebook
+from papermill.conf import settings
+from papermill.exceptions import PapermillException
+from papermill.iorw import read_notebook, save_notebook
 
 from six import string_types
+
 
 def execute_notebook(notebook, output, parameters=None):
     """Executes a single notebook locally.
@@ -93,23 +96,9 @@ def find_preface_index(nb):
     return preface_indices[0]
 
 
-_execution_configuration = dict(
-    environment_variables=[]
-)
-
-
-def set_environment_variable_names(*args):
-    _execution_configuration['environment_variables'] = sorted(
-        set(_execution_configuration['environment_variables']) | set(args))
-
-
 def _fetch_environment_variables():
     ret = dict()
     for name, value in os.environ.items():
-        if name in _execution_configuration['environment_variables']:
+        if name in settings.ENVIRONMENT_VARIABLES:
             ret[name] = value
     return ret
-
-
-class PapermillException(Exception):
-    """Raised when an exception is encountered when operating on a notebook."""
