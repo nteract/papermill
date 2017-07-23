@@ -1,6 +1,8 @@
 import io
 import nbformat
 
+from papermill import __version__
+
 
 def read_notebook(notebook_path):
     """Returns a notebook object with papermill metadata loaded from the specified path.
@@ -17,9 +19,9 @@ def read_notebook(notebook_path):
     if not hasattr(nb.metadata, 'papermill'):
         nb.metadata['papermill'] = {
             'parameters': dict(),
+            'metrics': dict(),
             'environment_variables': dict(),
-            'duration': 0.0,
-            'schema_version': 0
+            'version': __version__
         }
 
     for cell in nb.cells:

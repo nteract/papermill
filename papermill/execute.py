@@ -80,7 +80,7 @@ def _execute_notebook(notebook_path, output_path):
 
     # Record specified environment variable values.
     nb.metadata.papermill['environment_variables'] = _fetch_environment_variables()
-    nb.metadata.papermill['duration'] = duration
+    nb.metadata.papermill['metrics']['duration'] = duration
     save_notebook(nb, output_path)
 
 

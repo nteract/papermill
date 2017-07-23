@@ -5,6 +5,7 @@ import IPython
 from IPython.display import display as ip_display
 from six import string_types
 
+from papermill.exceptions import PapermillException
 from papermill.iorw import read_notebook
 
 
@@ -39,6 +40,10 @@ class Notebook(object):
 
     @classmethod
     def read(cls, path):
+        if not path.endswith(".ipynb"):
+            raise PapermillException(
+                "Notebooks should have an '.ipynb' file extension. Provided path: '%s'", path)
+
         obj = cls()
         obj.path = path
         obj._nb_node = read_notebook(path)
@@ -57,6 +62,10 @@ class Notebook(object):
         return self._nb_node
 
     @property
+    def version(self):
+        return _get_papermill_metadata(self._nb_node, 'version', default=None)
+
+    @property
     def parameters(self):
         return _get_papermill_metadata(self._nb_node, 'parameters', default={})
 
@@ -65,8 +74,8 @@ class Notebook(object):
         return _get_papermill_metadata(self._nb_node, 'environment_variables', default={})
 
     @property
-    def duration(self):
-        return _get_papermill_metadata(self._nb_node, 'duration')
+    def metrics(self):
+        return _get_papermill_metadata(self._nb_node, 'metrics', default={})
 
     @property
     def data(self):
@@ -78,16 +87,25 @@ class Notebook(object):
         df = pd.DataFrame(columns=['name', 'value', 'type', 'filename'])
 
         i = 0
-        for i, name in enumerate(sorted(self.parameters.keys()), start=i):
-            df.loc[i] = name, self.parameters[name], 'parameter', self.filename
+        for name in sorted(self.metrics.keys()):
+            df.loc[i] = name, self.metrics[name], 'metric', self.filename
+            i += 1
 
-        for i, name in enumerate(sorted(self.data.keys()), start=i):
+        for name in sorted(self.parameters.keys()):
+            df.loc[i] = name, self.parameters[name], 'parameter', self.filename
+            i += 1
+
+        for name in sorted(self.data.keys()):
             df.loc[i] = name, self.data[name], 'record', self.filename
+            i += 1
         return df
 
     def display_output(self, name):
         """Display the output from this notebook in the running notebook."""
-        output = _get_notebook_output(self._nb_node, name)
+        outputs = _get_notebook_outputs(self._nb_node)
+        if name not in outputs:
+            raise PapermillException("Output Name '%s' is not available in this notebook.")
+        output = outputs[name]
         ip_display(output.data, metadata=output.metadata, raw=True)
 
 
@@ -95,15 +113,15 @@ def _get_papermill_metadata(nb, name, default=None):
     return nb.metadata.get('papermill', {}).get(name, default)
 
 
-def _get_notebook_output(nb_node, name):
+def _get_notebook_outputs(nb_node):
     outputs = {}
     for cell in nb_node.cells:
         for output in cell.get('outputs', []):
-            if 'papermill' in output.metadata:
+            if 'papermill' in output.get('metadata', {}):
                 output_name = output.metadata.papermill.get('name')
                 if output_name:
                     outputs[output_name] = output
-    return outputs[name]
+    return outputs
 
 
 def _fetch_notebook_data(nb_node):
@@ -123,7 +141,13 @@ class NotebookCollection(object):
         self._notebooks = {}
 
     def __setitem__(self, key, value):
-        assert isinstance(value, Notebook), "Value must be type Notebook."
+        # If notebook is a path str then load the notebook.
+        if isinstance(value, string_types):
+            value = Notebook.read(value)
+
+        if not isinstance(value, Notebook):
+            raise PapermillException(
+                "Value must either be a path string or a Papermill Notebook object. Found: '%s'" % str(type(value)))
         self._notebooks[key] = value
 
     def __getitem__(self, key):
@@ -133,7 +157,6 @@ class NotebookCollection(object):
         del self._notebooks[key]
 
     def __iter__(self):
-
         for name in sorted(self._notebooks):
             yield self[name]
 
@@ -148,16 +171,12 @@ class NotebookCollection(object):
 
     @property
     def dataframe(self):
-        return pd.concat([nb.dataframe for nb in self]).reset_index(drop=True)
+        dfs = []
+        for key, nb in self._notebooks.iteritems():
+            df = nb.dataframe
+            df['key'] = key
+            dfs.append(df)
+        return pd.concat(dfs).reset_index(drop=True)
 
-    def add_notebook(self, notebook, key_name=None):
-
-        # If notebook is a path str then load the notebook.
-        if isinstance(notebook, string_types):
-            notebook = Notebook.read(notebook)
-
-        key_name = key_name or notebook.filename
-        self[key_name] = notebook
-
-    def display_output(self, filename, output_name):
-        self[filename].display_output(output_name)
+    def display_output(self, key, output_name):
+        self[key].display_output(output_name)
