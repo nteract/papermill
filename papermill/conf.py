@@ -9,7 +9,7 @@ class Settings(object):
 
     def __init__(self):
 
-        for name, value in self.__default_settings.iteritems():
+        for name, value in self.__default_settings.items():
             setattr(self, name, value)
 
 settings = Settings()
