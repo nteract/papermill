@@ -2,7 +2,7 @@ import os
 
 import pandas as pd
 import IPython
-from IPython.display import display as ip_display
+from IPython.display import display as ip_display, Markdown
 from six import string_types
 
 from papermill.exceptions import PapermillException
@@ -87,10 +87,6 @@ class Notebook(object):
         df = pd.DataFrame(columns=['name', 'value', 'type', 'filename'])
 
         i = 0
-        for name in sorted(self.metrics.keys()):
-            df.loc[i] = name, self.metrics[name], 'metric', self.filename
-            i += 1
-
         for name in sorted(self.parameters.keys()):
             df.loc[i] = name, self.parameters[name], 'parameter', self.filename
             i += 1
@@ -156,10 +152,6 @@ class NotebookCollection(object):
     def __delitem__(self, key):
         del self._notebooks[key]
 
-    def __iter__(self):
-        for name in sorted(self._notebooks):
-            yield self[name]
-
     @classmethod
     def from_directory(cls, path):
         obj = cls()
@@ -172,11 +164,21 @@ class NotebookCollection(object):
     @property
     def dataframe(self):
         dfs = []
-        for key, nb in self._notebooks.iteritems():
+        for key in sorted(self._notebooks):
+            nb = self._notebooks[key]
             df = nb.dataframe
             df['key'] = key
             dfs.append(df)
         return pd.concat(dfs).reset_index(drop=True)
 
     def display_output(self, key, output_name):
-        self[key].display_output(output_name)
+        if isinstance(key, string_types):
+            ip_display(Markdown("### %s" % str(key)))
+            self[key].display_output(output_name)
+        else:
+            for i, k in enumerate(key):
+                if i > 0:
+                    # between outputs
+                    ip_display(Markdown("<hr>"))
+                ip_display(Markdown("### %s" % str(k)))
+                self[k].display_output(output_name)
