@@ -26,6 +26,14 @@ def record(name, value):
 
 
 def display(name, obj):
+    """
+    Displays an object with the reference 'name'.
+
+    Args:
+        name (str): Name of the output.
+        obj: An object that can be displayed in the notebook.
+
+    """
     data, metadata = IPython.core.formatters.format_display_data(obj)
     metadata['papermill'] = dict(name=name)
     ip_display(data, metadata=metadata, raw=True)
@@ -83,7 +91,6 @@ class Notebook(object):
 
     @property
     def dataframe(self):
-        """Return dataframe in 'tall' format for this notebook."""
         df = pd.DataFrame(columns=['name', 'value', 'type', 'filename'])
 
         i = 0
