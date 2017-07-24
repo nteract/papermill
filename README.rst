@@ -1,14 +1,13 @@
 |Logo|
 =========
 
-Papermill is map reduce for Jupyter notebooks.
+Papermill is a tool for parameterizing, executing, and analyzing Jupyter Notebooks.
 
-Stepping away from the hyperbole, our goals for Papermill include simplifying
-and streamlining:
+The goals for Papermill are:
 
 * Parametrizing notebooks
 * Executing and collecting metrics across the notebooks
-* Summarize collections of notebooks
+* Summarizing collections of notebooks
 
 Installation
 ------------
@@ -21,7 +20,45 @@ Installation
 Usage
 -----
 
-Executing a parametrized notebook
+Parameterizing a notebook.
+
+.. code-block:: python
+
+   ### template.ipynb
+   # This cell has a "preface" tag. These values will be overwritten by Papermill.
+   alpha = 0.5
+   ratio = 0.1
+
+
+Recording values to be saved with the notebook.
+
+.. code-block:: python
+
+   ### template.ipynb
+   import random
+   import papermill as pm
+
+   rand_value = random.randint(1, 10)
+   pm.record("random_value", rand_value)
+   pm.record("foo", "bar")
+
+Displaying outputs to be saved with the notebook.
+
+.. code-block:: python
+
+   ### template.ipynb
+   # Import plt and turn off interactive plotting to avoid double plotting.
+   import papermill as pm
+   import matplotlib.pyplot as plt; plt.ioff()
+   from ggplot import mpg
+
+   f = plt.figure()
+   plt.hist('cty', bins=12, data=mpg)
+   pm.display('matplotlib_hist', f)
+
+
+
+Executing a parameterized Jupyter notebook
 
 .. code-block:: python
 
@@ -33,39 +70,41 @@ Executing a parametrized notebook
         params=dict(alpha=0.1, ratio=0.001)
     )
 
-    nb = pm.read_notebook("output.ipynb")
-
-Creating a parametrized notebook and record metrics
-
+Analyzing a single notebook
 
 .. code-block:: python
 
-    ### template.ipynb
-    import papermill as pm
+   ### summary.ipynb
+   from papermill import Notebook
 
-    rmse = metrics.mean_squared_error(...)
-    pm.record_value("rmse", rmse)
-    plot() # Tag this cell as "results" for extraction later
+   nb = Notebook.read('output.ipynb')
+   nb.dataframe.head()
+
+   # Show named plot from 'output.ipynb'
+   nb.display_output('matplotlib_hist')
+
+
+Analyzing a collection of notebooks
 
 .. code-block:: python
 
-    ### run_and_summarize.ipynb
-    pm.execute_notebook(
-        notebook="template.ipynb",
-        output="output.ipynb",
-        params=dict(alpha=0.1, ratio=0.001)
-    )
+   ### summary.ipynb
+   from papermill import NotebookCollection
 
-    # Print RMSE value saved in "output.ipynb"
-    nb = pm.read_notebook("output.ipynb")
-    nb_data = pm.fetch_notebook_data(nb)
-    print("rmse", nb_data["rmse"])
+   nbs = NotebookCollection.from_directory('/path/to/results/')
 
-    # Show plot found in "output.ipynb"
-    result_cell = pm.get_tagged_cell(nb, "results")
-    plot = pm.get_image_from_cell(result_cell)
-    pm.display_image(plot)
+   # Show named plot from 'output1.ipynb'
+   nbs.display_output('output1.ipynb', 'matplotlib_hist')
 
+   # Dataframe for all notebooks in collection
+   df = nbs.dataframe
+   df.head()
+
+   # Show histograms from notebooks with the highest random value.
+   pivoted_df = df.pivot('key', 'name', 'value').sort_values(by='name')
+   pivoted_df.head()
+
+   nbs.display_output(pivoted_df[:3], 'matplotlib_hist')
 
 .. |Logo| image:: https://user-images.githubusercontent.com/836375/27929844-6bb34e62-6249-11e7-9a2a-00849a64940c.png
    :width: 200px
