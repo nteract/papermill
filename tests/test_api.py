@@ -2,7 +2,7 @@ import unittest
 
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
-from papermill import Notebook
+from papermill import read_notebook
 from tests import get_notebook_path
 
 
@@ -11,7 +11,7 @@ class TestNotebookClass(unittest.TestCase):
     def test(self):
 
         path = get_notebook_path('result_notebook.ipynb')
-        nb = Notebook.read(path)
+        nb = read_notebook(path)
         self.assertEqual(nb.parameters, dict(foo=1, bar="Hello World!"))
         expected_df = pd.DataFrame(
             [

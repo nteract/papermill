@@ -75,9 +75,9 @@ Analyzing a single notebook
 .. code-block:: python
 
    ### summary.ipynb
-   from papermill import Notebook
+   import papermill as pm
 
-   nb = Notebook.read('output.ipynb')
+   nb = pm.read_notebook('output.ipynb')
    nb.dataframe.head()
 
    # Show named plot from 'output.ipynb'
@@ -89,9 +89,9 @@ Analyzing a collection of notebooks
 .. code-block:: python
 
    ### summary.ipynb
-   from papermill import NotebookCollection
+   import papermill as pm
 
-   nbs = NotebookCollection.from_directory('/path/to/results/')
+   nbs = pm.read_notebooks('/path/to/results/')
 
    # Show named plot from 'output1.ipynb'
    nbs.display_output('output1.ipynb', 'matplotlib_hist')
