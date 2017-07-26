@@ -6,7 +6,7 @@ from IPython.display import display as ip_display, Markdown
 from six import string_types
 
 from papermill.exceptions import PapermillException
-from papermill.iorw import read_notebook
+from papermill.iorw import read_notebook as _read_notebook
 
 
 RECORD_OUTPUT_TYPE = 'application/papermill.record+json'
@@ -39,23 +39,50 @@ def display(name, obj):
     ip_display(data, metadata=metadata, raw=True)
 
 
+def read_notebook(path):
+    """
+    Returns a Notebook object loaded from the location specified at 'path'.
+
+    Args:
+        path (str): Path to notebook ".ipynb" file.
+
+    Returns:
+        A Notebook object.
+    """
+    if not path.endswith(".ipynb"):
+        raise PapermillException(
+            "Notebooks should have an '.ipynb' file extension. Provided path: '%s'", path)
+
+    nb = Notebook()
+    nb.path = path
+    nb.node = _read_notebook(path)
+    return nb
+
+
+def read_notebooks(path):
+    """
+    Returns a NotebookCollection loaded from the notebooks found the in the directory specified by 'path'.
+
+    Args:
+        path (str): Path to directory containing notebook ".ipynb" files.
+
+    Returns:
+        A NotebookCollection object.
+    """
+    nbs = NotebookCollection()
+    for filename in os.listdir(path):
+        notebook_path = os.path.join(path, filename)
+        if notebook_path.endswith('.ipynb'):
+            nbs[filename] = read_notebook(notebook_path)
+    return nbs
+
+
 class Notebook(object):
 
     def __init__(self):
 
         self.path = ''
-        self._nb_node = None
-
-    @classmethod
-    def read(cls, path):
-        if not path.endswith(".ipynb"):
-            raise PapermillException(
-                "Notebooks should have an '.ipynb' file extension. Provided path: '%s'", path)
-
-        obj = cls()
-        obj.path = path
-        obj._nb_node = read_notebook(path)
-        return obj
+        self.node = None
 
     @property
     def filename(self):
@@ -66,28 +93,24 @@ class Notebook(object):
         return os.path.dirname(self.path)
 
     @property
-    def nb_node(self):
-        return self._nb_node
-
-    @property
     def version(self):
-        return _get_papermill_metadata(self._nb_node, 'version', default=None)
+        return _get_papermill_metadata(self.node, 'version', default=None)
 
     @property
     def parameters(self):
-        return _get_papermill_metadata(self._nb_node, 'parameters', default={})
+        return _get_papermill_metadata(self.node, 'parameters', default={})
 
     @property
     def environment_variables(self):
-        return _get_papermill_metadata(self._nb_node, 'environment_variables', default={})
+        return _get_papermill_metadata(self.node, 'environment_variables', default={})
 
     @property
     def metrics(self):
-        return _get_papermill_metadata(self._nb_node, 'metrics', default={})
+        return _get_papermill_metadata(self.node, 'metrics', default={})
 
     @property
     def data(self):
-        return _fetch_notebook_data(self._nb_node)
+        return _fetch_notebook_data(self.node)
 
     @property
     def dataframe(self):
@@ -105,7 +128,7 @@ class Notebook(object):
 
     def display_output(self, name):
         """Display the output from this notebook in the running notebook."""
-        outputs = _get_notebook_outputs(self._nb_node)
+        outputs = _get_notebook_outputs(self.node)
         if name not in outputs:
             raise PapermillException("Output Name '%s' is not available in this notebook.")
         output = outputs[name]
@@ -146,7 +169,7 @@ class NotebookCollection(object):
     def __setitem__(self, key, value):
         # If notebook is a path str then load the notebook.
         if isinstance(value, string_types):
-            value = Notebook.read(value)
+            value = read_notebook(value)
 
         if not isinstance(value, Notebook):
             raise PapermillException(
@@ -158,15 +181,6 @@ class NotebookCollection(object):
 
     def __delitem__(self, key):
         del self._notebooks[key]
-
-    @classmethod
-    def from_directory(cls, path):
-        obj = cls()
-        for filename in os.listdir(path):
-            notebook_path = os.path.join(path, filename)
-            if notebook_path.endswith('.ipynb'):
-                obj[filename] = Notebook.read(notebook_path)
-        return obj
 
     @property
     def dataframe(self):
