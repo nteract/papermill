@@ -25,7 +25,7 @@ Parameterizing a notebook.
 .. code-block:: python
 
    ### template.ipynb
-   # This cell has a "preface" tag. These values will be overwritten by Papermill.
+   # This cell has a "parameters" tag. These values will be overwritten by Papermill.
    alpha = 0.5
    ratio = 0.1
 
