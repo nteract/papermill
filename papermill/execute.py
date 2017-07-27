@@ -19,7 +19,7 @@ def execute_notebook(notebook, output, parameters=None):
     Args:
         notebook (str): Path to input notebook.
         output (str): Path to save exexuted notebook.
-        parameters: (dict) Arbitrary keyword arguments to pass to the notebook preface.
+        parameters: (dict) Arbitrary keyword arguments to pass to the notebook parameters.
 
     """
     parameters = parameters or {}
@@ -47,12 +47,12 @@ def _parameterize_notebook(notebook_path, output_path, parameters):
     # Remove the first cell of the block and replace it with the param content.
     nb = read_notebook(notebook_path)
 
-    preface_index = find_preface_index(nb)
-    old_preface = nb.cells[preface_index]
-    before = nb.cells[:preface_index]
-    after = nb.cells[preface_index + 1:]
+    parameters_index = find_parameters_index(nb)
+    old_parameters = nb.cells[parameters_index]
+    before = nb.cells[:parameters_index]
+    after = nb.cells[parameters_index + 1:]
     newcell = nbformat.v4.new_code_cell(source=param_content)
-    newcell.metadata['tags'] = old_preface.metadata.tags
+    newcell.metadata['tags'] = old_parameters.metadata.tags
     nb.cells = before + [newcell] + after
 
     # Apply papermill metadata
@@ -84,16 +84,16 @@ def _execute_notebook(notebook_path, output_path):
     save_notebook(nb, output_path)
 
 
-def find_preface_index(nb):
-    preface_indices = []
+def find_parameters_index(nb):
+    parameters_indices = []
     for idx, cell in enumerate(nb.cells):
-        if "preface" in cell.metadata.tags:
-            preface_indices.append(idx)
-    if not preface_indices:
-        raise PapermillException("No preface tag found")
-    elif len(preface_indices) > 1:
-        raise PapermillException("Multiple preface tags found")
-    return preface_indices[0]
+        if "parameters" in cell.metadata.tags:
+            parameters_indices.append(idx)
+    if not parameters_indices:
+        raise PapermillException("No parameters tag found")
+    elif len(parameters_indices) > 1:
+        raise PapermillException("Multiple parameters tags found")
+    return parameters_indices[0]
 
 
 def _fetch_environment_variables():

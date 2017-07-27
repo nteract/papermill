@@ -7,7 +7,7 @@ from papermill.execute import execute_notebook
 @click.command()
 @click.argument('notebook')
 @click.argument('output')
-@click.option('--parameters', '-p', help="Parameters to pass to the preface.", multiple=True, nargs=2)
+@click.option('--parameters', '-p', help="Parameters to pass to the parameters cell.", multiple=True, nargs=2)
 @click.option('--raw_parameters', '-r', help="Parameters to be read as raw string.", multiple=True, nargs=2)
 @click.option('--parameters_file', '-f', help="Path to YAML file containing parameters.")
 @click.option('--parameters_yaml', '-y', help="YAML string to be used as parameters.")
