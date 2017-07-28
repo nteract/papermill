@@ -20,8 +20,8 @@ Installation
 In-Notebook bindings
 --------------------
 
-* Python_ (here)
-* R_
+* `Python <PythonBinding>`_ (here)
+* `R`_
 
 .. _R: https://github.com/nteract/papermillr
 
