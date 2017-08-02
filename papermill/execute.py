@@ -8,7 +8,7 @@ import nbformat
 
 from papermill.conf import settings
 from papermill.exceptions import PapermillException
-from papermill.iorw import read_notebook, save_notebook
+from papermill.iorw import load_notebook_node, write_ipynb
 
 from six import string_types
 
@@ -44,8 +44,8 @@ def _parameterize_notebook(notebook_path, output_path, parameters):
             val = '"%s"' % val  # TODO: Handle correctly escaping input strings.
         param_content += '%s = %s\n' % (var, val)
 
-    # Remove the first cell of the block and replace it with the param content.
-    nb = read_notebook(notebook_path)
+    # Find `parameters` cell and replaced with our parameters.
+    nb = load_notebook_node(notebook_path)
 
     parameters_index = find_parameters_index(nb)
     old_parameters = nb.cells[parameters_index]
@@ -57,7 +57,7 @@ def _parameterize_notebook(notebook_path, output_path, parameters):
 
     # Apply papermill metadata
     nb.metadata.papermill['parameters'] = parameters
-    save_notebook(nb, output_path)
+    write_ipynb(nb, output_path)
 
 
 def _execute_notebook(notebook_path, output_path):
@@ -76,12 +76,12 @@ def _execute_notebook(notebook_path, output_path):
     duration = time.time() - t0
 
     # TODO: This will be removed when we build our own "nbconvert"
-    nb = read_notebook(notebook_path)
+    nb = load_notebook_node(notebook_path)
 
     # Record specified environment variable values.
     nb.metadata.papermill['environment_variables'] = _fetch_environment_variables()
     nb.metadata.papermill['metrics']['duration'] = duration
-    save_notebook(nb, output_path)
+    write_ipynb(nb, output_path)
 
 
 def find_parameters_index(nb):

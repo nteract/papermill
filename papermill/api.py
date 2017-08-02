@@ -6,7 +6,7 @@ from IPython.display import display as ip_display, Markdown
 from six import string_types
 
 from papermill.exceptions import PapermillException
-from papermill.iorw import read_notebook as _read_notebook
+from papermill.iorw import load_notebook_node
 
 
 RECORD_OUTPUT_TYPE = 'application/papermill.record+json'
@@ -55,7 +55,7 @@ def read_notebook(path):
 
     nb = Notebook()
     nb.path = path
-    nb.node = _read_notebook(path)
+    nb.node = load_notebook_node(path)
     return nb
 
 
