@@ -17,6 +17,15 @@ Installation
   pip install papermill
 
 
+In-Notebook bindings
+--------------------
+
+* `Python <PythonBinding>`_ (here)
+* `R`_
+
+.. _R: https://github.com/nteract/papermillr
+
+
 Usage
 -----
 
@@ -48,6 +57,8 @@ Executing a Notebook via CLI
 .. code-block:: bash
 
    $ papermill local/input.ipynb s3://bkt/output.ipynb -p alpha 0.6 -p l1_ratio 0.1
+
+.. _PythonBinding: 
 
 **Recording Values to the Notebook**
 
