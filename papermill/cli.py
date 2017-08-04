@@ -2,6 +2,7 @@ import base64
 import click
 import yaml
 from papermill.execute import execute_notebook
+from papermill.iorw import read_yaml_file
 
 
 @click.command()
@@ -19,8 +20,7 @@ def papermill(notebook, output, parameters, raw_parameters, parameters_file, par
     elif parameters_yaml:
         parameters_final = yaml.load(parameters_yaml)
     elif parameters_file:
-        with open(parameters_file, 'r') as infile:
-            parameters_final = yaml.load(infile)
+        parameters_final = read_yaml_file(parameters_file)
     else:
         # Read in Parameters
         parameters_final = {}

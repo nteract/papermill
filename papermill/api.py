@@ -6,7 +6,7 @@ from IPython.display import display as ip_display, Markdown
 from six import string_types
 
 from papermill.exceptions import PapermillException
-from papermill.iorw import load_notebook_node
+from papermill.iorw import load_notebook_node, list_notebook_files
 
 
 RECORD_OUTPUT_TYPE = 'application/papermill.record+json'
@@ -70,10 +70,9 @@ def read_notebooks(path):
         A NotebookCollection object.
     """
     nbs = NotebookCollection()
-    for filename in os.listdir(path):
-        notebook_path = os.path.join(path, filename)
-        if notebook_path.endswith('.ipynb'):
-            nbs[filename] = read_notebook(notebook_path)
+    for notebook_path in list_notebook_files(path):
+        fn = os.path.basename(notebook_path)
+        nbs[fn] = read_notebook(notebook_path)
     return nbs
 
 

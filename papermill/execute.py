@@ -8,7 +8,7 @@ import nbformat
 
 from papermill.conf import settings
 from papermill.exceptions import PapermillException
-from papermill.iorw import load_notebook_node, write_ipynb
+from papermill.iorw import load_notebook_node, write_ipynb, read_yaml_file
 
 from six import string_types
 
@@ -22,6 +22,9 @@ def execute_notebook(notebook, output, parameters=None):
         parameters: (dict) Arbitrary keyword arguments to pass to the notebook parameters.
 
     """
+    if isinstance(parameters, string_types):
+        parameters = read_yaml_file(parameters)
+
     parameters = parameters or {}
     tmp_dir = tempfile.gettempdir()
     tmp_path = os.path.join(tmp_dir, 'parameterized.ipynb')

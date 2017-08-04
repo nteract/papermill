@@ -1,5 +1,8 @@
 import io
+import os
+
 import nbformat
+import yaml
 
 from papermill import __version__
 
@@ -49,3 +52,14 @@ def write_ipynb(nb_node, notebook_path):
     """
     with io.open(notebook_path, 'w') as outfile:
         nbformat.write(nb_node, outfile)
+
+
+def read_yaml_file(path):
+    """Reads a YAML file from the location specified at 'path'."""
+    with io.open(path, 'r') as infile:
+        return yaml.load(infile)
+
+
+def list_notebook_files(path):
+    """Returns a list of all the notebook files in a directory."""
+    return [os.path.join(path, fn) for fn in os.listdir(path) if fn.endswith('.ipynb')]
