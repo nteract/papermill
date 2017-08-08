@@ -1,10 +1,10 @@
 import os
 import shutil
-import subprocess
 import tempfile
 import time
 
 import nbformat
+from nbconvert.preprocessors import ExecutePreprocessor
 
 from papermill.conf import settings
 from papermill.exceptions import PapermillException
@@ -26,30 +26,14 @@ def execute_notebook(notebook, output, parameters=None):
         parameters = read_yaml_file(parameters)
 
     parameters = parameters or {}
-    tmp_dir = tempfile.gettempdir()
-    tmp_path = os.path.join(tmp_dir, 'parameterized.ipynb')
-    _parameterize_notebook(notebook, tmp_path, parameters)
-    _execute_notebook(tmp_path, output)
-    os.remove(tmp_path)
+    _execute_notebook(notebook, output, parameters)
 
 
-def _parameterize_notebook(notebook_path, output_path, parameters):
-
+def _parameterize_notebook(nb, parameters):
     if not parameters:
-        # No parameters, just copy the notebook.
-        shutil.copyfile(notebook_path, output_path)
         return
 
-    # Pull out variable names and values from the parameters argument.
-    param_content = "# Parameters\n"
-    for var, val in parameters.items():
-        if isinstance(val, string_types):
-            val = '"%s"' % val  # TODO: Handle correctly escaping input strings.
-        param_content += '%s = %s\n' % (var, val)
-
-    # Find `parameters` cell and replaced with our parameters.
-    nb = load_notebook_node(notebook_path)
-
+    param_content = _python27_param_content(parameters)
     parameters_index = find_parameters_index(nb)
     old_parameters = nb.cells[parameters_index]
     before = nb.cells[:parameters_index]
@@ -58,30 +42,24 @@ def _parameterize_notebook(notebook_path, output_path, parameters):
     newcell.metadata['tags'] = old_parameters.metadata.tags
     nb.cells = before + [newcell] + after
 
-    # Apply papermill metadata
-    nb.metadata.papermill['parameters'] = parameters
-    write_ipynb(nb, output_path)
 
-
-def _execute_notebook(notebook_path, output_path):
+def _execute_notebook(notebook_path, output_path, parameters, kernel_name=None):
 
     t0 = time.time()
-    exit_code = subprocess.call(
-        ['jupyter', 'nbconvert', '--to', 'notebook',  '--execute',
-         '--NbConvertApp.output_base={}'.format(notebook_path),
-         '--ExecutePreprocessor.timeout=-1',
-         '--ClearOutputPreprocessor.enabled=True', notebook_path]
-    )
+    # Find `parameters` cell and replaced with our parameters.
+    nb = load_notebook_node(notebook_path)
 
-    if exit_code != 0:
-        raise PapermillException("Exception encountered when trying to execute the notebook.")
+    _parameterize_notebook(nb, parameters)
+    processor = ExecutePreprocessor(
+        timeout=None,
+        kernel_name=kernel_name or nb.metadata.kernelspec.name
+    )
+    processor.preprocess(nb, {})
 
     duration = time.time() - t0
 
-    # TODO: This will be removed when we build our own "nbconvert"
-    nb = load_notebook_node(notebook_path)
-
     # Record specified environment variable values.
+    nb.metadata.papermill['parameters'] = parameters
     nb.metadata.papermill['environment_variables'] = _fetch_environment_variables()
     nb.metadata.papermill['metrics']['duration'] = duration
     write_ipynb(nb, output_path)
@@ -105,3 +83,16 @@ def _fetch_environment_variables():
         if name in settings.ENVIRONMENT_VARIABLES:
             ret[name] = value
     return ret
+
+
+def _python27_param_content(parameters):
+    # Pull out variable names and values from the parameters argument.
+    if not parameters:
+        return None
+
+    param_content = "# Parameters\n"
+    for var, val in parameters.items():
+        if isinstance(val, string_types):
+            val = '"%s"' % val  # TODO: Handle correctly escaping input strings.
+        param_content += '%s = %s\n' % (var, val)
+    return param_content
