@@ -2,6 +2,7 @@ import os
 import time
 
 import nbformat
+from jupyter_client.kernelspec import get_kernel_spec
 from nbconvert.preprocessors import ExecutePreprocessor
 
 from papermill.conf import settings
@@ -21,14 +22,11 @@ def execute_notebook(notebook, output, parameters=None, kernel_name=None):
         kernel_name (str): Name of kernel to execute the notebook against.
 
     """
-    if isinstance(parameters, string_types):
-        parameters = read_yaml_file(parameters)
-
     nb = load_notebook_node(notebook)
 
     # Parameterize the Notebook.
     if parameters:
-        _parameterize_notebook(nb, parameters)
+        _parameterize_notebook(nb, kernel_name, parameters)
 
     # Execute the Notebook.
     t0 = time.time()
@@ -48,11 +46,18 @@ def execute_notebook(notebook, output, parameters=None, kernel_name=None):
     write_ipynb(nb, output)
 
 
-def _parameterize_notebook(nb, parameters):
-    param_content = _build_parameter_code(nb, parameters)
-    param_cell_index = _find_parameters_index(nb)
+def _parameterize_notebook(nb, kernel_name, parameters):
+
+    # Load from a file if 'parameters' is a string.
+    if isinstance(parameters, string_types):
+        parameters = read_yaml_file(parameters)
+
+    # Generate parameter content based on the kernal_name
+    kernel_name = kernel_name or nb.metadata.kernelspec.name
+    param_content = _build_parameter_code(kernel_name, parameters)
 
     # Remove the old cell and replace it with a new one containing parameter content.
+    param_cell_index = _find_parameters_index(nb)
     old_parameters = nb.cells[param_cell_index]
     before = nb.cells[:param_cell_index]
     after = nb.cells[param_cell_index + 1:]
@@ -61,15 +66,14 @@ def _parameterize_notebook(nb, parameters):
     nb.cells = before + [newcell] + after
 
 
-def _build_parameter_code(nb, parameters):
-    kernel_name = nb.metadata.kernelspec.name
-    kernel_lang = nb.metadata.kernelspec.language
+def _build_parameter_code(kernel_name, parameters):
+    kernelspec = get_kernel_spec(kernel_name)
     if kernel_name in _parameter_code_builders:
         return _parameter_code_builders[kernel_name](parameters)
-    elif kernel_lang in _parameter_code_builders:
-        return _parameter_code_builders[kernel_lang](parameters)
+    elif kernelspec.language in _parameter_code_builders:
+        return _parameter_code_builders[kernelspec.language](parameters)
     raise PapermillException(
-        "No parameter builder functions specified for kernel '%s' or language '%s'" % (kernel_name, kernel_lang)
+        "No parameter builder functions specified for kernel '%s' or language '%s'" % (kernel_name, kernelspec.language)
     )
 
 
