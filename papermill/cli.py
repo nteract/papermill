@@ -13,7 +13,9 @@ from papermill.iorw import read_yaml_file
 @click.option('--parameters_file', '-f', help="Path to YAML file containing parameters.")
 @click.option('--parameters_yaml', '-y', help="YAML string to be used as parameters.")
 @click.option('--parameters_base64', '-b', help="Base64 encoded YAML string as parameters.")
-def papermill(notebook, output, parameters, raw_parameters, parameters_file, parameters_yaml, parameters_base64):
+@click.option('--kernel', '-k', help="Kernel name to run the notebook with.")
+def papermill(notebook, output, parameters, raw_parameters, parameters_file, parameters_yaml, parameters_base64,
+              kernel):
     """Utility for executing a single notebook on a container."""
     if parameters_base64:
         parameters_final = yaml.load(base64.b64decode(parameters_base64))
@@ -30,7 +32,7 @@ def papermill(notebook, output, parameters, raw_parameters, parameters_file, par
             parameters_final[name] = value
 
     # Notebook Execution
-    execute_notebook(notebook, output, parameters_final)
+    execute_notebook(notebook, output, parameters_final, kernel_name=kernel)
 
 
 def _resolve_type(value):

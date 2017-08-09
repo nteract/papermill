@@ -4,12 +4,35 @@ import time
 import nbformat
 from jupyter_client.kernelspec import get_kernel_spec
 from nbconvert.preprocessors import ExecutePreprocessor
+from nbconvert.preprocessors.execute import CellExecutionError
 
 from papermill.conf import settings
 from papermill.exceptions import PapermillException
 from papermill.iorw import load_notebook_node, write_ipynb, read_yaml_file
 
 from six import string_types
+
+
+class PapermillExecutePreprocessor(ExecutePreprocessor):
+
+    def preprocess(self, nb, resources):
+        """
+        The default preprocess behavior if allow_errors = True is to continue executing all the cells.
+        We want the notebook to cease execution and then write out the state of the notebook with the traceback
+        on the cell that failed.
+        """
+        # Clear out all outputs prior to execution.
+        for cell in nb.cells:
+            cell.outputs = []
+
+        # Catch CellExecutionError if thrown which lets this method finish so we can write the state of the notebook
+        # to disk.
+        try:
+            nb, resources = super(PapermillExecutePreprocessor, self).preprocess(nb, resources)
+        except CellExecutionError:
+            pass
+
+        return nb, resources
 
 
 def execute_notebook(notebook, output, parameters=None, kernel_name=None):
@@ -30,9 +53,9 @@ def execute_notebook(notebook, output, parameters=None, kernel_name=None):
 
     # Execute the Notebook.
     t0 = time.time()
-    processor = ExecutePreprocessor(
+    processor = PapermillExecutePreprocessor(
         timeout=None,
-        kernel_name=kernel_name or nb.metadata.kernelspec.name
+        kernel_name=kernel_name or nb.metadata.kernelspec.name,
     )
     processor.preprocess(nb, {})
     duration = time.time() - t0
