@@ -7,6 +7,54 @@ import yaml
 from papermill import __version__
 
 
+class PapermillIO(object):
+
+    @staticmethod
+    def read(path):
+        with io.open(path, 'r') as f:
+            return f.read()
+
+    @staticmethod
+    def listdir(path):
+        return [os.path.join(path, fn) for fn in os.listdir(path)]
+
+    @staticmethod
+    def write(buf, path):
+        with io.open(path, 'w') as f:
+            f.write(buf)
+
+    def register(self, name, func):
+        if hasattr(self, name):
+            setattr(self, name, func)
+        else:
+            raise ValueError("No I/O method called '%s'." % name)
+
+
+papermill_io = PapermillIO()
+
+
+def register_io(name):
+    """Decorator for registering custom io functions for papermill."""
+    def wrapper(func):
+        papermill_io.register(name, func)
+        return func
+    return wrapper
+
+
+def read_yaml_file(path):
+    """Reads a YAML file from the location specified at 'path'."""
+    return yaml.load(papermill_io.read(path))
+
+
+def write_ipynb(nb, path):
+    """Saves a notebook object to the specified path.
+    Args:
+        nb_node (nbformat.NotebookNode): Notebook object to save.
+        notebook_path (str): Path to save the notebook object to.
+    """
+    papermill_io.write(nbformat.writes(nb), path)
+
+
 def load_notebook_node(notebook_path):
     """Returns a notebook object with papermill metadata loaded from the specified path.
 
@@ -17,7 +65,7 @@ def load_notebook_node(notebook_path):
         nbformat.NotebookNode
 
     """
-    nb = read_ipynb(notebook_path)
+    nb = nbformat.reads(papermill_io.read(notebook_path), as_version=4)
 
     if not hasattr(nb.metadata, 'papermill'):
         nb.metadata['papermill'] = {
@@ -36,30 +84,6 @@ def load_notebook_node(notebook_path):
     return nb
 
 
-def read_ipynb(path):
-    """Default read functionality."""
-    with io.open(path, 'r') as infile:
-        return nbformat.read(infile, as_version=4)
-
-
-def write_ipynb(nb_node, notebook_path):
-    """Saves a notebook object to the specified path.
-
-    Args:
-        nb_node (nbformat.NotebookNode): Notebook object to save.
-        notebook_path (str): Path to save the notebook object to.
-
-    """
-    with io.open(notebook_path, 'w') as outfile:
-        nbformat.write(nb_node, outfile)
-
-
-def read_yaml_file(path):
-    """Reads a YAML file from the location specified at 'path'."""
-    with io.open(path, 'r') as infile:
-        return yaml.load(infile)
-
-
 def list_notebook_files(path):
     """Returns a list of all the notebook files in a directory."""
-    return [os.path.join(path, fn) for fn in os.listdir(path) if fn.endswith('.ipynb')]
+    return [p for p in papermill_io.listdir(path) if p.endswith('.ipynb')]
