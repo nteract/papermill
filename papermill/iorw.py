@@ -37,36 +37,38 @@ class PapermillIO(object):
 
 class LocalHandler(object):
 
-    @staticmethod
-    def read(path):
+    @classmethod
+    def read(cls, path):
         with io.open(path, 'r') as f:
             return f.read()
 
-    @staticmethod
-    def listdir(path):
+    @classmethod
+    def listdir(cls, path):
         return [os.path.join(path, fn) for fn in os.listdir(path)]
 
-    @staticmethod
-    def write(buf, path):
+    @classmethod
+    def write(cls, buf, path):
         with io.open(path, 'w') as f:
             f.write(buf)
 
 
 class S3Handler(object):
 
-    @staticmethod
-    def read(path):
-        s3_client = S3()
+    keyname = None
+
+    @classmethod
+    def read(cls, path):
+        s3_client = S3(keyname=cls.keyname)
         return "\n".join(s3_client.read(path))
 
-    @staticmethod
-    def listdir(path):
-        s3_client = S3()
+    @classmethod
+    def listdir(cls, path):
+        s3_client = S3(keyname=cls.keyname)
         return s3_client.listdir(path)
 
-    @staticmethod
-    def write(buf, path):
-        s3_client = S3()
+    @classmethod
+    def write(cls, buf, path):
+        s3_client = S3(keyname=cls.keyname)
         return s3_client.cp_string(buf, path)
 
 
