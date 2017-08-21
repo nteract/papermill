@@ -16,11 +16,6 @@ import six
 
 from boto3.session import Session
 
-try:
-    from cStringIO import StringIO
-except:
-    from StringIO import StringIO
-
 from .exceptions import AwsError, FileExistsError
 
 
