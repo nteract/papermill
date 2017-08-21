@@ -28,7 +28,7 @@ setup(name='papermill',
       install_requires=[
           'boto3',
           'click',
-          'concurrent',
+          'futures',
           'pyyaml',
           'nbformat',
           ipython_req,
