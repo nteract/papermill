@@ -5,9 +5,37 @@ import nbformat
 import yaml
 
 from papermill import __version__
+from papermill.s3 import S3
 
 
 class PapermillIO(object):
+
+    __handlers = {}
+
+    def read(self, path):
+        return self.get_handler(path).read(path)
+
+    def write(self, buf, path):
+        self.get_handler(path).write(buf, path)
+
+    def listdir(self, path):
+        return self.get_handler(path).listdir(path)
+
+    @classmethod
+    def register(cls, scheme, handler):
+        cls.__handlers[scheme] = handler
+
+    def get_handler(self, path):
+        for scheme, handler in self.__handlers.items():
+            if scheme == 'local':
+                continue
+
+            if path.startswith(scheme):
+                return handler
+        return self.__handlers['local']
+
+
+class LocalHandler(object):
 
     @staticmethod
     def read(path):
@@ -23,22 +51,29 @@ class PapermillIO(object):
         with io.open(path, 'w') as f:
             f.write(buf)
 
-    def register(self, name, func):
-        if hasattr(self, name):
-            setattr(self, name, func)
-        else:
-            raise ValueError("No I/O method called '%s'." % name)
+
+class S3Handler(object):
+
+    @staticmethod
+    def read(path):
+        s3_client = S3()
+        return "\n".join(s3_client.read(path))
+
+    @staticmethod
+    def listdir(path):
+        s3_client = S3()
+        return s3_client.listdir(path)
+
+    @staticmethod
+    def write(buf, path):
+        s3_client = S3()
+        return s3_client.cp_string(buf, path)
 
 
+# Instantiate a PapermillIO instance and register Handlers.
 papermill_io = PapermillIO()
-
-
-def register_io(name):
-    """Decorator for registering custom io functions for papermill."""
-    def wrapper(func):
-        papermill_io.register(name, func)
-        return func
-    return wrapper
+papermill_io.register("local", LocalHandler)
+papermill_io.register("s3://", S3Handler)
 
 
 def read_yaml_file(path):
