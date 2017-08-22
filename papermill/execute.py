@@ -5,6 +5,7 @@ import nbformat
 from jupyter_client.kernelspec import get_kernel_spec
 from nbconvert.preprocessors import ExecutePreprocessor
 from nbconvert.preprocessors.execute import CellExecutionError
+from nbconvert.preprocessors.base import Preprocessor
 
 from papermill.conf import settings
 from papermill.exceptions import PapermillException
@@ -13,26 +14,56 @@ from papermill.iorw import load_notebook_node, write_ipynb, read_yaml_file
 from six import string_types
 
 
-class PapermillExecutePreprocessor(ExecutePreprocessor):
+def preprocess(self, nb, resources):
+    """
+    This function is for monkey patching the nbconvert Preprocessor.preprocess method.
+    We are doing this for the following reasons:
+    1. Notebooks will stop executing when they encounter a failure but not raise a CellException.
+       This allows us to save the notebook with the traceback even though a CellExecutionError
+       was encountered.
 
-    def preprocess(self, nb, resources):
-        """
-        The default preprocess behavior if allow_errors = True is to continue executing all the cells.
-        We want the notebook to cease execution and then write out the state of the notebook with the traceback
-        on the cell that failed.
-        """
-        # Clear out all outputs prior to execution.
-        for cell in nb.cells:
-            cell.outputs = []
+    2. We want to write the notebook as cells are executed. We inject our logic for that here.
 
-        # Catch CellExecutionError if thrown which lets this method finish so we can write the state of the notebook
-        # to disk.
-        try:
-            nb, resources = super(PapermillExecutePreprocessor, self).preprocess(nb, resources)
-        except CellExecutionError:
-            pass
+    3. We will be included cell execution metrics.
 
-        return nb, resources
+    Preprocessing to apply on each notebook.
+
+    Must return modified nb, resources.
+
+    If you wish to apply your preprocessing to each cell, you might want
+    to override preprocess_cell method instead.
+
+    Parameters
+    ----------
+    nb : NotebookNode
+        Notebook being converted
+    resources : dictionary
+        Additional resources used in the conversion process.  Allows
+        preprocessors to pass variables into the Jinja engine.
+    """
+    output_path = nb.metadata.papermill['output_path']
+
+    # Reset the notebook.
+    for cell in nb.cells:
+        if hasattr(cell, "execution_count"):
+            cell.execution_count = None
+        cell.outputs = []
+
+    # Execute each cell and update the output in real time.
+    try:
+        for index, cell in enumerate(nb.cells):
+            cell.execution_count = "*"
+            write_ipynb(nb, output_path)
+            nb.cells[index], resources = self.preprocess_cell(cell, resources, index)
+    except CellExecutionError:
+        pass
+    finally:
+        write_ipynb(nb, output_path)
+    return nb, resources
+
+
+# Monkey Patch the base preprocess method.
+Preprocessor.preprocess = preprocess
 
 
 def execute_notebook(notebook, output, parameters=None, kernel_name=None):
@@ -51,18 +82,20 @@ def execute_notebook(notebook, output, parameters=None, kernel_name=None):
     if parameters:
         _parameterize_notebook(nb, kernel_name, parameters)
 
+    # Record specified environment variable values.
+    nb.metadata.papermill['parameters'] = parameters
+    nb.metadata.papermill['environment_variables'] = _fetch_environment_variables()
+    nb.metadata.papermill['output_path'] = output
+
     # Execute the Notebook.
     t0 = time.time()
-    processor = PapermillExecutePreprocessor(
+    processor = ExecutePreprocessor(
         timeout=None,
         kernel_name=kernel_name or nb.metadata.kernelspec.name,
     )
     processor.preprocess(nb, {})
     duration = time.time() - t0
 
-    # Record specified environment variable values.
-    nb.metadata.papermill['parameters'] = parameters
-    nb.metadata.papermill['environment_variables'] = _fetch_environment_variables()
     nb.metadata.papermill['metrics']['duration'] = duration
 
     # Write Notebook to disk.
