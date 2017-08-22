@@ -104,10 +104,6 @@ class Notebook(object):
         return _get_papermill_metadata(self.node, 'environment_variables', default={})
 
     @property
-    def metrics(self):
-        return _get_papermill_metadata(self.node, 'metrics', default={})
-
-    @property
     def data(self):
         return _fetch_notebook_data(self.node)
 
