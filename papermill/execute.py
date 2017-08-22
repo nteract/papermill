@@ -1,7 +1,8 @@
+import datetime
 import os
-import time
 
 import nbformat
+from concurrent import futures
 from jupyter_client.kernelspec import get_kernel_spec
 from nbconvert.preprocessors import ExecutePreprocessor
 from nbconvert.preprocessors.execute import CellExecutionError
@@ -26,6 +27,8 @@ def preprocess(self, nb, resources):
 
     3. We will be included cell execution metrics.
 
+    Original Docstring:
+
     Preprocessing to apply on each notebook.
 
     Must return modified nb, resources.
@@ -45,20 +48,37 @@ def preprocess(self, nb, resources):
 
     # Reset the notebook.
     for cell in nb.cells:
+        # Reset the cell execution counts.
         if hasattr(cell, "execution_count"):
             cell.execution_count = None
+
+        # Clear out the papermill metadata for each cell.
+        cell.metadata['papermill'] = dict(
+            exception=None,
+            start_time=None,
+            end_time=None,
+            duration=None
+        )
         cell.outputs = []
 
     # Execute each cell and update the output in real time.
-    try:
+    writers = []
+    with futures.ThreadPoolExecutor(max_workers=1) as executor:
         for index, cell in enumerate(nb.cells):
             cell.execution_count = "*"
-            write_ipynb(nb, output_path)
-            nb.cells[index], resources = self.preprocess_cell(cell, resources, index)
-    except CellExecutionError:
-        pass
-    finally:
-        write_ipynb(nb, output_path)
+            writers.append(executor.submit(write_ipynb, nb, output_path))
+            t0 = datetime.datetime.utcnow()
+            try:
+                nb.cells[index], resources = self.preprocess_cell(cell, resources, index)
+                cell.metadata['papermill']['exception'] = False
+            except CellExecutionError:
+                cell.metadata['papermill']['exception'] = True
+                break
+            finally:
+                t1 = datetime.datetime.utcnow()
+                cell.metadata['papermill']['start_time'] = t0.isoformat()
+                cell.metadata['papermill']['end_time'] = t1.isoformat()
+                cell.metadata['papermill']['duration'] = (t1 - t0).total_seconds()
     return nb, resources
 
 
@@ -88,17 +108,20 @@ def execute_notebook(notebook, output, parameters=None, kernel_name=None):
     nb.metadata.papermill['output_path'] = output
 
     # Execute the Notebook.
-    t0 = time.time()
+    t0 = datetime.datetime.utcnow()
     processor = ExecutePreprocessor(
         timeout=None,
         kernel_name=kernel_name or nb.metadata.kernelspec.name,
     )
     processor.preprocess(nb, {})
-    duration = time.time() - t0
+    t1 = datetime.datetime.utcnow()
 
-    nb.metadata.papermill['metrics']['duration'] = duration
+    nb.metadata.papermill['start_time'] = t0.isoformat()
+    nb.metadata.papermill['end_time'] = t1.isoformat()
+    nb.metadata.papermill['duration'] = (t1 - t0).total_seconds()
+    nb.metadata.papermill['exception'] = any([cell.metadata.papermill.exception for cell in nb.cells])
 
-    # Write Notebook to disk.
+    # Write final Notebook to disk.
     write_ipynb(nb, output)
 
 

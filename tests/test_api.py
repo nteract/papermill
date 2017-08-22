@@ -14,7 +14,6 @@ class TestNotebookClass(unittest.TestCase):
         nb = read_notebook(path)
         self.assertEqual(nb.version, '0.4+2.ge10f94c.dirty')
         self.assertEqual(nb.environment_variables, {})
-        self.assertTrue(isinstance(nb.metrics['duration'], float))
         self.assertEqual(nb.parameters, dict(foo=1, bar="hello"))
         expected_df = pd.DataFrame(
             [

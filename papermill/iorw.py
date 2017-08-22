@@ -107,7 +107,6 @@ def load_notebook_node(notebook_path):
     if not hasattr(nb.metadata, 'papermill'):
         nb.metadata['papermill'] = {
             'parameters': dict(),
-            'metrics': dict(),
             'environment_variables': dict(),
             'version': __version__
         }
