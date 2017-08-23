@@ -66,11 +66,11 @@ def preprocess(self, nb, resources):
                 cell.metadata['papermill']['exception'] = True
                 break
             finally:
-                future.result()
                 t1 = datetime.datetime.utcnow()
                 cell.metadata['papermill']['start_time'] = t0.isoformat()
                 cell.metadata['papermill']['end_time'] = t1.isoformat()
                 cell.metadata['papermill']['duration'] = (t1 - t0).total_seconds()
+                future.result()
     return nb, resources
 
 
