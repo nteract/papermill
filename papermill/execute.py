@@ -17,7 +17,8 @@ from six import string_types
 
 def preprocess(self, nb, resources):
     """
-    This function is for monkey patching the nbconvert Preprocessor.preprocess method.
+    This function monkey patches the Preprocessor.preprocess method.
+
     We are doing this for the following reasons:
     1. Notebooks will stop executing when they encounter a failure but not raise a CellException.
        This allows us to save the notebook with the traceback even though a CellExecutionError
@@ -25,16 +26,7 @@ def preprocess(self, nb, resources):
 
     2. We want to write the notebook as cells are executed. We inject our logic for that here.
 
-    3. We will be included cell execution metrics.
-
-    Original Docstring:
-
-    Preprocessing to apply on each notebook.
-
-    Must return modified nb, resources.
-
-    If you wish to apply your preprocessing to each cell, you might want
-    to override preprocess_cell method instead.
+    3. We want to include timing and execution status information with the metadata of each cell.
 
     Parameters
     ----------
@@ -62,11 +54,10 @@ def preprocess(self, nb, resources):
         cell.outputs = []
 
     # Execute each cell and update the output in real time.
-    writers = []
     with futures.ThreadPoolExecutor(max_workers=1) as executor:
         for index, cell in enumerate(nb.cells):
             cell.execution_count = "*"
-            writers.append(executor.submit(write_ipynb, nb, output_path))
+            future = executor.submit(write_ipynb, nb, output_path)
             t0 = datetime.datetime.utcnow()
             try:
                 nb.cells[index], resources = self.preprocess_cell(cell, resources, index)
@@ -75,6 +66,7 @@ def preprocess(self, nb, resources):
                 cell.metadata['papermill']['exception'] = True
                 break
             finally:
+                future.result()
                 t1 = datetime.datetime.utcnow()
                 cell.metadata['papermill']['start_time'] = t0.isoformat()
                 cell.metadata['papermill']['end_time'] = t1.isoformat()
