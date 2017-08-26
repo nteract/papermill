@@ -51,12 +51,14 @@ def preprocess(self, nb, resources):
             end_time=None,
             duration=None
         )
-        cell.outputs = []
+        if hasattr(cell, "outputs"):
+            cell.outputs = []
 
     # Execute each cell and update the output in real time.
     with futures.ThreadPoolExecutor(max_workers=1) as executor:
         for index, cell in enumerate(nb.cells):
-            cell.execution_count = "*"
+            if hasattr(cell, "execution_count"):
+                cell.execution_count = "*"
             future = executor.submit(write_ipynb, nb, output_path)
             t0 = datetime.datetime.utcnow()
             try:
@@ -111,7 +113,7 @@ def execute_notebook(notebook, output, parameters=None, kernel_name=None):
     nb.metadata.papermill['start_time'] = t0.isoformat()
     nb.metadata.papermill['end_time'] = t1.isoformat()
     nb.metadata.papermill['duration'] = (t1 - t0).total_seconds()
-    nb.metadata.papermill['exception'] = any([cell.metadata.papermill.exception for cell in nb.cells])
+    nb.metadata.papermill['exception'] = any([cell.metadata.papermill.get('exception') for cell in nb.cells])
 
     # Write final Notebook to disk.
     write_ipynb(nb, output)
