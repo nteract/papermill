@@ -6,6 +6,7 @@ import unittest
 
 from papermill.api import read_notebook
 from papermill.execute import execute_notebook
+from papermill.exceptions import PapermillExecutionError
 from tests import get_notebook_path
 
 
@@ -36,7 +37,8 @@ class TestBrokenNotebook(unittest.TestCase):
     def test(self):
         path = get_notebook_path('broken.ipynb')
         result_path = os.path.join(self.test_dir, 'broken.ipynb')
-        execute_notebook(path, result_path)
+        with self.assertRaises(PapermillExecutionError):
+            execute_notebook(path, result_path)
         nb = read_notebook(result_path)
         self.assertEqual(nb.node.cells[0].execution_count, 1)
         self.assertEqual(nb.node.cells[1].execution_count, 2)

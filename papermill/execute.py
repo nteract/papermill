@@ -9,7 +9,7 @@ from nbconvert.preprocessors.execute import CellExecutionError
 from nbconvert.preprocessors.base import Preprocessor
 
 from papermill.conf import settings
-from papermill.exceptions import PapermillException
+from papermill.exceptions import PapermillException, PapermillExecutionError
 from papermill.iorw import load_notebook_node, write_ipynb, read_yaml_file
 
 from six import string_types
@@ -117,6 +117,7 @@ def execute_notebook(notebook, output, parameters=None, kernel_name=None):
 
     # Write final Notebook to disk.
     write_ipynb(nb, output)
+    raise_for_execution_errors(nb)
 
 
 def _parameterize_notebook(nb, kernel_name, parameters):
@@ -206,3 +207,20 @@ def _fetch_environment_variables():
         if name in settings.ENVIRONMENT_VARIABLES:
             ret[name] = value
     return ret
+
+
+def raise_for_execution_errors(nb):
+
+    error = None
+    for cell in nb.cells:
+        for output in cell.outputs:
+            if output.output_type == "error":
+                error = PapermillExecutionError(
+                    exec_count=cell.execution_count,
+                    source=cell.source,
+                    ename=output.ename,
+                    evalue=output.evalue,
+                    traceback=output.traceback
+                )
+    if error:
+        raise error
