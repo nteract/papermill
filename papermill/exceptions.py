@@ -20,7 +20,7 @@ class PapermillExecutionError(PapermillException):
         self.evalue = evalue
         self.traceback = traceback
         message = "\n" + 75 * "-" + "\n"
-        message += "Exception encountered at Out [%s]:\n" % str(exec_count)
+        message += 'Exception encountered at "In [%s]":\n' % str(exec_count)
         for line in traceback:
             message += line + "\n"
         message += "\n"

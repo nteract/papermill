@@ -222,5 +222,6 @@ def raise_for_execution_errors(nb):
                     evalue=output.evalue,
                     traceback=output.traceback
                 )
+            break
     if error:
         raise error
