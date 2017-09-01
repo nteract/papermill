@@ -213,6 +213,9 @@ def raise_for_execution_errors(nb):
 
     error = None
     for cell in nb.cells:
+        if not hasattr(cell, "outputs"):
+            continue
+
         for output in cell.outputs:
             if output.output_type == "error":
                 error = PapermillExecutionError(
