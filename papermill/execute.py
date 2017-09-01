@@ -213,7 +213,7 @@ def raise_for_execution_errors(nb):
 
     error = None
     for cell in nb.cells:
-        if not hasattr(cell, "objects"):
+        if not hasattr(cell, "outputs"):
             continue
 
         for output in cell.outputs:
