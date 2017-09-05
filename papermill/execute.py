@@ -58,7 +58,7 @@ def preprocess(self, nb, resources):
     with futures.ThreadPoolExecutor(max_workers=1) as executor:
         for index, cell in enumerate(nb.cells):
             if hasattr(cell, "execution_count"):
-                cell.execution_count = "*"
+                cell.execution_count = None
             future = executor.submit(write_ipynb, nb, output_path)
             t0 = datetime.datetime.utcnow()
             try:
