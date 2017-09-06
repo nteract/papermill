@@ -14,6 +14,10 @@ from papermill.iorw import load_notebook_node, write_ipynb, read_yaml_file
 
 from six import string_types
 
+PENDING = "pending"
+RUNNING = "running"
+COMPLETED = "completed"
+
 
 def preprocess(self, nb, resources):
     """
@@ -41,7 +45,7 @@ def preprocess(self, nb, resources):
     # Reset the notebook.
     for cell in nb.cells:
         # Reset the cell execution counts.
-        if hasattr(cell, "execution_count"):
+        if cell.get("execution_count") is not None:
             cell.execution_count = None
 
         # Clear out the papermill metadata for each cell.
@@ -49,16 +53,16 @@ def preprocess(self, nb, resources):
             exception=None,
             start_time=None,
             end_time=None,
-            duration=None
+            duration=None,
+            status=PENDING  # pending, running, completed
         )
-        if hasattr(cell, "outputs"):
+        if cell.get("outputs") is not None:
             cell.outputs = []
 
     # Execute each cell and update the output in real time.
     with futures.ThreadPoolExecutor(max_workers=1) as executor:
         for index, cell in enumerate(nb.cells):
-            if hasattr(cell, "execution_count"):
-                cell.execution_count = None
+            cell.metadata["papermill"]["status"] = RUNNING
             future = executor.submit(write_ipynb, nb, output_path)
             t0 = datetime.datetime.utcnow()
             try:
@@ -72,6 +76,7 @@ def preprocess(self, nb, resources):
                 cell.metadata['papermill']['start_time'] = t0.isoformat()
                 cell.metadata['papermill']['end_time'] = t1.isoformat()
                 cell.metadata['papermill']['duration'] = (t1 - t0).total_seconds()
+                cell.metadata['papermill']['status'] = COMPLETED
                 future.result()
     return nb, resources
 
@@ -213,7 +218,7 @@ def raise_for_execution_errors(nb):
 
     error = None
     for cell in nb.cells:
-        if not hasattr(cell, "outputs"):
+        if cell.get("outputs") is None:
             continue
 
         for output in cell.outputs:
