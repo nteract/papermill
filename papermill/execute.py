@@ -122,7 +122,7 @@ def execute_notebook(notebook, output, parameters=None, kernel_name=None):
 
     # Write final Notebook to disk.
     write_ipynb(nb, output)
-    raise_for_execution_errors(nb)
+    raise_for_execution_errors(nb, output)
 
 
 def _parameterize_notebook(nb, kernel_name, parameters):
@@ -214,7 +214,14 @@ def _fetch_environment_variables():
     return ret
 
 
-def raise_for_execution_errors(nb):
+ERROR_MESSAGE_TEMPLATE = (
+    '<span style="color:red; font-family:Helvetica Neue, Helvetica, Arial, sans-serif; font-size:2em;">'
+    "An Exception was encountered at 'In [%s]'."
+    '</span>'
+)
+
+
+def raise_for_execution_errors(nb, output_path):
 
     error = None
     for cell in nb.cells:
@@ -231,5 +238,11 @@ def raise_for_execution_errors(nb):
                     traceback=output.traceback
                 )
             break
+
     if error:
+        # Write notebook back out with the Error Message at the top of the Notebook.
+        error_msg = ERROR_MESSAGE_TEMPLATE % str(error.exec_count)
+        error_msg_cell = nbformat.v4.new_markdown_cell(source=error_msg)
+        nb.cells = [error_msg_cell] + nb.cells
+        write_ipynb(nb, output_path)
         raise error
