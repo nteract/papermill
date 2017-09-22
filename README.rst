@@ -1,87 +1,130 @@
 |Logo|
-=========
+======
 
-Papermill is a tool for parameterizing, executing, and analyzing Jupyter Notebooks.
+**Papermill** is a tool for parametrizing, executing, and analyzing Jupyter
+Notebooks.
 
-The goals for Papermill are:
+With Papermill, you can:
 
-* Parametrizing notebooks
-* Executing and collecting metrics across the notebooks
-* Summarizing collections of notebooks
+* Parametrize notebooks
+* Execute and collect metrics across the notebooks
+* Summarize collections of notebooks
+
+This opens up new opportunities for how notebooks can be used:
+
+- pass in parameters to a single notebook at execution time.
+
+  *Example*
+
+  Perhaps you have a financial report that you wish to run with different
+  values on the first or last day of a month or at the beginning or end
+  of the year, using parameters makes this task easier.
+
+- execute a notebook via a Python API or the command line.
+
+  *Example*
+
+  Do you want to run a notebook and depending on its results,
+  choose a particular notebook run next? You can now programmatically
+  execute a workflow without having to copy and paste from notebook to
+  notebook manually.
+
+- summarize a collection of notebooks.
+
+  *Example*
+
+  Do you have plots and visualizations spread across 10 or more notebooks?
+  Now you can choose which plots to programmatically display in a summary
+  notebook to share with others.
 
 Installation
 ------------
 
-::
+From the commmand line:
+
+.. code-block:: bash
 
   pip install papermill
 
+Installing In-Notebook bindings
+-------------------------------
 
-In-Notebook bindings
---------------------
+* `Python <PythonBinding>`_ (included in this repo)
+* `R`_ (available in the **papermillr** project)
 
-* `Python <PythonBinding>`_ (here)
-* `R`_
-
-.. _R: https://github.com/nteract/papermillr
-
+.. _`R`: https://github.com/nteract/papermillr
 
 Usage
 -----
 
-**Parameterizing a Notebook.**
+Parametrizing a Notebook
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-To parameterize your notebook designate a cell with the tag `parameters`. Papermill looks for the `parameters` cell
-and replaces those values with the parameters passed in at execution time.
+To parametrize your notebook designate a cell with the tag ``parameters``.
+Papermill looks for the ``parameters`` cell and replaces those values with the
+parameters passed in at execution time.
 
 .. image:: docs/img/parameters.png
 
-**Executing a Notebook**
+Executing a Notebook
+~~~~~~~~~~~~~~~~~~~~
 
-The two ways to execute the notebook with parameters are through the Python API and through the command line interface.
+The two ways to execute the notebook with parameters are: (1) through the
+Python API and (2) through the command line interface.
 
-Executing a Notebook via Python API
+Execute via the Python API
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: python
 
    import papermill as pm
 
    pm.execute_notebook(
-      notebook_path='path/to/input.ipynb',
-      output_path='path/to/output.ipynb',
-      parameters=dict(alpha=0.6, ratio=0.1)
+      notebook_path = 'path/to/input.ipynb',
+      output_path = 'path/to/output.ipynb',
+      parameters = dict(alpha=0.6, ratio=0.1)
    )
 
-Executing a Notebook via CLI
+Execute via CLI
+^^^^^^^^^^^^^^^
+
+Here's an example of a local notebook being executed and output to an
+Amazon S3 account:
 
 .. code-block:: bash
 
    $ papermill local/input.ipynb s3://bkt/output.ipynb -p alpha 0.6 -p l1_ratio 0.1
 
+
 .. _PythonBinding: 
 
-**Recording Values to the Notebook**
+Python In-notebook Bindings
+---------------------------
 
-Users can save values to the notebook document to be consumed by other notebooks.
+Recording Values to the Notebook
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Users can save values to the notebook document to be consumed by other
+notebooks.
 
 Recording values to be saved with the notebook.
 
 .. code-block:: python
 
-   ### notebook.ipynb
+   """notebook.ipynb"""
    import papermill as pm
 
    pm.record("hello", "world")
    pm.record("number", 123)
-   pm.record("some_list", [1,3,5])
-   pm.record("some_dict", {"a":1, "b":2})
+   pm.record("some_list", [1, 3, 5])
+   pm.record("some_dict", {"a": 1, "b": 2})
 
-
-Users can recover those values as a Pandas dataframe via the the read_notebook function.
+Users can recover those values as a Pandas dataframe via the
+``read_notebook`` function.
 
 .. code-block:: python
 
-   ### summary.ipynb
+   """summary.ipynb"""
    import papermill as pm
 
    nb = pm.read_notebook('notebook.ipynb')
@@ -89,17 +132,20 @@ Users can recover those values as a Pandas dataframe via the the read_notebook f
 
 .. image:: docs/img/nb_dataframe.png
 
-**Displaying Plots and Images Saved by Other Notebooks**
+Displaying Plots and Images Saved by Other Notebooks
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Display a matplotlib histogram with the key name "matplotlib_hist".
+Display a matplotlib histogram with the key name ``matplotlib_hist``.
 
 .. code-block:: python
 
-   ### notebook.ipynb
-   # Import plt and turn off interactive plotting to avoid double plotting.
+   """notebook.ipynb"""
    import papermill as pm
-   import matplotlib.pyplot as plt; plt.ioff()
    from ggplot import mpg
+   import matplotlib.pyplot as plt
+
+   # turn off interactive plotting to avoid double plotting
+   plt.ioff()
 
    f = plt.figure()
    plt.hist('cty', bins=12, data=mpg)
@@ -107,11 +153,11 @@ Display a matplotlib histogram with the key name "matplotlib_hist".
 
 .. image:: docs/img/matplotlib_hist.png
 
-Read in that above notebook and display the plot saved at "matplotlib_hist".
+Read in that above notebook and display the plot saved at ``matplotlib_hist``.
 
 .. code-block:: python
 
-   ### summary.ipynb
+   """summary.ipynb"""
    import papermill as pm
 
    nb = pm.read_notebook('notebook.ipynb')
@@ -119,13 +165,15 @@ Read in that above notebook and display the plot saved at "matplotlib_hist".
 
 .. image:: docs/img/matplotlib_hist.png
 
-**Analyzing a Collection of Notebooks**
+Analyzing a Collection of Notebooks
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Papermill can read in a directory of notebooks and provides the NotebookCollection interface for operating on them.
+Papermill can read in a directory of notebooks and provides the
+``NotebookCollection`` interface for operating on them.
 
 .. code-block:: python
 
-   ### summary.ipynb
+   """summary.ipynb"""
    import papermill as pm
 
    nbs = pm.read_notebooks('/path/to/results/')
