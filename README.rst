@@ -20,7 +20,7 @@ This opens up new opportunities for how notebooks can be used. For example:
   **execute a workflow** without having to copy and paste from notebook to
   notebook manually.
 - Do you have plots and visualizations spread across 10 or more notebooks?
-  Now you can choose which plots to programmatically display in a **summary**
+  Now you can choose which plots to programmatically display a **summary**
   **collection** in a notebook to share with others.
 
 Installation
