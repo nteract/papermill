@@ -66,8 +66,8 @@ Execute via the Python API
    import papermill as pm
 
    pm.execute_notebook(
-      src = 'path/to/input.ipynb',
-      dst = 'path/to/output.ipynb',
+      'path/to/input.ipynb',
+      'path/to/output.ipynb',
       parameters = dict(alpha=0.6, ratio=0.1)
    )
 
