@@ -66,8 +66,8 @@ Execute via the Python API
    import papermill as pm
 
    pm.execute_notebook(
-      notebook_path = 'path/to/input.ipynb',
-      output_path = 'path/to/output.ipynb',
+      source = 'path/to/input.ipynb',
+      dest = 'path/to/output.ipynb',
       parameters = dict(alpha=0.6, ratio=0.1)
    )
 
@@ -82,7 +82,7 @@ Amazon S3 account:
    $ papermill local/input.ipynb s3://bkt/output.ipynb -p alpha 0.6 -p l1_ratio 0.1
 
 
-.. _PythonBinding: 
+.. _PythonBinding:
 
 Python In-notebook Bindings
 ---------------------------
