@@ -15,7 +15,7 @@ install:
     fi
     if [[ $TRAVIS_PYTHON_VERSION == 3* ]]; then
       python -m pip install -U pip
-      python -m pip install ipykernel "ipython<=6"
+      python -m pip install ipykernel "ipython<6"
       python -m ipykernel install
     fi
     pip install -e .
