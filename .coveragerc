@@ -1,5 +1,5 @@
 [run]
-branch = False
+branch = True
 omit =
     papermill/tests/*
 
