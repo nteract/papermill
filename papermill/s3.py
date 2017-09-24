@@ -1,4 +1,6 @@
+from concurrent import futures
 import fnmatch
+from functools import wraps
 import gzip
 import itertools
 import logging
@@ -9,12 +11,8 @@ import tempfile
 import threading
 import zlib
 
-from functools import wraps
-from concurrent import futures
-
-import six
-
 from boto3.session import Session
+import six
 
 from .exceptions import AwsError, FileExistsError
 

@@ -1,6 +1,8 @@
 import base64
+
 import click
 import yaml
+
 from papermill.execute import execute_notebook
 from papermill.iorw import read_yaml_file
 

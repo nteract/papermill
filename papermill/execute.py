@@ -1,8 +1,8 @@
+from concurrent import futures
 import datetime
 import os
 
 import nbformat
-from concurrent import futures
 from jupyter_client.kernelspec import get_kernel_spec
 from nbconvert.preprocessors import ExecutePreprocessor
 from nbconvert.preprocessors.execute import CellExecutionError
