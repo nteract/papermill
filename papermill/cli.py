@@ -63,7 +63,7 @@ def _is_float(value):
         float(value)
     except ValueError:
         return False
-    return "." in value
+    return value
 
 
 if __name__ == "__main__":

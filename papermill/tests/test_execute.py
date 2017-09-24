@@ -1,13 +1,13 @@
 import os
+import pytest
 import shutil
 import tempfile
 import unittest
 
-
 from papermill.api import read_notebook
 from papermill.execute import execute_notebook
 from papermill.exceptions import PapermillExecutionError
-from tests import get_notebook_path
+from . import get_notebook_path
 
 
 class TestNotebookHelpers(unittest.TestCase):

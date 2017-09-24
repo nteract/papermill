@@ -1,9 +1,11 @@
+import pytest
 import unittest
 
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
+
 from papermill import read_notebook, read_notebooks, PapermillException
-from tests import get_notebook_path
+from . import get_notebook_path
 
 
 class TestNotebookClass(unittest.TestCase):
