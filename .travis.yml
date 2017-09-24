@@ -10,17 +10,17 @@ install:
   - |
     if [[ $TRAVIS_PYTHON_VERSION == 2* ]]; then
       python2 -m pip install -U pip
-      python2 -m pip install --user ipykernel "ipython<6" || python2 -m pip install ipykernel "ipython<6"
-      python2 -m ipykernel install --user
+      python2 -m pip install ipykernel "ipython<6"
+      python2 -m ipykernel install
     fi
     if [[ $TRAVIS_PYTHON_VERSION == 3* ]]; then
+      python -m pip install -U pip
       python -m pip install ipykernel "ipython<=6"
-      python -m ipykernel install --user
+      python -m ipykernel install
     fi
     pip install -e .
-    pip install pytest
-    pip install coverage
+    pip install -r requirements-dev.txt
 script: 
-  - pytest -v --maxfail=2 --cov=papermill tests
+  - pytest -v --maxfail=2 --cov=papermill tests/
 after_success:
   - coveralls
