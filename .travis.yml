@@ -21,6 +21,6 @@ install:
     pip install -e .
     pip install -r requirements-dev.txt
 script: 
-  - pytest -v --maxfail=2 --cov=papermill tests/
+  - pytest -v --maxfail=2 --cov=papermill papermill/tests
 after_success:
   - coveralls
