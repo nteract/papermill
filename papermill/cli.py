@@ -9,9 +9,9 @@ from papermill.execute import execute_notebook
 from papermill.iorw import read_yaml_file
 
 
-@click.command(context_settings=dict(help_option_names=['-h', '--help']))
+@click.command()
 @click.argument('src')
-@click.argument('dest')
+@click.argument('dst')
 @click.option(
     '--param', '-p',
     help='Parameters to pass to the parameters cell.',
@@ -39,7 +39,7 @@ from papermill.iorw import read_yaml_file
     help='Name of kernel to run.'
 )
 def papermill(
-             src, dest,
+             src, dst,
              param, raw_param,
              file_param, yaml_param, base64_param,
              kernel):
@@ -58,7 +58,7 @@ def papermill(
         for name, value in raw_param:
             param_final[name] = value
 
-    execute_notebook(src, dest, param_final, kernel_name=kernel)
+    execute_notebook(src, dst, param_final, kernel_name=kernel)
 
 
 def _resolve_type(value):
