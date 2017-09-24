@@ -10,10 +10,10 @@ install:
   - |
     python2 -m pip install -U pip
     python2 -m pip install ipykernel "ipython<6"
-    python2 -m ipykernel install
+    python2 -m ipykernel install --user
     python -m pip install -U pip
     python -m pip install ipykernel "ipython<6"
-    python -m ipykernel install
+    python -m ipykernel install --user
     pip install -e .
     pip install -r requirements-dev.txt
 script:
