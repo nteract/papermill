@@ -11,7 +11,7 @@ from papermill.execute import execute_notebook
 from papermill.iorw import read_yaml_file
 
 
-@click.command()
+@click.command(context_settings=dict(help_option_names=['-h', '--help']))
 @click.argument('src')
 @click.argument('dst')
 @click.option(
