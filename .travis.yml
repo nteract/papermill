@@ -17,4 +17,4 @@ install:
 script:
   - pytest -v --maxfail=2 --cov=papermill papermill/tests
 after_success:
-  - coveralls
+  - codecov
