@@ -1,6 +1,11 @@
 |Logo|
 ======
 
+.. image:: https://travis-ci.org/nteract/papermill.svg?branch=master
+    :target: https://travis-ci.org/nteract/papermill
+.. image:: https://codecov.io/github/jupyterhub/jupyterhub/coverage.svg?branch=master
+   :target: https://codecov.io/github/jupyterhub/jupyterhub?branch=master
+
 **Papermill** is a tool for parametrizing, executing, and analyzing Jupyter
 Notebooks.
 
