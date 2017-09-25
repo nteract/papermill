@@ -12,7 +12,7 @@ from ..cli import _is_float, _resolve_type
     (13.3, 13.3),
     (10, 10),
     ("hello world", "hello world"),
-    ("😍", "😍"),
+    (u"😍", u"😍"),
 ])
 def test_resolve_type(test_input, expected):
     assert _resolve_type(test_input) == expected
