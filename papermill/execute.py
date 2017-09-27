@@ -237,7 +237,7 @@ def raise_for_execution_errors(nb, output_path):
                     evalue=output.evalue,
                     traceback=output.traceback
                 )
-            break
+                break
 
     if error:
         # Write notebook back out with the Error Message at the top of the Notebook.
