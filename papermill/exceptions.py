@@ -1,3 +1,5 @@
+import re
+
 
 class AwsError(Exception):
     """Raised when an AWS Exception is encountered."""
@@ -21,8 +23,11 @@ class PapermillExecutionError(PapermillException):
         self.traceback = traceback
         message = "\n" + 75 * "-" + "\n"
         message += 'Exception encountered at "In [%s]":\n' % str(exec_count)
+        tb = ""
         for line in traceback:
-            message += line + "\n"
+            tb += line + "\n"
+        ansi_escape = re.compile(r'\x1b[^m]*m')
+        message += ansi_escape.sub('', tb)
         message += "\n"
 
         super(PapermillExecutionError, self).__init__(message)
