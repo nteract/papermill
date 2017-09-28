@@ -26,6 +26,7 @@ setup(name='papermill',
       url='https://github.com/nteract/papermill',
       packages=['papermill'],
       install_requires=[
+          'ansiwrap',
           'boto3',
           'click',
           'futures',
