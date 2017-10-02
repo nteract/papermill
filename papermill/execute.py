@@ -7,6 +7,7 @@ from jupyter_client.kernelspec import get_kernel_spec
 from nbconvert.preprocessors import ExecutePreprocessor
 from nbconvert.preprocessors.execute import CellExecutionError
 from nbconvert.preprocessors.base import Preprocessor
+from tqdm import tqdm
 
 from papermill.conf import settings
 from papermill.exceptions import PapermillException, PapermillExecutionError
@@ -61,7 +62,14 @@ def preprocess(self, nb, resources):
 
     # Execute each cell and update the output in real time.
     with futures.ThreadPoolExecutor(max_workers=1) as executor:
-        for index, cell in enumerate(nb.cells):
+
+        # Generate the iterator
+        if self.progress_bar:
+            execution_iterator = tqdm(enumerate(nb.cells), total=len(nb.cells))
+        else:
+            execution_iterator = enumerate(nb.cells)
+
+        for index, cell in execution_iterator:
             cell.metadata["papermill"]["status"] = RUNNING
             future = executor.submit(write_ipynb, nb, output_path)
             t0 = datetime.datetime.utcnow()
@@ -85,7 +93,7 @@ def preprocess(self, nb, resources):
 Preprocessor.preprocess = preprocess
 
 
-def execute_notebook(notebook, output, parameters=None, kernel_name=None):
+def execute_notebook(notebook, output, parameters=None, kernel_name=None, progress_bar=True):
     """Executes a single notebook locally.
 
     Args:
@@ -112,6 +120,8 @@ def execute_notebook(notebook, output, parameters=None, kernel_name=None):
         timeout=None,
         kernel_name=kernel_name or nb.metadata.kernelspec.name,
     )
+    processor.progress_bar = progress_bar
+
     processor.preprocess(nb, {})
     t1 = datetime.datetime.utcnow()
 
