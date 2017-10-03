@@ -35,6 +35,7 @@ setup(name='papermill',
           ipython_req,
           'nbconvert',
           'six',
+          'tqdm',
           'jupyter_client',
           'pandas'
       ],
