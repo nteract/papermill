@@ -21,6 +21,9 @@ class PapermillIO(object):
     def listdir(self, path):
         return self.get_handler(path).listdir(path)
 
+    def pretty_path(self, path):
+        return path
+
     @classmethod
     def register(cls, scheme, handler):
         cls.__handlers[scheme] = handler
@@ -123,3 +126,7 @@ def load_notebook_node(notebook_path):
 def list_notebook_files(path):
     """Returns a list of all the notebook files in a directory."""
     return [p for p in papermill_io.listdir(path) if p.endswith('.ipynb')]
+
+
+def get_pretty_path(path):
+    papermill_io.pretty_path(path)
