@@ -22,7 +22,7 @@ class PapermillIO(object):
         return self.get_handler(path).listdir(path)
 
     def pretty_path(self, path):
-        return path
+        return self.get_handler(path).pretty_path(path)
 
     @classmethod
     def register(cls, scheme, handler):
@@ -54,6 +54,10 @@ class LocalHandler(object):
         with io.open(path, 'w') as f:
             f.write(buf)
 
+    @classmethod
+    def pretty_path(cls, path):
+        return path
+
 
 class S3Handler(object):
 
@@ -73,6 +77,10 @@ class S3Handler(object):
     def write(cls, buf, path):
         s3_client = S3(keyname=cls.keyname)
         return s3_client.cp_string(buf, path)
+
+    @classmethod
+    def pretty_path(cls, path):
+        return path
 
 
 # Instantiate a PapermillIO instance and register Handlers.
@@ -129,4 +137,4 @@ def list_notebook_files(path):
 
 
 def get_pretty_path(path):
-    papermill_io.pretty_path(path)
+    return papermill_io.pretty_path(path)
