@@ -6,17 +6,12 @@ import sys
 import tempfile
 import unittest
 
-try:
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
-
 import nbformat
 
 from papermill.api import read_notebook
 from papermill.execute import execute_notebook, log_outputs
 from papermill.exceptions import PapermillExecutionError
-from . import get_notebook_path
+from . import get_notebook_path, RedirectOutput
 
 
 class TestNotebookHelpers(unittest.TestCase):
@@ -76,32 +71,6 @@ class TestBrokenNotebook2(unittest.TestCase):
         self.assertEqual(nb.node.cells[2].outputs[0].output_type, 'display_data')
         self.assertEqual(nb.node.cells[2].outputs[1].output_type, 'error')
         self.assertEqual(nb.node.cells[3].execution_count, None)
-
-
-class RedirectOutput(object):
-
-    def __init__(self):
-        self.redirected_stdout = None
-        self.redirected_stderr = None
-        self.old_stdout = None
-        self.old_stderr = None
-
-    def __enter__(self):
-        self.old_stdout = sys.stdout
-        sys.stdout = self.redirected_stdout = StringIO()
-        self.old_stderr = sys.stderr
-        sys.stderr = self.redirected_stderr = StringIO()
-        return self
-
-    def __exit__(self, *args):
-        sys.stdout = self.old_stdout
-        sys.stderr = self.old_stderr
-
-    def get_stdout(self):
-        return self.redirected_stdout.getvalue()
-
-    def get_stderr(self):
-        return self.redirected_stderr.getvalue()
 
 
 class TestLogging(unittest.TestCase):
