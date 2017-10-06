@@ -74,6 +74,9 @@ def preprocess(self, nb, resources):
             future = executor.submit(write_ipynb, nb, output_path)
             t0 = datetime.datetime.utcnow()
             try:
+                if not cell.source:
+                    continue
+
                 nb.cells[index], resources = self.preprocess_cell(cell, resources, index)
                 cell.metadata['papermill']['exception'] = False
                 if self.log_output:
@@ -92,26 +95,30 @@ def preprocess(self, nb, resources):
     return nb, resources
 
 
-def log_outputs(executed_cell):
+def log_outputs(cell):
 
-    def write_stderr(cell, text):
-        execution_count = cell.get('execution_count')
-        sys.stderr.write("Out [%s]" % execution_count + "\n")
-        sys.stderr.write(text)
+    execution_count = cell.get("execution_count")
+    if not execution_count:
+        return
 
-    def write_stdout(cell, text):
-        execution_count = cell.get('execution_count')
-        print("Out [%s]" % execution_count)
-        print(text)
-
-    for output in executed_cell.get("outputs", []):
+    stderrs = []
+    stdouts = []
+    for output in cell.get("outputs", []):
         if output.output_type == "stream":
             if output.name == "stdout":
-                write_stdout(executed_cell, "".join(output.text))
+                stdouts.append("".join(output.text))
             elif output.name == "stderr":
-                write_stderr(executed_cell, "".join(output.text))
+                stderrs.append("".join(output.text))
         elif "data" in output and "text/plain" in output.data:
-            write_stdout(executed_cell, output.data['text/plain'])
+            stdouts.append(output.data['text/plain'])
+
+    # Log stdouts
+    sys.stdout.write('{:-<40}'.format("Out [%s] " % execution_count) + "\n")
+    sys.stdout.write("\n".join(stdouts) + "\n")
+
+    # Log stderrs
+    sys.stderr.write('{:-<40}'.format("Out [%s] " % execution_count) + "\n")
+    sys.stderr.write("\n".join(stderrs) + "\n")
 
 
 # Monkey Patch the base preprocess method.

@@ -1,11 +1,20 @@
+import io
 import os
 import pytest
 import shutil
+import sys
 import tempfile
 import unittest
 
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
+
+import nbformat
+
 from papermill.api import read_notebook
-from papermill.execute import execute_notebook
+from papermill.execute import execute_notebook, log_outputs
 from papermill.exceptions import PapermillExecutionError
 from . import get_notebook_path
 
@@ -67,3 +76,74 @@ class TestBrokenNotebook2(unittest.TestCase):
         self.assertEqual(nb.node.cells[2].outputs[0].output_type, 'display_data')
         self.assertEqual(nb.node.cells[2].outputs[1].output_type, 'error')
         self.assertEqual(nb.node.cells[3].execution_count, None)
+
+
+class RedirectOutput(object):
+
+    def __init__(self):
+        self.redirected_stdout = None
+        self.redirected_stderr = None
+        self.old_stdout = None
+        self.old_stderr = None
+
+    def __enter__(self):
+        self.old_stdout = sys.stdout
+        sys.stdout = self.redirected_stdout = StringIO()
+        self.old_stderr = sys.stderr
+        sys.stderr = self.redirected_stderr = StringIO()
+        return self
+
+    def __exit__(self, *args):
+        sys.stdout = self.old_stdout
+        sys.stderr = self.old_stderr
+
+    def get_stdout(self):
+        return self.redirected_stdout.getvalue()
+
+    def get_stderr(self):
+        return self.redirected_stderr.getvalue()
+
+
+class TestLogging(unittest.TestCase):
+
+    def setUp(self):
+        self.saved_stdout = sys.stdout
+        self.out = io.StringIO()
+        sys.stdout = self.out
+
+    def tearDown(self):
+        sys.stdout = self.saved_stdout
+
+    def test_logging(self):
+
+        nb = nbformat.read(get_notebook_path('test_logging.ipynb'), as_version=4)
+
+        # stderr output
+        with RedirectOutput() as redirect:
+            log_outputs(nb.cells[0])
+            stdout = redirect.get_stdout()
+            self.assertEqual(stdout, u'Out [1] --------------------------------\n\n')
+            stderr = redirect.get_stderr()
+            self.assertEqual(stderr, u'Out [1] --------------------------------\nINFO:test:test text\n\n')
+
+        # stream output
+        with RedirectOutput() as redirect:
+            log_outputs(nb.cells[1])
+            stdout = redirect.get_stdout()
+            self.assertEqual(stdout, u'Out [2] --------------------------------\nhello world\n\n')
+            stderr = redirect.get_stderr()
+            self.assertEqual(stderr, u'Out [2] --------------------------------\n\n')
+
+        # text/plain output
+        with RedirectOutput() as redirect:
+            log_outputs(nb.cells[2])
+            stdout = redirect.get_stdout()
+            self.assertEqual(stdout,
+                             (
+                                "Out [3] --------------------------------\n"
+                                "<matplotlib.axes._subplots.AxesSubplot at 0x7f8391f10290>\n"
+                                "<matplotlib.figure.Figure at 0x7f830af7b350>\n"
+                                )
+                             )
+            stderr = redirect.get_stderr()
+            self.assertEqual(stderr, u'Out [3] --------------------------------\n\n')
