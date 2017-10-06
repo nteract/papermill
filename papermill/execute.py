@@ -1,19 +1,19 @@
-from concurrent import futures
 import datetime
 import os
+import sys
 
 import nbformat
+from concurrent import futures
 from jupyter_client.kernelspec import get_kernel_spec
 from nbconvert.preprocessors import ExecutePreprocessor
 from nbconvert.preprocessors.execute import CellExecutionError
 from nbconvert.preprocessors.base import Preprocessor
+from six import string_types
 from tqdm import tqdm
 
 from papermill.conf import settings
 from papermill.exceptions import PapermillException, PapermillExecutionError
 from papermill.iorw import load_notebook_node, write_ipynb, read_yaml_file
-
-from six import string_types
 
 PENDING = "pending"
 RUNNING = "running"
@@ -74,8 +74,14 @@ def preprocess(self, nb, resources):
             future = executor.submit(write_ipynb, nb, output_path)
             t0 = datetime.datetime.utcnow()
             try:
+                if not cell.source:
+                    continue
+
                 nb.cells[index], resources = self.preprocess_cell(cell, resources, index)
                 cell.metadata['papermill']['exception'] = False
+                if self.log_output:
+                    log_outputs(nb.cells[index])
+
             except CellExecutionError:
                 cell.metadata['papermill']['exception'] = True
                 break
@@ -89,11 +95,37 @@ def preprocess(self, nb, resources):
     return nb, resources
 
 
+def log_outputs(cell):
+
+    execution_count = cell.get("execution_count")
+    if not execution_count:
+        return
+
+    stderrs = []
+    stdouts = []
+    for output in cell.get("outputs", []):
+        if output.output_type == "stream":
+            if output.name == "stdout":
+                stdouts.append("".join(output.text))
+            elif output.name == "stderr":
+                stderrs.append("".join(output.text))
+        elif "data" in output and "text/plain" in output.data:
+            stdouts.append(output.data['text/plain'])
+
+    # Log stdouts
+    sys.stdout.write('{:-<40}'.format("Out [%s] " % execution_count) + "\n")
+    sys.stdout.write("\n".join(stdouts) + "\n")
+
+    # Log stderrs
+    sys.stderr.write('{:-<40}'.format("Out [%s] " % execution_count) + "\n")
+    sys.stderr.write("\n".join(stderrs) + "\n")
+
+
 # Monkey Patch the base preprocess method.
 Preprocessor.preprocess = preprocess
 
 
-def execute_notebook(notebook, output, parameters=None, kernel_name=None, progress_bar=True):
+def execute_notebook(notebook, output, parameters=None, kernel_name=None, progress_bar=True, log_output=False):
     """Executes a single notebook locally.
 
     Args:
@@ -101,7 +133,8 @@ def execute_notebook(notebook, output, parameters=None, kernel_name=None, progre
         output (str): Path to save exexuted notebook.
         parameters (dict): Arbitrary keyword arguments to pass to the notebook parameters.
         kernel_name (str): Name of kernel to execute the notebook against.
-
+        progress_bar (bool): Flag for whether or not to show the progress bar.
+        log_output (bool): Flag for whether or not to write notebook output to stderr.
     """
     nb = load_notebook_node(notebook)
 
@@ -121,6 +154,7 @@ def execute_notebook(notebook, output, parameters=None, kernel_name=None, progre
         kernel_name=kernel_name or nb.metadata.kernelspec.name,
     )
     processor.progress_bar = progress_bar
+    processor.log_output = log_output
 
     processor.preprocess(nb, {})
     t1 = datetime.datetime.utcnow()

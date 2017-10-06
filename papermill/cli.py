@@ -43,9 +43,13 @@ from papermill.iorw import read_yaml_file
     '--progress-bar/--no-progress-bar', default=True,
     help="Flag for turning on the progress bar."
 )
+@click.option(
+    '--log-output/--no-log-output', default=False,
+    help="Flag for writing notebook output to stderr."
+)
 def papermill(notebook_path, output_path, parameters, parameters_raw,
               parameters_file, parameters_yaml, parameters_base64, kernel,
-              progress_bar):
+              progress_bar, log_output):
     """Utility for executing a single notebook on a container.
 
     Take a source notebook, apply parameters to the source notebook,
@@ -67,7 +71,14 @@ def papermill(notebook_path, output_path, parameters, parameters_raw,
         for name, value in parameters_raw:
             parameters_final[name] = value
 
-    execute_notebook(notebook_path, output_path, parameters_final, kernel_name=kernel, progress_bar=progress_bar)
+    execute_notebook(
+        notebook_path,
+        output_path,
+        parameters_final,
+        kernel_name=kernel,
+        progress_bar=progress_bar,
+        log_output=log_output
+    )
 
 
 def _resolve_type(value):
