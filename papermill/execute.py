@@ -13,7 +13,7 @@ from tqdm import tqdm
 
 from papermill.conf import settings
 from papermill.exceptions import PapermillException, PapermillExecutionError
-from papermill.iorw import load_notebook_node, write_ipynb, read_yaml_file
+from papermill.iorw import load_notebook_node, write_ipynb, read_yaml_file, get_pretty_path
 
 PENDING = "pending"
 RUNNING = "running"
@@ -129,6 +129,8 @@ def execute_notebook(notebook, output, parameters=None, kernel_name=None, progre
         progress_bar (bool): Flag for whether or not to show the progress bar.
         log_output (bool): Flag for whether or not to write notebook output to stderr.
     """
+    print("Input Notebook:  %s" % get_pretty_path(notebook))
+    print("Output Notebook: %s" % get_pretty_path(output))
     nb = load_notebook_node(notebook)
 
     # Parameterize the Notebook.
