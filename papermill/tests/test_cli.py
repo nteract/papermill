@@ -5,7 +5,7 @@
 
 import pytest
 
-from ..cli import _is_float, _resolve_type
+from ..cli import _is_int,  _is_float, _resolve_type
 
 
 @pytest.mark.parametrize("test_input,expected", [
@@ -32,3 +32,16 @@ def test_resolve_type(test_input, expected):
 ])
 def test_is_float(value, expected):
     assert (_is_float(value)) == expected
+
+
+@pytest.mark.parametrize("value,expected", [
+    (13.71, True),
+    ("False", False),
+    ("None", False),
+    (-8.2, True),
+    (10, True),
+    ("hello world", False),
+    ("😍", False),
+])
+def test_is_int(value, expected):
+    assert (_is_int(value)) == expected
