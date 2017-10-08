@@ -97,19 +97,17 @@ def _resolve_type(value):
 
 
 def _is_int(value):
-    try:
-        int(value)
-    except ValueError:
+    if type(value) is int:
+        return True
+    else:
         return False
-    return True
 
 
 def _is_float(value):
-    try:
-        float(value)
-    except ValueError:
+    if type(value) is float:
+        return True
+    else:
         return False
-    return value
 
 
 if __name__ == '__main__':
