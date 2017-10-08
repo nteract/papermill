@@ -88,26 +88,39 @@ def _resolve_type(value):
         return False
     elif value == "None":
         return None
-    elif _is_float(value):
-        return float(value)
     elif _is_int(value):
         return int(value)
+    elif _is_float(value):
+        return float(value)
     else:
         return value
 
 
 def _is_int(value):
-    if type(value) is int:
-        return True
-    else:
+    """
+    Casting is used to check if the value
+    in the cli can be converted to an int
+    """
+    try:
+        float_cast = float(value)
+        int_cast = int(float_cast)
+    except ValueError:
         return False
+    else:
+        return float_cast == int_cast
 
 
 def _is_float(value):
-    if type(value) is float:
-        return True
-    else:
+    """
+    Casting is used to check if the value
+    in the cli can be converted to a float
+    """
+    try:
+        float(value)
+    except ValueError:
         return False
+    else:
+        return True
 
 
 if __name__ == '__main__':
