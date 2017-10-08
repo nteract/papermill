@@ -22,11 +22,11 @@ def test_resolve_type(test_input, expected):
 
 
 @pytest.mark.parametrize("value,expected", [
-    (13.71, 13.71),
+    (13.71, True),
     ("False", False),
     ("None", False),
-    (-8.2, -8.2),
-    (10, 10),
+    (-8.2, True),
+    (10, False),
     ("hello world", False),
     ("😍", False),
 ])
@@ -35,10 +35,10 @@ def test_is_float(value, expected):
 
 
 @pytest.mark.parametrize("value,expected", [
-    (13.71, True),
+    (13.71, False),
     ("False", False),
     ("None", False),
-    (-8.2, True),
+    (-8.2, False),
     (10, True),
     ("hello world", False),
     ("😍", False),
