@@ -5,7 +5,7 @@ import pandas as pd
 from pandas.util.testing import assert_frame_equal
 
 from papermill import read_notebook, read_notebooks, PapermillException
-from . import get_notebook_path
+from . import get_notebook_path, get_notebook_dir
 
 
 class TestNotebookClass(unittest.TestCase):
@@ -17,6 +17,7 @@ class TestNotebookClass(unittest.TestCase):
         self.assertEqual(nb.version, '0.4+2.ge10f94c.dirty')
         self.assertEqual(nb.environment_variables, {})
         self.assertEqual(nb.parameters, dict(foo=1, bar="hello"))
+        self.assertEqual(nb.directory, get_notebook_dir('collection/result1.ipynb'))
         expected_df = pd.DataFrame(
             [
                 ('bar', 'hello', 'parameter', 'result1.ipynb'),
