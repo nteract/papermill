@@ -97,17 +97,29 @@ def _resolve_type(value):
 
 
 def _is_int(value):
-    if type(value) is int:
-        return True
-    else:
+    """
+    Casting is used to check if the value
+    in the cli can be converted to an int
+    """
+    try:
+        int(value)
+    except ValueError:
         return False
+    else:
+        return True
 
 
 def _is_float(value):
-    if type(value) is float:
-        return True
-    else:
+    """
+    Casting is used to check if the value
+    in the cli can be converted to a float
+    """
+    try:
+        float(value)
+    except ValueError:
         return False
+    else:
+        return True
 
 
 if __name__ == '__main__':
