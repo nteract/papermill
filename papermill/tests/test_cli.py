@@ -13,7 +13,9 @@ from ..cli import _is_int,  _is_float, _resolve_type
     ("False", False),
     ("None", None),
     (13.3, 13.3),
+    ("12.51", 12.51),
     (10, 10),
+    ("10", 10),
     ("hello world", "hello world"),
     (u"😍", u"😍"),
 ])
@@ -39,7 +41,9 @@ def test_is_float(value, expected):
     ("False", False),
     ("None", False),
     (-8.2, False),
+    ("-23.2", False),
     (10, True),
+    ("13", True),
     ("hello world", False),
     ("😍", False),
 ])
