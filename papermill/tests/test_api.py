@@ -59,3 +59,15 @@ class TestNotebookCollection(unittest.TestCase):
             columns=['name', 'value', 'type', 'filename', 'key']
         )
         assert_frame_equal(nbs.dataframe, expected_df)
+
+        expected_metrics_df = pd.DataFrame(
+            [
+                ('result1.ipynb', 'Out [1]', 0.0, 'time (s)', 'result1.ipynb'),
+                ('result1.ipynb', 'Out [2]', 0.0, 'time (s)', 'result1.ipynb'),
+                ('result2.ipynb', 'Out [1]', 0.0, 'time (s)', 'result2.ipynb'),
+                ('result2.ipynb', 'Out [2]', 0.0, 'time (s)', 'result2.ipynb'),
+
+            ],
+            columns=['filename', 'cell', 'value', 'type', 'key']
+        )
+        assert_frame_equal(nbs.metrics, expected_metrics_df)
