@@ -121,6 +121,19 @@ class Notebook(object):
             i += 1
         return df
 
+    @property
+    def metrics(self):
+        df = pd.DataFrame(columns=['filename', 'cell', 'value', 'type'])
+
+        for i, cell in enumerate(self.node.cells):
+            execution_count = cell.get("execution_count")
+            if not execution_count:
+                continue
+            name = "Out [%s]" % str(execution_count)
+            value = cell.metadata.get('papermill', {}).get('duration', 0.0)
+            df.loc[i] = self.filename, name, value, "time (s)",
+        return df
+
     def display_output(self, name):
         """Display the output from this notebook in the running notebook."""
         outputs = _get_notebook_outputs(self.node)
@@ -183,6 +196,16 @@ class NotebookCollection(object):
         for key in sorted(self._notebooks):
             nb = self._notebooks[key]
             df = nb.dataframe
+            df['key'] = key
+            dfs.append(df)
+        return pd.concat(dfs).reset_index(drop=True)
+
+    @property
+    def metrics(self):
+        dfs = []
+        for key in sorted(self._notebooks):
+            nb = self._notebooks[key]
+            df = nb.metrics
             df['key'] = key
             dfs.append(df)
         return pd.concat(dfs).reset_index(drop=True)
