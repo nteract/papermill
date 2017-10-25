@@ -78,9 +78,15 @@ def read_notebooks(path):
 
 class Notebook(object):
 
-    def __init__(self):
-
-        self.path = ''
+    def __init__(self, node = None, path = None):
+        """
+        Args:
+            node (nbformat.NotebookNode): a notebook object
+            path (str): the path to the notebook (optional)
+        """
+        if path is not None and not node:
+            raise ValueError('notebook must be defined when path is given')
+        self.path = path or ''
         self.node = None
 
     @property
