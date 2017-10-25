@@ -47,9 +47,13 @@ from papermill.iorw import read_yaml_file
     '--log-output/--no-log-output', default=False,
     help="Flag for writing notebook output to stderr."
 )
+@click.option(
+    '--dataframe-file','-d', default=False,
+    help="JSON representation of output dataframe"
+)
 def papermill(notebook_path, output_path, parameters, parameters_raw,
               parameters_file, parameters_yaml, parameters_base64, kernel,
-              progress_bar, log_output):
+              progress_bar, log_output, dataframe_file):
     """Utility for executing a single notebook on a container.
 
     Take a source notebook, apply parameters to the source notebook,
@@ -77,7 +81,8 @@ def papermill(notebook_path, output_path, parameters, parameters_raw,
         parameters_final,
         kernel_name=kernel,
         progress_bar=progress_bar,
-        log_output=log_output
+        log_output=log_output,
+        dataframe_file=dataframe_file
     )
 
 
