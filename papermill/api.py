@@ -87,7 +87,7 @@ class Notebook(object):
         if path is not None and not node:
             raise ValueError('notebook must be defined when path is given')
         self.path = path or ''
-        self.node = None
+        self.node = node
 
     @property
     def filename(self):
