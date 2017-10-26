@@ -88,10 +88,10 @@ def _resolve_type(value):
         return False
     elif value == "None":
         return None
-    elif _is_float(value):
-        return float(value)
     elif _is_int(value):
         return int(value)
+    elif _is_float(value):
+        return float(value)
     else:
         return value
 
