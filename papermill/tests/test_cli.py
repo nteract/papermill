@@ -12,10 +12,8 @@ from ..cli import _is_int,  _is_float, _resolve_type
     ("True", True),
     ("False", False),
     ("None", None),
-    (13.3, 13.3),
     ("12.51", 12.51),
-    (10, 10.0),
-    ("10", 10.0),
+    ("10", 10),
     ("hello world", "hello world"),
     (u"😍", u"😍"),
 ])
