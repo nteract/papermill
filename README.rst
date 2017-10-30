@@ -6,7 +6,7 @@
 .. image:: https://codecov.io/github/nteract/papermill/coverage.svg?branch=master
    :target: https://codecov.io/github/nteract/papermill?branch=master
 
-**Papermill** is a tool for parametrizing, executing, and analyzing Jupyter
+**Papermill** is a tool for parameterizing, executing, and analyzing Jupyter
 Notebooks.
 
 Papermill lets you:
