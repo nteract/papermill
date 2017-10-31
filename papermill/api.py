@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 import os
 
 import pandas as pd
@@ -7,7 +8,6 @@ from six import string_types
 
 from papermill.exceptions import PapermillException
 from papermill.iorw import load_notebook_node, list_notebook_files
-
 
 RECORD_OUTPUT_TYPE = 'application/papermill.record+json'
 DISPLAY_OUTPUT_TYPE = 'application/papermill.display+json'
@@ -51,7 +51,8 @@ def read_notebook(path):
     """
     if not path.endswith(".ipynb"):
         raise PapermillException(
-            "Notebooks should have an '.ipynb' file extension. Provided path: '%s'", path)
+            "Notebooks should have an '.ipynb' file extension. Provided path: '%s'",
+            path)
 
     nb = Notebook()
     nb.path = path
@@ -77,8 +78,7 @@ def read_notebooks(path):
 
 
 class Notebook(object):
-
-    def __init__(self, node = None, path = None):
+    def __init__(self, node=None, path=None):
         """
         Args:
             node (nbformat.NotebookNode): a notebook object
@@ -107,7 +107,8 @@ class Notebook(object):
 
     @property
     def environment_variables(self):
-        return _get_papermill_metadata(self.node, 'environment_variables', default={})
+        return _get_papermill_metadata(
+            self.node, 'environment_variables', default={})
 
     @property
     def data(self):
@@ -144,7 +145,8 @@ class Notebook(object):
         """Display the output from this notebook in the running notebook."""
         outputs = _get_notebook_outputs(self.node)
         if name not in outputs:
-            raise PapermillException("Output Name '%s' is not available in this notebook.")
+            raise PapermillException(
+                "Output Name '%s' is not available in this notebook.")
         output = outputs[name]
         ip_display(output.data, metadata=output.metadata, raw=True)
 
@@ -175,7 +177,6 @@ def _fetch_notebook_data(nb_node):
 
 
 class NotebookCollection(object):
-
     def __init__(self):
 
         self._notebooks = {}
@@ -187,7 +188,8 @@ class NotebookCollection(object):
 
         if not isinstance(value, Notebook):
             raise PapermillException(
-                "Value must either be a path string or a Papermill Notebook object. Found: '%s'" % str(type(value)))
+                "Value must either be a path string or a Papermill Notebook object. Found: '%s'"
+                % str(type(value)))
         self._notebooks[key] = value
 
     def __getitem__(self, key):

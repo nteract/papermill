@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Main `papermill` interface."""
 
+from __future__ import unicode_literals
 import base64
 
 import click
@@ -14,39 +15,34 @@ from papermill.iorw import read_yaml_file
 @click.argument('notebook_path')
 @click.argument('output_path')
 @click.option(
-    '--parameters', '-p',
+    '--parameters',
+    '-p',
     help='Parameters to pass to the parameters cell.',
-    multiple=True, nargs=2
-)
+    multiple=True,
+    nargs=2)
 @click.option(
-    '--parameters_raw', '-r',
+    '--parameters_raw',
+    '-r',
     help='Parameters to be read as raw string.',
-    multiple=True, nargs=2
-)
+    multiple=True,
+    nargs=2)
 @click.option(
-    '--parameters_file', '-f',
-    help='Path to YAML file containing parameters.'
-)
+    '--parameters_file', '-f', help='Path to YAML file containing parameters.')
 @click.option(
-    '--parameters_yaml', '-y',
-    help='YAML string to be used as parameters.'
-)
+    '--parameters_yaml', '-y', help='YAML string to be used as parameters.')
 @click.option(
-    '--parameters_base64', '-b',
-    help='Base64 encoded YAML string as parameters.'
-)
+    '--parameters_base64',
+    '-b',
+    help='Base64 encoded YAML string as parameters.')
+@click.option('--kernel', '-k', help='Name of kernel to run.')
 @click.option(
-    '--kernel', '-k',
-    help='Name of kernel to run.'
-)
+    '--progress-bar/--no-progress-bar',
+    default=True,
+    help="Flag for turning on the progress bar.")
 @click.option(
-    '--progress-bar/--no-progress-bar', default=True,
-    help="Flag for turning on the progress bar."
-)
-@click.option(
-    '--log-output/--no-log-output', default=False,
-    help="Flag for writing notebook output to stderr."
-)
+    '--log-output/--no-log-output',
+    default=False,
+    help="Flag for writing notebook output to stderr.")
 def papermill(notebook_path, output_path, parameters, parameters_raw,
               parameters_file, parameters_yaml, parameters_base64, kernel,
               progress_bar, log_output):
@@ -77,8 +73,7 @@ def papermill(notebook_path, output_path, parameters, parameters_raw,
         parameters_final,
         kernel_name=kernel,
         progress_bar=progress_bar,
-        log_output=log_output
-    )
+        log_output=log_output)
 
 
 def _resolve_type(value):
