@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import unicode_literals
+
 """ Test the command line interface """
 
 import pytest
@@ -15,7 +17,7 @@ from ..cli import _is_int,  _is_float, _resolve_type
     ("12.51", 12.51),
     ("10", 10),
     ("hello world", "hello world"),
-    (u"😍", u"😍"),
+    ("😍", "😍"),
 ])
 def test_resolve_type(test_input, expected):
     assert _resolve_type(test_input) == expected
