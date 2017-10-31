@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import io
 import os
 
@@ -39,7 +41,6 @@ class PapermillIO(object):
 
 
 class LocalHandler(object):
-
     @classmethod
     def read(cls, path):
         with io.open(path, 'r') as f:
@@ -124,7 +125,8 @@ def load_notebook_node(notebook_path):
 
     for cell in nb.cells:
         if not hasattr(cell.metadata, 'tags'):
-            cell.metadata['tags'] = []  # Create tags attr if one doesn't exist.
+            cell.metadata['tags'] = [
+            ]  # Create tags attr if one doesn't exist.
 
         if not hasattr(cell.metadata, 'papermill'):
             cell.metadata['papermill'] = dict()

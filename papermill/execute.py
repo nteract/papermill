@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import datetime
 import os
 import sys
@@ -77,7 +79,8 @@ def preprocess(self, nb, resources):
                 if not cell.source:
                     continue
 
-                nb.cells[index], resources = self.preprocess_cell(cell, resources, index)
+                nb.cells[index], resources = self.preprocess_cell(
+                    cell, resources, index)
                 cell.metadata['papermill']['exception'] = False
                 if self.log_output:
                     log_outputs(nb.cells[index])
@@ -89,7 +92,8 @@ def preprocess(self, nb, resources):
                 t1 = datetime.datetime.utcnow()
                 cell.metadata['papermill']['start_time'] = t0.isoformat()
                 cell.metadata['papermill']['end_time'] = t1.isoformat()
-                cell.metadata['papermill']['duration'] = (t1 - t0).total_seconds()
+                cell.metadata['papermill']['duration'] = (
+                    t1 - t0).total_seconds()
                 cell.metadata['papermill']['status'] = COMPLETED
                 future.result()
     return nb, resources
@@ -106,26 +110,31 @@ def log_outputs(cell):
     for output in cell.get("outputs", []):
         if output.output_type == "stream":
             if output.name == "stdout":
-                stdouts.append("".join(output.text))
+                stdouts.append(u"".join(output.text))
             elif output.name == "stderr":
-                stderrs.append("".join(output.text))
+                stderrs.append(u"".join(output.text))
         elif "data" in output and "text/plain" in output.data:
             stdouts.append(output.data['text/plain'])
 
     # Log stdouts
-    sys.stdout.write('{:-<40}'.format("Out [%s] " % execution_count) + "\n")
-    sys.stdout.write("\n".join(stdouts) + "\n")
+    sys.stdout.write(u'{:-<40}'.format(u"Out [%s] " % execution_count) + u"\n")
+    sys.stdout.write(u"\n".join(stdouts) + u"\n")
 
     # Log stderrs
-    sys.stderr.write('{:-<40}'.format("Out [%s] " % execution_count) + "\n")
-    sys.stderr.write("\n".join(stderrs) + "\n")
+    sys.stderr.write(u'{:-<40}'.format(u"Out [%s] " % execution_count) + u"\n")
+    sys.stderr.write(u"\n".join(stderrs) + u"\n")
 
 
 # Monkey Patch the base preprocess method.
 Preprocessor.preprocess = preprocess
 
 
-def execute_notebook(notebook, output, parameters=None, kernel_name=None, progress_bar=True, log_output=False):
+def execute_notebook(notebook,
+                     output,
+                     parameters=None,
+                     kernel_name=None,
+                     progress_bar=True,
+                     log_output=False):
     """Executes a single notebook locally.
 
     Args:
@@ -146,15 +155,15 @@ def execute_notebook(notebook, output, parameters=None, kernel_name=None, progre
 
     # Record specified environment variable values.
     nb.metadata.papermill['parameters'] = parameters
-    nb.metadata.papermill['environment_variables'] = _fetch_environment_variables()
+    nb.metadata.papermill[
+        'environment_variables'] = _fetch_environment_variables()
     nb.metadata.papermill['output_path'] = output
 
     # Execute the Notebook.
     t0 = datetime.datetime.utcnow()
     processor = ExecutePreprocessor(
         timeout=None,
-        kernel_name=kernel_name or nb.metadata.kernelspec.name,
-    )
+        kernel_name=kernel_name or nb.metadata.kernelspec.name, )
     processor.progress_bar = progress_bar
     processor.log_output = log_output
 
@@ -164,7 +173,8 @@ def execute_notebook(notebook, output, parameters=None, kernel_name=None, progre
     nb.metadata.papermill['start_time'] = t0.isoformat()
     nb.metadata.papermill['end_time'] = t1.isoformat()
     nb.metadata.papermill['duration'] = (t1 - t0).total_seconds()
-    nb.metadata.papermill['exception'] = any([cell.metadata.papermill.get('exception') for cell in nb.cells])
+    nb.metadata.papermill['exception'] = any(
+        [cell.metadata.papermill.get('exception') for cell in nb.cells])
 
     # Write final Notebook to disk.
     write_ipynb(nb, output)
@@ -198,8 +208,8 @@ def _build_parameter_code(kernel_name, parameters):
     elif kernelspec.language in _parameter_code_builders:
         return _parameter_code_builders[kernelspec.language](parameters)
     raise PapermillException(
-        "No parameter builder functions specified for kernel '%s' or language '%s'" % (kernel_name, kernelspec.language)
-    )
+        "No parameter builder functions specified for kernel '%s' or language '%s'"
+        % (kernel_name, kernelspec.language))
 
 
 def _find_parameters_index(nb):
@@ -220,9 +230,11 @@ _parameter_code_builders = {}
 
 def register_param_builder(name):
     """Decorator for registering functions that write variable assignments for a given kernel or language."""
+
     def wrapper(func):
         _parameter_code_builders[name] = func
         return func
+
     return wrapper
 
 
@@ -263,8 +275,7 @@ def _fetch_environment_variables():
 ERROR_MESSAGE_TEMPLATE = (
     '<span style="color:red; font-family:Helvetica Neue, Helvetica, Arial, sans-serif; font-size:2em;">'
     "An Exception was encountered at 'In [%s]'."
-    '</span>'
-)
+    '</span>')
 
 
 def raise_for_execution_errors(nb, output_path):
@@ -281,8 +292,7 @@ def raise_for_execution_errors(nb, output_path):
                     source=cell.source,
                     ename=output.ename,
                     evalue=output.evalue,
-                    traceback=output.traceback
-                )
+                    traceback=output.traceback)
                 break
 
     if error:

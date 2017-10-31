@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from ansiwrap import strip_color
 
 
@@ -15,6 +17,7 @@ class PapermillException(Exception):
 
 class PapermillExecutionError(PapermillException):
     """Raised when an exception is encountered in a notebook."""
+
     def __init__(self, exec_count, source, ename, evalue, traceback):
         self.exec_count = exec_count
         self.source = source
