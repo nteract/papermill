@@ -14,6 +14,7 @@ from tqdm import tqdm
 from papermill.conf import settings
 from papermill.exceptions import PapermillException, PapermillExecutionError
 from papermill.iorw import load_notebook_node, write_ipynb, read_yaml_file, get_pretty_path
+from papermill.api import read_notebook
 
 PENDING = "pending"
 RUNNING = "running"
@@ -125,7 +126,7 @@ def log_outputs(cell):
 Preprocessor.preprocess = preprocess
 
 
-def execute_notebook(notebook, output, parameters=None, kernel_name=None, progress_bar=True, log_output=False):
+def execute_notebook(notebook, output, parameters=None, kernel_name=None, progress_bar=True, log_output=False, dataframe_file=None):
     """Executes a single notebook locally.
 
     Args:
@@ -169,7 +170,10 @@ def execute_notebook(notebook, output, parameters=None, kernel_name=None, progre
     # Write final Notebook to disk.
     write_ipynb(nb, output)
     raise_for_execution_errors(nb, output)
-
+    if dataframe_file:
+        outputnb = read_notebook(output)
+        with open(dataframe_file,'w') as dfile:
+            dfile.write(outputnb.dataframe.to_json())
 
 def _parameterize_notebook(nb, kernel_name, parameters):
 
