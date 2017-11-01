@@ -4,7 +4,7 @@ import six
 if six.PY3:
     from unittest.mock import patch
 else:
-    import mock
+    from mock import patch
 
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
