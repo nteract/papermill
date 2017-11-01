@@ -1,10 +1,16 @@
 import pytest
 import unittest
+import six
+if six.PY3:
+    from unittest.mock import patch
+else:
+    from mock import patch
 
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
 
-from papermill import read_notebook, read_notebooks, PapermillException
+from papermill import display, read_notebook, read_notebooks, PapermillException
+from papermill.api import Notebook
 from . import get_notebook_path, get_notebook_dir
 
 
@@ -34,6 +40,11 @@ class TestNotebookClass(unittest.TestCase):
 
         with self.assertRaises(PapermillException):
             read_notebook('result_notebook.py')
+
+    def test_path_without_node(self):
+
+        with self.assertRaises(ValueError):
+            Notebook(node=None, path='collection/result1.ipynb')
 
 
 class TestNotebookCollection(unittest.TestCase):
@@ -71,3 +82,13 @@ class TestNotebookCollection(unittest.TestCase):
             columns=['filename', 'cell', 'value', 'type', 'key']
         )
         assert_frame_equal(nbs.metrics, expected_metrics_df)
+
+
+@patch('papermill.api.ip_display')
+@patch('IPython.core.formatters.format_display_data')
+def test_display(format_display_data_mock, ip_display_mock):
+    format_display_data_mock.return_value = ({'foo': 'bar'}, {'metadata': 'baz'})
+    display('display_name', {'display_obj': 'hello'})
+
+    format_display_data_mock.assert_called_once_with({'display_obj': 'hello'})
+    ip_display_mock.assert_called_once_with({'foo': 'bar'}, metadata={'metadata': 'baz', 'papermill': {'name': 'display_name'}}, raw=True)
