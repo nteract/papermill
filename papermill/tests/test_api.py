@@ -6,6 +6,7 @@ import pandas as pd
 from pandas.util.testing import assert_frame_equal
 
 from papermill import display, read_notebook, read_notebooks, PapermillException
+from papermill.api import Notebook
 from . import get_notebook_path, get_notebook_dir
 
 
@@ -35,6 +36,11 @@ class TestNotebookClass(unittest.TestCase):
 
         with self.assertRaises(PapermillException):
             read_notebook('result_notebook.py')
+
+    def test_path_without_node(self):
+
+        with self.assertRaises(ValueError):
+            Notebook(node=None, path='collection/result1.ipynb')
 
 
 class TestNotebookCollection(unittest.TestCase):
