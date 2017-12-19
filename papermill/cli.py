@@ -7,8 +7,8 @@ import base64
 import click
 import yaml
 
-from papermill.execute import execute_notebook
-from papermill.iorw import read_yaml_file
+from .execute import execute_notebook
+from .iorw import read_yaml_file
 
 
 @click.command(context_settings=dict(help_option_names=['-h', '--help']))
