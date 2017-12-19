@@ -21,11 +21,19 @@ class TestNotebookHelpers(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.test_dir)
 
-    def test(self):
-        nb_test1_fname = get_notebook_path('simple_execute.ipynb')
-        nb_test1_executed_fname = os.path.join(self.test_dir, 'test1_executed.ipynb')
-        execute_notebook(nb_test1_fname, nb_test1_executed_fname, {'msg': 'Hello'})
-        test_nb = read_notebook(nb_test1_executed_fname)
+    def test_cell_insertion(self):
+        notebook_name = 'simple_execute.ipynb'
+        nb_test_executed_fname = os.path.join(self.test_dir, 'output_{}'.format(notebook_name))
+        execute_notebook(get_notebook_path(notebook_name), nb_test_executed_fname, {'msg': 'Hello'})
+        test_nb = read_notebook(nb_test_executed_fname)
+        self.assertEqual(test_nb.node.cells[1].get('source'), u'# Parameters\nmsg = "Hello"\n')
+        self.assertEqual(test_nb.parameters, {'msg': 'Hello'})
+
+    def test_no_tags(self):
+        notebook_name = 'no_parameters.ipynb'
+        nb_test_executed_fname = os.path.join(self.test_dir, 'output_{}'.format(notebook_name))
+        execute_notebook(get_notebook_path(notebook_name), nb_test_executed_fname, {'msg': 'Hello'})
+        test_nb = read_notebook(nb_test_executed_fname)
         self.assertEqual(test_nb.node.cells[0].get('source'), u'# Parameters\nmsg = "Hello"\n')
         self.assertEqual(test_nb.parameters, {'msg': 'Hello'})
 
