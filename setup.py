@@ -3,16 +3,22 @@
 
 #!/usr/bin/env python
 
-
+import sys, os
 from os.path import exists
 from setuptools import setup
 import versioneer
 
 ipython_req = 'ipython'
 
-import sys
-if sys.version_info[0] < 3 and 'bdist_wheel' not in sys.argv:
-    ipython_req = 'ipython<6'
+python_2 = sys.version_info[0] == 2
+def read(fname):
+    with open(fname, 'rU' if python_2 else 'r') as fhandle:
+        return fhandle.read()
+
+req_path = os.path.join(os.path.dirname('__file__'), 'requirements.txt')
+required = [req.strip() for req in read(req_path).splitlines() if req.strip()]
+if python_2 and 'bdist_wheel' not in sys.argv:
+    required = ['ipython<6' if req == 'ipython' else req for req in required]
 
 setup(name='papermill',
       version=versioneer.get_version(),
@@ -25,21 +31,7 @@ setup(name='papermill',
       long_description=(open('README.rst').read() if exists('README.rst') else ''),
       url='https://github.com/nteract/papermill',
       packages=['papermill'],
-      install_requires=[
-          'ansiwrap',
-          'boto3',
-          'click',
-          'futures ; python_version < "3.0"',
-          'pyyaml',
-          'nbformat',
-          ipython_req,
-          'nbconvert',
-          'six',
-          'tqdm',
-          'jupyter_client',
-          'pandas',
-          'requests'
-      ],
+      install_requires=required,
       entry_points={
               'console_scripts': [
                   'papermill = papermill.cli:papermill'
