@@ -17,15 +17,16 @@ from . import get_notebook_path, RedirectOutput
 class TestNotebookHelpers(unittest.TestCase):
     def setUp(self):
         self.test_dir = tempfile.mkdtemp()
+        self.notebook_name = 'simple_execute.ipynb'
+        self.notebook_path = get_notebook_path(self.notebook_name)
+        self.nb_test_executed_fname = os.path.join(self.test_dir, 'output_{}'.format(self.notebook_name))
 
     def tearDown(self):
         shutil.rmtree(self.test_dir)
 
     def test_cell_insertion(self):
-        notebook_name = 'simple_execute.ipynb'
-        nb_test_executed_fname = os.path.join(self.test_dir, 'output_{}'.format(notebook_name))
-        execute_notebook(get_notebook_path(notebook_name), nb_test_executed_fname, {'msg': 'Hello'})
-        test_nb = read_notebook(nb_test_executed_fname)
+        execute_notebook(self.notebook_path, self.nb_test_executed_fname, {'msg': 'Hello'})
+        test_nb = read_notebook(self.nb_test_executed_fname)
         self.assertEqual(test_nb.node.cells[1].get('source'), u'# Parameters\nmsg = "Hello"\n')
         self.assertEqual(test_nb.parameters, {'msg': 'Hello'})
 
@@ -36,6 +37,12 @@ class TestNotebookHelpers(unittest.TestCase):
         test_nb = read_notebook(nb_test_executed_fname)
         self.assertEqual(test_nb.node.cells[0].get('source'), u'# Parameters\nmsg = "Hello"\n')
         self.assertEqual(test_nb.parameters, {'msg': 'Hello'})
+
+    def test_quoted_params(self):
+        execute_notebook(self.notebook_path, self.nb_test_executed_fname, {'msg': '"Hello"'})
+        test_nb = read_notebook(self.nb_test_executed_fname)
+        self.assertEqual(test_nb.node.cells[1].get('source'), u'# Parameters\nmsg = "\\"Hello\\""\n')
+        self.assertEqual(test_nb.parameters, {'msg': '"Hello"'})
 
 
 class TestBrokenNotebook1(unittest.TestCase):
