@@ -37,7 +37,8 @@ setup(name='papermill',
           'six',
           'tqdm',
           'jupyter_client',
-          'pandas'
+          'pandas',
+          'requests'
       ],
       entry_points={
               'console_scripts': [
