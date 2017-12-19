@@ -9,8 +9,8 @@ else:
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
 
-from papermill import display, read_notebook, read_notebooks, PapermillException
-from papermill.api import Notebook
+from .. import display, read_notebook, read_notebooks, PapermillException
+from ..api import Notebook
 from . import get_notebook_path, get_notebook_dir
 
 

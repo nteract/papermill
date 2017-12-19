@@ -10,9 +10,9 @@ import nbformat
 import requests
 import yaml
 
-from papermill import __version__
-from papermill.exceptions import PapermillException
-from papermill.s3 import S3
+from . import __version__
+from .exceptions import PapermillException
+from .s3 import S3
 
 
 class PapermillIO(object):
