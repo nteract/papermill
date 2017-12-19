@@ -3,12 +3,15 @@
 from __future__ import unicode_literals
 
 import io
+import json
 import os
 
 import nbformat
+import requests
 import yaml
 
 from papermill import __version__
+from papermill.exceptions import PapermillException
 from papermill.s3 import S3
 
 
@@ -40,6 +43,24 @@ class PapermillIO(object):
             if path.startswith(scheme):
                 return handler
         return self.__handlers['local']
+
+
+class HttpHandler(object):
+    @classmethod
+    def read(cls, path):
+        return requests.get(path).text
+
+    @classmethod
+    def listdir(cls, path):
+        raise PapermillException('listdir is not supported by HttpHandler')
+
+    @classmethod
+    def write(cls, buf, path):
+        requests.put(path, json=json.loads(buf))
+
+    @classmethod
+    def pretty_path(cls, path):
+        return path
 
 
 class LocalHandler(object):
@@ -90,6 +111,8 @@ class S3Handler(object):
 papermill_io = PapermillIO()
 papermill_io.register("local", LocalHandler)
 papermill_io.register("s3://", S3Handler)
+papermill_io.register("http://", HttpHandler)
+papermill_io.register("https://", HttpHandler)
 
 
 def read_yaml_file(path):
