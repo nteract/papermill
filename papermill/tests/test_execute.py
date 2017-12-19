@@ -8,9 +8,9 @@ import unittest
 
 import nbformat
 
-from papermill.api import read_notebook
-from papermill.execute import execute_notebook, log_outputs
-from papermill.exceptions import PapermillExecutionError
+from ..api import read_notebook
+from ..execute import execute_notebook, log_outputs
+from ..exceptions import PapermillExecutionError
 from . import get_notebook_path, RedirectOutput
 
 

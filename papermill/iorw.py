@@ -8,8 +8,8 @@ import os
 import nbformat
 import yaml
 
-from papermill import __version__
-from papermill.s3 import S3
+from . import __version__
+from .s3 import S3
 
 
 class PapermillIO(object):

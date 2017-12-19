@@ -8,8 +8,8 @@ import IPython
 from IPython.display import display as ip_display, Markdown
 from six import string_types
 
-from papermill.exceptions import PapermillException
-from papermill.iorw import load_notebook_node, list_notebook_files
+from .exceptions import PapermillException
+from .iorw import load_notebook_node, list_notebook_files
 
 RECORD_OUTPUT_TYPE = 'application/papermill.record+json'
 DISPLAY_OUTPUT_TYPE = 'application/papermill.display+json'

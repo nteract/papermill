@@ -15,9 +15,9 @@ from nbconvert.preprocessors.base import Preprocessor
 from six import string_types
 from tqdm import tqdm
 
-from papermill.conf import settings
-from papermill.exceptions import PapermillException, PapermillExecutionError
-from papermill.iorw import load_notebook_node, write_ipynb, read_yaml_file, get_pretty_path
+from .conf import settings
+from .exceptions import PapermillException, PapermillExecutionError
+from .iorw import load_notebook_node, write_ipynb, read_yaml_file, get_pretty_path
 
 PENDING = "pending"
 RUNNING = "running"
