@@ -141,7 +141,7 @@ def execute_notebook(notebook,
 
     Args:
         notebook (str): Path to input notebook.
-        output (str): Path to save exexuted notebook.
+        output (str): Path to save executed notebook.
         parameters (dict): Arbitrary keyword arguments to pass to the notebook parameters.
         kernel_name (str): Name of kernel to execute the notebook against.
         progress_bar (bool): Flag for whether or not to show the progress bar.
@@ -195,11 +195,15 @@ def _parameterize_notebook(nb, kernel_name, parameters):
 
     # Remove the old cell and replace it with a new one containing parameter content.
     param_cell_index = _find_parameters_index(nb)
-    old_parameters = nb.cells[param_cell_index]
-    before = nb.cells[:param_cell_index]
+    if param_cell_index >= 0:
+        old_parameters = nb.cells[param_cell_index]
+    else:
+        old_parameters = nbformat.v4.new_code_cell() # Fake cell
+        old_parameters.metadata['tags'] = ['parameters']
+    before = nb.cells[:param_cell_index + 1]
     after = nb.cells[param_cell_index + 1:]
     newcell = nbformat.v4.new_code_cell(source=param_content)
-    newcell.metadata['tags'] = old_parameters.metadata.tags
+    newcell.metadata['tags'] = old_parameters.metadata.pop('tags', [])
     nb.cells = before + [newcell] + after
 
 
@@ -220,7 +224,7 @@ def _find_parameters_index(nb):
         if "parameters" in cell.metadata.tags:
             parameters_indices.append(idx)
     if not parameters_indices:
-        raise PapermillException("No parameters tag found")
+        return -1
     elif len(parameters_indices) > 1:
         raise PapermillException("Multiple parameters tags found")
     return parameters_indices[0]
