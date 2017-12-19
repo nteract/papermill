@@ -250,7 +250,7 @@ def build_python_params(parameters):
     param_content = "# Parameters\n"
     for var, val in parameters.items():
         if isinstance(val, string_types):
-            val = '"%s"' % val  # TODO: Handle correctly escaping input strings.
+            val = '"%s"' % val.replace('"', '\\"')
         param_content += '%s = %s\n' % (var, val)
     return param_content
 
@@ -261,7 +261,7 @@ def build_r_params(parameters):
     param_content = "# Parameters\n"
     for var, val in parameters.items():
         if isinstance(val, string_types):
-            val = '"%s"' % val  # TODO: Handle correctly escaping input strings.
+            val = '"%s"' % val.replace('"', '\\"')
         elif val is True:
             val = 'TRUE'
         elif val is False:
