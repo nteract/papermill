@@ -6,8 +6,8 @@ if six.PY3:
 else:
     from mock import Mock, patch
 
-from papermill.exceptions import PapermillException
-from papermill.iorw import HttpHandler
+from ..exceptions import PapermillException
+from ..iorw import HttpHandler
 
 
 class TestHttpHandler(unittest.TestCase):
