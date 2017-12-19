@@ -2,10 +2,11 @@
 ======
 
 .. image:: https://travis-ci.org/nteract/papermill.svg?branch=master
-    :target: https://travis-ci.org/nteract/papermill
+   :target: https://travis-ci.org/nteract/papermill
 .. image:: https://codecov.io/github/nteract/papermill/coverage.svg?branch=master
    :target: https://codecov.io/github/nteract/papermill?branch=master
-.. image:: https://mybinder.org/badge.svg :target: https://mybinder.org/v2/gh/nteract/papermill/binder?filepath=papermill%2Ftests%2Fnotebooks%2Fbinder.ipynb
+.. image:: https://mybinder.org/badge.svg
+   :target: https://mybinder.org/v2/gh/nteract/papermill/master?filepath=papermill%2Ftests%2Fnotebooks%2Fbinder.ipynb
 
 
 **Papermill** is a tool for parameterizing, executing, and analyzing Jupyter
