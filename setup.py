@@ -1,11 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+""""
+setup.py
 
-#!/usr/bin/env python
+Note: Install ipython version based on python version.
+      If python 2, install ipython 5.x (python2 is not supported in ipython 6.
 
-import sys, os
+"""
+import os
+import sys
 from os.path import exists
 from setuptools import setup
+
 import versioneer
 
 ipython_req = 'ipython'
@@ -37,4 +43,4 @@ setup(name='papermill',
                   'papermill = papermill.cli:papermill'
               ]
           }
-     )
+      )
