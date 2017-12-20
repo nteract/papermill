@@ -1,11 +1,16 @@
- # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
+"""
+api.py
 
+Provides the API for papermill
+
+"""
 from __future__ import unicode_literals
 import os
 
-import pandas as pd
 import IPython
 from IPython.display import display as ip_display, Markdown
+import pandas as pd
 from six import string_types
 
 from .exceptions import PapermillException
@@ -17,14 +22,17 @@ DISPLAY_OUTPUT_TYPE = 'application/papermill.display+json'
 
 def record(name, value):
     """
-    Records the value as part of the executing cell's output to be retrieved during inspection.
+    Records the value as part of the executing cell's output to be retrieved
+    during inspection.
 
     Args:
         name (str): Name of the value
         value: The value to record.
 
     """
-    ip_display({RECORD_OUTPUT_TYPE: {name: value}}, raw=True)
+    # IPython.display.display takes a tuple of objects as first parameter
+    # `http://ipython.readthedocs.io/en/stable/api/generated/IPython.display.html#IPython.display.display`
+    ip_display(({RECORD_OUTPUT_TYPE: {name: value}},), raw=True)
 
 
 def display(name, obj):
@@ -50,10 +58,11 @@ def read_notebook(path):
 
     Returns:
         A Notebook object.
+
     """
     if not path.endswith(".ipynb"):
         raise PapermillException(
-            "Notebooks should have an '.ipynb' file extension. Provided path: '%s'",
+            "Requires an '.ipynb' file extension. Provided path: '%s'",
             path)
 
     nb = Notebook()
@@ -64,28 +73,34 @@ def read_notebook(path):
 
 def read_notebooks(path):
     """
-    Returns a NotebookCollection loaded from the notebooks found the in the directory specified by 'path'.
+    Returns a NotebookCollection loaded from the notebooks found the in the
+    directory specified by 'path'.
 
     Args:
         path (str): Path to directory containing notebook ".ipynb" files.
 
     Returns:
         A NotebookCollection object.
+
     """
-    nbs = NotebookCollection()
+    nb_collection = NotebookCollection()
     for notebook_path in list_notebook_files(path):
         fn = os.path.basename(notebook_path)
-        nbs[fn] = read_notebook(notebook_path)
-    return nbs
+        nb_collection[fn] = read_notebook(notebook_path)
+    return nb_collection
 
 
 class Notebook(object):
+    """
+    Representation of a notebook.
+
+    Constructor args:
+        node (nbformat.NotebookNode): a notebook object
+        path (str): the path to the notebook (optional)
+
+    """
     def __init__(self, node=None, path=None):
-        """
-        Args:
-            node (nbformat.NotebookNode): a notebook object
-            path (str): the path to the notebook (optional)
-        """
+
         if path is not None and not node:
             raise ValueError('notebook must be defined when path is given')
         self.path = path or ''
@@ -120,6 +135,7 @@ class Notebook(object):
     def dataframe(self):
         df = pd.DataFrame(columns=['name', 'value', 'type', 'filename'])
 
+        # TODO: refactor to a Dict comprehension or list comprehensions
         i = 0
         for name in sorted(self.parameters.keys()):
             df.loc[i] = name, self.parameters[name], 'parameter', self.filename
@@ -144,7 +160,12 @@ class Notebook(object):
         return df
 
     def display_output(self, name):
-        """Display the output from this notebook in the running notebook."""
+        """Display output from a source notebook in the running notebook.
+
+        Parameter:
+            name (str): source notebook
+
+        """
         outputs = _get_notebook_outputs(self.node)
         if name not in outputs:
             raise PapermillException(
@@ -179,6 +200,7 @@ def _fetch_notebook_data(nb_node):
 
 
 class NotebookCollection(object):
+    """Represents a collection of notebooks"""
     def __init__(self):
 
         self._notebooks = {}
@@ -202,32 +224,32 @@ class NotebookCollection(object):
 
     @property
     def dataframe(self):
-        dfs = []
+        df_list = []
         for key in sorted(self._notebooks):
             nb = self._notebooks[key]
             df = nb.dataframe
             df['key'] = key
-            dfs.append(df)
-        return pd.concat(dfs).reset_index(drop=True)
+            df_list.append(df)
+        return pd.concat(df_list).reset_index(drop=True)
 
     @property
     def metrics(self):
-        dfs = []
+        df_list = []
         for key in sorted(self._notebooks):
             nb = self._notebooks[key]
             df = nb.metrics
             df['key'] = key
-            dfs.append(df)
-        return pd.concat(dfs).reset_index(drop=True)
+            df_list.append(df)
+        return pd.concat(df_list).reset_index(drop=True)
 
     def display_output(self, key, output_name):
+        """Display markdown of output"""
         if isinstance(key, string_types):
-            ip_display(Markdown("### %s" % str(key)))
+            ip_display((Markdown("### %s" % str(key)),))
             self[key].display_output(output_name)
         else:
             for i, k in enumerate(key):
                 if i > 0:
-                    # between outputs
-                    ip_display(Markdown("<hr>"))
-                ip_display(Markdown("### %s" % str(k)))
+                    ip_display((Markdown("<hr>"),))  # tag between outputs
+                ip_display((Markdown("### %s" % str(k)),))
                 self[k].display_output(output_name)
