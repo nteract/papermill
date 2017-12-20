@@ -13,11 +13,12 @@ from ..execute import execute_notebook, log_outputs
 from ..exceptions import PapermillExecutionError
 from . import get_notebook_path, RedirectOutput
 
+python_2 = sys.version_info[0] == 2
 
 class TestNotebookHelpers(unittest.TestCase):
     def setUp(self):
         self.test_dir = tempfile.mkdtemp()
-        self.notebook_name = 'simple_execute.ipynb'
+        self.notebook_name = 'simple_execute_2.ipynb' if python_2 else 'simple_execute.ipynb'
         self.notebook_path = get_notebook_path(self.notebook_name)
         self.nb_test_executed_fname = os.path.join(self.test_dir, 'output_{}'.format(self.notebook_name))
 
