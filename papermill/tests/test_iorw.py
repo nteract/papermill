@@ -24,7 +24,7 @@ class TestHttpHandler(unittest.TestCase):
             HttpHandler.listdir('http://example.com')
 
         self.assertEqual(
-            e.exception.message, 'listdir is not supported by HttpHandler'
+                '{}'.format(e.exception), 'listdir is not supported by HttpHandler'
         )
 
     def test_read(self):
