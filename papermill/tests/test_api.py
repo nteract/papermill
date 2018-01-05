@@ -9,7 +9,7 @@ else:
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
 
-from .. import display, read_notebook, read_notebooks, PapermillException
+from .. import display, read_notebook, read_notebooks, PapermillException, record
 from ..api import Notebook
 from . import get_notebook_path, get_notebook_dir
 
@@ -91,4 +91,11 @@ def test_display(format_display_data_mock, ip_display_mock):
     display('display_name', {'display_obj': 'hello'})
 
     format_display_data_mock.assert_called_once_with({'display_obj': 'hello'})
-    ip_display_mock.assert_called_once_with({'foo': 'bar'}, metadata={'metadata': 'baz', 'papermill': {'name': 'display_name'}}, raw=True)
+    ip_display_mock.assert_called_once_with(data={'foo': 'bar'}, metadata={'metadata': 'baz', 'papermill': {'name': 'display_name'}}, raw=True)
+
+
+
+@patch('papermill.api.ip_display')
+def test_record(ip_display_mock):
+    record('a', 3)
+    ip_display_mock.assert_called_once_with(data={'application/papermill.record+json': {'a': 3}}, raw=True)

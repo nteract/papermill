@@ -32,7 +32,7 @@ def record(name, value):
     """
     # IPython.display.display takes a tuple of objects as first parameter
     # `http://ipython.readthedocs.io/en/stable/api/generated/IPython.display.html#IPython.display.display`
-    ip_display(({RECORD_OUTPUT_TYPE: {name: value}},), raw=True)
+    ip_display(data={RECORD_OUTPUT_TYPE: {name: value}}, raw=True)
 
 
 def display(name, obj):
@@ -46,7 +46,7 @@ def display(name, obj):
     """
     data, metadata = IPython.core.formatters.format_display_data(obj)
     metadata['papermill'] = dict(name=name)
-    ip_display(data, metadata=metadata, raw=True)
+    ip_display(data=data, metadata=metadata, raw=True)
 
 
 def read_notebook(path):
@@ -171,7 +171,7 @@ class Notebook(object):
             raise PapermillException(
                 "Output Name '%s' is not available in this notebook.")
         output = outputs[name]
-        ip_display(output.data, metadata=output.metadata, raw=True)
+        ip_display(data=output.data, metadata=output.metadata, raw=True)
 
 
 def _get_papermill_metadata(nb, name, default=None):
@@ -245,11 +245,11 @@ class NotebookCollection(object):
     def display_output(self, key, output_name):
         """Display markdown of output"""
         if isinstance(key, string_types):
-            ip_display((Markdown("### %s" % str(key)),))
+            ip_display(Markdown("### %s" % str(key)))
             self[key].display_output(output_name)
         else:
             for i, k in enumerate(key):
                 if i > 0:
-                    ip_display((Markdown("<hr>"),))  # tag between outputs
-                ip_display((Markdown("### %s" % str(k)),))
+                    ip_display(Markdown("<hr>"))  # tag between outputs
+                ip_display(Markdown("### %s" % str(k)))
                 self[k].display_output(output_name)
