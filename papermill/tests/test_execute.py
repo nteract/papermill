@@ -45,6 +45,23 @@ class TestNotebookHelpers(unittest.TestCase):
         self.assertEqual(test_nb.node.cells[1].get('source'), u'# Parameters\nmsg = "\\"Hello\\""\n')
         self.assertEqual(test_nb.parameters, {'msg': '"Hello"'})
 
+    def test_backslash_params(self):
+        execute_notebook(self.notebook_path, self.nb_test_executed_fname, {'foo': r'do\ not\ crash'})
+        test_nb = read_notebook(self.nb_test_executed_fname)
+        self.assertEqual(test_nb.node.cells[1].get('source'), u'# Parameters\nfoo = "do\\\\ not\\\\ crash"\n')
+        self.assertEqual(test_nb.parameters, {'foo': 'do\\ not\\ crash'})
+
+    def test_backslash_quote_params(self):
+        execute_notebook(self.notebook_path, self.nb_test_executed_fname, {'foo': r'bar=\"baz\"'})
+        test_nb = read_notebook(self.nb_test_executed_fname)
+        self.assertEqual(test_nb.node.cells[1].get('source'), u'# Parameters\nfoo = "bar=\\\\\\"baz\\\\\\""\n')
+        self.assertEqual(test_nb.parameters, {'foo': 'bar=\\\"baz\\\"'})
+
+    def test_double_backslash_quote_params(self):
+        execute_notebook(self.notebook_path, self.nb_test_executed_fname, {'foo': r'\\"bar\\"'})
+        test_nb = read_notebook(self.nb_test_executed_fname)
+        self.assertEqual(test_nb.node.cells[1].get('source'), u'# Parameters\nfoo = "\\\\\\\\\\"bar\\\\\\\\\\""\n')
+        self.assertEqual(test_nb.parameters, {'foo': '\\\\\"bar\\\\\"'})
 
 class TestBrokenNotebook1(unittest.TestCase):
 
