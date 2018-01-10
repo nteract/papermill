@@ -229,6 +229,13 @@ def _find_parameters_index(nb):
         raise PapermillException("Multiple parameters tags found")
     return parameters_indices[0]
 
+def _form_escaped_value(str_val):
+    if isinstance(str_val, string_types):
+        str_val = str_val.encode('unicode_escape')
+        if sys.version_info >= (3, 0):
+            str_val = str_val.decode('utf-8')
+        str_val = str_val.replace('"', r'\"')
+    return '"{}"'.format(str_val)
 
 # Registry for functions that build parameter assignment code.
 _parameter_code_builders = {}
@@ -243,15 +250,13 @@ def register_param_builder(name):
 
     return wrapper
 
-
 @register_param_builder("python")
 def build_python_params(parameters):
     """Writers parameter assignment code for Python kernels."""
     param_content = "# Parameters\n"
     for var, val in parameters.items():
-        if isinstance(val, string_types):
-            val = '"%s"' % val.replace('\\', '\\\\').replace('"', r'\"')
-        param_content += '%s = %s\n' % (var, val)
+        val = _form_escaped_value(val)
+        param_content += '{} = {}\n'.format(var, val)
     return param_content
 
 
@@ -260,13 +265,12 @@ def build_r_params(parameters):
     """Writes parameters assignment code for R kernels."""
     param_content = "# Parameters\n"
     for var, val in parameters.items():
-        if isinstance(val, string_types):
-            val = '"%s"' % val.replace('\\', '\\\\').replace('"', r'\"')
-        elif val is True:
+        val = _form_escaped_value(val)
+        if val is True:
             val = 'TRUE'
         elif val is False:
             val = 'FALSE'
-        param_content += '%s = %s\n' % (var, val)
+        param_content += '{} = {}\n'.format(var, val)
     return param_content
 
 
