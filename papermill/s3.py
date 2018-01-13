@@ -1,5 +1,5 @@
- # -*- coding: utf-8 -*-
-
+# -*- coding: utf-8 -*-
+"""Utilities for working with S3."""
 from __future__ import unicode_literals
 
 from concurrent import futures
@@ -20,20 +20,25 @@ import six
 
 from .exceptions import AwsError, FileExistsError
 
+
 logger = logging.getLogger('papermill.s3')
 
 
 class Bucket(object):
+    """Represents a Bucket of storage on S3."""
+
     def __init__(self, name, service=None):
         self.name = name
         self.service = service
 
     def list(self, prefix='', delimiter=None):
-        return self.service._list(
-            bucket=self.name, prefix=prefix, delimiter=delimiter, objects=True)
+        """Limits a list of Bucket's objects based on prefix and delimiter."""
+        return self.service._list(bucket=self.name, prefix=prefix,
+                                  delimiter=delimiter, objects=True)
 
 
 class Prefix(object):
+    """Represents a prefix used in an S3 Bucket."""
     def __init__(self, bucket, name, service=None):
         self.bucket = Bucket(bucket, service=service)
         self.name = name
@@ -48,14 +53,12 @@ class Prefix(object):
 
 
 class Key(object):
-    #TODO make size, etag, etc properties that can be called from the object as needed
-    def __init__(self,
-                 bucket,
-                 name,
-                 size=None,
-                 etag=None,
-                 last_modified=None,
-                 storage_class=None,
+    """A key that represents a unique object in an S3 Bucket."""
+
+    # TODO make size, etag, etc properties that can be called from the
+    # object as needed
+    def __init__(self, bucket, name,
+                 size=None, etag=None, last_modified=None, storage_class=None,
                  service=None):
         self.bucket = Bucket(bucket, service=service)
         self.name = name
@@ -63,9 +66,8 @@ class Key(object):
         self.etag = etag
         if last_modified:
             try:
-                self.last_modified = last_modified.isoformat().split(
-                    '+')[0] + '.000Z'
-            except:
+                self.last_modified = last_modified.isoformat().split('+')[0] + '.000Z'
+            except ValueError:
                 self.last_modified = last_modified
         self.storage_class = storage_class
         self.is_prefix = False
@@ -96,10 +98,12 @@ def retry(num):
 
 
 class S3(object):
+    """Wraps S3."""
     sessions = {}
     lock = threading.RLock()
 
-    #TODO: add support for assume role.
+    # TODO: add support for assume role.
+
     def __init__(self,
                  keyname=None,
                  use_akms=None,
@@ -108,10 +112,10 @@ class S3(object):
                  *args,
                  **kwargs):
 
-        import botocore
+        import botocore.session
 
         if host:
-            logger.warn('the host param is deprecated')
+            logger.warning('the host param is deprecated')
 
         use_akms = use_akms if use_akms is not None else 'USE_AKMS' in os.environ
 
@@ -119,10 +123,8 @@ class S3(object):
         with self.lock:
             if args not in self.sessions:
                 session = Session(botocore_session=botocore.session.Session(
-                    session_vars={
-                        'akms_keyname': keyname,
-                        'use_akms': use_akms
-                    }))
+                    session_vars={'akms_keyname': keyname,
+                                  'use_akms': use_akms}))
                 client = session.client('s3')
                 s3 = session.resource('s3')
                 self.sessions[args] = (session, client, s3)
@@ -131,10 +133,10 @@ class S3(object):
     def __batches(self, it, size=1000):
         while True:
             data = itertools.islice(it, size)
-            l = list(data)
-            if not l:
+            batch = list(data)
+            if not batch:
                 break
-            yield l
+            yield batch
 
     def __create_callback(self, filename, total=None, callback=None):
         if callback is None:
@@ -149,17 +151,17 @@ class S3(object):
 
                     if self.total:
                         self.cur += retr
-                        logger.debug('%s: %6d/%dkb (%3.2f%% Complete)' % \
-                                (filename, self.cur / 1024,
-                                    self.total / 1024, self.cur / float(total) * 100))
+                        logger.debug('%s: %6d/%dkb (%3.2f%% Complete)' %
+                                     filename,
+                                     self.cur / 1024,
+                                     self.total / 1024,
+                                     self.cur / float(total) * 100)
 
         return callback
 
     def _bucket(self, bucket):
         if isinstance(bucket, Key):
             return bucket.bucket
-        #if isinstance(bucket, boto.s3.bucket.bucket):
-        #    return bucket
         return Bucket(self._bucket_name(bucket), service=self)
 
     def _bucket_name(self, bucket):
@@ -186,7 +188,7 @@ class S3(object):
 
     @retry(3)
     def _get(self, source, dest=None, num_callbacks=10, **kwargs):
-        assert not dest is None, 'a destination must be provided'
+        assert dest is not None, 'a destination must be provided'
         targetFile = isinstance(dest, six.string_types)
         if targetFile:
             tmpfile = tempfile.NamedTemporaryFile()
@@ -280,49 +282,44 @@ class S3(object):
                     prefix = item['Key'] if 'Key' in item else item['Prefix']
                     yield 's3://{}/{}'.format(bucket, prefix)
 
-    def _put(self,
-             source,
-             dest,
-             num_callbacks=10,
-             policy='bucket-owner-full-control',
-             **kwargs):
+    def _put(self, source, dest, num_callbacks=10,
+             policy='bucket-owner-full-control', **kwargs):
         key = self._get_key(dest)
         obj = self.s3.Object(key.bucket.name, key.name)
         length = 0
-        #support passing in open file objects.  Not sure why we did this in past
+        # support passing in open file objects.  Not sure why we did this in
+        # past
         if not isinstance(source, six.string_types):
-            obj.upload_fileobj(
-                source,
-                ExtraArgs={'ACL': policy},
-                Callback=self.__create_callback(
-                    dest,
-                    total=os.fstat(source.fileno()).st_size,
-                    callback=kwargs.get('callback')))
+            obj.upload_fileobj(source,
+                               ExtraArgs={'ACL': policy},
+                               Callback=self.__create_callback(
+                                   dest,
+                                   total=os.fstat(source.fileno()).st_size,
+                                   callback=kwargs.get('callback')))
         else:
-            obj.upload_file(
-                source,
-                ExtraArgs={'ACL': policy},
-                Callback=self.__create_callback(
-                    dest, total=length, callback=kwargs.get('callback')))
+            obj.upload_file(source,
+                            ExtraArgs={'ACL': policy},
+                            Callback=self.__create_callback(
+                                dest,
+                                total=length,
+                                callback=kwargs.get('callback')
+                            ))
         return key
 
-    def _put_string(self,
-                    source,
-                    dest,
-                    num_callbacks=10,
-                    policy='bucket-owner-full-control',
-                    **kwargs):
+    def _put_string(self, source, dest, num_callbacks=10,
+                    policy='bucket-owner-full-control', **kwargs):
         key = self._get_key(dest)
         obj = self.s3.Object(key.bucket.name, key.name)
         length = len(source)
-        #TODO fix for python 2/3
+
+        # TODO fix for python 2/3
         if isinstance(source, unicode):
             source = source.encode('utf-8')
         obj.put(Body=source, ACL=policy)
         return key
 
     def _is_s3(self, name):
-        #we will only allow file objects from local
+        # only allow file objects from local
         if not isinstance(name, (basestring, Key, Prefix)):
             return False
         name = self._clean_s3(name)
@@ -333,19 +330,14 @@ class S3(object):
         response = self.client.head_object(Bucket=bucket, Key=key)
         return response['ContentLength']
 
-    def cat(self,
-            source,
-            buffersize=None,
-            memsize=2**24,
-            compressed=False,
-            encoding='UTF-8',
-            raw=False):
-        """Returns an iterator for the data in the key or nothing if the key doesn't exist.
-        Decompresses data on the fly (if compressed is True or key ends with .gz) unless raw is True.
-        Pass None for encoding to skip encoding
+    def cat(self, source, buffersize=None, memsize=2**24, compressed=False,
+            encoding='UTF-8', raw=False):
+        """Returns an iterator for the data in the key or nothing if the key
+        doesn't exist. Decompresses data on the fly (if compressed is True
+        or key ends with .gz) unless raw is True. Pass None for encoding to
+        skip encoding.
         """
-        assert self._is_s3(source) or isinstance(
-            source, Key), 'source must be a valid s3 path'
+        assert self._is_s3(source) or isinstance(source, Key), 'source must be a valid s3 path'
         key = self._get_key(source) if not isinstance(source, Key) else source
         compressed = (compressed or key.name.endswith('.gz')) and not raw
         if compressed:
@@ -355,7 +347,7 @@ class S3(object):
         err = None
         undecoded = ''
         if key:
-            #try to read the file multiple times
+            # try to read the file multiple times
             for i in range(100):
                 obj = self.s3.Object(key.bucket.name, key.name)
                 buffersize = buffersize if buffersize is not None else 2**20
@@ -370,7 +362,8 @@ class S3(object):
 
                 try:
                     while bytes_read < size:
-                        #this making this weird check because this call is about 100 times slower if the amt is too high
+                        # this making this weird check because this call is
+                        # about 100 times slower if the amt is too high
                         if size - bytes_read > buffersize:
                             bytes = r['Body'].read(amt=buffersize)
                         else:
@@ -411,31 +404,31 @@ class S3(object):
                     raise AwsError('Failed to fully read [%s]' % source.name)
 
             if undecoded:
-                assert encoding is not None  # should be the only way undecoded is set
-                decoded = undecoded.decode(
-                    encoding)  # allow exception to be raised if one is thrown
+                assert encoding is not None  # only time undecoded is set
+                # allow exception to be raised if one is thrown
+                decoded = undecoded.decode(encoding)
                 yield decoded
 
-    def catdir(self,
-               source,
-               buffersize=None,
-               compressed=False,
+    def catdir(self, source, buffersize=None, compressed=False,
                encoding='UTF-8'):
-        """Iterates over a dir in s3 split on newline.  Yields chunks of data from the file"""
+        """Iterates over a dir in s3 split on newline.
+
+        Yields chunks of data from the file.
+
+        """
         for f in self.listdir(source, keys=True):
             logger.debug('S3.catdir: %s', f)
             full_name = 's3://{}/{}'.format(f.bucket.name, f.name)
-            for l in self.cat(
-                    full_name,
-                    buffersize=buffersize,
-                    compressed=compressed,
-                    encoding=encoding):
+            for l in self.cat(full_name, buffersize=buffersize,
+                              compressed=compressed, encoding=encoding):
                 yield l
 
     def cp(self, source, dest, **kwargs):
-        """Copies to and from an s3 bucket to a file.  The source and
-        destination should be the fully qualified path of an s3 key and the
-        filename to copy from/to.
+        """Copies to and from an s3 bucket to a file.
+
+        The source and destination should be the fully qualified path of an
+        s3 key and the filename to copy from/to.
+
         """
         fr = self._is_s3(source)
         to = self._is_s3(dest)
@@ -450,6 +443,7 @@ class S3(object):
         """Copies to and from an s3 prefix to a directory.  The source and
         destination should be the fully qualified path of an s3 prefix and the
         directory to copy from/to.
+
         """
         source = source.endswith('/') and source or "%s/" % source
         source = self._clean_s3(source)
@@ -529,7 +523,8 @@ class S3(object):
            name (str): the full s3 location for which to get the key
 
         Returns:
-           A boto3.resources.factory.s3.Object object if the name represents a file or None if the name is a prefix
+           A boto3.resources.factory.s3.Object object if the name represents
+           a file or None if the name is a prefix
 
         """
         assert self._is_s3(name), "location must be in form s3://bucket/key"
@@ -545,18 +540,23 @@ class S3(object):
     def list(self, name, iterator=False, **kwargs):
         """ Returns a list of the files under the specified path
         name must be in the form of s3://bucket/prefix
-        optional params:
-        keys: if True then this will return the actual boto keys for files that are encountered
-        objects: if True then this will return the actual boto objects for files or prefixes that are encountered
+
+        optional params
+        ---------------
+        keys: if True then this will return the actual boto keys for files
+              that are encountered
+        objects: if True then this will return the actual boto objects for
+                 files or prefixes that are encountered
         delimiter: if set this
-        iterator: if True return iterator rather than converting to list object
+        iterator: if True return iterator rather than converting to list
+                  object
+
         """
         assert self._is_s3(name), "name must be in form s3://bucket/key"
 
-        it = self._list(
-            bucket=self._bucket_name(name),
-            prefix=self._key_name(name),
-            **kwargs)
+        it = self._list(bucket=self._bucket_name(name),
+                        prefix=self._key_name(name),
+                        **kwargs)
         return iter(it) if iterator else list(it)
 
     def list_buckets(self):
@@ -580,9 +580,13 @@ class S3(object):
         return self.list(name, delimiter='/', **kwargs)
 
     def listdir_iterator(self, name):
-        """
-        calls bucket.list which returns a boto.s3.bucketlistresultset.bucketlistresultset
-        items returned from iterator are boto objects
+        """ Iterates over a list of objects in a bucket.
+
+        Calls `bucket.list` which returns a `
+        boto.s3.bucketlistresultset.bucketlistresultset`
+
+        Items returned from iterator are `boto` `objects`.
+
         """
         assert self._is_s3(name), "name must be in form s3://bucket/key"
         return self._list(
@@ -645,7 +649,11 @@ class S3(object):
                 yield l
 
     def read(self, source, compressed=False, encoding='UTF-8'):
-        """Iterates over a file in s3 split on newline.  Yields line in file"""
+        """Iterates over a file in s3 split on newline.
+
+        Yields a line in file.
+
+        """
         buf = ''
         for block in self.cat(
                 source, compressed=compressed, encoding=encoding):
@@ -658,12 +666,16 @@ class S3(object):
         for line in lines[:-1]:
             yield line
 
-        #only yield the last line if it has something in it
+        # only yield the last line if the line has content in it
         if lines[-1]:
             yield lines[-1]
 
     def rm(self, target):
-        """Remove a single key from s3.  If you want to remove a directory use rmdir."""
+        """Remove a single key from s3.
+
+        If you want to remove a directory use rmdir.
+
+        """
         assert self._is_s3(target), 'target must be a valid s3 path'
         key = self._get_key(target)
         if key:
@@ -671,7 +683,7 @@ class S3(object):
             return obj.delete()
 
     def rmdir(self, target, delimiter='/'):
-        """Removes every key that falls under this directory."""
+        """Removes every key that falls under the target directory."""
         assert self._is_s3(target), 'target must be a valid s3 path'
         bucket = self.s3.Bucket(self._bucket_name(target))
         errors = []
@@ -685,16 +697,21 @@ class S3(object):
             if 'Errors' in response:
                 errors += response['Errors']
         if errors:
-            logger.warn("errors deleting: {}".format(errors))
+            logger.warning("errors deleting: {}".format(errors))
 
 
-#leaving this here for compatibility
+# leaving this here for compatibility
 def split(path):
     """
-    splits an s3 path into bucket and prefix, like os.path.split, only it can only be used once
+    Splits an s3 `path` into `bucket` and `prefix`, like `os.path.split`,
+    only this `split` can only be used once.
+
     ie s3://foo/bar/baz would return ['foo','bar/baz']
     note: because a trailing / is significant in s3, it will not be stripped,
         ie s3://foo/bar/baz/ will return ['foo','bar/baz/']
+
+    Note: This function is used only for backwards compatibility.
+
     """
     if not path.startswith('s3://'):
         raise ValueError('path must start with s3://')
