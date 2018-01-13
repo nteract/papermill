@@ -220,10 +220,9 @@ def test_cli_path():
 
     runner = CliRunner()
     result = runner.invoke(path,
-                           ['../notebooks/binder.ipynb',
-                            '../notebooks/output.ipynb'])
-    #assert result.exit_code == 0
-    assert result.output == 'Hello ../notebooks/binder.ipynb and ../notebooks/output.ipynb!\n'
+                           ['notebooks/s3/s3_in/s3-simple_notebook.ipynb',
+                            'notebooks/s3/s3_out/output.ipynb'])
+    assert result.output == 'Hello notebooks/s3/s3_in/s3-simple_notebook.ipynb and notebooks/s3/s3_out/output.ipynb!\n'
 
 
 def test_papermill_log():
