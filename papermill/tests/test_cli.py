@@ -6,8 +6,11 @@ from __future__ import unicode_literals
 """ Test the command line interface """
 
 import os
-import pytest
 import unittest
+
+import pytest
+import click
+from click.testing import CliRunner
 
 from mock import patch
 
@@ -207,3 +210,34 @@ class TestCLI(unittest.TestCase):
             kernel_name='R',
             log_output=True,
             progress_bar=False)
+
+def test_cli_path():
+    @click.command()
+    @click.argument('notebook_path')
+    @click.argument('output_path')
+    def path(notebook_path, output_path):
+        click.echo('Hello %s and %s!' % notebook_path, output_path)
+
+    runner = CliRunner()
+    result = runner.invoke(path,
+                           ['../notebooks/binder.ipynb',
+                            '../notebooks/output.ipynb'])
+    #assert result.exit_code == 0
+    assert result.output == 'Hello ../notebooks/binder.ipynb and ../notebooks/output.ipynb!\n'
+
+
+def test_papermill_log():
+    @click.group()
+    @click.option('--log-output/--no-output', default=False)
+    def cli(log_output):
+        click.echo('Log output mode is %s' % ('on' if log_output else 'off'))
+
+    @cli.command()
+    def papermill():
+        click.echo('Logging')
+
+    runner = CliRunner()
+    result = runner.invoke(cli, ['--log-output', 'papermill'])
+    assert result.exit_code == 0
+    assert 'Log output mode is on' in result.output
+    assert 'Logging' in result.output
