@@ -706,9 +706,10 @@ def split(path):
     Splits an s3 `path` into `bucket` and `prefix`, like `os.path.split`,
     only this `split` can only be used once.
 
-    ie s3://foo/bar/baz would return ['foo','bar/baz']
-    note: because a trailing / is significant in s3, it will not be stripped,
-        ie s3://foo/bar/baz/ will return ['foo','bar/baz/']
+    Example: s3://foo/bar/baz would return ['foo','bar/baz']
+
+    Note on trailing `/`: A trailing `/` is significant in s3. It will not be
+        stripped. For example, s3://foo/bar/baz/ will return ['foo','bar/baz/'].
 
     Note: This function is used only for backwards compatibility.
 
