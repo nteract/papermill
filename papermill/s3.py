@@ -708,10 +708,12 @@ def split(path):
 
     Example: s3://foo/bar/baz would return ['foo','bar/baz']
 
-    Note on trailing `/`: A trailing `/` is significant in s3. It will not be
-        stripped. For example, s3://foo/bar/baz/ will return ['foo','bar/baz/'].
+    .. note::
 
-    Note: This function is used only for backwards compatibility.
+       A trailing `/` is significant in s3. It will not be stripped. For
+       example, s3://foo/bar/baz/ will return ['foo','bar/baz/'].
+
+       This function is used only for backwards compatibility.
 
     """
     if not path.startswith('s3://'):
