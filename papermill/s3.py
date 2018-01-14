@@ -25,7 +25,16 @@ logger = logging.getLogger('papermill.s3')
 
 
 class Bucket(object):
-    """Represents a Bucket of storage on S3."""
+    """Represents a Bucket of storage on S3
+
+    Parameters
+    ----------
+    name : string
+        representative name of the bucket
+    service : TODO, optional (Default is None)
+        service TODO
+
+    """
 
     def __init__(self, name, service=None):
         self.name = name
@@ -38,7 +47,18 @@ class Bucket(object):
 
 
 class Prefix(object):
-    """Represents a prefix used in an S3 Bucket."""
+    """Represents a prefix used in an S3 Bucket.
+
+    Parameters
+    ----------
+    bucket : object
+        A bucket of S3 storage
+    name : string
+        representative name of the bucket
+    service : TODO, optional (Default is None)
+        service TODO
+
+    """
     def __init__(self, bucket, name, service=None):
         self.bucket = Bucket(bucket, service=service)
         self.name = name
@@ -53,7 +73,22 @@ class Prefix(object):
 
 
 class Key(object):
-    """A key that represents a unique object in an S3 Bucket."""
+    """A key that represents a unique object in an S3 Bucket.
+
+    Parameters
+    ----------
+    bucket : object
+        A bucket of S3 storage
+    name : string
+        representative name of the bucket
+    size : ???, optional (Default is None)
+    etag : ???, optional (Default is None)
+    last_modified : date, optional (Default is None)
+    storage_class : ???, optional (Default is None)
+    service : TODO, optional (Default is None)
+        service TODO
+
+    """
 
     # TODO make size, etag, etc properties that can be called from the
     # object as needed
@@ -79,7 +114,7 @@ class Key(object):
     def __repr__(self):
         return str(self)
 
-
+# retry decorator
 def retry(num):
     def decorate(func):
         @wraps(func)
@@ -98,7 +133,37 @@ def retry(num):
 
 
 class S3(object):
-    """Wraps S3."""
+    """Wraps S3.
+
+    Parameters
+    ----------
+    keyname : TODO
+    use_akms : bool, optional (Default is None)
+    host : DEPRECATED. string, optional (Default is None)
+    region : string, optional (Default is 'us-east-1')
+
+    Methods
+    -------
+    The following are wrapped utilities for S3:
+        - cat
+        - catdir (TODO refactor to cat_dir)
+        - cp
+        - cpdir (TODO cp_dir)
+        - cpmerge (TODO cp_merge)
+        - cp_string
+        - get_key
+        - list
+        - list_buckets
+        - list_dir
+        - list_dir_iterator
+        - list_glob
+        - list_globs
+        - new_folder
+        - readdir (TODO read_dir)
+        - read
+        - rm
+        - rmdir (TODO rm_dir)
+    """
     sessions = {}
     lock = threading.RLock()
 
@@ -114,6 +179,7 @@ class S3(object):
 
         import botocore.session
 
+        # DEPRECATED param `host`
         if host:
             logger.warning('the host param is deprecated')
 
