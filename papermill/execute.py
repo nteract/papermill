@@ -12,8 +12,9 @@ from jupyter_client.kernelspec import get_kernel_spec
 from nbconvert.preprocessors import ExecutePreprocessor
 from nbconvert.preprocessors.execute import CellExecutionError
 from nbconvert.preprocessors.base import Preprocessor
-from six import string_types
+from six import string_types, integer_types
 from tqdm import tqdm
+from past.builtins import long
 
 from .conf import settings
 from .exceptions import PapermillException, PapermillExecutionError
@@ -184,11 +185,6 @@ def execute_notebook(notebook,
 
 
 def _parameterize_notebook(nb, kernel_name, parameters):
-
-    # Load from a file if 'parameters' is a string.
-    if isinstance(parameters, string_types):
-        parameters = read_yaml_file(parameters)
-
     # Generate parameter content based on the kernal_name
     kernel_name = kernel_name or nb.metadata.kernelspec.name
     param_content = _build_parameter_code(kernel_name, parameters)
@@ -229,7 +225,7 @@ def _find_parameters_index(nb):
         raise PapermillException("Multiple parameters tags found")
     return parameters_indices[0]
 
-def _form_escaped_value(str_val):
+def _form_escaped_str(str_val):
     if isinstance(str_val, string_types):
         str_val = str_val.encode('unicode_escape')
         if sys.version_info >= (3, 0):
@@ -237,9 +233,40 @@ def _form_escaped_value(str_val):
         str_val = str_val.replace('"', r'\"')
     return '"{}"'.format(str_val)
 
+def _form_escaped_python_value(val):
+    """Translate each of the standard json/yaml types to appropiate objects in python."""
+    if isinstance(val, string_types):
+        return _form_escaped_str(val)
+    elif isinstance(val, integer_types) or isinstance(val, bool):
+        return '{}'.format(val)
+    elif isinstance(val, dict):
+        escaped = ', '.join(["{}: {}".format(_form_escaped_str(k), _form_escaped_python_value(v)) for k, v in val.items()])
+        return '{{{}}}'.format(escaped)
+    elif isinstance(val, list):
+        escaped = ', '.join([_form_escaped_python_value(v) for v in val])
+        return '[{}]'.format(escaped)
+    # Try this as last resort
+    return _form_escaped_str(val)
+
+def _form_escaped_r_value(val):
+    """Translate each of the standard json/yaml types to appropiate objects in R."""
+    if isinstance(val, string_types):
+        return _form_escaped_str(val)
+    elif isinstance(val, bool):
+        return 'TRUE' if val else 'FALSE'
+    elif isinstance(val, integer_types):
+        return '{}'.format(val)
+    elif isinstance(val, dict):
+        escaped = ', '.join(["{} = {}".format(_form_escaped_str(k), _form_escaped_r_value(v)) for k, v in val.items()])
+        return 'list({})'.format(escaped)
+    elif isinstance(val, list):
+        escaped = ', '.join([_form_escaped_r_value(v) for v in val])
+        return 'list({})'.format(escaped)
+    # Try this as last resort
+    return _form_escaped_str(val)
+
 # Registry for functions that build parameter assignment code.
 _parameter_code_builders = {}
-
 
 def register_param_builder(name):
     """Decorator for registering functions that write variable assignments for a given kernel or language."""
@@ -255,8 +282,7 @@ def build_python_params(parameters):
     """Writers parameter assignment code for Python kernels."""
     param_content = "# Parameters\n"
     for var, val in parameters.items():
-        val = _form_escaped_value(val)
-        param_content += '{} = {}\n'.format(var, val)
+        param_content += '{} = {}\n'.format(var, _form_escaped_python_value(val))
     return param_content
 
 
@@ -265,14 +291,10 @@ def build_r_params(parameters):
     """Writes parameters assignment code for R kernels."""
     param_content = "# Parameters\n"
     for var, val in parameters.items():
-        val = _form_escaped_value(val)
-        if val is True:
-            val = 'TRUE'
-        elif val is False:
-            val = 'FALSE'
-        param_content += '{} = {}\n'.format(var, val)
+        param_content += '{} = {}\n'.format(var, _form_escaped_r_value(val))
     return param_content
 
+# TODO Scala kernel
 
 def _fetch_environment_variables():
     ret = dict()

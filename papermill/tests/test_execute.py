@@ -9,11 +9,71 @@ import unittest
 import nbformat
 
 from ..api import read_notebook
-from ..execute import execute_notebook, log_outputs
+from ..execute import execute_notebook, log_outputs, _form_escaped_python_value, _form_escaped_r_value
 from ..exceptions import PapermillExecutionError
 from . import get_notebook_path, RedirectOutput
 
 python_2 = sys.version_info[0] == 2
+
+class TestPythonEscapers(unittest.TestCase):
+    def test_escaped_python_string(self):
+        self.assertEqual(_form_escaped_python_value("foo"), '"foo"')
+        self.assertEqual(_form_escaped_python_value('{"foo": "bar"}'), '"{\\"foo\\": \\"bar\\"}"')
+
+    def test_escaped_python_dict(self):
+        self.assertEqual(_form_escaped_python_value({"foo": "bar"}), '{"foo": "bar"}')
+        self.assertEqual(_form_escaped_python_value({"foo": '"bar"'}), '{"foo": "\\"bar\\""}')
+
+    def test_escaped_python_dict_nested(self):
+        self.assertEqual(_form_escaped_python_value({"foo": ["bar"]}), '{"foo": ["bar"]}')
+        self.assertEqual(_form_escaped_python_value({"foo": {"bar": "baz"}}), '{"foo": {"bar": "baz"}}')
+        self.assertEqual(_form_escaped_python_value({"foo": {"bar": '"baz"'}}), '{"foo": {"bar": "\\"baz\\""}}')
+
+    def test_escaped_python_list(self):
+        self.assertEqual(_form_escaped_python_value(["foo"]), '["foo"]')
+        self.assertEqual(_form_escaped_python_value(["foo", '"bar"']), '["foo", "\\"bar\\""]')
+
+    def test_escaped_python_list_nested(self):
+        self.assertEqual(_form_escaped_python_value([{"foo": "bar"}]), '[{"foo": "bar"}]')
+        self.assertEqual(_form_escaped_python_value([{"foo": '"bar"'}]), '[{"foo": "\\"bar\\""}]')
+
+    def test_escaped_python_int(self):
+        self.assertEqual(_form_escaped_python_value(12345), '12345')
+        self.assertEqual(_form_escaped_python_value(-54321), '-54321')
+
+    def test_escaped_python_bool(self):
+        self.assertEqual(_form_escaped_python_value(True), 'True')
+        self.assertEqual(_form_escaped_python_value(False), 'False')
+
+class TestREscapers(unittest.TestCase):
+    def test_escaped_r_string(self):
+        self.assertEqual(_form_escaped_r_value("foo"), '"foo"')
+        self.assertEqual(_form_escaped_r_value('{"foo": "bar"}'), '"{\\"foo\\": \\"bar\\"}"')
+
+    def test_escaped_r_dict(self):
+        self.assertEqual(_form_escaped_r_value({"foo": "bar"}), 'list("foo" = "bar")')
+        self.assertEqual(_form_escaped_r_value({"foo": '"bar"'}), 'list("foo" = "\\"bar\\"")')
+
+    def test_escaped_r_dict_nested(self):
+        self.assertEqual(_form_escaped_r_value({"foo": ["bar"]}), 'list("foo" = list("bar"))')
+        self.assertEqual(_form_escaped_r_value({"foo": {"bar": "baz"}}), 'list("foo" = list("bar" = "baz"))')
+        self.assertEqual(_form_escaped_r_value({"foo": {"bar": '"baz"'}}), 'list("foo" = list("bar" = "\\"baz\\""))')
+
+    def test_escaped_r_list(self):
+        self.assertEqual(_form_escaped_r_value(["foo"]), 'list("foo")')
+        self.assertEqual(_form_escaped_r_value(["foo", '"bar"']), 'list("foo", "\\"bar\\"")')
+
+    def test_escaped_r_list_nested(self):
+        self.assertEqual(_form_escaped_r_value([{"foo": "bar"}]), 'list(list("foo" = "bar"))')
+        self.assertEqual(_form_escaped_r_value([{"foo": '"bar"'}]), 'list(list("foo" = "\\"bar\\""))')
+
+    def test_escaped_r_int(self):
+        self.assertEqual(_form_escaped_r_value(12345), '12345')
+        self.assertEqual(_form_escaped_r_value(-54321), '-54321')
+
+    def test_escaped_r_bool(self):
+        self.assertEqual(_form_escaped_r_value(True), 'TRUE')
+        self.assertEqual(_form_escaped_r_value(False), 'FALSE')
 
 class TestNotebookHelpers(unittest.TestCase):
     def setUp(self):
@@ -44,6 +104,30 @@ class TestNotebookHelpers(unittest.TestCase):
         test_nb = read_notebook(self.nb_test_executed_fname)
         self.assertListEqual(test_nb.node.cells[1].get('source').split('\n'), ['# Parameters', r'msg = "\"Hello\""', ''])
         self.assertEqual(test_nb.parameters, {'msg': '"Hello"'})
+
+    def test_dict_params(self):
+        execute_notebook(self.notebook_path, self.nb_test_executed_fname, {'foo': {'bar': 'baz'}})
+        test_nb = read_notebook(self.nb_test_executed_fname)
+        self.assertListEqual(test_nb.node.cells[1].get('source').split('\n'), ['# Parameters', 'foo = {"bar": "baz"}', ''])
+        self.assertEqual(test_nb.parameters, {'foo': {'bar': 'baz'}})
+
+    def test_list_params(self):
+        execute_notebook(self.notebook_path, self.nb_test_executed_fname, {'foo': ['bar', 'baz']})
+        test_nb = read_notebook(self.nb_test_executed_fname)
+        self.assertListEqual(test_nb.node.cells[1].get('source').split('\n'), ['# Parameters', 'foo = ["bar", "baz"]', ''])
+        self.assertEqual(test_nb.parameters, {'foo': ['bar', 'baz']})
+
+    def test_int_params(self):
+        execute_notebook(self.notebook_path, self.nb_test_executed_fname, {'foo': 42})
+        test_nb = read_notebook(self.nb_test_executed_fname)
+        self.assertListEqual(test_nb.node.cells[1].get('source').split('\n'), ['# Parameters', 'foo = 42', ''])
+        self.assertEqual(test_nb.parameters, {'foo': 42})
+
+    def test_bool_params(self):
+        execute_notebook(self.notebook_path, self.nb_test_executed_fname, {'foo': False})
+        test_nb = read_notebook(self.nb_test_executed_fname)
+        self.assertListEqual(test_nb.node.cells[1].get('source').split('\n'), ['# Parameters', 'foo = False', ''])
+        self.assertEqual(test_nb.parameters, {'foo': False})
 
     def test_backslash_params(self):
         execute_notebook(self.notebook_path, self.nb_test_executed_fname, {'foo': r'do\ not\ crash'})
