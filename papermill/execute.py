@@ -14,7 +14,6 @@ from nbconvert.preprocessors.execute import CellExecutionError
 from nbconvert.preprocessors.base import Preprocessor
 from six import string_types, integer_types
 from tqdm import tqdm
-from past.builtins import long
 
 from .conf import settings
 from .exceptions import PapermillException, PapermillExecutionError
