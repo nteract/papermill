@@ -66,18 +66,25 @@ class TestCLI(unittest.TestCase):
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_parameters(self, execute_patch):
-        self.runner.invoke(papermill, self.default_args + ['-p', 'arg1', 'foo', '--parameters', 'arg2', 'bar'])
+        self.runner.invoke(papermill, self.default_args + ['-p', 'foo', 'bar', '--parameters', 'baz', '42'])
         execute_patch.assert_called_with(
             'input.ipynb',
             'output.ipynb',
-            {'arg1': 'foo', 'arg2': 'bar'},
+            {'foo': 'bar', 'baz': 42},
             kernel_name=None,
             log_output=False,
             progress_bar=True)
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_parameters_raw(self, execute_patch):
-        pass
+        self.runner.invoke(papermill, self.default_args + ['-r', 'foo', 'bar', '--parameters_raw', 'baz', '42'])
+        execute_patch.assert_called_with(
+            'input.ipynb',
+            'output.ipynb',
+            {'foo': 'bar', 'baz': '42'},
+            kernel_name=None,
+            log_output=False,
+            progress_bar=True)
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_parameters_file(self, execute_patch):
@@ -188,6 +195,7 @@ class TestCLI(unittest.TestCase):
             '-y', '{"yaml_foo": {"yaml_bar": "yaml_baz"}}',
             '-b', 'eyJiYXNlNjRfZm9vIjogImJhc2U2NF9iYXIifQ==',
             '-p', 'baz', 'replace',
+            '-r', 'foo', '54321',
             '--kernel', 'R',
             '--log-output',
             '--no-progress-bar'
@@ -195,7 +203,7 @@ class TestCLI(unittest.TestCase):
         execute_patch.assert_called_with(
             'input.ipynb',
             'output.ipynb',
-            {'foo': 12345, 'bar': 'value', 'baz': 'replace', 'yaml_foo': {'yaml_bar': 'yaml_baz'}, "base64_foo": "base64_bar"},
+            {'foo': '54321', 'bar': 'value', 'baz': 'replace', 'yaml_foo': {'yaml_bar': 'yaml_baz'}, "base64_foo": "base64_bar"},
             kernel_name='R',
             log_output=True,
             progress_bar=False)
