@@ -6,6 +6,8 @@ import sys
 import tempfile
 import unittest
 
+from functools import partial
+
 import nbformat
 
 from ..api import read_notebook
@@ -14,11 +16,14 @@ from ..exceptions import PapermillExecutionError
 from . import get_notebook_path, RedirectOutput
 
 python_2 = sys.version_info[0] == 2
+PYTHON = 'python2' if python_2 else 'python3'
+execute_notebook = partial(execute_notebook, kernel_name=PYTHON)
+
 
 class TestNotebookHelpers(unittest.TestCase):
     def setUp(self):
         self.test_dir = tempfile.mkdtemp()
-        self.notebook_name = 'simple_execute_2.ipynb' if python_2 else 'simple_execute.ipynb'
+        self.notebook_name = 'simple_execute.ipynb'
         self.notebook_path = get_notebook_path(self.notebook_name)
         self.nb_test_executed_fname = os.path.join(self.test_dir, 'output_{}'.format(self.notebook_name))
 
@@ -62,6 +67,7 @@ class TestNotebookHelpers(unittest.TestCase):
         test_nb = read_notebook(self.nb_test_executed_fname)
         self.assertListEqual(test_nb.node.cells[1].get('source').split('\n'), ['# Parameters', r'foo = "\\\\\"bar\\\\\""', ''])
         self.assertEqual(test_nb.parameters, {'foo': r'\\"bar\\"'})
+
 
 class TestBrokenNotebook1(unittest.TestCase):
 
