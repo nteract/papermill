@@ -41,6 +41,10 @@ class TestPythonEscapers(unittest.TestCase):
         self.assertEqual(_form_escaped_python_value(12345), '12345')
         self.assertEqual(_form_escaped_python_value(-54321), '-54321')
 
+    def test_escaped_python_float(self):
+        self.assertEqual(_form_escaped_python_value(1.2345), '1.2345')
+        self.assertEqual(_form_escaped_python_value(-5432.1), '-5432.1')
+
     def test_escaped_python_bool(self):
         self.assertEqual(_form_escaped_python_value(True), 'True')
         self.assertEqual(_form_escaped_python_value(False), 'False')

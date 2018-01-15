@@ -244,7 +244,7 @@ def _form_escaped_python_value(val):
     """Translate each of the standard json/yaml types to appropiate objects in python."""
     if isinstance(val, string_types):
         return _form_escaped_str(val)
-    elif isinstance(val, integer_types) or isinstance(val, bool):
+    elif isinstance(val, integer_types + (float, bool)):
         return '{}'.format(val)
     elif isinstance(val, dict):
         escaped = ', '.join(["{}: {}".format(_form_escaped_str(k), _form_escaped_python_value(v)) for k, v in val.items()])
