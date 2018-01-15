@@ -243,7 +243,7 @@ def _form_escaped_r_value(val):
         return _form_escaped_str(val)
     elif isinstance(val, bool):
         return 'TRUE' if val else 'FALSE'
-    elif isinstance(val, integer_types):
+    elif isinstance(val, integer_types + (float,)):
         return '{}'.format(val)
     elif isinstance(val, dict):
         escaped = ', '.join(["{} = {}".format(_form_escaped_str(k), _form_escaped_r_value(v)) for k, v in val.items()])

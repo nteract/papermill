@@ -41,6 +41,10 @@ class TestREscapers(unittest.TestCase):
         self.assertEqual(_form_escaped_r_value(12345), '12345')
         self.assertEqual(_form_escaped_r_value(-54321), '-54321')
 
+    def test_escaped_r_float(self):
+        self.assertEqual(_form_escaped_r_value(1.2345), '1.2345')
+        self.assertEqual(_form_escaped_r_value(-5432.1), '-5432.1')
+
     def test_escaped_r_bool(self):
         self.assertEqual(_form_escaped_r_value(True), 'TRUE')
         self.assertEqual(_form_escaped_r_value(False), 'FALSE')
