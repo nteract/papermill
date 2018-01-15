@@ -264,6 +264,7 @@ def _translate_type_r(val):
     """Translate each of the standard json/yaml types to appropiate objects in R."""
     if isinstance(val, string_types):
         return _translate_type_str_r(val)
+    # Needs to be before integer checks
     elif isinstance(val, bool):
         return _translate_type_bool_r(val)
     elif isinstance(val, integer_types):
