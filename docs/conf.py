@@ -95,8 +95,11 @@ html_theme = 'alabaster'
 html_theme_options = {
     'logo': 'images/papermill.png',
     'description': 'Parameterize, execute, and analyze notebooks',
+    'github_button': True,
     'github_user': 'nteract',
     'github_repo': 'papermill',
+    'travis_button': True,
+    'codecov_button': True,
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,

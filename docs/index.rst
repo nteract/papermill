@@ -13,7 +13,7 @@ Notebooks.
 
 Papermill lets you:
 
-* **parametrize** notebooks
+* **parameterize** notebooks
 * **execute** and **collect** metrics across the notebooks
 * **summarize collections** of notebooks
 
