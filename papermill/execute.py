@@ -193,16 +193,14 @@ def _parameterize_notebook(nb, kernel_name, parameters):
     kernel_name = kernel_name or nb.metadata.kernelspec.name
     param_content = _build_parameter_code(kernel_name, parameters)
 
-    # create a new cell with the passed in parameters, insert it after the
-    # existing cell tagged as "parameters"
-    newcell = nbformat.v4.new_code_cell(source=param_content)
-
     param_cell_index = _find_parameters_index(nb)
     if param_cell_index >= 0:
         old_parameters = nb.cells[param_cell_index]
-        newcell.metadata['tags'] = list(old_parameters.metadata['tags'])
         old_parameters.metadata['tags'].remove('parameters')
         old_parameters.metadata['tags'].append('default parameters')
+
+    newcell = nbformat.v4.new_code_cell(source=param_content)
+    newcell.metadata['tags'] = ['parameters']
 
     before = nb.cells[:param_cell_index + 1]
     after = nb.cells[param_cell_index + 1:]
