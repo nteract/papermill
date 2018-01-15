@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 """ Test the command line interface """
 
 import os
+import pytest
 import unittest
 
 from mock import patch
@@ -14,55 +15,54 @@ from .. import cli
 from ..cli import papermill, _is_int,  _is_float, _resolve_type, execute_notebook
 from click.testing import CliRunner
 
+@pytest.mark.parametrize("test_input,expected", [
+    ("True", True),
+    ("False", False),
+    ("None", None),
+    ("12.51", 12.51),
+    ("10", 10),
+    ("hello world", "hello world"),
+    ("😍", "😍"),
+])
+def test_resolve_type(test_input, expected):
+    assert _resolve_type(test_input) == expected
+
+
+@pytest.mark.parametrize("value,expected", [
+    (13.71, True),
+    ("False", False),
+    ("None", False),
+    (-8.2, True),
+    (10, True),
+    ("10", True),
+    ("12.31", True),
+    ("hello world", False),
+    ("😍", False),
+])
+def test_is_float(value, expected):
+    assert (_is_float(value)) == expected
+
+
+@pytest.mark.parametrize("value,expected", [
+    (13.71, True),
+    ("False", False),
+    ("None", False),
+    (-8.2, True),
+    ("-23.2", False),
+    (10, True),
+    ("13", True),
+    ("hello world", False),
+    ("😍", False),
+])
+def test_is_int(value, expected):
+    assert (_is_int(value)) == expected
+
 class TestCLI(unittest.TestCase):
     def setUp(self):
         self.runner = CliRunner()
         self.default_args = ['input.ipynb', 'output.ipynb']
         self.sample_yaml_file = os.path.join(os.path.dirname(__file__), 'parameters', 'example.yaml')
         self.sample_json_file = os.path.join(os.path.dirname(__file__), 'parameters', 'example.json')
-
-    def test_resolve_types(self):
-        in_out_pairs = [
-            ("True", True),
-            ("False", False),
-            ("None", None),
-            ("12.51", 12.51),
-            ("10", 10),
-            ("hello world", "hello world"),
-            ("😍", "😍"),
-        ]
-        for tin, tout in in_out_pairs:
-            self.assertEqual(_resolve_type(tin), tout)
-
-    def test_is_float(self):
-        in_out_pairs = [
-            (13.71, True),
-            ("False", False),
-            ("None", False),
-            (-8.2, True),
-            (10, True),
-            ("10", True),
-            ("12.31", True),
-            ("hello world", False),
-            ("😍", False),
-        ]
-        for tin, tout in in_out_pairs:
-            self.assertEqual(_is_float(tin), tout)
-
-    def test_is_int(self):
-        in_out_pairs = [
-            (13.71, True),
-            ("False", False),
-            ("None", False),
-            (-8.2, True),
-            ("-23.2", False),
-            (10, True),
-            ("13", True),
-            ("hello world", False),
-            ("😍", False),
-        ]
-        for tin, tout in in_out_pairs:
-            self.assertEqual(_is_int(tin), tout)
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_parameters(self, execute_patch):
