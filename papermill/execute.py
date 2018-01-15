@@ -278,7 +278,7 @@ def build_r_params(parameters):
     """Writes parameters assignment code for R kernels."""
     param_content = "# Parameters\n"
     for var, val in parameters.items():
-        val = _form_escaped_value(val)
+        val = _form_escaped_str(val)
         if val is True:
             val = 'TRUE'
         elif val is False:
