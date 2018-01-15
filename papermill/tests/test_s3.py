@@ -23,7 +23,10 @@ def test_bucket_list():
 
 @pytest.mark.parametrize("value,expected", [
     ('s3://foo/bar/baz', ['foo', 'bar/baz']),
-    ('s3://foo/bar/baz/', ['foo', 'bar/baz/'])
+    ('s3://foo/bar/baz/', ['foo', 'bar/baz/']),
+    ('s3://foo', ['foo', '']),
+    ('s3://', ['', '']),
+    ('s3:///', ['', '']),
 ])
 def test_split_success(value, expected):
     assert (split(value)) == expected
