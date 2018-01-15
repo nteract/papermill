@@ -5,6 +5,9 @@
    :target: https://travis-ci.org/nteract/papermill
 .. image:: https://codecov.io/github/nteract/papermill/coverage.svg?branch=master
    :target: https://codecov.io/github/nteract/papermill?branch=master
+.. image:: https://readthedocs.org/projects/papermill/badge/?version=latest
+   :target: http://papermill.readthedocs.io/en/latest/?badge=latest
+   :alt: Documentation Status
 .. image:: https://mybinder.org/badge.svg
    :target: https://mybinder.org/v2/gh/nteract/papermill/master?filepath=papermill%2Ftests%2Fnotebooks%2Fbinder.ipynb
 
@@ -186,6 +189,11 @@ Papermill can read in a directory of notebooks and provides the
    nbs.dataframe.head(10)
 
 .. image:: docs/img/nbs_dataframe.png
+
+Documentation
+-------------
+
+We host the `papermill documentation <http://papermill.readthedocs.io>`_ on ReadTheDocs.
 
 .. |Logo| image:: https://user-images.githubusercontent.com/836375/27929844-6bb34e62-6249-11e7-9a2a-00849a64940c.png
    :width: 200px
