@@ -19,9 +19,10 @@ from . import get_notebook_path, RedirectOutput
 
 
 if six.PY2:
-    execute_notebook = partial(execute_notebook, kernel_name='python2')
+    kernel_name = 'python2'
 else:
-    execute_notebook = partial(execute_notebook, kernel_name='python3')
+    kernel_name = 'python3'
+execute_notebook = partial(execute_notebook, kernel_name=kernel_name)
 
 
 @pytest.mark.parametrize("test_input,expected", [

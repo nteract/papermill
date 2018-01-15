@@ -6,10 +6,7 @@ from ..api import read_notebook
 from ..execute import _parameterize_notebook
 from . import get_notebook_path
 
-if six.PY2:
-    PYTHON = 'python2'
-else:
-    PYTHON = 'python3'
+PYTHON = 'python2' if six.PY2 else 'python3'
 
 
 class TestNotebookParametrizing(unittest.TestCase):
