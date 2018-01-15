@@ -12,7 +12,7 @@ from jupyter_client.kernelspec import get_kernel_spec
 from nbconvert.preprocessors import ExecutePreprocessor
 from nbconvert.preprocessors.execute import CellExecutionError
 from nbconvert.preprocessors.base import Preprocessor
-from six import string_types
+from six import string_types, integer_types
 from tqdm import tqdm
 
 from .conf import settings
@@ -229,13 +229,30 @@ def _find_parameters_index(nb):
         raise PapermillException("Multiple parameters tags found")
     return parameters_indices[0]
 
-def _form_escaped_value(str_val):
+def _form_escaped_str(str_val):
     if isinstance(str_val, string_types):
         str_val = str_val.encode('unicode_escape')
         if sys.version_info >= (3, 0):
             str_val = str_val.decode('utf-8')
         str_val = str_val.replace('"', r'\"')
     return '"{}"'.format(str_val)
+
+def _form_escaped_r_value(val):
+    """Translate each of the standard json/yaml types to appropiate objects in R."""
+    if isinstance(val, string_types):
+        return _form_escaped_str(val)
+    elif isinstance(val, bool):
+        return 'TRUE' if val else 'FALSE'
+    elif isinstance(val, integer_types):
+        return '{}'.format(val)
+    elif isinstance(val, dict):
+        escaped = ', '.join(["{} = {}".format(_form_escaped_str(k), _form_escaped_r_value(v)) for k, v in val.items()])
+        return 'list({})'.format(escaped)
+    elif isinstance(val, list):
+        escaped = ', '.join([_form_escaped_r_value(v) for v in val])
+        return 'list({})'.format(escaped)
+    # Try this as last resort
+    return _form_escaped_str(val)
 
 # Registry for functions that build parameter assignment code.
 _parameter_code_builders = {}
@@ -255,7 +272,7 @@ def build_python_params(parameters):
     """Writers parameter assignment code for Python kernels."""
     param_content = "# Parameters\n"
     for var, val in parameters.items():
-        val = _form_escaped_value(val)
+        val = _form_escaped_str(val)
         param_content += '{} = {}\n'.format(var, val)
     return param_content
 
@@ -265,12 +282,7 @@ def build_r_params(parameters):
     """Writes parameters assignment code for R kernels."""
     param_content = "# Parameters\n"
     for var, val in parameters.items():
-        val = _form_escaped_value(val)
-        if val is True:
-            val = 'TRUE'
-        elif val is False:
-            val = 'FALSE'
-        param_content += '{} = {}\n'.format(var, val)
+        param_content += '{} = {}\n'.format(var, _form_escaped_r_value(val))
     return param_content
 
 

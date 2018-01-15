@@ -9,11 +9,41 @@ import unittest
 import nbformat
 
 from ..api import read_notebook
-from ..execute import execute_notebook, log_outputs
+from ..execute import execute_notebook, log_outputs, _form_escaped_r_value
 from ..exceptions import PapermillExecutionError
 from . import get_notebook_path, RedirectOutput
 
 python_2 = sys.version_info[0] == 2
+
+class TestREscapers(unittest.TestCase):
+    def test_escaped_r_string(self):
+        self.assertEqual(_form_escaped_r_value("foo"), '"foo"')
+        self.assertEqual(_form_escaped_r_value('{"foo": "bar"}'), '"{\\"foo\\": \\"bar\\"}"')
+
+    def test_escaped_r_dict(self):
+        self.assertEqual(_form_escaped_r_value({"foo": "bar"}), 'list("foo" = "bar")')
+        self.assertEqual(_form_escaped_r_value({"foo": '"bar"'}), 'list("foo" = "\\"bar\\"")')
+
+    def test_escaped_r_dict_nested(self):
+        self.assertEqual(_form_escaped_r_value({"foo": ["bar"]}), 'list("foo" = list("bar"))')
+        self.assertEqual(_form_escaped_r_value({"foo": {"bar": "baz"}}), 'list("foo" = list("bar" = "baz"))')
+        self.assertEqual(_form_escaped_r_value({"foo": {"bar": '"baz"'}}), 'list("foo" = list("bar" = "\\"baz\\""))')
+
+    def test_escaped_r_list(self):
+        self.assertEqual(_form_escaped_r_value(["foo"]), 'list("foo")')
+        self.assertEqual(_form_escaped_r_value(["foo", '"bar"']), 'list("foo", "\\"bar\\"")')
+
+    def test_escaped_r_list_nested(self):
+        self.assertEqual(_form_escaped_r_value([{"foo": "bar"}]), 'list(list("foo" = "bar"))')
+        self.assertEqual(_form_escaped_r_value([{"foo": '"bar"'}]), 'list(list("foo" = "\\"bar\\""))')
+
+    def test_escaped_r_int(self):
+        self.assertEqual(_form_escaped_r_value(12345), '12345')
+        self.assertEqual(_form_escaped_r_value(-54321), '-54321')
+
+    def test_escaped_r_bool(self):
+        self.assertEqual(_form_escaped_r_value(True), 'TRUE')
+        self.assertEqual(_form_escaped_r_value(False), 'FALSE')
 
 class TestNotebookHelpers(unittest.TestCase):
     def setUp(self):
