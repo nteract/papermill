@@ -1,6 +1,6 @@
 import pytest
 
-from ..s3 import Bucket
+from ..s3 import Bucket, split
 
 
 def test_bucket_init():
@@ -11,12 +11,21 @@ def test_bucket_init():
 
 def test_bucket_missing_params():
     with pytest.raises(TypeError):
-        test_bucket = Bucket(service=None)
+        Bucket('', service=None)
 
     with pytest.raises(TypeError):
-        test_bucket = Bucket()
+        Bucket('')
 
 
 def test_bucket_list():
-
     pass
+
+
+@pytest.mark.parametrize("path,expected", [
+    ('s3://foo/bar/baz', ['foo', 'bar/baz']),
+    ('foo/bar/baz', ValueError),
+    ('s3://foo/bar/baz/', ['foo', 'bar/baz/']),
+    ('https://foo/bar/baz', ValueError),
+])
+def test_split(path, expected):
+    assert split(path) == expected
