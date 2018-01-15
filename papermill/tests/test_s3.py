@@ -11,21 +11,29 @@ def test_bucket_init():
 
 def test_bucket_missing_params():
     with pytest.raises(TypeError):
-        Bucket('', service=None)
+        Bucket(service=None)
 
     with pytest.raises(TypeError):
-        Bucket('')
+        Bucket()
 
 
 def test_bucket_list():
     pass
 
 
-@pytest.mark.parametrize("path,expected", [
+@pytest.mark.parametrize("value,expected", [
     ('s3://foo/bar/baz', ['foo', 'bar/baz']),
-    ('foo/bar/baz', ValueError),
-    ('s3://foo/bar/baz/', ['foo', 'bar/baz/']),
-    ('https://foo/bar/baz', ValueError),
+    ('s3://foo/bar/baz/', ['foo', 'bar/baz/'])
 ])
-def test_split(path, expected):
-    assert split(path) == expected
+def test_split_success(value, expected):
+    assert (split(value)) == expected
+
+
+def test_split_error():
+
+    with pytest.raises(ValueError):
+        split('foo/bar/baz')
+
+    with pytest.raises(ValueError):
+        split('https://foo/bar/baz')
+
