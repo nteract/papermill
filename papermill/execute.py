@@ -230,7 +230,7 @@ def _find_parameters_index(nb):
     return parameters_indices[0]
 
 def _translate_escaped_str(str_val):
-    '''Reusable by most interpreters'''
+    """Reusable by most interpreters"""
     if isinstance(str_val, string_types):
         str_val = str_val.encode('unicode_escape')
         if sys.version_info >= (3, 0):
@@ -239,7 +239,7 @@ def _translate_escaped_str(str_val):
     return '"{}"'.format(str_val)
 
 def _translate_to_str(val):
-    '''Reusable by most interpreters'''
+    """Reusable by most interpreters"""
     return '{}'.format(val)
 
 # Registry for functions that build parameter assignment code.
