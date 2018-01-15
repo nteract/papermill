@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-from __future__ import unicode_literals
-
 """ Test the command line interface """
 
 import os
-import pytest
 import unittest
+
+import pytest
+import click
+from click.testing import CliRunner
 
 from mock import patch
 
@@ -22,7 +22,7 @@ from click.testing import CliRunner
     ("12.51", 12.51),
     ("10", 10),
     ("hello world", "hello world"),
-    ("😍", "😍"),
+    (u"😍", u"😍"),
 ])
 def test_resolve_type(test_input, expected):
     assert _resolve_type(test_input) == expected
@@ -37,7 +37,7 @@ def test_resolve_type(test_input, expected):
     ("10", True),
     ("12.31", True),
     ("hello world", False),
-    ("😍", False),
+    (u"😍", False),
 ])
 def test_is_float(value, expected):
     assert (_is_float(value)) == expected
@@ -52,7 +52,7 @@ def test_is_float(value, expected):
     (10, True),
     ("13", True),
     ("hello world", False),
-    ("😍", False),
+    (u"😍", False),
 ])
 def test_is_int(value, expected):
     assert (_is_int(value)) == expected
@@ -207,3 +207,33 @@ class TestCLI(unittest.TestCase):
             kernel_name='R',
             log_output=True,
             progress_bar=False)
+
+def test_cli_path():
+    @click.command()
+    @click.argument('notebook_path')
+    @click.argument('output_path')
+    def cli(notebook_path, output_path):
+        click.echo('papermill calling %s and %s!' % notebook_path, output_path)
+
+    runner = CliRunner()
+    result = runner.invoke(cli,
+                           ['papermill', 'notebooks/s3/s3_in/s3-simple_notebook.ipynb',
+                            'notebooks/s3/s3_out/output.ipynb'])
+    assert result.output
+
+
+def test_papermill_log():
+    @click.group()
+    @click.option('--log-output/--no-output', default=False)
+    def cli(log_output):
+        click.echo('Log output mode is %s' % ('on' if log_output else 'off'))
+
+    @cli.command()
+    def papermill():
+        click.echo('Logging')
+
+    runner = CliRunner()
+    result = runner.invoke(cli, ['--log-output', 'papermill'])
+    assert result.exit_code == 0
+    assert 'Log output mode is on' in result.output
+    assert 'Logging' in result.output
