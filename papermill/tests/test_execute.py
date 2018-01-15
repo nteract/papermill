@@ -8,6 +8,8 @@ import unittest
 
 from functools import partial
 
+import six
+
 import nbformat
 
 from ..api import read_notebook
@@ -15,9 +17,12 @@ from ..execute import execute_notebook, log_outputs, _translate_type_python, _tr
 from ..exceptions import PapermillExecutionError
 from . import get_notebook_path, RedirectOutput
 
-python_2 = sys.version_info[0] == 2
-PYTHON = 'python2' if python_2 else 'python3'
-execute_notebook = partial(execute_notebook, kernel_name=PYTHON)
+
+if six.PY2:
+    kernel_name = 'python2'
+else:
+    kernel_name = 'python3'
+execute_notebook = partial(execute_notebook, kernel_name=kernel_name)
 
 
 @pytest.mark.parametrize("test_input,expected", [
@@ -63,6 +68,7 @@ def test_translate_type_python(test_input, expected):
 ])
 def test_translate_type_r(test_input, expected):
     assert _translate_type_r(test_input) == expected
+
 
 class TestNotebookHelpers(unittest.TestCase):
     def setUp(self):

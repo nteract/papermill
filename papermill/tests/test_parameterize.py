@@ -1,11 +1,12 @@
-import sys
 import unittest
+
+import six
 
 from ..api import read_notebook
 from ..execute import _parameterize_notebook
 from . import get_notebook_path
 
-PYTHON = 'python2' if sys.version_info[0] == 2 else 'python3'
+PYTHON = 'python2' if six.PY2 else 'python3'
 
 
 class TestNotebookParametrizing(unittest.TestCase):
