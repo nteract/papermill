@@ -1,6 +1,7 @@
 ansiwrap
 boto3
 click
+future
 futures ; python_version < "3.0"
 pyyaml
 nbformat
