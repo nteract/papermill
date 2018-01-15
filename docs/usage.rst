@@ -122,7 +122,7 @@ Papermill can read in a directory of notebooks and provides the
    # Accepts a key or list of keys to plot in order.
    nbs.display_output('train_1.ipynb', 'matplotlib_hist')
 
-.. image:: matplotlib_hist.png
+.. image:: img/matplotlib_hist.png
 
 .. code-block:: python
 

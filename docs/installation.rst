@@ -8,7 +8,7 @@ From the commmand line:
 
 .. code-block:: bash
 
-  pip install papermill
+   pip install papermill
 
 Installing In-Notebook bindings
 -------------------------------
