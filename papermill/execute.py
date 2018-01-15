@@ -12,7 +12,7 @@ from jupyter_client.kernelspec import get_kernel_spec
 from nbconvert.preprocessors import ExecutePreprocessor
 from nbconvert.preprocessors.execute import CellExecutionError
 from nbconvert.preprocessors.base import Preprocessor
-from six import string_types
+from six import string_types, integer_types
 from tqdm import tqdm
 
 from .conf import settings
@@ -229,7 +229,7 @@ def _find_parameters_index(nb):
         raise PapermillException("Multiple parameters tags found")
     return parameters_indices[0]
 
-def _form_escaped_value(str_val):
+def _form_escaped_str(str_val):
     if isinstance(str_val, string_types):
         str_val = str_val.encode('unicode_escape')
         if sys.version_info >= (3, 0):
@@ -240,6 +240,20 @@ def _form_escaped_value(str_val):
 # Registry for functions that build parameter assignment code.
 _parameter_code_builders = {}
 
+def _form_escaped_python_value(val):
+    """Translate each of the standard json/yaml types to appropiate objects in python."""
+    if isinstance(val, string_types):
+        return _form_escaped_str(val)
+    elif isinstance(val, integer_types) or isinstance(val, bool):
+        return '{}'.format(val)
+    elif isinstance(val, dict):
+        escaped = ', '.join(["{}: {}".format(_form_escaped_str(k), _form_escaped_python_value(v)) for k, v in val.items()])
+        return '{{{}}}'.format(escaped)
+    elif isinstance(val, list):
+        escaped = ', '.join([_form_escaped_python_value(v) for v in val])
+        return '[{}]'.format(escaped)
+    # Try this as last resort
+    return _form_escaped_str(val)
 
 def register_param_builder(name):
     """Decorator for registering functions that write variable assignments for a given kernel or language."""
@@ -255,8 +269,7 @@ def build_python_params(parameters):
     """Writers parameter assignment code for Python kernels."""
     param_content = "# Parameters\n"
     for var, val in parameters.items():
-        val = _form_escaped_value(val)
-        param_content += '{} = {}\n'.format(var, val)
+        param_content += '{} = {}\n'.format(var, _form_escaped_python_value(val))
     return param_content
 
 
