@@ -4,7 +4,7 @@ Installation
 Installing the application
 --------------------------
 
-From the commmand line:
+From the command line:
 
 .. code-block:: bash
 
