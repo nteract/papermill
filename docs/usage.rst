@@ -1,8 +1,8 @@
 Usage
 =====
 
-Parametrizing a Notebook
-------------------------
+Parameterizing a Notebook
+-------------------------
 
 To parametrize your notebook designate a cell with the tag ``parameters``.
 Papermill looks for the ``parameters`` cell and treat those values as defaults

@@ -93,7 +93,7 @@ html_theme = 'alabaster'
 #
 
 html_theme_options = {
-    'logo': 'https://user-images.githubusercontent.com/836375/27929844-6bb34e62-6249-11e7-9a2a-00849a64940c.png',
+    'logo': 'images/papermill.png',
     'description': 'Parameterize, execute, and analyze notebooks',
     'github_user': 'nteract',
     'github_repo': 'papermill',
