@@ -12,8 +12,8 @@ from click.testing import CliRunner
 from mock import patch
 
 from .. import cli
-from ..cli import papermill, _is_int,  _is_float, _resolve_type, execute_notebook
-from click.testing import CliRunner
+from ..cli import papermill, _is_int,  _is_float, _resolve_type
+
 
 @pytest.mark.parametrize("test_input,expected", [
     ("True", True),
@@ -56,6 +56,7 @@ def test_is_float(value, expected):
 ])
 def test_is_int(value, expected):
     assert (_is_int(value)) == expected
+
 
 class TestCLI(unittest.TestCase):
     def setUp(self):
@@ -207,6 +208,7 @@ class TestCLI(unittest.TestCase):
             kernel_name='R',
             log_output=True,
             progress_bar=False)
+
 
 def test_cli_path():
     @click.command()

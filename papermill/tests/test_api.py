@@ -1,4 +1,3 @@
-import pytest
 import unittest
 import six
 if six.PY3:
