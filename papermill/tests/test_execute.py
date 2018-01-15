@@ -9,11 +9,33 @@ import unittest
 import nbformat
 
 from ..api import read_notebook
-from ..execute import execute_notebook, log_outputs, _translate_type_r
+from ..execute import execute_notebook, log_outputs, _translate_type_python, _translate_type_r
 from ..exceptions import PapermillExecutionError
 from . import get_notebook_path, RedirectOutput
 
 python_2 = sys.version_info[0] == 2
+
+@pytest.mark.parametrize("test_input,expected", [
+    ("foo", '"foo"'),
+    ('{"foo": "bar"}', '"{\\"foo\\": \\"bar\\"}"'),
+    ({"foo": "bar"}, '{"foo": "bar"}'),
+    ({"foo": '"bar"'}, '{"foo": "\\"bar\\""}'),
+    ({"foo": ["bar"]}, '{"foo": ["bar"]}'),
+    ({"foo": {"bar": "baz"}}, '{"foo": {"bar": "baz"}}'),
+    ({"foo": {"bar": '"baz"'}}, '{"foo": {"bar": "\\"baz\\""}}'),
+    (["foo"], '["foo"]'),
+    (["foo", '"bar"'], '["foo", "\\"bar\\""]'),
+    ([{"foo": "bar"}], '[{"foo": "bar"}]'),
+    ([{"foo": '"bar"'}], '[{"foo": "\\"bar\\""}]'),
+    (12345, '12345'),
+    (-54321, '-54321'),
+    (1.2345, '1.2345'),
+    (-5432.1, '-5432.1'),
+    (True, 'True'),
+    (False, 'False')
+])
+def test_translate_type_python(test_input, expected):
+    assert _translate_type_python(test_input) == expected
 
 @pytest.mark.parametrize("test_input,expected", [
     ("foo", '"foo"'),
@@ -34,7 +56,7 @@ python_2 = sys.version_info[0] == 2
     (True, 'TRUE'),
     (False, 'FALSE')
 ])
-def test_translate_type_python(test_input, expected):
+def test_translate_type_r(test_input, expected):
     assert _translate_type_r(test_input) == expected
 
 class TestNotebookHelpers(unittest.TestCase):
