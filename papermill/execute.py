@@ -245,6 +245,7 @@ def _translate_to_str(val):
 # Registry for functions that build parameter assignment code.
 _parameter_code_builders = {}
 
+# Python translaters
 _translate_type_str_python = _translate_escaped_str
 _translate_type_int_python = _translate_to_str
 _translate_type_float_python = _translate_to_str
@@ -276,6 +277,40 @@ def _translate_type_python(val):
     # Use this generic translation as a last resort
     return _translate_escaped_str(val)
 
+# R translaters
+_translate_type_str_r = _translate_escaped_str
+_translate_type_int_r = _translate_to_str
+_translate_type_float_r = _translate_to_str
+
+def _translate_type_bool_r(val):
+    return 'TRUE' if val else 'FALSE'
+
+def _translate_type_dict_r(val):
+    escaped = ', '.join(["{} = {}".format(_translate_type_str_r(k), _translate_type_r(v)) for k, v in val.items()])
+    return 'list({})'.format(escaped)
+
+def _translate_type_list_r(val):
+    escaped = ', '.join([_translate_type_r(v) for v in val])
+    return 'list({})'.format(escaped)
+
+def _translate_type_r(val):
+    """Translate each of the standard json/yaml types to appropiate objects in R."""
+    if isinstance(val, string_types):
+        return _translate_type_str_r(val)
+    # Needs to be before integer checks
+    elif isinstance(val, bool):
+        return _translate_type_bool_r(val)
+    elif isinstance(val, integer_types):
+        return _translate_type_int_r(val)
+    elif isinstance(val, float):
+        return _translate_type_float_r(val)
+    elif isinstance(val, dict):
+        return _translate_type_dict_r(val)
+    elif isinstance(val, list):
+        return _translate_type_list_r(val)
+    # Use this generic translation as a last resort
+    return _translate_escaped_str(val)
+
 def register_param_builder(name):
     """Decorator for registering functions that write variable assignments for a given kernel or language."""
 
@@ -299,12 +334,7 @@ def build_r_params(parameters):
     """Writes parameters assignment code for R kernels."""
     param_content = "# Parameters\n"
     for var, val in parameters.items():
-        val = _translate_escaped_str(val)
-        if val is True:
-            val = 'TRUE'
-        elif val is False:
-            val = 'FALSE'
-        param_content += '{} = {}\n'.format(var, val)
+        param_content += '{} = {}\n'.format(var, _translate_type_r(val))
     return param_content
 
 

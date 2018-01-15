@@ -11,7 +11,7 @@ from functools import partial
 import nbformat
 
 from ..api import read_notebook
-from ..execute import execute_notebook, log_outputs, _translate_type_python
+from ..execute import execute_notebook, log_outputs, _translate_type_python, _translate_type_r
 from ..exceptions import PapermillExecutionError
 from . import get_notebook_path, RedirectOutput
 
@@ -41,6 +41,28 @@ execute_notebook = partial(execute_notebook, kernel_name=PYTHON)
 ])
 def test_translate_type_python(test_input, expected):
     assert _translate_type_python(test_input) == expected
+
+@pytest.mark.parametrize("test_input,expected", [
+    ("foo", '"foo"'),
+    ('{"foo": "bar"}', '"{\\"foo\\": \\"bar\\"}"'),
+    ({"foo": "bar"}, 'list("foo" = "bar")'),
+    ({"foo": '"bar"'}, 'list("foo" = "\\"bar\\"")'),
+    ({"foo": ["bar"]}, 'list("foo" = list("bar"))'),
+    ({"foo": {"bar": "baz"}}, 'list("foo" = list("bar" = "baz"))'),
+    ({"foo": {"bar": '"baz"'}}, 'list("foo" = list("bar" = "\\"baz\\""))'),
+    (["foo"], 'list("foo")'),
+    (["foo", '"bar"'], 'list("foo", "\\"bar\\"")'),
+    ([{"foo": "bar"}], 'list(list("foo" = "bar"))'),
+    ([{"foo": '"bar"'}], 'list(list("foo" = "\\"bar\\""))'),
+    (12345, '12345'),
+    (-54321, '-54321'),
+    (1.2345, '1.2345'),
+    (-5432.1, '-5432.1'),
+    (True, 'TRUE'),
+    (False, 'FALSE')
+])
+def test_translate_type_r(test_input, expected):
+    assert _translate_type_r(test_input) == expected
 
 class TestNotebookHelpers(unittest.TestCase):
     def setUp(self):
