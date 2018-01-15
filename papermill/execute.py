@@ -229,7 +229,8 @@ def _find_parameters_index(nb):
         raise PapermillException("Multiple parameters tags found")
     return parameters_indices[0]
 
-def _form_escaped_str(str_val):
+def _translate_escaped_str(str_val):
+    '''Reusable by most interpreters'''
     if isinstance(str_val, string_types):
         str_val = str_val.encode('unicode_escape')
         if sys.version_info >= (3, 0):
@@ -237,26 +238,44 @@ def _form_escaped_str(str_val):
         str_val = str_val.replace('"', r'\"')
     return '"{}"'.format(str_val)
 
-def _form_escaped_r_value(val):
-    """Translate each of the standard json/yaml types to appropiate objects in R."""
-    if isinstance(val, string_types):
-        return _form_escaped_str(val)
-    elif isinstance(val, bool):
-        return 'TRUE' if val else 'FALSE'
-    elif isinstance(val, integer_types + (float,)):
-        return '{}'.format(val)
-    elif isinstance(val, dict):
-        escaped = ', '.join(["{} = {}".format(_form_escaped_str(k), _form_escaped_r_value(v)) for k, v in val.items()])
-        return 'list({})'.format(escaped)
-    elif isinstance(val, list):
-        escaped = ', '.join([_form_escaped_r_value(v) for v in val])
-        return 'list({})'.format(escaped)
-    # Try this as last resort
-    return _form_escaped_str(val)
+def _translate_to_str(val):
+    '''Reusable by most interpreters'''
+    return '{}'.format(val)
 
 # Registry for functions that build parameter assignment code.
 _parameter_code_builders = {}
 
+_translate_type_str_r = _translate_escaped_str
+_translate_type_int_r = _translate_to_str
+_translate_type_float_r = _translate_to_str
+
+def _translate_type_bool_r(val):
+    return 'TRUE' if val else 'FALSE'
+
+def _translate_type_dict_r(val):
+    escaped = ', '.join(["{} = {}".format(_translate_type_str_r(k), _translate_type_r(v)) for k, v in val.items()])
+    return 'list({})'.format(escaped)
+
+def _translate_type_list_r(val):
+    escaped = ', '.join([_translate_type_r(v) for v in val])
+    return 'list({})'.format(escaped)
+
+def _translate_type_r(val):
+    """Translate each of the standard json/yaml types to appropiate objects in R."""
+    if isinstance(val, string_types):
+        return _translate_type_str_r(val)
+    elif isinstance(val, bool):
+        return _translate_type_bool_r(val)
+    elif isinstance(val, integer_types):
+        return _translate_type_int_r(val)
+    elif isinstance(val, float):
+        return _translate_type_float_r(val)
+    elif isinstance(val, dict):
+        return _translate_type_dict_r(val)
+    elif isinstance(val, list):
+        return _translate_type_list_r(val)
+    # Try this as last resort
+    return _translate_escaped_str(val)
 
 def register_param_builder(name):
     """Decorator for registering functions that write variable assignments for a given kernel or language."""
@@ -272,7 +291,7 @@ def build_python_params(parameters):
     """Writers parameter assignment code for Python kernels."""
     param_content = "# Parameters\n"
     for var, val in parameters.items():
-        val = _form_escaped_str(val)
+        val = _translate_escaped_str(val)
         param_content += '{} = {}\n'.format(var, val)
     return param_content
 
@@ -282,7 +301,7 @@ def build_r_params(parameters):
     """Writes parameters assignment code for R kernels."""
     param_content = "# Parameters\n"
     for var, val in parameters.items():
-        param_content += '{} = {}\n'.format(var, _form_escaped_r_value(val))
+        param_content += '{} = {}\n'.format(var, _translate_type_r(val))
     return param_content
 
 

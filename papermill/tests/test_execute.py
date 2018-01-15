@@ -9,45 +9,33 @@ import unittest
 import nbformat
 
 from ..api import read_notebook
-from ..execute import execute_notebook, log_outputs, _form_escaped_r_value
+from ..execute import execute_notebook, log_outputs, _translate_type_r
 from ..exceptions import PapermillExecutionError
 from . import get_notebook_path, RedirectOutput
 
 python_2 = sys.version_info[0] == 2
 
-class TestREscapers(unittest.TestCase):
-    def test_escaped_r_string(self):
-        self.assertEqual(_form_escaped_r_value("foo"), '"foo"')
-        self.assertEqual(_form_escaped_r_value('{"foo": "bar"}'), '"{\\"foo\\": \\"bar\\"}"')
-
-    def test_escaped_r_dict(self):
-        self.assertEqual(_form_escaped_r_value({"foo": "bar"}), 'list("foo" = "bar")')
-        self.assertEqual(_form_escaped_r_value({"foo": '"bar"'}), 'list("foo" = "\\"bar\\"")')
-
-    def test_escaped_r_dict_nested(self):
-        self.assertEqual(_form_escaped_r_value({"foo": ["bar"]}), 'list("foo" = list("bar"))')
-        self.assertEqual(_form_escaped_r_value({"foo": {"bar": "baz"}}), 'list("foo" = list("bar" = "baz"))')
-        self.assertEqual(_form_escaped_r_value({"foo": {"bar": '"baz"'}}), 'list("foo" = list("bar" = "\\"baz\\""))')
-
-    def test_escaped_r_list(self):
-        self.assertEqual(_form_escaped_r_value(["foo"]), 'list("foo")')
-        self.assertEqual(_form_escaped_r_value(["foo", '"bar"']), 'list("foo", "\\"bar\\"")')
-
-    def test_escaped_r_list_nested(self):
-        self.assertEqual(_form_escaped_r_value([{"foo": "bar"}]), 'list(list("foo" = "bar"))')
-        self.assertEqual(_form_escaped_r_value([{"foo": '"bar"'}]), 'list(list("foo" = "\\"bar\\""))')
-
-    def test_escaped_r_int(self):
-        self.assertEqual(_form_escaped_r_value(12345), '12345')
-        self.assertEqual(_form_escaped_r_value(-54321), '-54321')
-
-    def test_escaped_r_float(self):
-        self.assertEqual(_form_escaped_r_value(1.2345), '1.2345')
-        self.assertEqual(_form_escaped_r_value(-5432.1), '-5432.1')
-
-    def test_escaped_r_bool(self):
-        self.assertEqual(_form_escaped_r_value(True), 'TRUE')
-        self.assertEqual(_form_escaped_r_value(False), 'FALSE')
+@pytest.mark.parametrize("test_input,expected", [
+    ("foo", '"foo"'),
+    ('{"foo": "bar"}', '"{\\"foo\\": \\"bar\\"}"'),
+    ({"foo": "bar"}, 'list("foo" = "bar")'),
+    ({"foo": '"bar"'}, 'list("foo" = "\\"bar\\"")'),
+    ({"foo": ["bar"]}, 'list("foo" = list("bar"))'),
+    ({"foo": {"bar": "baz"}}, 'list("foo" = list("bar" = "baz"))'),
+    ({"foo": {"bar": '"baz"'}}, 'list("foo" = list("bar" = "\\"baz\\""))'),
+    (["foo"], 'list("foo")'),
+    (["foo", '"bar"'], 'list("foo", "\\"bar\\"")'),
+    ([{"foo": "bar"}], 'list(list("foo" = "bar"))'),
+    ([{"foo": '"bar"'}], 'list(list("foo" = "\\"bar\\""))'),
+    (12345, '12345'),
+    (-54321, '-54321'),
+    (1.2345, '1.2345'),
+    (-5432.1, '-5432.1'),
+    (True, 'TRUE'),
+    (False, 'FALSE')
+])
+def test_translate_type_python(test_input, expected):
+    assert _translate_type_r(test_input) == expected
 
 class TestNotebookHelpers(unittest.TestCase):
     def setUp(self):
