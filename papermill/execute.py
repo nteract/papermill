@@ -193,17 +193,17 @@ def _parameterize_notebook(nb, kernel_name, parameters):
     kernel_name = kernel_name or nb.metadata.kernelspec.name
     param_content = _build_parameter_code(kernel_name, parameters)
 
-    # Remove the old cell and replace it with a new one containing parameter content.
     param_cell_index = _find_parameters_index(nb)
     if param_cell_index >= 0:
         old_parameters = nb.cells[param_cell_index]
-    else:
-        old_parameters = nbformat.v4.new_code_cell() # Fake cell
-        old_parameters.metadata['tags'] = ['parameters']
+        old_parameters.metadata['tags'].remove('parameters')
+        old_parameters.metadata['tags'].append('default parameters')
+
+    newcell = nbformat.v4.new_code_cell(source=param_content)
+    newcell.metadata['tags'] = ['parameters']
+
     before = nb.cells[:param_cell_index + 1]
     after = nb.cells[param_cell_index + 1:]
-    newcell = nbformat.v4.new_code_cell(source=param_content)
-    newcell.metadata['tags'] = old_parameters.metadata.pop('tags', [])
     nb.cells = before + [newcell] + after
 
 
@@ -226,7 +226,7 @@ def _find_parameters_index(nb):
     if not parameters_indices:
         return -1
     elif len(parameters_indices) > 1:
-        raise PapermillException("Multiple parameters tags found")
+        raise PapermillException("Multiple cells with parameters tag found")
     return parameters_indices[0]
 
 def _translate_escaped_str(str_val):
