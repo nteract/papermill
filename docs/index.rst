@@ -36,6 +36,7 @@ This opens up new opportunities for how notebooks can be used. For example:
 
    installation
    usage
+   reference_a/modules.rst
 
 Indices and tables
 ==================
