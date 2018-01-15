@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 """Utilities for working with S3."""
 from __future__ import unicode_literals
+from past.builtins import basestring, str
 
 from concurrent import futures
 import fnmatch
-from functools import wraps
+from functools import wraps, reduce
 import gzip
 import itertools
 import logging
@@ -15,7 +16,10 @@ import tempfile
 import threading
 import zlib
 
+
+import boto3
 from boto3.session import Session
+
 import six
 
 from .exceptions import AwsError, FileExistsError
@@ -130,8 +134,7 @@ def retry(num):
                 except Exception as e:
                     logger.debug('retrying: {}'.format(e))
             else:
-                raise
-
+                raise Exception  # TODO verify what to raise
         return wrapper
 
     return decorate
@@ -168,6 +171,7 @@ class S3(object):
         - read
         - rm
         - rmdir (TODO rm_dir)
+
     """
     sessions = {}
     lock = threading.RLock()
@@ -396,8 +400,7 @@ class S3(object):
         obj = self.s3.Object(key.bucket.name, key.name)
         length = len(source)
 
-        # TODO fix for python 2/3
-        if isinstance(source, unicode):
+        if isinstance(source, str):
             source = source.encode('utf-8')
         obj.put(Body=source, ACL=policy)
         return key
@@ -490,7 +493,7 @@ class S3(object):
 
             if size != bytes_read:
                 if err:
-                    raise
+                    raise Exception
                 else:
                     raise AwsError('Failed to fully read [%s]' % source.name)
 
@@ -597,10 +600,12 @@ class S3(object):
         Parameters:
             source: the string with the content to copy
             dest: the s3 location
+
+        Uses basestring type (python2) when checking if a string
+
         """
 
-        assert isinstance(source,
-                          basestring), "cp_string source must be a string"
+        assert isinstance(source, basestring), "source must be a string"
         assert self._is_s3(dest), "Destination must be s3 location"
 
         return self._put_string(source, dest, **kwargs)
@@ -634,7 +639,7 @@ class S3(object):
             obj = self.s3.Object(key.bucket.name, key.name)
             obj.load()
             return obj
-        except botocore.exceptions.ClientError as e:
+        except boto3.exceptions.botocore.exceptions.ClientError as e:
             logger.debug(e)
             pass
 
@@ -705,7 +710,9 @@ class S3(object):
 
     def listglob(self, glb, **kwargs):
         """ Returns a list of the files matching a glob.
-        name must be in the form of s3://bucket/glob
+
+        Name must be in the form of s3://bucket/glob
+
         """
         r = []
         regex = re.compile('[*?\[]')
@@ -716,15 +723,23 @@ class S3(object):
 
     def listglobs(self, *args, **kwargs):
         """ Returns a list of files for multiple glob operators.
-        Equivelant to list(listglob(args[0])) + list(listglob(args[1]))  + ...
+
+        Equivalent to list(listglob(args[0])) + list(listglob(args[1]))  + ...
+
+        Use Python lambda and reduce
+
+        arguments acc and x
+        sequence acc + x
+        executor.map(self.listglob, args)
+        []
+
+        The function reduce(func, seq) continually applies the function
+        func() to the sequence seq. It returns a single value.
+
+
         """
-        with futures.ThreadPoolExecutor(
-                max_workers=kwargs.get('threads', len(args))) as executor:
-            out = reduce(
-                lambda acc, x: acc + x,
-                executor.map(self.listglob, args),
-                []
-            )
+        with futures.ThreadPoolExecutor(max_workers=kwargs.get('threads', len(args))) as executor:
+            out = reduce(lambda acc, x: acc + x, executor.map(self.listglob, args), [])
         return out
 
     def new_folder(self, name):
