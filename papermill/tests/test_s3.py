@@ -43,7 +43,18 @@ def test_prefix_defaults():
     p2 = Prefix(bucket, name, None)
     assert p1.name == p2.name
     assert p1.service == p2.service
-    assert p1.is_prefix is True
+
+
+def test_prefix_str():
+    bucket = Bucket('mydatapool')
+    p1 = Prefix(bucket, 'bigdata')
+    assert str(p1) == 's3://' + str(bucket) + '/bigdata'
+
+
+def test_prefix_repr():
+    bucket = Bucket('mydatapool')
+    p1 = Prefix(bucket, 'bigdata')
+    assert p1.__repr__
 
 
 def test_key_init():
