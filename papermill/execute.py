@@ -262,12 +262,13 @@ def _translate_type_python(val):
     """Translate each of the standard json/yaml types to appropiate objects in python."""
     if isinstance(val, string_types):
         return _translate_type_str_python(val)
+    # Needs to be before integer checks
+    elif isinstance(val, bool):
+        return _translate_type_bool_python(val)
     elif isinstance(val, integer_types):
         return _translate_type_int_python(val)
     elif isinstance(val, float):
         return _translate_type_float_python(val)
-    elif isinstance(val, bool):
-        return _translate_type_bool_python(val)
     elif isinstance(val, dict):
         return _translate_type_dict_python(val)
     elif isinstance(val, list):
