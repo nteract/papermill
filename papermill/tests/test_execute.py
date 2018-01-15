@@ -11,7 +11,7 @@ from functools import partial
 import nbformat
 
 from ..api import read_notebook
-from ..execute import execute_notebook, log_outputs
+from ..execute import execute_notebook, log_outputs, _translate_type_python
 from ..exceptions import PapermillExecutionError
 from . import get_notebook_path, RedirectOutput
 
@@ -19,6 +19,28 @@ python_2 = sys.version_info[0] == 2
 PYTHON = 'python2' if python_2 else 'python3'
 execute_notebook = partial(execute_notebook, kernel_name=PYTHON)
 
+
+@pytest.mark.parametrize("test_input,expected", [
+    ("foo", '"foo"'),
+    ('{"foo": "bar"}', '"{\\"foo\\": \\"bar\\"}"'),
+    ({"foo": "bar"}, '{"foo": "bar"}'),
+    ({"foo": '"bar"'}, '{"foo": "\\"bar\\""}'),
+    ({"foo": ["bar"]}, '{"foo": ["bar"]}'),
+    ({"foo": {"bar": "baz"}}, '{"foo": {"bar": "baz"}}'),
+    ({"foo": {"bar": '"baz"'}}, '{"foo": {"bar": "\\"baz\\""}}'),
+    (["foo"], '["foo"]'),
+    (["foo", '"bar"'], '["foo", "\\"bar\\""]'),
+    ([{"foo": "bar"}], '[{"foo": "bar"}]'),
+    ([{"foo": '"bar"'}], '[{"foo": "\\"bar\\""}]'),
+    (12345, '12345'),
+    (-54321, '-54321'),
+    (1.2345, '1.2345'),
+    (-5432.1, '-5432.1'),
+    (True, 'True'),
+    (False, 'False')
+])
+def test_translate_type_python(test_input, expected):
+    assert _translate_type_python(test_input) == expected
 
 class TestNotebookHelpers(unittest.TestCase):
     def setUp(self):
