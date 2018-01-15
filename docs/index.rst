@@ -30,9 +30,6 @@ This opens up new opportunities for how notebooks can be used. For example:
   Now you can choose which plots to programmatically display a **summary**
   **collection** in a notebook to share with others.
 
-
-.. include:: ../README.rst
-
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
