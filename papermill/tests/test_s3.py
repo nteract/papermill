@@ -1,6 +1,6 @@
 import pytest
 
-from ..s3 import Bucket, split
+from ..s3 import Bucket, Prefix, Key, S3, split
 
 
 def test_bucket_init():
@@ -18,6 +18,18 @@ def test_bucket_missing_params():
 
 
 def test_bucket_list():
+    pass
+
+
+def test_prefix_init():
+    pass
+
+
+def test_key_init():
+    pass
+
+
+def test_s3_init():
     pass
 
 
