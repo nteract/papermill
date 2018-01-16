@@ -1,12 +1,6 @@
 papermill package
 =================
 
-Subpackages
------------
-
-.. toctree::
-
-    papermill.tests
 
 Submodules
 ----------
@@ -75,3 +69,11 @@ Module contents
     :members:
     :undoc-members:
     :show-inheritance:
+
+
+Subpackages
+-----------
+
+.. toctree::
+
+    papermill.tests

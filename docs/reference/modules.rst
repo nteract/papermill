@@ -1,5 +1,5 @@
-papermill
-=========
+papermill Reference
+===================
 
 .. toctree::
    :maxdepth: 4
