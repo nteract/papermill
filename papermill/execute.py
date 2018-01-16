@@ -26,16 +26,19 @@ COMPLETED = "completed"
 
 def preprocess(self, nb, resources):
     """
-    This function monkey patches the Preprocessor.preprocess method.
+    This function monkey patches the `Preprocessor.preprocess` method.
 
     We are doing this for the following reasons:
-    1. Notebooks will stop executing when they encounter a failure but not raise a CellException.
-       This allows us to save the notebook with the traceback even though a CellExecutionError
-       was encountered.
 
-    2. We want to write the notebook as cells are executed. We inject our logic for that here.
+    1. Notebooks will stop executing when they encounter a failure but not
+       raise a `CellException`. This allows us to save the notebook with the
+       traceback even though a `CellExecutionError` was encountered.
 
-    3. We want to include timing and execution status information with the metadata of each cell.
+    2. We want to write the notebook as cells are executed. We inject our
+       logic for that here.
+
+    3. We want to include timing and execution status information with the
+       metadata of each cell.
 
     Parameters
     ----------
@@ -44,6 +47,7 @@ def preprocess(self, nb, resources):
     resources : dictionary
         Additional resources used in the conversion process.  Allows
         preprocessors to pass variables into the Jinja engine.
+
     """
     output_path = nb.metadata.papermill['output_path']
 

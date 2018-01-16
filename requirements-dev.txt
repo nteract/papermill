@@ -1,7 +1,8 @@
 codecov
 coverage
 jupyter
-mock ; python_version == '2.7'
+mock
 pytest>=3.3
 pytest-cov
+pytest-mock
 

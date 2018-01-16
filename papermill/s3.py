@@ -840,17 +840,15 @@ class S3(object):
 # leaving this here for compatibility
 def split(path):
     """
-    Splits an s3 `path` into `bucket` and `prefix`, like `os.path.split`,
-    only this `split` can only be used once.
+    Splits an s3 path into bucket and prefix, like `os.path.split`.
 
-    Example: s3://foo/bar/baz would return ['foo','bar/baz']
+    It can only be used once.
+
+    For example, `s3://foo/bar/baz` would return `['foo','bar/baz']`
 
     .. note::
-
-       A trailing `/` is significant in s3. It will not be stripped. For
-       example, s3://foo/bar/baz/ will return ['foo','bar/baz/'].
-
-       This function is used only for backwards compatibility.
+       A trailing `/` is significant in s3, and it will not be stripped,
+       ie `s3://foo/bar/baz/` will return `['foo','bar/baz/']`
 
     """
     if not path.startswith('s3://'):
@@ -863,3 +861,4 @@ def split(path):
             return [path, '']
     else:
         return ['', '']
+
