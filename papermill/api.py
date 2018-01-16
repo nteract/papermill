@@ -22,12 +22,33 @@ DISPLAY_OUTPUT_TYPE = 'application/papermill.display+json'
 
 def record(name, value):
     """
-    Records the value as part of the executing cell's output to be retrieved
-    during inspection.
+    Record a value in the output notebook when a cell is executed.
 
-    Args:
-        name (str): Name of the value
-        value: The value to record.
+    The recorded value can be retrieved during later inspection of the
+    output notebook.
+
+    Example
+    -------
+    `record` provides a handy way for data to be stored with a notebook to
+    be used later::
+
+        pm.record("hello", "world")
+        pm.record("number", 123)
+        pm.record("some_list", [1, 3, 5])
+        pm.record("some_dict", {"a": 1, "b": 2})
+
+    pandas can be used later to recover recorded values by
+    reading the output notebook into a `dataframe`::
+
+        nb = pm.read_notebook('notebook.ipynb')
+        nb.dataframe
+
+    Parameters
+    ----------
+    name : str
+        Name of the value to record.
+    value: str, int, float, list, dict
+        The value to record.
 
     """
     # IPython.display.display takes a tuple of objects as first parameter
@@ -37,11 +58,14 @@ def record(name, value):
 
 def display(name, obj):
     """
-    Displays an object with the reference 'name'.
+    Display an object with the reference `name`.
 
-    Args:
-        name (str): Name of the output.
-        obj: An object that can be displayed in the notebook.
+    Parameters
+    ----------
+    name : str
+        Name of the output.
+    obj : object
+        An object that can be displayed in the notebook.
 
     """
     data, metadata = IPython.core.formatters.format_display_data(obj)
@@ -51,12 +75,16 @@ def display(name, obj):
 
 def read_notebook(path):
     """
-    Returns a Notebook object loaded from the location specified at 'path'.
+    Returns a Notebook object loaded from the location specified at `path`.
 
-    Args:
-        path (str): Path to notebook ".ipynb" file.
+    Parameter
+    ---------
+    path : str
+        Path to a notebook `.ipynb` file.
 
-    Returns:
+    Returns
+    -------
+    notebook : object
         A Notebook object.
 
     """
@@ -73,14 +101,18 @@ def read_notebook(path):
 
 def read_notebooks(path):
     """
-    Returns a NotebookCollection loaded from the notebooks found the in the
-    directory specified by 'path'.
+    Returns a NotebookCollection including the notebooks read from the
+    directory specified by `path`.
 
-    Args:
-        path (str): Path to directory containing notebook ".ipynb" files.
+    Parameter
+    ---------
+    path : str
+        Path to directory containing notebook `.ipynb` files.
 
-    Returns:
-        A NotebookCollection object.
+    Returns
+    -------
+    nb_collection : object
+        A `NotebookCollection` object.
 
     """
     nb_collection = NotebookCollection()
@@ -94,9 +126,17 @@ class Notebook(object):
     """
     Representation of a notebook.
 
-    Constructor args:
-        node (nbformat.NotebookNode): a notebook object
-        path (str): the path to the notebook (optional)
+    Parameters
+    ----------
+    node : `nbformat.NotebookNode`
+        a notebook object
+    path : str, optional
+        the path to the notebook
+
+    Method
+    ------
+    display_output
+
 
     """
     def __init__(self, node=None, path=None):
@@ -108,31 +148,38 @@ class Notebook(object):
 
     @property
     def filename(self):
+        """str: filename found a the specified path"""
         return os.path.basename(self.path)
 
     @property
     def directory(self):
+        """str: directory name at the specified path"""
         return os.path.dirname(self.path)
 
     @property
     def version(self):
+        """str: version of Jupyter notebook spec"""
         return _get_papermill_metadata(self.node, 'version', default=None)
 
     @property
     def parameters(self):
+        """dict: parameters stored in the notebook metadata"""
         return _get_papermill_metadata(self.node, 'parameters', default={})
 
     @property
     def environment_variables(self):
+        """dict: environment variables used by the notebook execution"""
         return _get_papermill_metadata(
             self.node, 'environment_variables', default={})
 
     @property
     def data(self):
+        """dict: a dictionary of data found in the notebook"""
         return _fetch_notebook_data(self.node)
 
     @property
     def dataframe(self):
+        """pandas dataframe: a dataframe of named parameters and values"""
         df = pd.DataFrame(columns=['name', 'value', 'type', 'filename'])
 
         # TODO: refactor to a Dict comprehension or list comprehensions
@@ -148,6 +195,7 @@ class Notebook(object):
 
     @property
     def metrics(self):
+        """pandas dataframe: dataframe of cell execution counts and times"""
         df = pd.DataFrame(columns=['filename', 'cell', 'value', 'type'])
 
         for i, cell in enumerate(self.node.cells):
@@ -160,10 +208,12 @@ class Notebook(object):
         return df
 
     def display_output(self, name):
-        """Display output from a source notebook in the running notebook.
+        """Display output from a named source notebook in a running notebook.
 
-        Parameter:
-            name (str): source notebook
+        Parameter
+        ---------
+        name : str
+            name of source notebook
 
         """
         outputs = _get_notebook_outputs(self.node)
@@ -175,10 +225,12 @@ class Notebook(object):
 
 
 def _get_papermill_metadata(nb, name, default=None):
+    """Returns a dictionary of a notebook's metadata."""
     return nb.metadata.get('papermill', {}).get(name, default)
 
 
 def _get_notebook_outputs(nb_node):
+    """Returns a dictionary of the notebook outputs."""
     outputs = {}
     for cell in nb_node.cells:
         for output in cell.get('outputs', []):
@@ -190,17 +242,19 @@ def _get_notebook_outputs(nb_node):
 
 
 def _fetch_notebook_data(nb_node):
-    """Returns the data recorded in a notebook."""
-    ret = {}
+    """Returns a dictionary of the data recorded in a notebook."""
+    notebook_data = {}
     for cell in nb_node.cells:
         for output in cell.get('outputs', []):
             if 'data' in output and RECORD_OUTPUT_TYPE in output['data']:
-                ret.update(output['data'][RECORD_OUTPUT_TYPE])
-    return ret
+                notebook_data.update(output['data'][RECORD_OUTPUT_TYPE])
+    return notebook_data
 
 
 class NotebookCollection(object):
-    """Represents a collection of notebooks"""
+    """Represents a collection of notebooks as a dictionary of notebooks.
+
+    """
     def __init__(self):
 
         self._notebooks = {}
@@ -224,6 +278,7 @@ class NotebookCollection(object):
 
     @property
     def dataframe(self):
+        """list: a list of dataframes from a collection of notebooks"""
         df_list = []
         for key in sorted(self._notebooks):
             nb = self._notebooks[key]
@@ -234,6 +289,7 @@ class NotebookCollection(object):
 
     @property
     def metrics(self):
+        """list: a list of metrics from a collection of notebooks"""
         df_list = []
         for key in sorted(self._notebooks):
             nb = self._notebooks[key]
@@ -243,7 +299,16 @@ class NotebookCollection(object):
         return pd.concat(df_list).reset_index(drop=True)
 
     def display_output(self, key, output_name):
-        """Display markdown of output"""
+        """Display output as markdown.
+
+        Parameters
+        ----------
+        key : str
+            parameter names to be used as markdown headings in output
+        output_name : str
+            a named notebook to display as output
+
+        """
         if isinstance(key, string_types):
             ip_display(Markdown("### %s" % str(key)))
             self[key].display_output(output_name)
