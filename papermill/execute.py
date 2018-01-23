@@ -136,7 +136,7 @@ Preprocessor.preprocess = preprocess
 
 
 def execute_notebook(notebook,
-                     output=None,
+                     output,
                      parameters=None,
                      kernel_name=None,
                      progress_bar=True,
@@ -151,8 +151,8 @@ def execute_notebook(notebook,
         progress_bar (bool): Flag for whether or not to show the progress bar.
         log_output (bool): Flag for whether or not to write notebook output to stderr.
     """
-    # print("Input Notebook:  %s" % get_pretty_path(notebook))
-    # print("Output Notebook: %s" % get_pretty_path(output))
+    print("Input Notebook:  %s" % get_pretty_path(notebook))
+    print("Output Notebook: %s" % get_pretty_path(output))
     nb = load_notebook_node(notebook)
 
     # Parameterize the Notebook.
@@ -182,10 +182,10 @@ def execute_notebook(notebook,
     nb.metadata.papermill['exception'] = any(
         [cell.metadata.papermill.get('exception') for cell in nb.cells])
 
-    if output:
-        # Write final Notebook to disk.
-        write_ipynb(nb, output)
-        raise_for_execution_errors(nb, output)
+    # Write final Notebook to disk.
+    write_ipynb(nb, output)
+    raise_for_execution_errors(nb, output)
+    # always return notebook object
     return nb
 
 
