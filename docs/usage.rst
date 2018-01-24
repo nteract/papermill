@@ -6,7 +6,7 @@ Parameterizing a Notebook
 
 To parameterize your notebook designate a cell with the tag ``parameters``.
 Papermill looks for the ``parameters`` cell and treat those values as defaults
-for the parameters passed in at execution time. It acheive this by inserting a
+for the parameters passed in at execution time. It achieves this by inserting a
 cell after the tagged cell. If no cell is tagged with ``parameters`` a cell will
 be inserted to the front of the notebook.
 
