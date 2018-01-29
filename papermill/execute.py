@@ -13,7 +13,13 @@ from nbconvert.preprocessors import ExecutePreprocessor
 from nbconvert.preprocessors.execute import CellExecutionError
 from nbconvert.preprocessors.base import Preprocessor
 from six import string_types, integer_types
-from tqdm import tqdm
+# tqdm creates 2 globals lock which raise OSException if the execution
+# environment does not have shared memory for processes, e.g. AWS Lambda
+try:
+    from tqdm import tqdm
+    no_tqdm = False
+except OSError:
+    no_tqdm = True
 
 from .conf import settings
 from .exceptions import PapermillException, PapermillExecutionError
@@ -170,7 +176,7 @@ def execute_notebook(notebook,
     processor = ExecutePreprocessor(
         timeout=None,
         kernel_name=kernel_name or nb.metadata.kernelspec.name, )
-    processor.progress_bar = progress_bar
+    processor.progress_bar = progress_bar and not no_tqdm
     processor.log_output = log_output
 
     processor.preprocess(nb, {})
