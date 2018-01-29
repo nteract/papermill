@@ -426,8 +426,8 @@ class S3(object):
         or key ends with .gz) unless raw is True. Pass None for encoding to
         skip encoding.
         """
-        assert (self._is_s3(source) or isinstance(source, Key),
-                'source must be a valid s3 path')
+        assert (self._is_s3(source) or isinstance(source, Key)), \
+                'source must be a valid s3 path'
 
         key = self._get_key(source) if not isinstance(source, Key) else source
         compressed = (compressed or key.name.endswith('.gz')) and not raw
