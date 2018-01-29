@@ -467,7 +467,7 @@ class S3(object):
 
                         if encoding and not raw:
                             try:
-                                decoded = (undecoded + s).decode(encoding)
+                                decoded = undecoded + s.decode(encoding)
                                 undecoded = ''
                                 yield decoded
                             except UnicodeDecodeError as ude:
