@@ -90,11 +90,11 @@ def test_display(format_display_data_mock, ip_display_mock):
     display('display_name', {'display_obj': 'hello'})
 
     format_display_data_mock.assert_called_once_with({'display_obj': 'hello'})
-    ip_display_mock.assert_called_once_with(data={'foo': 'bar'}, metadata={'metadata': 'baz', 'papermill': {'name': 'display_name'}}, raw=True)
+    ip_display_mock.assert_called_once_with({'foo': 'bar'}, metadata={'metadata': 'baz', 'papermill': {'name': 'display_name'}}, raw=True)
 
 
 
 @patch('papermill.api.ip_display')
 def test_record(ip_display_mock):
     record('a', 3)
-    ip_display_mock.assert_called_once_with(data={'application/papermill.record+json': {'a': 3}}, raw=True)
+    ip_display_mock.assert_called_once_with({'application/papermill.record+json': {'a': 3}}, raw=True)
