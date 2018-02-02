@@ -142,7 +142,6 @@ def execute_notebook(notebook,
                      progress_bar=True,
                      log_output=False):
     """Executes a single notebook locally.
-
     Args:
         notebook (str): Path to input notebook.
         output (str): Path to save executed notebook.
@@ -150,6 +149,9 @@ def execute_notebook(notebook,
         kernel_name (str): Name of kernel to execute the notebook against.
         progress_bar (bool): Flag for whether or not to show the progress bar.
         log_output (bool): Flag for whether or not to write notebook output to stderr.
+
+    Returns:
+         nb (NotebookNode): executed notebook object
     """
     print("Input Notebook:  %s" % get_pretty_path(notebook))
     print("Output Notebook: %s" % get_pretty_path(output))
