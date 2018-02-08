@@ -177,6 +177,7 @@ def execute_notebook(notebook,
     t0 = datetime.datetime.utcnow()
     processor = ExecutePreprocessor(
         timeout=None,
+        startup_timeout=300, # 5 minutes to wait for slow kernels
         kernel_name=kernel_name or nb.metadata.kernelspec.name, )
     processor.progress_bar = progress_bar and not no_tqdm
     processor.log_output = log_output
