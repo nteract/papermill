@@ -76,7 +76,8 @@ class TestCLI(unittest.TestCase):
             {'foo': 'bar', 'baz': 42},
             kernel_name=None,
             log_output=False,
-            progress_bar=True)
+            progress_bar=True,
+            start_timeout=60)
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_parameters_raw(self, execute_patch):
@@ -87,7 +88,8 @@ class TestCLI(unittest.TestCase):
             {'foo': 'bar', 'baz': '42'},
             kernel_name=None,
             log_output=False,
-            progress_bar=True)
+            progress_bar=True,
+            start_timeout=60)
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_parameters_file(self, execute_patch):
@@ -99,7 +101,8 @@ class TestCLI(unittest.TestCase):
             {'foo': 54321, 'bar': 'value', 'baz': {'k2': 'v2', 'k1': 'v1'}},
             kernel_name=None,
             log_output=False,
-            progress_bar=True)
+            progress_bar=True,
+            start_timeout=60)
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_parameters_yaml(self, execute_patch):
@@ -110,7 +113,8 @@ class TestCLI(unittest.TestCase):
             {'foo': 'bar', 'foo2': ['baz']},
             kernel_name=None,
             log_output=False,
-            progress_bar=True)
+            progress_bar=True,
+            start_timeout=60)
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_parameters_yaml_override(self, execute_patch):
@@ -122,7 +126,8 @@ class TestCLI(unittest.TestCase):
             {'foo': ['baz']},
             kernel_name=None,
             log_output=False,
-            progress_bar=True)
+            progress_bar=True,
+            start_timeout=60)
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_parameters_base64(self, execute_patch):
@@ -134,7 +139,8 @@ class TestCLI(unittest.TestCase):
             {'foo': 1, 'bar': 2},
             kernel_name=None,
             log_output=False,
-            progress_bar=True)
+            progress_bar=True,
+            start_timeout=60)
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_kernel(self, execute_patch):
@@ -145,7 +151,8 @@ class TestCLI(unittest.TestCase):
             {},
             kernel_name='python3',
             log_output=False,
-            progress_bar=True)
+            progress_bar=True,
+            start_timeout=60)
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_progress_bar(self, execute_patch):
@@ -156,7 +163,8 @@ class TestCLI(unittest.TestCase):
             {},
             kernel_name=None,
             log_output=False,
-            progress_bar=True)
+            progress_bar=True,
+            start_timeout=60)
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_no_progress_bar(self, execute_patch):
@@ -167,7 +175,8 @@ class TestCLI(unittest.TestCase):
             {},
             kernel_name=None,
             log_output=False,
-            progress_bar=False)
+            progress_bar=False,
+            start_timeout=60)
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_log_output(self, execute_patch):
@@ -178,7 +187,8 @@ class TestCLI(unittest.TestCase):
             {},
             kernel_name=None,
             log_output=True,
-            progress_bar=True)
+            progress_bar=True,
+            start_timeout=60)
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_log_output(self, execute_patch):
@@ -189,7 +199,20 @@ class TestCLI(unittest.TestCase):
             {},
             kernel_name=None,
             log_output=False,
-            progress_bar=True)
+            progress_bar=True,
+            start_timeout=60)
+
+    @patch(cli.__name__ + '.execute_notebook')
+    def test_start_timeout(self, execute_patch):
+        self.runner.invoke(papermill, self.default_args + ['--start_timeout', '123'])
+        execute_patch.assert_called_with(
+            'input.ipynb',
+            'output.ipynb',
+            {},
+            kernel_name=None,
+            log_output=False,
+            progress_bar=True,
+            start_timeout=123)
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_many_args(self, execute_patch):
@@ -201,7 +224,8 @@ class TestCLI(unittest.TestCase):
             '-r', 'foo', '54321',
             '--kernel', 'R',
             '--log-output',
-            '--no-progress-bar'
+            '--no-progress-bar',
+            '--start_timeout', '321',
         ])
         execute_patch.assert_called_with(
             'input.ipynb',
@@ -209,7 +233,8 @@ class TestCLI(unittest.TestCase):
             {'foo': '54321', 'bar': 'value', 'baz': 'replace', 'yaml_foo': {'yaml_bar': 'yaml_baz'}, "base64_foo": "base64_bar"},
             kernel_name='R',
             log_output=True,
-            progress_bar=False)
+            progress_bar=False,
+            start_timeout=321)
 
 
 def test_cli_path():

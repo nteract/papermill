@@ -146,7 +146,8 @@ def execute_notebook(notebook,
                      parameters=None,
                      kernel_name=None,
                      progress_bar=True,
-                     log_output=False):
+                     log_output=False,
+                     start_timeout=60):
     """Executes a single notebook locally.
     Args:
         notebook (str): Path to input notebook.
@@ -177,7 +178,7 @@ def execute_notebook(notebook,
     t0 = datetime.datetime.utcnow()
     processor = ExecutePreprocessor(
         timeout=None,
-        startup_timeout=300, # 5 minutes to wait for slow kernels
+        startup_timeout=start_timeout,
         kernel_name=kernel_name or nb.metadata.kernelspec.name, )
     processor.progress_bar = progress_bar and not no_tqdm
     processor.log_output = log_output

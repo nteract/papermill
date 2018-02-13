@@ -29,9 +29,11 @@ from .iorw import read_yaml_file
               help="Flag for turning on the progress bar.")
 @click.option('--log-output/--no-log-output', default=False,
               help="Flag for writing notebook output to stderr.")
+@click.option('--start_timeout', type=int, default=60,
+              help="Time in seconds to wait for kernel to start.")
 def papermill(notebook_path, output_path, parameters, parameters_raw,
               parameters_file, parameters_yaml, parameters_base64, kernel,
-              progress_bar, log_output):
+              progress_bar, log_output, start_timeout):
     """This utility executes a single notebook on a container.
 
     Papermill takes a source notebook, applies parameters to the source
@@ -54,7 +56,7 @@ def papermill(notebook_path, output_path, parameters, parameters_raw,
 
     execute_notebook(notebook_path, output_path, parameters_final,
                      kernel_name=kernel, progress_bar=progress_bar,
-                     log_output=log_output)
+                     log_output=log_output, start_timeout=start_timeout)
 
 
 def _resolve_type(value):
