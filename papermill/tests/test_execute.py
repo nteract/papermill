@@ -9,10 +9,14 @@ import unittest
 from functools import partial
 
 import six
-
+if six.PY3:
+    from unittest.mock import patch
+else:
+    from mock import patch
 import nbformat
 
 from ..api import read_notebook
+from .. import execute
 from ..execute import execute_notebook, log_outputs, _translate_type_python, _translate_type_r
 from ..exceptions import PapermillExecutionError
 from . import get_notebook_path, RedirectOutput
@@ -79,6 +83,16 @@ class TestNotebookHelpers(unittest.TestCase):
 
     def tearDown(self):
         shutil.rmtree(self.test_dir)
+
+    @patch(execute.__name__ + '.ExecutePreprocessor')
+    def test_start_timeout(self, preproc_mock):
+        execute_notebook(self.notebook_path, self.nb_test_executed_fname, start_timeout=123)
+        preproc_mock.assert_called_once_with(timeout=None, startup_timeout=123, kernel_name=kernel_name)
+
+    @patch(execute.__name__ + '.ExecutePreprocessor')
+    def test_default_start_timeout(self, preproc_mock):
+        execute_notebook(self.notebook_path, self.nb_test_executed_fname)
+        preproc_mock.assert_called_once_with(timeout=None, startup_timeout=60, kernel_name=kernel_name)
 
     def test_cell_insertion(self):
         execute_notebook(self.notebook_path, self.nb_test_executed_fname, {'msg': 'Hello'})
