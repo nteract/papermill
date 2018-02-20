@@ -135,3 +135,73 @@ def test_split_error():
     with pytest.raises(ValueError):
         split('https://foo/bar/baz')
 
+
+
+#The following tests are purposely limited to the exposed interface by iorw.py
+import os.path
+import moto
+
+local_dir = os.path.dirname(os.path.abspath(__file__))
+test_bucket_name = 'test-pm-bucket'
+test_string = 'Hello'
+test_file_path = 'notebooks/s3/s3_in/s3-simple_notebook.ipynb'
+
+with open(os.path.join(local_dir, test_file_path)) as f:
+    test_nb_content = f.read()
+
+no_empty_lines = lambda s: "\n".join([l for l in s.split('\n') if len(l) > 0])
+test_clean_nb_content = no_empty_lines(test_nb_content)
+
+read_from_gen = lambda g: "\n".join(g)
+
+
+@pytest.yield_fixture
+def s3_client():
+    mock_s3 = moto.mock_s3()
+    mock_s3.start()
+    import boto3
+    client = boto3.client('s3')
+    client.create_bucket(Bucket=test_bucket_name)
+    client.put_object(Bucket=test_bucket_name,
+                      Key=test_file_path,
+                      Body=test_nb_content)
+    yield S3()
+    try:
+        client.delete_object(Bucket=test_bucket_name,
+                             Key=test_file_path)
+        client.delete_object(Bucket=test_bucket_name,
+                             Key=test_file_path+'.txt')
+    except:
+        pass
+    mock_s3.stop()
+
+
+def test_s3_read(s3_client):
+    s3_path = "s3://{}/{}".format(test_bucket_name, test_file_path)
+    data = read_from_gen(s3_client.read(s3_path))
+    assert data == test_clean_nb_content
+
+
+def test_s3_write(s3_client):
+    s3_path = "s3://{}/{}.txt".format(test_bucket_name, test_file_path)
+    s3_client.cp_string(test_string, s3_path)
+
+    data = read_from_gen(s3_client.read(s3_path))
+    assert data == test_string
+
+
+def test_s3_overwrite(s3_client):
+    s3_path = "s3://{}/{}".format(test_bucket_name, test_file_path)
+    s3_client.cp_string(test_string, s3_path)
+
+    data = read_from_gen(s3_client.read(s3_path))
+    assert data == test_string
+
+
+def test_s3_listdir(s3_client):
+    dir = os.path.dirname(test_file_path)
+    s3_dir = "s3://{}/{}".format(test_bucket_name, dir)
+    s3_path = "s3://{}/{}".format(test_bucket_name, test_file_path)
+    dir_listings = s3_client.listdir(s3_dir)
+    assert len(dir_listings) == 1
+    assert s3_path in dir_listings
