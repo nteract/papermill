@@ -1,4 +1,9 @@
+#The following tests are purposely limited to the exposed interface by iorw.py
+
+import os.path
 import pytest
+import moto
+from moto import mock_s3
 
 from ..s3 import Bucket, Prefix, Key, S3, split
 
@@ -108,6 +113,7 @@ def test_key_defaults():
     assert k1.is_prefix is False
 
 
+@mock_s3
 def test_s3_defaults():
     s1 = S3()
     s2 = S3(None, None, None, 'us-east-1')
@@ -135,11 +141,6 @@ def test_split_error():
     with pytest.raises(ValueError):
         split('https://foo/bar/baz')
 
-
-
-#The following tests are purposely limited to the exposed interface by iorw.py
-import os.path
-import moto
 
 local_dir = os.path.dirname(os.path.abspath(__file__))
 test_bucket_name = 'test-pm-bucket'
@@ -181,7 +182,6 @@ def test_s3_read(s3_client):
     data = read_from_gen(s3_client.read(s3_path))
     assert data == test_clean_nb_content
 
-
 def test_s3_write(s3_client):
     s3_path = "s3://{}/{}.txt".format(test_bucket_name, test_file_path)
     s3_client.cp_string(test_string, s3_path)
@@ -199,8 +199,8 @@ def test_s3_overwrite(s3_client):
 
 
 def test_s3_listdir(s3_client):
-    dir = os.path.dirname(test_file_path)
-    s3_dir = "s3://{}/{}".format(test_bucket_name, dir)
+    dir_name = os.path.dirname(test_file_path)
+    s3_dir = "s3://{}/{}".format(test_bucket_name, dir_name)
     s3_path = "s3://{}/{}".format(test_bucket_name, test_file_path)
     dir_listings = s3_client.listdir(s3_dir)
     assert len(dir_listings) == 1
