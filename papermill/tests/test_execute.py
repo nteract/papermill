@@ -147,7 +147,8 @@ class TestBrokenNotebook1(unittest.TestCase):
         with self.assertRaises(PapermillExecutionError):
             execute_notebook(path, result_path)
         nb = read_notebook(result_path)
-        self.assertEqual(nb.node.cells[0].cell_type, "markdown")
+        self.assertEqual(nb.node.cells[0].cell_type, "code")
+        self.assertEqual(nb.node.cells[0].outputs[0].output_type, "display_data")
         self.assertEqual(nb.node.cells[1].execution_count, 1)
         self.assertEqual(nb.node.cells[2].execution_count, 2)
         self.assertEqual(nb.node.cells[2].outputs[0].output_type, 'error')
@@ -168,7 +169,8 @@ class TestBrokenNotebook2(unittest.TestCase):
         with self.assertRaises(PapermillExecutionError):
             execute_notebook(path, result_path)
         nb = read_notebook(result_path)
-        self.assertEqual(nb.node.cells[0].cell_type, "markdown")
+        self.assertEqual(nb.node.cells[0].cell_type, "code")
+        self.assertEqual(nb.node.cells[0].outputs[0].output_type, "display_data")
         self.assertEqual(nb.node.cells[1].execution_count, 1)
         self.assertEqual(nb.node.cells[2].execution_count, 2)
         self.assertEqual(nb.node.cells[2].outputs[0].output_type, 'display_data')
