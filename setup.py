@@ -23,7 +23,7 @@ def read(fname):
 
 req_path = os.path.join(os.path.dirname('__file__'), 'requirements.txt')
 required = [req.strip() for req in read(req_path).splitlines() if req.strip()]
-if python_2 and 'bdist_wheel' not in sys.argv:
+if python_2:
     required = ['ipython<6' if req == 'ipython' else req for req in required]
 
 setup(name='papermill',
