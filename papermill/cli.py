@@ -5,6 +5,8 @@ from __future__ import unicode_literals
 import base64
 
 import click
+click.disable_unicode_literals_warning = True
+
 import yaml
 
 from .execute import execute_notebook
