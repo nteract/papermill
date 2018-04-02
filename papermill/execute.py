@@ -1,6 +1,6 @@
  # -*- coding: utf-8 -*-
 
-from __future__ import unicode_literals
+from __future__ import unicode_literals, print_function
 
 import datetime
 import os
@@ -160,8 +160,8 @@ def execute_notebook(notebook,
     Returns:
          nb (NotebookNode): executed notebook object
     """
-    print("Input Notebook:  %s" % get_pretty_path(notebook))
-    print("Output Notebook: %s" % get_pretty_path(output))
+    print("Input Notebook:  %s" % get_pretty_path(notebook), file=sys.stderr)
+    print("Output Notebook: %s" % get_pretty_path(output), file=sys.stderr)
     nb = load_notebook_node(notebook)
 
     # Parameterize the Notebook.
