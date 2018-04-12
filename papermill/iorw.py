@@ -50,7 +50,7 @@ class PapermillIO(object):
 
         if local_handler is None:
             raise PapermillException(
-                "Could not hand a registered schema handler for: {}"
+                "Could not find a registered schema handler for: {}"
                 .format(path))
 
         return local_handler
