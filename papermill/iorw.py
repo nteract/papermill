@@ -16,14 +16,15 @@ from .s3 import S3
 
 
 class PapermillIO(object):
-
-    __handlers = {}
+    def __init__(self):
+        self.reset()
 
     def read(self, path):
         return self.get_handler(path).read(path)
 
     def write(self, buf, path):
-        self.get_handler(path).write(buf, path)
+        # Usually no return object here
+        return self.get_handler(path).write(buf, path)
 
     def listdir(self, path):
         return self.get_handler(path).listdir(path)
@@ -31,18 +32,28 @@ class PapermillIO(object):
     def pretty_path(self, path):
         return self.get_handler(path).pretty_path(path)
 
-    @classmethod
-    def register(cls, scheme, handler):
-        cls.__handlers[scheme] = handler
+    def reset(self):
+        self.__handlers = []
+
+    def register(self, scheme, handler):
+        # Keep these ordered as LIFO
+        self.__handlers.insert(0, (scheme, handler))
 
     def get_handler(self, path):
-        for scheme, handler in self.__handlers.items():
+        local_handler = None
+        for scheme, handler in self.__handlers:
             if scheme == 'local':
-                continue
+                local_handler = handler
 
             if path.startswith(scheme):
                 return handler
-        return self.__handlers['local']
+
+        if local_handler is None:
+            raise PapermillException(
+                "Could not hand a registered schema handler for: {}"
+                .format(path))
+
+        return local_handler
 
 
 class HttpHandler(object):
