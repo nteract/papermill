@@ -7,7 +7,71 @@ else:
     from mock import Mock, patch
 
 from ..exceptions import PapermillException
-from ..iorw import HttpHandler
+from ..iorw import HttpHandler, PapermillIO
+
+
+class TestPapermillIO(unittest.TestCase):
+    """
+    Tests for `PapermillIO`.
+    """
+
+    class FakeHandler(object):
+        def __init__(self, ver):
+            self.ver = ver
+
+        def read(self, path):
+            return "contents from {} for version {}".format(path, self.ver)
+
+        def listdir(self, path):
+            return ["fake", "contents"]
+
+        def write(self, buf, path):
+            return "wrote {}".format(buf)
+
+        def pretty_path(self, path):
+            return "{}/pretty/{}".format(path, self.ver)
+
+
+    def setUp(self):
+        self.papermill_io = PapermillIO()
+        self.fake1 = self.FakeHandler(1)
+        self.fake2 = self.FakeHandler(2)
+        self.papermill_io.register("fake", self.fake1)
+
+    def test_get_handler(self):
+        self.assertEqual(self.papermill_io.get_handler("fake"), self.fake1)
+
+    def test_get_local_handler(self):
+        with self.assertRaises(PapermillException):
+            self.papermill_io.get_handler("dne")
+
+        self.papermill_io.register("local", self.fake2)
+        self.assertEqual(self.papermill_io.get_handler("dne"), self.fake2)
+
+    def test_register_ordering(self):
+        # Should match fake1 with fake2 path
+        self.assertEqual(self.papermill_io.get_handler("fake2/path"), self.fake1)
+
+        self.papermill_io.reset()
+        self.papermill_io.register("fake", self.fake1)
+        self.papermill_io.register("fake2", self.fake2)
+
+        # Should match fake1 with fake1 path, and NOT fake2 path/match
+        self.assertEqual(self.papermill_io.get_handler("fake/path"), self.fake1)
+        # Should match fake2 with fake2 path
+        self.assertEqual(self.papermill_io.get_handler("fake2/path"), self.fake2)
+
+    def test_read(self):
+        self.assertEqual(self.papermill_io.read("fake/path"), "contents from fake/path for version 1")
+
+    def test_listdir(self):
+        self.assertEqual(self.papermill_io.listdir("fake/path"), ["fake", "contents"])
+
+    def test_write(self):
+        self.assertEqual(self.papermill_io.write("buffer", "fake/path"), "wrote buffer")
+
+    def test_pretty_path(self):
+        self.assertEqual(self.papermill_io.pretty_path("fake/path"), "fake/path/pretty/1")
 
 
 class TestHttpHandler(unittest.TestCase):
