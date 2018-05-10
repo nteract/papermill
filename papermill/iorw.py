@@ -117,7 +117,7 @@ class S3Handler(object):
     @classmethod
     def pretty_path(cls, path):
         return path
-
+            
 
 # Instantiate a PapermillIO instance and register Handlers.
 papermill_io = PapermillIO()
