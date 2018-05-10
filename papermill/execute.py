@@ -7,108 +7,13 @@ import os
 import sys
 
 import nbformat
-from concurrent import futures
 from jupyter_client.kernelspec import get_kernel_spec
-from nbconvert.preprocessors import ExecutePreprocessor
-from nbconvert.preprocessors.execute import CellExecutionError
-from nbconvert.preprocessors.base import Preprocessor
 from six import string_types, integer_types
-# tqdm creates 2 globals lock which raise OSException if the execution
-# environment does not have shared memory for processes, e.g. AWS Lambda
-try:
-    from tqdm import tqdm
-    no_tqdm = False
-except OSError:
-    no_tqdm = True
 
 from .conf import settings
 from .exceptions import PapermillException, PapermillExecutionError
+from .preprocess import PapermillExecutePreprocessor, no_tqdm
 from .iorw import load_notebook_node, write_ipynb, read_yaml_file, get_pretty_path
-
-PENDING = "pending"
-RUNNING = "running"
-COMPLETED = "completed"
-
-
-def preprocess(self, nb, resources):
-    """
-    This function monkey patches the `Preprocessor.preprocess` method.
-
-    We are doing this for the following reasons:
-
-    1. Notebooks will stop executing when they encounter a failure but not
-       raise a `CellException`. This allows us to save the notebook with the
-       traceback even though a `CellExecutionError` was encountered.
-
-    2. We want to write the notebook as cells are executed. We inject our
-       logic for that here.
-
-    3. We want to include timing and execution status information with the
-       metadata of each cell.
-
-    Parameters
-    ----------
-    nb : NotebookNode
-        Notebook being converted
-    resources : dictionary
-        Additional resources used in the conversion process.  Allows
-        preprocessors to pass variables into the Jinja engine.
-
-    """
-    output_path = nb.metadata.papermill['output_path']
-
-    # Reset the notebook.
-    for cell in nb.cells:
-        # Reset the cell execution counts.
-        if cell.get("execution_count") is not None:
-            cell.execution_count = None
-
-        # Clear out the papermill metadata for each cell.
-        cell.metadata['papermill'] = dict(
-            exception=None,
-            start_time=None,
-            end_time=None,
-            duration=None,
-            status=PENDING  # pending, running, completed
-        )
-        if cell.get("outputs") is not None:
-            cell.outputs = []
-
-    # Execute each cell and update the output in real time.
-    with futures.ThreadPoolExecutor(max_workers=1) as executor:
-
-        # Generate the iterator
-        if self.progress_bar:
-            execution_iterator = tqdm(enumerate(nb.cells), total=len(nb.cells))
-        else:
-            execution_iterator = enumerate(nb.cells)
-
-        for index, cell in execution_iterator:
-            cell.metadata["papermill"]["status"] = RUNNING
-            future = executor.submit(write_ipynb, nb, output_path)
-            t0 = datetime.datetime.utcnow()
-            try:
-                if not cell.source:
-                    continue
-
-                nb.cells[index], resources = self.preprocess_cell(
-                    cell, resources, index)
-                cell.metadata['papermill']['exception'] = False
-                if self.log_output:
-                    log_outputs(nb.cells[index])
-
-            except CellExecutionError:
-                cell.metadata['papermill']['exception'] = True
-                break
-            finally:
-                t1 = datetime.datetime.utcnow()
-                cell.metadata['papermill']['start_time'] = t0.isoformat()
-                cell.metadata['papermill']['end_time'] = t1.isoformat()
-                cell.metadata['papermill']['duration'] = (
-                    t1 - t0).total_seconds()
-                cell.metadata['papermill']['status'] = COMPLETED
-                future.result()
-    return nb, resources
 
 
 def log_outputs(cell):
@@ -135,10 +40,6 @@ def log_outputs(cell):
     # Log stderrs
     sys.stderr.write('{:-<40}'.format("Out [%s] " % execution_count) + "\n")
     sys.stderr.write("\n".join(stderrs) + "\n")
-
-
-# Monkey Patch the base preprocess method.
-Preprocessor.preprocess = preprocess
 
 
 def execute_notebook(notebook,
@@ -176,7 +77,7 @@ def execute_notebook(notebook,
 
     # Execute the Notebook.
     t0 = datetime.datetime.utcnow()
-    processor = ExecutePreprocessor(
+    processor = PapermillExecutePreprocessor(
         timeout=None,
         startup_timeout=start_timeout,
         kernel_name=kernel_name or nb.metadata.kernelspec.name, )
