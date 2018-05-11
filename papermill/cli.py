@@ -26,6 +26,9 @@ from .iorw import read_yaml_file
               help='YAML string to be used as parameters.')
 @click.option('--parameters_base64', '-b', multiple=True,
               help='Base64 encoded YAML string as parameters.')
+@click.option('--prepare-only/--prepare-execute', default=False,
+              help="Flag for outputting the notebook without execution, "
+                   "but with parameters applied.")
 @click.option('--kernel', '-k', help='Name of kernel to run.')
 @click.option('--progress-bar/--no-progress-bar', default=True,
               help="Flag for turning on the progress bar.")
@@ -34,8 +37,8 @@ from .iorw import read_yaml_file
 @click.option('--start_timeout', type=int, default=60,
               help="Time in seconds to wait for kernel to start.")
 def papermill(notebook_path, output_path, parameters, parameters_raw,
-              parameters_file, parameters_yaml, parameters_base64, kernel,
-              progress_bar, log_output, start_timeout):
+              parameters_file, parameters_yaml, parameters_base64, prepare_only,
+              kernel, progress_bar, log_output, start_timeout):
     """This utility executes a single notebook on a container.
 
     Papermill takes a source notebook, applies parameters to the source
@@ -57,8 +60,11 @@ def papermill(notebook_path, output_path, parameters, parameters_raw,
         parameters_final[name] = value
 
     execute_notebook(notebook_path, output_path, parameters_final,
-                     kernel_name=kernel, progress_bar=progress_bar,
-                     log_output=log_output, start_timeout=start_timeout)
+                     prepare_only=prepare_only,
+                     kernel_name=kernel,
+                     progress_bar=progress_bar,
+                     log_output=log_output,
+                     start_timeout=start_timeout)
 
 
 def _resolve_type(value):
