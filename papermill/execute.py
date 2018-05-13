@@ -17,7 +17,6 @@ from .iorw import load_notebook_node, write_ipynb, read_yaml_file, get_pretty_pa
 
 
 def log_outputs(cell):
-
     execution_count = cell.get("execution_count")
     if not execution_count:
         return
@@ -45,6 +44,7 @@ def log_outputs(cell):
 def execute_notebook(notebook,
                      output,
                      parameters=None,
+                     prepare_only=False,
                      kernel_name=None,
                      progress_bar=True,
                      log_output=False,
@@ -54,12 +54,14 @@ def execute_notebook(notebook,
         notebook (str): Path to input notebook.
         output (str): Path to save executed notebook.
         parameters (dict): Arbitrary keyword arguments to pass to the notebook parameters.
+        prepare_only (bool): Flag to determine if execution should occur or not.
         kernel_name (str): Name of kernel to execute the notebook against.
         progress_bar (bool): Flag for whether or not to show the progress bar.
         log_output (bool): Flag for whether or not to write notebook output to stderr.
+        start_timeout (int): Duration to wait for kernel start-up.
 
     Returns:
-         nb (NotebookNode): executed notebook object
+         nb (NotebookNode): Executed notebook object
     """
     print("Input Notebook:  %s" % get_pretty_path(notebook), file=sys.stderr)
     print("Output Notebook: %s" % get_pretty_path(output), file=sys.stderr)
@@ -70,28 +72,17 @@ def execute_notebook(notebook,
         _parameterize_notebook(nb, kernel_name, parameters)
 
     # Record specified environment variable values.
-    nb.metadata.papermill['parameters'] = parameters
     nb.metadata.papermill[
         'environment_variables'] = _fetch_environment_variables()
     nb.metadata.papermill['output_path'] = output
 
-    # Execute the Notebook.
-    t0 = datetime.datetime.utcnow()
-    processor = PapermillExecutePreprocessor(
-        timeout=None,
-        startup_timeout=start_timeout,
-        kernel_name=kernel_name or nb.metadata.kernelspec.name, )
-    processor.progress_bar = progress_bar and not no_tqdm
-    processor.log_output = log_output
-
-    processor.preprocess(nb, {})
-    t1 = datetime.datetime.utcnow()
-
-    nb.metadata.papermill['start_time'] = t0.isoformat()
-    nb.metadata.papermill['end_time'] = t1.isoformat()
-    nb.metadata.papermill['duration'] = (t1 - t0).total_seconds()
-    nb.metadata.papermill['exception'] = any(
-        [cell.metadata.papermill.get('exception') for cell in nb.cells])
+    if not prepare_only:
+        # Execute the Notebook.
+        _execute_parameterized_notebook(nb,
+                                        kernel_name,
+                                        progress_bar,
+                                        log_output,
+                                        start_timeout)
 
     # Write final Notebook to disk.
     write_ipynb(nb, output)
@@ -101,7 +92,12 @@ def execute_notebook(notebook,
 
 
 def _parameterize_notebook(nb, kernel_name, parameters):
-
+    """Assigned parameters into the appropiate place in the input notebook
+    Args:
+        nb (NotebookNode): Executable notebook object
+        kernel_name (str): Name of kernel to execute the notebook against.
+        parameters (dict): Arbitrary keyword arguments to pass to the notebook parameters.
+    """
     # Load from a file if 'parameters' is a string.
     if isinstance(parameters, string_types):
         parameters = read_yaml_file(parameters)
@@ -122,6 +118,39 @@ def _parameterize_notebook(nb, kernel_name, parameters):
     before = nb.cells[:param_cell_index + 1]
     after = nb.cells[param_cell_index + 1:]
     nb.cells = before + [newcell] + after
+
+    nb.metadata.papermill['parameters'] = parameters
+
+
+def _execute_parameterized_notebook(nb,
+                                    kernel_name=None,
+                                    progress_bar=True,
+                                    log_output=False,
+                                    start_timeout=60):
+    """Performs the actual execution of the parameterized notebook locally.
+    Args:
+        nb (NotebookNode): Executable notebook object.
+        kernel_name (str): Name of kernel to execute the notebook against.
+        progress_bar (bool): Flag for whether or not to show the progress bar.
+        log_output (bool): Flag for whether or not to write notebook output to stderr.
+        start_timeout (int): Duration to wait for kernel start-up.
+    """
+    t0 = datetime.datetime.utcnow()
+    processor = PapermillExecutePreprocessor(
+        timeout=None,
+        startup_timeout=start_timeout,
+        kernel_name=kernel_name or nb.metadata.kernelspec.name, )
+    processor.progress_bar = progress_bar and not no_tqdm
+    processor.log_output = log_output
+
+    processor.preprocess(nb, {})
+    t1 = datetime.datetime.utcnow()
+
+    nb.metadata.papermill['start_time'] = t0.isoformat()
+    nb.metadata.papermill['end_time'] = t1.isoformat()
+    nb.metadata.papermill['duration'] = (t1 - t0).total_seconds()
+    nb.metadata.papermill['exception'] = any(
+        [cell.metadata.papermill.get('exception') for cell in nb.cells])
 
 
 def _build_parameter_code(kernel_name, parameters):

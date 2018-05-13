@@ -134,6 +134,14 @@ class TestNotebookHelpers(unittest.TestCase):
         self.assertListEqual(test_nb.node.cells[1].get('source').split('\n'), ['# Parameters', r'foo = "\\\\\"bar\\\\\""', ''])
         self.assertEqual(test_nb.parameters, {'foo': r'\\"bar\\"'})
 
+    def test_prepare_only(self):
+        path = get_notebook_path('broken1.ipynb')
+        result_path = os.path.join(self.test_dir, 'broken1.ipynb')
+        # Should not raise as we don't execute the notebook at all
+        execute_notebook(path, result_path, {'foo': r'do\ not\ crash'}, prepare_only=True)
+        nb = read_notebook(result_path)
+        self.assertEqual(nb.node.cells[0].cell_type, "code")
+        self.assertEqual(nb.node.cells[0].get('source').split('\n'), ['# Parameters', r'foo = "do\\ not\\ crash"', ''])
 
 class TestBrokenNotebook1(unittest.TestCase):
 
