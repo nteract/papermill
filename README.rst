@@ -63,6 +63,10 @@ for the parameters passed in at execution time. It acheive this by inserting a
 cell after the tagged cell. If no cell is tagged with ``parameters`` a cell will
 be inserted to the front of the notebook.
 
+Additionally, you can rerun notebooks through papermill and it will reuse the
+parameter cell it injected in the prior run. When a papermill generated notebook
+executes it will instead replace the ``parameters`` tagged cell.
+
 .. image:: docs/img/parameters.png
 
 Executing a Notebook

@@ -108,6 +108,25 @@ class TestNotebookHelpers(unittest.TestCase):
         self.assertListEqual(test_nb.node.cells[0].get('source').split('\n'), ['# Parameters', 'msg = "Hello"', ''])
         self.assertEqual(test_nb.parameters, {'msg': 'Hello'})
 
+    def test_repeat_run(self):
+        nb_test_executed_fname = os.path.join(self.test_dir, 'output_{}'.format(self.notebook_name))
+        nb_test_executed_second_fname = os.path.join(self.test_dir, 'output_2_{}'.format(self.notebook_name))
+        execute_notebook(self.notebook_path, nb_test_executed_fname, {'msg': 'Hello'})
+        execute_notebook(nb_test_executed_fname, nb_test_executed_second_fname, {'msg': 'Hello 2'})
+        test_nb = read_notebook(nb_test_executed_second_fname)
+        self.assertListEqual(test_nb.node.cells[1].get('source').split('\n'), ['# Parameters', 'msg = "Hello 2"', ''])
+        self.assertEqual(test_nb.parameters, {'msg': 'Hello 2'})
+
+    def test_repeat_no_param_run(self):
+        notebook_name = 'no_parameters.ipynb'
+        nb_test_executed_fname = os.path.join(self.test_dir, 'output_{}'.format(notebook_name))
+        nb_test_executed_second_fname = os.path.join(self.test_dir, 'output_2_{}'.format(notebook_name))
+        execute_notebook(get_notebook_path(notebook_name), nb_test_executed_fname, {'msg': 'Hello'})
+        execute_notebook(nb_test_executed_fname, nb_test_executed_second_fname, {'msg': 'Hello 2'})
+        test_nb = read_notebook(nb_test_executed_second_fname)
+        self.assertListEqual(test_nb.node.cells[0].get('source').split('\n'), ['# Parameters', 'msg = "Hello 2"', ''])
+        self.assertEqual(test_nb.parameters, {'msg': 'Hello 2'})
+
     def test_quoted_params(self):
         execute_notebook(self.notebook_path, self.nb_test_executed_fname, {'msg': '"Hello"'})
         test_nb = read_notebook(self.nb_test_executed_fname)

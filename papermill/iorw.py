@@ -154,18 +154,14 @@ def load_notebook_node(notebook_path):
 
     if not hasattr(nb.metadata, 'papermill'):
         nb.metadata['papermill'] = {
-            'parameters': dict(),
-            'environment_variables': dict(),
             'version': __version__
         }
 
     for cell in nb.cells:
         if not hasattr(cell.metadata, 'tags'):
-            cell.metadata['tags'] = [
-            ]  # Create tags attr if one doesn't exist.
+            # Create tags attr if one doesn't exist.
+            cell.metadata['tags'] = []
 
-        if not hasattr(cell.metadata, 'papermill'):
-            cell.metadata['papermill'] = dict()
     return nb
 
 
