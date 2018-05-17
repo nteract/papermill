@@ -221,24 +221,49 @@ class Notebook(object):
         if name not in outputs:
             raise PapermillException(
                 "Output Name '%s' is not available in this notebook.")
-        output = outputs[name]
-        ip_display(output.data, metadata=output.metadata, raw=True)
+
+        # Loop over elements of output
+        for output in outputs[name]:
+            ip_display(output.data, metadata=output.metadata, raw=True)
 
 
-def _get_papermill_metadata(nb, name, default=None):
-    """Returns a dictionary of a notebook's metadata."""
-    return nb.metadata.get('papermill', {}).get(name, default)
+def _cell_has_output_tag(cell):
+
+    for output in cell.get('outputs', []):
+        if 'papermill' in output.get('metadata', {}) and output.metadata.papermill.get('name'):
+            return True
+
+    return False
+
+
+def _get_cell_output_tag(cell):
+
+    if _cell_has_output_tag(cell):
+
+        names = set([output.metadata.papermill.get('name') for output in cell.outputs if 'papermill' in output.get('metadata', [])])
+
+        # If there are conflicting names, throw a shoe
+        if len(names) != 1:
+            raise NotImplemented
+
+        return list(names)[0]
+
+    else:
+        return None
 
 
 def _get_notebook_outputs(nb_node):
     """Returns a dictionary of the notebook outputs."""
+
     outputs = {}
+
     for cell in nb_node.cells:
-        for output in cell.get('outputs', []):
-            if 'papermill' in output.get('metadata', {}):
-                output_name = output.metadata.papermill.get('name')
-                if output_name:
-                    outputs[output_name] = output
+
+        name = _get_cell_output_tag(cell)
+
+        if name is not None:
+            outputs[name] = cell.get('outputs', [])
+
     return outputs
 
 
