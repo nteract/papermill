@@ -227,6 +227,11 @@ class Notebook(object):
             ip_display(output.data, metadata=output.metadata, raw=True)
 
 
+def _get_papermill_metadata(nb, name, default=None):
+    """Returns a dictionary of a notebook's metadata."""
+    return nb.metadata.get('papermill', {}).get(name, default)
+
+
 def _cell_has_output_tag(cell):
 
     for output in cell.get('outputs', []):
