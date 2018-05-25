@@ -54,39 +54,22 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
         resources : dictionary
             Additional resources used in the conversion process.
         """
-        path = resources.get('metadata', {}).get('path', '')
-        if path == '':
-            path = None
+        path = resources.get('metadata', {}).get('path') or None
 
         # clear display_id map
         self._display_id_map = {}
-
-        # from jupyter_client.manager import start_new_kernel
-
-        def start_new_kernel(startup_timeout=60, kernel_name='python', **kwargs):
-            km = self.kernel_manager_class(kernel_name=kernel_name)
-            km.start_kernel(**kwargs)
-            kc = km.client()
-            kc.start_channels()
-            try:
-                kc.wait_for_ready(timeout=startup_timeout)
-            except RuntimeError:
-                kc.stop_channels()
-                km.shutdown_kernel()
-                raise
-
-            return km, kc
 
         kernel_name = nb.metadata.get('kernelspec', {}).get('name', 'python')
         if self.kernel_name:
             kernel_name = self.kernel_name
         self.log.info("Executing notebook with kernel: %s" % kernel_name)
-        self.km, self.kc = start_new_kernel(
+        self.km, self.kc = self.start_new_kernel(
             startup_timeout=self.startup_timeout,
             kernel_name=kernel_name,
             extra_arguments=self.extra_arguments,
             cwd=path)
         self.kc.allow_stdin = False
+        # Parent class requires self.nb to be present temporarily during preproc
         self.nb = nb
 
         try:
@@ -94,14 +77,29 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
         finally:
             self.kc.stop_channels()
             self.km.shutdown_kernel(now=self.shutdown_kernel == 'immediate')
-
-        delattr(self, 'nb')
+            # Parent class required self.nb be removed after preproc
+            delattr(self, 'nb')
 
         return nb, resources
 
+    def start_new_kernel(self, startup_timeout=60, kernel_name='python', **kwargs):
+        km = self.kernel_manager_class(kernel_name=kernel_name)
+        km.start_kernel(**kwargs)
+        kc = km.client()
+        kc.start_channels()
+        try:
+            kc.wait_for_ready(timeout=startup_timeout)
+        except RuntimeError:
+            kc.stop_channels()
+            km.shutdown_kernel()
+            raise
+
+        return km, kc
+
     def papermill_preprocess(self, nb, resources):
         """
-        This function monkey replaces the `Preprocessor.preprocess` method.
+        This function acts as a replacement for the grandparent's `preprocess`
+        method.
 
         We are doing this for the following reasons:
 
