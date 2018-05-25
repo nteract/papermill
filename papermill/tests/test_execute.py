@@ -15,6 +15,8 @@ else:
     from mock import patch
 import nbformat
 
+from nbconvert import HTMLExporter
+
 from ..api import read_notebook
 from .. import execute
 from ..execute import execute_notebook, log_outputs, _translate_type_python, _translate_type_r
@@ -84,12 +86,12 @@ class TestNotebookHelpers(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.test_dir)
 
-    @patch(execute.__name__ + '.ExecutePreprocessor')
+    @patch(execute.__name__ + '.PapermillExecutePreprocessor')
     def test_start_timeout(self, preproc_mock):
         execute_notebook(self.notebook_path, self.nb_test_executed_fname, start_timeout=123)
         preproc_mock.assert_called_once_with(timeout=None, startup_timeout=123, kernel_name=kernel_name)
 
-    @patch(execute.__name__ + '.ExecutePreprocessor')
+    @patch(execute.__name__ + '.PapermillExecutePreprocessor')
     def test_default_start_timeout(self, preproc_mock):
         execute_notebook(self.notebook_path, self.nb_test_executed_fname)
         preproc_mock.assert_called_once_with(timeout=None, startup_timeout=60, kernel_name=kernel_name)
@@ -229,3 +231,23 @@ class TestLogging(unittest.TestCase):
                              )
             stderr = redirect.get_stderr()
             self.assertEqual(stderr, u'Out [3] --------------------------------\n\n')
+
+
+class TestNBConvertCalls(unittest.TestCase):
+
+    def setUp(self):
+        self.test_dir = tempfile.mkdtemp()
+        self.notebook_name = 'simple_execute.ipynb'
+        self.notebook_path = get_notebook_path(self.notebook_name)
+        self.nb_test_executed_fname = os.path.join(self.test_dir, 'output_{}'.format(self.notebook_name))
+
+        self.html_exporter = HTMLExporter()
+        self.html_exporter.template_file = 'basic'
+
+    def test_convert_output_to_html(self):
+        execute_notebook(self.notebook_path, self.nb_test_executed_fname, {'msg': 'Hello'})
+        test_nb = read_notebook(self.nb_test_executed_fname)
+
+        # Ensure the notebook builds valid html without crashing
+        (body, resources) = self.html_exporter.from_notebook_node(test_nb.node)
+        self.assertTrue(body.startswith("\n<div"))
