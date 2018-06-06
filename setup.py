@@ -25,6 +25,12 @@ req_path = os.path.join(os.path.dirname('__file__'), 'requirements.txt')
 required = [req.strip() for req in read(req_path).splitlines() if req.strip()]
 if python_2:
     required = ['ipython<6' if req == 'ipython' else req for req in required]
+    
+test_req_path = os.path.join(os.path.dirname('__file__'), 'requirements-dev.txt')
+test_required = [req.strip() for req in read(test_req_path).splitlines() if req.strip()]
+extras_require = {
+    "test": test_required
+}
 
 setup(name='papermill',
       version=versioneer.get_version(),
@@ -38,6 +44,7 @@ setup(name='papermill',
       url='https://github.com/nteract/papermill',
       packages=['papermill'],
       install_requires=required,
+      extras_require=extras_require,
       entry_points={
               'console_scripts': [
                   'papermill = papermill.cli:papermill'
