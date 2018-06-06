@@ -271,12 +271,12 @@ def _translate_type_dict_scala(val):
     return 'Map({})'.format(escaped)
 
 def _translate_type_list_scala(val):
-    """Translate list to scala."""
+    """Translate list to scala Seq."""
     escaped = ', '.join([_translate_type_scala(v) for v in val])
-    return 'List({})'.format(escaped)
+    return 'Seq({})'.format(escaped)
 
 def _translate_type_scala(val):
-    """Translate each of the standard json/yaml types to appropiate objects in R."""
+    """Translate each of the standard json/yaml types to appropiate objects in scala."""
     if isinstance(val, string_types):
         return _translate_type_str_scala(val)
     # Needs to be before integer checks
