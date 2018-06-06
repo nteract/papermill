@@ -19,7 +19,8 @@ from nbconvert import HTMLExporter
 
 from ..api import read_notebook
 from .. import execute
-from ..execute import execute_notebook, log_outputs, _translate_type_python, _translate_type_r
+from ..execute import (execute_notebook, log_outputs, _translate_type_python, 
+                       _translate_type_r, _translate_type_scala)
 from ..exceptions import PapermillExecutionError
 from . import get_notebook_path, RedirectOutput
 
@@ -75,6 +76,28 @@ def test_translate_type_python(test_input, expected):
 def test_translate_type_r(test_input, expected):
     assert _translate_type_r(test_input) == expected
 
+
+@pytest.mark.parametrize("test_input,expected", [
+    ("foo", '"foo"'),
+    ('{"foo": "bar"}', '"{\\"foo\\": \\"bar\\"}"'),
+    ({"foo": "bar"}, 'Map("foo" -> "bar")'),
+    ({"foo": '"bar"'}, 'Map("foo" -> "\\"bar\\"")'),
+    ({"foo": ["bar"]}, 'Map("foo" -> List("bar"))'),
+    ({"foo": {"bar": "baz"}}, 'Map("foo" -> Map("bar" -> "baz"))'),
+    ({"foo": {"bar": '"baz"'}}, 'Map("foo" -> Map("bar" -> "\\"baz\\""))'),
+    (["foo"], 'List("foo")'),
+    (["foo", '"bar"'], 'List("foo", "\\"bar\\"")'),
+    ([{"foo": "bar"}], 'List(Map("foo" -> "bar"))'),
+    ([{"foo": '"bar"'}], 'List(Map("foo" -> "\\"bar\\""))'),
+    (12345, '12345'),
+    (-54321, '-54321'),
+    (1.2345, '1.2345'),
+    (-5432.1, '-5432.1'),
+    (True, 'true'),
+    (False, 'false')
+])
+def test_translate_type_scala(test_input, expected):
+    assert _translate_type_scala(test_input) == expected
 
 class TestNotebookHelpers(unittest.TestCase):
     def setUp(self):
