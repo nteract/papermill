@@ -1,6 +1,6 @@
 codecov
 coverage
-jupyter
+notebook
 mock
 pytest>=3.3
 pytest-cov
