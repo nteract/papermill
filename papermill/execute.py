@@ -257,6 +257,42 @@ def _translate_type_r(val):
     # Use this generic translation as a last resort
     return _translate_escaped_str(val)
 
+_translate_type_str_scala = _translate_escaped_str
+_translate_type_int_scala = _translate_to_str
+_translate_type_float_scala = _translate_to_str
+
+def _translate_type_bool_scala(val):
+    return 'true' if val else 'false'
+
+def _translate_type_dict_scala(val):
+    """Translate dicts to scala maps"""
+    escaped = ', '.join(["{} -> {}".format(_translate_type_str_scala(k), _translate_type_scala(v)) 
+                         for k, v in val.items()])
+    return 'Map({})'.format(escaped)
+
+def _translate_type_list_scala(val):
+    """Translate list to scala."""
+    escaped = ', '.join([_translate_type_scala(v) for v in val])
+    return 'List({})'.format(escaped)
+
+def _translate_type_scala(val):
+    """Translate each of the standard json/yaml types to appropiate objects in R."""
+    if isinstance(val, string_types):
+        return _translate_type_str_scala(val)
+    # Needs to be before integer checks
+    elif isinstance(val, bool):
+        return _translate_type_bool_scala(val)
+    elif isinstance(val, integer_types):
+        return _translate_type_int_scala(val)
+    elif isinstance(val, float):
+        return _translate_type_float_scala(val)
+    elif isinstance(val, dict):
+        return _translate_type_dict_scala(val)
+    elif isinstance(val, list):
+        return _translate_type_list_scala(val)
+    # Use this generic translation as a last resort
+    return _translate_escaped_str(val)
+
 def register_param_builder(name):
     """Decorator for registering functions that write variable assignments for a given kernel or language."""
 
@@ -283,6 +319,13 @@ def build_r_params(parameters):
         param_content += '{} = {}\n'.format(var, _translate_type_r(val))
     return param_content
 
+@register_param_builder("scala")
+def build_scala_params(parameters):
+    """Writers parameter assignment code for Python kernels."""
+    param_content = "// Parameters\n"
+    for var, val in parameters.items():
+        param_content += 'val {} = {}\n'.format(var, _translate_type_scala(val))
+    return param_content
 
 def _fetch_environment_variables():
     ret = dict()
