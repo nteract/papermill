@@ -14,8 +14,6 @@ from setuptools import setup
 
 import versioneer
 
-ipython_req = 'ipython'
-
 python_2 = sys.version_info[0] == 2
 def read(fname):
     with open(fname, 'rU' if python_2 else 'r') as fhandle:
