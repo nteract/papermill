@@ -40,8 +40,6 @@ try:
         # pip is too old to handle IPython deps gracefully
         pip_message = 'Your pip version is out of date. Papermill requires pip >= 9.0.1. \n'\
         'pip {} detected. Please install pip >= 9.0.1.'.format(pip.__version__)
-        print(error, file=sys.stderr)
-        sys.exit(1)
 except ImportError:
         pip_message = 'No pip detected; we were unable to import pip. \n'\
         'To use papermill, please install pip >= 9.0.1.'
