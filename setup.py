@@ -7,14 +7,13 @@ Note: Install ipython version based on python version.
       If python 2, install ipython 5.x (python2 is not supported in ipython 6.
 
 """
+from __future__ import print_function
 import os
 import sys
 from os.path import exists
 from setuptools import setup
 
 import versioneer
-
-ipython_req = 'ipython'
 
 python_2 = sys.version_info[0] == 2
 def read(fname):
@@ -29,6 +28,30 @@ test_required = [req.strip() for req in read(test_req_path).splitlines() if req.
 extras_require = {
     "test": test_required
 }
+
+pip_too_old = False
+pip_message = ''
+
+try:
+    import pip
+    pip_version = tuple([int(x) for x in pip.__version__.split('.')[:3]])
+    pip_too_old = pip_version < (9, 0, 1)
+    if pip_too_old :
+        # pip is too old to handle IPython deps gracefully
+        pip_message = 'Your pip version is out of date. Papermill requires pip >= 9.0.1. \n'\
+        'pip {} detected. Please install pip >= 9.0.1.'.format(pip.__version__)
+        print(error, file=sys.stderr)
+        sys.exit(1)
+except ImportError:
+        pip_message = 'No pip detected; we were unable to import pip. \n'\
+        'To use papermill, please install pip >= 9.0.1.'
+except Exception:
+    pass
+
+if pip_message:
+    print(pip_message, file=sys.stderr)
+    sys.exit(1)
+
 
 setup(name='papermill',
       version=versioneer.get_version(),

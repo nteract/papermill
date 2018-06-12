@@ -5,15 +5,12 @@ python:
   - 3.5
   - 3.6
 install:
-  - |
-    python2 -m pip install ipykernel --user "ipython<6"
-    python2 -m pip install ipykernel "ipython<6"
-    python2 -m ipykernel install --user
-    python -m pip install ipykernel "ipython<6"
-    python -m ipykernel install --user
-    pip install -e .
-    pip install -r requirements-dev.txt
+  - pip install setuptools pip --upgrade
+  - pip install -e .[test]
+  - python -m ipykernel install --user
 script:
-  - pytest -v --maxfail=2 --cov=papermill papermill/tests
+  # cd so we test the install, not the repo
+  - cd `mktemp -d`
+  - pytest -v --maxfail=2 --cov=papermill --pyargs papermill
 after_success:
   - codecov
