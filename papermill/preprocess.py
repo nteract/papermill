@@ -1,6 +1,7 @@
 from __future__ import unicode_literals, print_function
 
 import datetime
+import sys
 
 from concurrent import futures
 from nbconvert.preprocessors import ExecutePreprocessor
@@ -20,6 +21,29 @@ PENDING = "pending"
 RUNNING = "running"
 COMPLETED = "completed"
 
+def log_outputs(cell):
+    execution_count = cell.get("execution_count")
+    if not execution_count:
+        return
+
+    stderrs = []
+    stdouts = []
+    for output in cell.get("outputs", []):
+        if output.output_type == "stream":
+            if output.name == "stdout":
+                stdouts.append("".join(output.text))
+            elif output.name == "stderr":
+                stderrs.append("".join(output.text))
+        elif "data" in output and "text/plain" in output.data:
+            stdouts.append(output.data['text/plain'])
+
+    # Log stdouts
+    sys.stdout.write('{:-<40}'.format("Out [%s] " % execution_count) + "\n")
+    sys.stdout.write("\n".join(stdouts) + "\n")
+
+    # Log stderrs
+    sys.stderr.write('{:-<40}'.format("Out [%s] " % execution_count) + "\n")
+    sys.stderr.write("\n".join(stderrs) + "\n")
 
 class PapermillExecutePreprocessor(ExecutePreprocessor):
     """Module containing a preprocessor that executes the code cells

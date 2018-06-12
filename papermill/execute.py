@@ -12,33 +12,8 @@ from six import string_types, integer_types
 
 from .conf import settings
 from .exceptions import PapermillException, PapermillExecutionError
-from .preprocess import PapermillExecutePreprocessor, no_tqdm
+from .preprocess import PapermillExecutePreprocessor, no_tqdm, log_outputs
 from .iorw import load_notebook_node, write_ipynb, read_yaml_file, get_pretty_path
-
-
-def log_outputs(cell):
-    execution_count = cell.get("execution_count")
-    if not execution_count:
-        return
-
-    stderrs = []
-    stdouts = []
-    for output in cell.get("outputs", []):
-        if output.output_type == "stream":
-            if output.name == "stdout":
-                stdouts.append("".join(output.text))
-            elif output.name == "stderr":
-                stderrs.append("".join(output.text))
-        elif "data" in output and "text/plain" in output.data:
-            stdouts.append(output.data['text/plain'])
-
-    # Log stdouts
-    sys.stdout.write('{:-<40}'.format("Out [%s] " % execution_count) + "\n")
-    sys.stdout.write("\n".join(stdouts) + "\n")
-
-    # Log stderrs
-    sys.stderr.write('{:-<40}'.format("Out [%s] " % execution_count) + "\n")
-    sys.stderr.write("\n".join(stderrs) + "\n")
 
 
 def execute_notebook(notebook,
