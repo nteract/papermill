@@ -12,5 +12,8 @@ script:
   # cd so we test the install, not the repo
   - cd `mktemp -d`
   - pytest -v --maxfail=2 --cov=papermill --pyargs papermill
+  - cd $TRAVIS_BUILD_DIR
+  - python setup.py bdist_wheel
+  - python -m pip install dist/papermill*.whl
 after_success:
   - codecov
