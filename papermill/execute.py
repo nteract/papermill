@@ -237,7 +237,7 @@ _translate_type_float_scala = _translate_to_str
 
 def _translate_type_int_scala(val):
     strval = _translate_to_str(val)
-    return strval + "L" if val > 2147483647 or val < -2147483648 else strval
+    return strval + "L" if (val > 2147483647 or val < -2147483648) else strval
 
 def _translate_type_bool_scala(val):
     return 'true' if val else 'false'
