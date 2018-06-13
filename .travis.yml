@@ -7,9 +7,11 @@ python:
 install:
   - pip install setuptools pip --upgrade
   - pip install -e .[test]
+  - pip install check-manifest
   - python -m ipykernel install --user
 script:
   # cd so we test the install, not the repo
+  - check-manifest
   - cd `mktemp -d`
   - pytest -v --maxfail=2 --cov=papermill --pyargs papermill
 after_success:
