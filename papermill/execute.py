@@ -233,15 +233,18 @@ def _translate_type_r(val):
     return _translate_escaped_str(val)
 
 _translate_type_str_scala = _translate_escaped_str
-_translate_type_int_scala = _translate_to_str
 _translate_type_float_scala = _translate_to_str
+
+def _translate_type_int_scala(val):
+    strval = _translate_to_str(val)
+    return strval + "L" if val > 2147483647 or val < -2147483648 else strval
 
 def _translate_type_bool_scala(val):
     return 'true' if val else 'false'
 
 def _translate_type_dict_scala(val):
     """Translate dicts to scala maps"""
-    escaped = ', '.join(["{} -> {}".format(_translate_type_str_scala(k), _translate_type_scala(v)) 
+    escaped = ', '.join(["{} -> {}".format(_translate_type_str_scala(k), _translate_type_scala(v))
                          for k, v in val.items()])
     return 'Map({})'.format(escaped)
 

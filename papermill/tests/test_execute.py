@@ -19,7 +19,7 @@ from nbconvert import HTMLExporter
 
 from ..api import read_notebook
 from .. import execute
-from ..execute import (execute_notebook, log_outputs, _translate_type_python, 
+from ..execute import (execute_notebook, log_outputs, _translate_type_python,
                        _translate_type_r, _translate_type_scala)
 from ..exceptions import PapermillExecutionError
 from . import get_notebook_path, RedirectOutput
@@ -93,6 +93,8 @@ def test_translate_type_r(test_input, expected):
     (-54321, '-54321'),
     (1.2345, '1.2345'),
     (-5432.1, '-5432.1'),
+    (2147483648, '2147483648L'),
+    (-2147483649, '-2147483649L'),
     (True, 'true'),
     (False, 'false')
 ])
