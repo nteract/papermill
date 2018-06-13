@@ -14,7 +14,7 @@ script:
   - pytest -v --maxfail=2 --cov=papermill --pyargs papermill
   - cd $TRAVIS_BUILD_DIR
   - python setup.py sdist bdist_wheel
-  - python -m pip install dist/papermill*.whl
-  - python -m pip install dist/papermill*.tar.gz
+  - python -m pip install --force-reinstall dist/papermill*.whl
+  - python -m pip install --force-reinstall --no-deps dist/papermill*.tar.gz
 after_success:
   - codecov
