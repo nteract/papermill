@@ -1,4 +1,8 @@
 recursive-include papermill *.py
+recursive-include papermill *.ipynb
+recursive-include papermill *.json
+recursive-include papermill *.yaml
+recursive-include papermill *.keep
 
 include setup.py
 include requirements.txt
@@ -6,6 +10,16 @@ include requirements-dev.txt
 include README.rst
 include LICENSE
 include MANIFEST.in
+include RELEASING.md
 
 include versioneer.py
 include papermill/_version.py
+include .coveragerc
+
+# Documentation
+graft docs
+# exclude build files
+prune docs/_build
+
+# Scripts
+graft scripts
