@@ -67,7 +67,8 @@ class HttpHandler(object):
 
     @classmethod
     def write(cls, buf, path):
-        requests.put(path, json=json.loads(buf))
+        result = requests.put(path, json=json.loads(buf))
+        result.raise_for_status()
 
     @classmethod
     def pretty_path(cls, path):
