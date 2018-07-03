@@ -1,6 +1,7 @@
 import json
 import unittest
 import six
+from requests.exceptions import ConnectionError
 if six.PY3:
     from unittest.mock import Mock, patch
 else:
@@ -106,8 +107,8 @@ class TestHttpHandler(unittest.TestCase):
 
     def test_write(self):
         """
-        Tests that the `write` function performs a request a put request to
-        the giving path.
+        Tests that the `write` function performs a put request to the given
+        path.
         """
         path = 'http://example.com'
         buf = '{"papermill": true}'
@@ -115,3 +116,13 @@ class TestHttpHandler(unittest.TestCase):
         with patch('papermill.iorw.requests.put') as mock_put:
             HttpHandler.write(buf, path)
             mock_put.assert_called_once_with(path, json=json.loads(buf))
+
+    def test_write_failure(self):
+        """
+        Tests that the `write` function raises on failure to put the buffer.
+        """
+        path = 'http://localhost:9999'
+        buf = '{"papermill": true}'
+
+        with self.assertRaises(ConnectionError) as e:
+            HttpHandler.write(buf, path)
