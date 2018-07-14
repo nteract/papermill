@@ -26,7 +26,8 @@ required = [req.strip() for req in read(req_path).splitlines() if req.strip()]
 test_req_path = os.path.join(os.path.dirname('__file__'), 'requirements-dev.txt')
 test_required = [req.strip() for req in read(test_req_path).splitlines() if req.strip()]
 extras_require = {
-    "test": test_required
+    "test": test_required,
+    "dev": test_required
 }
 
 pip_too_old = False
