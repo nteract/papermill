@@ -6,7 +6,7 @@ to join our community.
 
 We are an open and friendly community. Everybody is welcome.
 
-We encourage friendly discussions and respect for all. No exceptions.
+We encourage friendly discussions and respect for all. There are no exceptions.
 
 All contributions are equally important. Documentation, answering questions, and
 fixing bugs are equally as valuable as adding new features.
@@ -39,15 +39,22 @@ source dev/bin/activate
 pip install -e .
 ```
 
+_Note: When you are finished you can use `source deactivate` to go back to your base environment._
+
 ### Running Tests Locally
-We need to install the development package before we can run the tests.
+We need to install the development package before we can run the tests. If anything is confusing below,
+always resort to the relevant documentation.
 ```buildoutcfg
 pip install papermill[dev]
 py.test --pyargs papermill
 ```
-If the installation worked properly the tests will pass.
+
+Now there should be a working and editable installation of Papermill to start making your own contributions.
 ## So You're Ready to Pull Request
-The general workflow for this will be: Run Local Test 
+The general workflow for this will be:
+1. Run local tests 
+2. Pushed changes to your forked repository
+3. Open pull request to main repository
 
 ### Run Tests Locally
 ```buildoutcfg
@@ -70,17 +77,22 @@ ensure the remotes point to your GitHub. Don't work on the master branch!
     ```   
 ### Create Pull Request 
 Follow [these](https://help.github.com/articles/creating-a-pull-request-from-a-fork/) instrucutions to create a
-pull request from a forked repository. There are good references to the [Git docs](https://git-scm.com/doc) and 
-[Git workflows](https://docs.scipy.org/doc/numpy/dev/gitwash/development_workflow.html) 
-for more information.
+pull request from a forked repository. If you are submitting a bug-fix for a specific issue make sure to reference 
+the issue in the pull request.
 
-Note: You might want to set a reference to the main repository to fetch/merge instead of your forked repository.
-You can do that using:
+There are good references to the [Git documentation](https://git-scm.com/doc) and 
+[Git workflows](https://docs.scipy.org/doc/numpy/dev/gitwash/development_workflow.html) 
+for more information if any of this is unfamiliar.
+
+_Note: You might want to set a reference to the main repository to fetch/merge from there instead of your forked repository.
+You can do that using:_
 ```buildoutcfg
 git remote add upstream https://github.com/nteract/papermill
 ```
 
-It's possible you will have merge conflicts between your repository and master. Here, master will be synchronized
+It's possible you will have conflicts between your repository and master. Here, `master` is meant to be synchronized
 with the ```upstream``` repository.  GitHub has some good
 [documentation](https://help.github.com/articles/resolving-a-merge-conflict-using-the-command-line/)
 on merging pull requests from the command line.
+
+Happy hacking on Papermill!
