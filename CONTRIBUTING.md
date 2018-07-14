@@ -61,6 +61,11 @@ The general workflow for this will be:
 py.test --pyargs papermill
 ```
 
+Run check manifest to ensure all files are accounted for in the repository.
+```
+check-manifest
+```
+
 ### Push Changes to Forked Repo
 Your commits should be pushed to the forked repository. To verify this type ```git remote -v``` and 
 ensure the remotes point to your GitHub. Don't work on the master branch!
