@@ -10,7 +10,7 @@ include requirements-dev.txt
 include README.rst
 include LICENSE
 include MANIFEST.in
-include RELEASING.md
+include *.md
 
 include versioneer.py
 include papermill/_version.py
