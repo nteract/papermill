@@ -18,24 +18,24 @@ Following these instructions should give you an efficient path to opening your f
 
 ### Cloning the Papermill Repository
 Fork the repository to your local Github account. Clone this repository to your local development machine.
-```buildoutcfg
+```
 git clone https://github.com/<your_account>/papermill
 cd papermill
 ```
 
 ### Install an Editable Version
 We prefer to use [conda](https://conda.io/docs/user-guide/tasks/manage-environments.html) to manage the development environment. 
-```buildoutcfg
+```
 conda create -n dev
 . activate env
 ``` 
 or [virtualenv](https://packaging.python.org/guides/installing-using-pip-and-virtualenv/) if you prefer.
-```buildoutcfg
+```
 python3 -m virtualenv dev
 source dev/bin/activate 
 ```
 
-```buildoutcfg
+```
 pip install -e .
 ```
 
@@ -57,7 +57,7 @@ The general workflow for this will be:
 3. Open pull request to main repository
 
 ### Run Tests Locally
-```buildoutcfg
+```
 py.test --pyargs papermill
 ```
 
@@ -72,7 +72,7 @@ ensure the remotes point to your GitHub. Don't work on the master branch!
     git commit
     ```
 2. Push changes to your remote repository:
-    ```buildoutcfg
+    ```
     git push -u origin my-feature 
     ```   
 ### Create Pull Request 
@@ -86,7 +86,7 @@ for more information if any of this is unfamiliar.
 
 _Note: You might want to set a reference to the main repository to fetch/merge from there instead of your forked repository.
 You can do that using:_
-```buildoutcfg
+```
 git remote add upstream https://github.com/nteract/papermill
 ```
 
