@@ -11,7 +11,8 @@ We encourage friendly discussions and respect for all. There are no exceptions.
 All contributions are equally important. Documentation, answering questions, and
 fixing bugs are equally as valuable as adding new features.
 
-Check out <https://www.python.org/psf/codeofconduct/> for the Python code of conduct.
+Please read our entire code of conduct [here](https://github.com/nteract/nteract/blob/master/CODE_OF_CONDUCT.md). Also,
+check out the for the [Python](https://github.com/nteract/nteract/blob/master/CODE_OF_CONDUCT.md) code of conduct.
 
 ## Setting up Your Development Environment
 Following these instructions should give you an efficient path to opening your first pull-request.
@@ -35,38 +36,48 @@ python3 -m virtualenv dev
 source dev/bin/activate 
 ```
 
+Install Papermill using:
 ```
-pip install -e .
+pip install -e .[dev]
 ```
 
 _Note: When you are finished you can use `source deactivate` to go back to your base environment._
 
 ### Running Tests Locally
+
 We need to install the development package before we can run the tests. If anything is confusing below,
 always resort to the relevant documentation.
-```buildoutcfg
-pip install papermill[dev]
-py.test --pyargs papermill
 ```
+pytest --pyargs papermill
+```
+The `pyargs` option allows`pytest` to interpret arguments as python package names. An advantage is that `pytest` will run in any
+directory, and this approach follows the `pytest` 
+[best practices](https://docs.pytest.org/en/latest/goodpractices.html#tests-as-part-of-application-code).
 
 Now there should be a working and editable installation of Papermill to start making your own contributions.
+
 ## So You're Ready to Pull Request
+
 The general workflow for this will be:
 1. Run local tests 
 2. Pushed changes to your forked repository
 3. Open pull request to main repository
 
 ### Run Tests Locally
+
 ```
-py.test --pyargs papermill
+pytest --pyargs papermill
 ```
 
 Run check manifest to ensure all files are accounted for in the repository.
 ```
 check-manifest
 ```
+This commands read the `MANIFEST.in` file and explicitly specify the files to include in the source distribution. You can
+read more about how this works [here](https://docs.python.org/3/distutils/sourcedist.html).
 
 ### Push Changes to Forked Repo
+
 Your commits should be pushed to the forked repository. To verify this type ```git remote -v``` and 
 ensure the remotes point to your GitHub. Don't work on the master branch!
 
@@ -80,7 +91,9 @@ ensure the remotes point to your GitHub. Don't work on the master branch!
     ```
     git push -u origin my-feature 
     ```   
+    
 ### Create Pull Request 
+
 Follow [these](https://help.github.com/articles/creating-a-pull-request-from-a-fork/) instrucutions to create a
 pull request from a forked repository. If you are submitting a bug-fix for a specific issue make sure to reference 
 the issue in the pull request.
