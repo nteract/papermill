@@ -25,15 +25,18 @@ def bucket_sqs():
     """Returns a bucket instance with a sqs service"""
     return Bucket('my_sqs_bucket', ['sqs'])
 
+
 @pytest.fixture
 def bucket_ec2():
     """Returns a bucket instance with a ec2 service"""
     return Bucket('my_sqs_bucket', ['ec2'])
 
+
 @pytest.fixture
 def bucket_multiservice():
     """Returns a bucket instance with a ec2 service"""
     return Bucket('my_sqs_bucket', ['ec2', 'sqs'])
+
 
 def test_bucket_init():
     assert Bucket('my_test_bucket')
@@ -72,8 +75,23 @@ def test_bucket_list(bucket_sqs):
     # assert bucket_sqs.list(prefix_test)
     pass
 
+
 def test_prefix_init():
-    pass
+    with pytest.raises(TypeError):
+        Prefix()
+
+    with pytest.raises(TypeError):
+        Prefix(service=None)
+
+    with pytest.raises(TypeError):
+        Prefix('my_test_prefix')
+
+    b1 = Bucket('my_test_bucket')
+    p1 = Prefix(b1, 'sqs_test', service='sqs')
+    assert Prefix(b1, 'test_bucket')
+    assert Prefix(b1, 'test_bucket', service=None)
+    assert Prefix(b1, 'test_bucket', None)
+    assert p1.bucket.service == p1.service
 
 
 def test_prefix_defaults():
