@@ -105,7 +105,7 @@ class TestNotebookOutputs(unittest.TestCase):
         )
         assert _get_notebook_outputs(nb) == {}
 
-    def test_no_outputs(self):
+    def test_cell_with_no_outputs(self):
         nb = new_notebook(
             cells=[
                 new_code_cell('test', outputs=[])
@@ -116,6 +116,16 @@ class TestNotebookOutputs(unittest.TestCase):
     def test_empty_metadata(self):
         output = new_output(output_type='display_data', data={},
                                         metadata={})
+        nb = new_notebook(
+            cells=[
+                new_code_cell('test', outputs=[output])
+            ]
+        )
+        assert _get_notebook_outputs(nb) == {}
+
+    def test_not_papermill_with_name(self):
+        output = new_output(output_type='display_data', data={},
+                            metadata={'not_papermill': {'name': 'test'}})
         nb = new_notebook(
             cells=[
                 new_code_cell('test', outputs=[output])
