@@ -8,8 +8,12 @@ else:
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
 
+from nbformat.v4 import (
+    new_notebook, new_code_cell, new_markdown_cell, new_output
+)
+
 from .. import display, read_notebook, read_notebooks, PapermillException, record
-from ..api import Notebook
+from ..api import Notebook, _get_notebook_outputs
 from . import get_notebook_path, get_notebook_dir
 
 
@@ -81,6 +85,81 @@ class TestNotebookCollection(unittest.TestCase):
             columns=['filename', 'cell', 'value', 'type', 'key']
         )
         assert_frame_equal(nbs.metrics, expected_metrics_df)
+
+
+class TestNotebookOutputs(unittest.TestCase):
+
+    def test_get_notebook_outputs(self):
+        output = new_output(output_type='display_data', data={},
+                                        metadata={'papermill': {'name': 'test'}})
+        nb = new_notebook(
+            cells=[
+                new_code_cell('test', outputs=[output])
+            ]
+        )
+        assert _get_notebook_outputs(nb) == {'test': output}
+
+    def test_notebook_no_cells(self):
+        nb = new_notebook(
+            cells=[]
+        )
+        assert _get_notebook_outputs(nb) == {}
+
+    def test_cell_with_no_outputs(self):
+        nb = new_notebook(
+            cells=[
+                new_code_cell('test', outputs=[])
+            ]
+        )
+        assert _get_notebook_outputs(nb) == {}
+
+    def test_empty_metadata(self):
+        output = new_output(output_type='display_data', data={},
+                                        metadata={})
+        nb = new_notebook(
+            cells=[
+                new_code_cell('test', outputs=[output])
+            ]
+        )
+        assert _get_notebook_outputs(nb) == {}
+
+    def test_not_papermill_with_name(self):
+        output = new_output(output_type='display_data', data={},
+                            metadata={'not_papermill': {'name': 'test'}})
+        nb = new_notebook(
+            cells=[
+                new_code_cell('test', outputs=[output])
+            ]
+        )
+        assert _get_notebook_outputs(nb) == {}
+
+    def test_papermill_metadata_not_name(self):
+        output = new_output(output_type='display_data',
+                            metadata={'papermill': {'not_name': 'test'}})
+        nb = new_notebook(
+            cells=[
+                new_code_cell('test', outputs=[output])
+            ]
+        )
+        assert _get_notebook_outputs(nb) == {}
+
+    def test_papermill_metadata_but_empty(self):
+        output = new_output(output_type='display_data',
+                            metadata={'papermill': {}})
+        nb = new_notebook(
+            cells=[
+                new_code_cell('test', outputs=[output])
+            ]
+        )
+        assert _get_notebook_outputs(nb) == {}
+
+    def test_no_outputs_with_markdown(self):
+        nb = new_notebook(
+            cells=[
+                new_markdown_cell('this is a test.')
+            ]
+        )
+        assert _get_notebook_outputs(nb) == {}
 
 
 @patch('papermill.api.ip_display')
