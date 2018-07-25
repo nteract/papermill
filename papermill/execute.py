@@ -23,7 +23,8 @@ def execute_notebook(notebook,
                      kernel_name=None,
                      progress_bar=True,
                      log_output=False,
-                     start_timeout=60):
+                     start_timeout=60,
+                     report_mode=False):
     """Executes a single notebook locally.
     Args:
         notebook (str): Path to input notebook.
@@ -34,6 +35,7 @@ def execute_notebook(notebook,
         progress_bar (bool): Flag for whether or not to show the progress bar.
         log_output (bool): Flag for whether or not to write notebook output to stderr.
         start_timeout (int): Duration to wait for kernel start-up.
+        report_mode (bool): Flag for whether or not to hide input.
 
     Returns:
          nb (NotebookNode): Executed notebook object
@@ -41,6 +43,13 @@ def execute_notebook(notebook,
     print("Input Notebook:  %s" % get_pretty_path(notebook), file=sys.stderr)
     print("Output Notebook: %s" % get_pretty_path(output), file=sys.stderr)
     nb = load_notebook_node(notebook)
+    
+    # Hide input if report-mode is set to True.
+    if report_mode: 
+        for cell in nb.cells:
+            if cell.cell_type == 'code':
+                cell.metadata['jupyter'] = cell.get('jupyter', {})
+                cell.metadata['jupyter']['source_hidden'] = True
 
     # Parameterize the Notebook.
     if parameters:

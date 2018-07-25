@@ -257,7 +257,6 @@ class TestLogging(unittest.TestCase):
             stderr = redirect.get_stderr()
             self.assertEqual(stderr, u'Out [3] --------------------------------\n\n')
 
-
 class TestNBConvertCalls(unittest.TestCase):
 
     def setUp(self):
@@ -276,3 +275,20 @@ class TestNBConvertCalls(unittest.TestCase):
         # Ensure the notebook builds valid html without crashing
         (body, resources) = self.html_exporter.from_notebook_node(test_nb.node)
         self.assertTrue(body.startswith("\n<div"))
+
+class TestReportMode(unittest.TestCase):
+
+    def setUp(self):
+        self.test_dir = tempfile.mkdtemp()
+        self.notebook_name = 'report_mode_test.ipynb'
+        self.notebook_path = get_notebook_path(self.notebook_name)
+        self.nb_test_executed_fname = os.path.join(self.test_dir, 'output_{}'.format(self.notebook_name))
+
+    def tearDown(self):
+        shutil.rmtree(self.test_dir)
+
+    def test_report_mode(self):
+        nb = execute_notebook(self.notebook_path, self.nb_test_executed_fname, report_mode = True)
+        for cell in nb.cells: 
+            if cell.cell_type == 'code':  
+                self.assertEqual(cell.metadata.get('jupyter', {}).get('source_hidden'), True)
