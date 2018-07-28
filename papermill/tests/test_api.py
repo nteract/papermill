@@ -15,6 +15,7 @@ from nbformat.v4 import (
 from .. import display, read_notebook, read_notebooks, PapermillException, record
 from ..api import Notebook, _get_notebook_outputs
 from . import get_notebook_path, get_notebook_dir
+from ..inspection import Parameter
 
 
 class TestNotebookClass(unittest.TestCase):
@@ -38,6 +39,11 @@ class TestNotebookClass(unittest.TestCase):
             columns=['name', 'value', 'type', 'filename']
         )
         assert_frame_equal(nb.dataframe, expected_df)
+        expected_inferred_parameters = [
+            Parameter('foo', 'int', '1', 'python'),
+            Parameter('bar', 'str', "'hello'", 'python'),
+        ]
+        self.assertEqual(nb.guess_parameters(), expected_inferred_parameters)
 
     def test_bad_file_ext(self):
 

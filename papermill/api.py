@@ -15,6 +15,7 @@ from six import string_types
 
 from .exceptions import PapermillException
 from .iorw import load_notebook_node, list_notebook_files
+from .inspection import guess_parameters
 
 RECORD_OUTPUT_TYPE = 'application/papermill.record+json'
 DISPLAY_OUTPUT_TYPE = 'application/papermill.display+json'
@@ -223,6 +224,9 @@ class Notebook(object):
                 "Output Name '%s' is not available in this notebook.")
         output = outputs[name]
         ip_display(output.data, metadata=output.metadata, raw=True)
+
+    def guess_parameters(self):
+        return guess_parameters(self.node)
 
 
 def _get_papermill_metadata(nb, name, default=None):

@@ -12,6 +12,7 @@ import yaml
 from functools import wraps
 from .execute import execute_notebook
 from .iorw import read_yaml_file
+from .api import read_notebook
 
 def add_options(options):
     def _add_options(func):
@@ -56,10 +57,20 @@ def notebook_help(notebook_path, help, **kwarg):
     the normal help messaging for when a user types `--help` on an
     input notebook
     '''
-    # TODO add inspection function here!
+    params = read_notebook(notebook_path).guess_parameters()
     click.echo("notebook_path: {}".format(notebook_path))
+    if params:
+        click.echo("inferred parameters:")
+        for p in params:
+            click.echo("  {}: {} (default {})".format(p.name, p.inferred_type_name, p.default))
+    else:
+        click.echo("Can't infer anything about this notebook's parameters")
 
 class NotebookCommand(click.Command):
+    """
+    Adds an override to get_help to allow custom messages when one positional argument
+    has been provided.
+    """
     @property
     def arguments(self):
         for param in self.params:
