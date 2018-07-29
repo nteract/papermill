@@ -40,13 +40,9 @@ jobs:
             - ./venv
           key: v1-dependencies-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
 
-      # run tests!
-      # this example uses Django's built-in test-runner
-      # other common Python testing frameworks include pytest and nose
-      # https://pytest.org
-      # https://nose.readthedocs.io
+      # run stats notebook!
       - run:
-          name: run tests
+          name: run notebook
           command: |
             . venv/bin/activate
             python -m papermill.cli examples/download-stats.ipynb output.ipynb
