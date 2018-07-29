@@ -49,7 +49,7 @@ jobs:
           name: run tests
           command: |
             . venv/bin/activate
-            python -m papermill.cli output.ipynb
+            python -m papermill.cli examples/download-stats.ipynb output.ipynb
 
       - store_artifacts:
           path: output.ipynb
