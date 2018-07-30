@@ -78,7 +78,7 @@ class HttpHandler(object):
 class LocalHandler(object):
     @classmethod
     def read(cls, path):
-        with io.open(path, 'r') as f:
+        with io.open(path, 'r', encoding="utf-8") as f:
             return f.read()
 
     @classmethod
@@ -87,7 +87,7 @@ class LocalHandler(object):
 
     @classmethod
     def write(cls, buf, path):
-        with io.open(path, 'w') as f:
+        with io.open(path, 'w', encoding="utf-8") as f:
             f.write(buf)
 
     @classmethod
