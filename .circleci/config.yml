@@ -50,8 +50,3 @@ jobs:
       - store_artifacts:
           path: output.ipynb
           destination: notebook-output.ipynb
-
-          # this ends up at a url like
-          # https://5-142710335-gh.circle-artifacts.com/0/notebook-output.ipynb
-          # so we should send users to a url like
-          # http://nbviewer.jupyter.org/urls/5-142710335-gh.circle-artifacts.com/0/notebook-output.ipynb
