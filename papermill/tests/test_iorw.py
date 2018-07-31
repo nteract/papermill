@@ -75,7 +75,9 @@ class TestPapermillIO(unittest.TestCase):
         self.assertEqual(self.papermill_io.pretty_path("fake/path"), "fake/path/pretty/1")
 
 class TestLocalHandler(unittest.TestCase):
-    
+    """
+    Tests for `LocalHandler`
+    """
 class TestHttpHandler(unittest.TestCase):
     """
     Tests for `HttpHandler`.
