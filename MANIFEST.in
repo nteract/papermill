@@ -3,6 +3,7 @@ recursive-include papermill *.ipynb
 recursive-include papermill *.json
 recursive-include papermill *.yaml
 recursive-include papermill *.keep
+recursive-include papermill *.txt
 
 include setup.py
 include requirements.txt
