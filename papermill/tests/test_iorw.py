@@ -1,6 +1,11 @@
+# -*- coding: utf-8 -*-
+
 import json
 import unittest
 import six
+import os
+import io
+import tempfile
 from requests.exceptions import ConnectionError
 if six.PY3:
     from unittest.mock import Mock, patch
@@ -8,8 +13,9 @@ else:
     from mock import Mock, patch
 
 from ..exceptions import PapermillException
-from ..iorw import HttpHandler, PapermillIO
+from ..iorw import HttpHandler, LocalHandler, PapermillIO
 
+FIXTURE_PATH = os.path.join(os.path.dirname(__file__), 'fixtures')
 
 class TestPapermillIO(unittest.TestCase):
     """
@@ -78,6 +84,19 @@ class TestLocalHandler(unittest.TestCase):
     """
     Tests for `LocalHandler`
     """
+
+    def test_read_utf8(self):
+        self.assertEqual(
+            LocalHandler.read(os.path.join(FIXTURE_PATH, 'rock.txt')).strip(),
+            u'✄'
+        )
+
+    def test_write_utf8(self):
+        path = os.path.join(tempfile.mkdtemp(), 'paper.txt')
+        LocalHandler.write(u'✄', path)
+        with io.open(path, 'r', encoding='utf-8') as f:
+            self.assertEqual(f.read().strip(), u'✄')
+
 class TestHttpHandler(unittest.TestCase):
     """
     Tests for `HttpHandler`.
