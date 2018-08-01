@@ -1,4 +1,4 @@
- # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
 
@@ -50,8 +50,8 @@ class PapermillIO(object):
 
         if local_handler is None:
             raise PapermillException(
-                "Could not find a registered schema handler for: {}"
-                .format(path))
+                "Could not find a registered schema handler for: {}".format(path)
+            )
 
         return local_handler
 
@@ -117,7 +117,7 @@ class S3Handler(object):
     @classmethod
     def pretty_path(cls, path):
         return path
-            
+
 
 # Instantiate a PapermillIO instance and register Handlers.
 papermill_io = PapermillIO()
@@ -157,13 +157,12 @@ def load_notebook_node(notebook_path):
         nb.metadata['papermill'] = {
             'parameters': dict(),
             'environment_variables': dict(),
-            'version': __version__
+            'version': __version__,
         }
 
     for cell in nb.cells:
         if not hasattr(cell.metadata, 'tags'):
-            cell.metadata['tags'] = [
-            ]  # Create tags attr if one doesn't exist.
+            cell.metadata['tags'] = []  # Create tags attr if one doesn't exist.
 
         if not hasattr(cell.metadata, 'papermill'):
             cell.metadata['papermill'] = dict()

@@ -16,7 +16,6 @@ def get_notebook_dir(*args):
 
 
 class RedirectOutput(object):
-
     def __init__(self):
         self.redirected_stdout = None
         self.redirected_stderr = None

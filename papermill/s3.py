@@ -46,8 +46,9 @@ class Bucket(object):
 
     def list(self, prefix='', delimiter=None):
         """Limits a list of Bucket's objects based on prefix and delimiter."""
-        return self.service._list(bucket=self.name, prefix=prefix,
-                                  delimiter=delimiter, objects=True)
+        return self.service._list(
+            bucket=self.name, prefix=prefix, delimiter=delimiter, objects=True
+        )
 
 
 class Prefix(object):
@@ -63,6 +64,7 @@ class Prefix(object):
         name of a service resource, such as SQS, EC2, etc.
 
     """
+
     def __init__(self, bucket, name, service=None):
         self.bucket = Bucket(bucket, service=service)
         self.name = name
@@ -98,18 +100,23 @@ class Key(object):
 
     # TODO make size, etag, etc properties that can be called from the
     # object as needed
-    def __init__(self, bucket, name,
-                 size=None, etag=None, last_modified=None, storage_class=None,
-                 service=None):
+    def __init__(
+        self,
+        bucket,
+        name,
+        size=None,
+        etag=None,
+        last_modified=None,
+        storage_class=None,
+        service=None,
+    ):
         self.bucket = Bucket(bucket, service=service)
         self.name = name
         self.size = size
         self.etag = etag
         if last_modified:
             try:
-                self.last_modified = (
-                        last_modified.isoformat().split('+')[0] + '.000Z'
-                )
+                self.last_modified = last_modified.isoformat().split('+')[0] + '.000Z'
             except ValueError:
                 self.last_modified = last_modified
         self.storage_class = storage_class
@@ -135,6 +142,7 @@ def retry(num):
                     logger.debug('retrying: {}'.format(e))
             else:
                 raise Exception  # TODO verify what to raise
+
         return wrapper
 
     return decorate
@@ -173,14 +181,13 @@ class S3(object):
         - rmdir (TODO rm_dir)
 
     """
+
     sessions = {}
     lock = threading.RLock()
 
     # TODO: add support for assume role.
 
-    def __init__(self,
-                 keyname=None, use_akms=None, host=None,
-                 region='us-east-1', *args, **kwargs):
+    def __init__(self, keyname=None, use_akms=None, host=None, region='us-east-1', *args, **kwargs):
 
         import botocore.session
 
@@ -188,18 +195,14 @@ class S3(object):
         if host:
             logger.warning('the host param is deprecated')
 
-        use_akms = (use_akms if use_akms is not None
-                    else 'USE_AKMS' in os.environ)
+        use_akms = use_akms if use_akms is not None else 'USE_AKMS' in os.environ
 
         args = (keyname, use_akms)
         with self.lock:
             if args not in self.sessions:
                 session = Session(
                     botocore_session=botocore.session.Session(
-                        session_vars={
-                            'akms_keyname': keyname,
-                            'use_akms': use_akms,
-                        }
+                        session_vars={'akms_keyname': keyname, 'use_akms': use_akms}
                     )
                 )
                 client = session.client('s3')
@@ -231,8 +234,9 @@ class S3(object):
                         self.cur += retr  # TODO refactor cur and retr names
                         logger.debug(
                             '%s: %6d/%dkb (%3.2f%% Complete)' % filename,
-                            self.cur / 1024, self.total / 1024,
-                            self.cur / float(total) * 100
+                            self.cur / 1024,
+                            self.total / 1024,
+                            self.cur / float(total) * 100,
                         )
 
         return callback
@@ -260,9 +264,7 @@ class S3(object):
         key = self._get_key(dest)
         source_key = self._get_key(source)
         obj = self.s3.Object(key.bucket.name, key.name)
-        obj.copy_from(
-            CopySource='{}/{}'.format(source_key.bucket.name, source_key.name)
-        )
+        obj.copy_from(CopySource='{}/{}'.format(source_key.bucket.name, source_key.name))
         return key
 
     @retry(3)
@@ -282,10 +284,8 @@ class S3(object):
             obj.download_fileobj(
                 tmpfile,
                 Callback=self.__create_callback(
-                    source,
-                    total=obj.content_length,
-                    callback=kwargs.get('callback')
-                )
+                    source, total=obj.content_length, callback=kwargs.get('callback')
+                ),
             )
             if targetFile:
                 tmpfile.seek(0)
@@ -299,9 +299,7 @@ class S3(object):
         if isinstance(name, Key):
             return name
 
-        return Key(bucket=self._bucket_name(name),
-                   name=self._key_name(name),
-                   service=self)
+        return Key(bucket=self._bucket_name(name), name=self._key_name(name), service=self)
 
     def _get_file_obj(self, f, mode='wb'):
         return gzip.open(f, mode) if f.endswith('.gz') else open(f, mode)
@@ -311,14 +309,16 @@ class S3(object):
         return cleaned[1] if len(cleaned) > 1 else None
 
     @retry(3)
-    def _list(self,
-              prefix='',
-              bucket=None,
-              delimiter=None,
-              keys=False,
-              objects=False,
-              page_size=1000,
-              **kwargs):
+    def _list(
+        self,
+        prefix='',
+        bucket=None,
+        delimiter=None,
+        keys=False,
+        objects=False,
+        page_size=1000,
+        **kwargs
+    ):
         assert bucket is not None, 'You must specify a bucket to list'
 
         bucket = self._bucket_name(bucket)
@@ -339,11 +339,8 @@ class S3(object):
             return item['Prefix']
 
         for page in page_iterator:
-            locations = (
-                sorted(
-                    [i for i in page.get('Contents', []) + page.get('CommonPrefixes', [])],
-                    key=sort
-                )
+            locations = sorted(
+                [i for i in page.get('Contents', []) + page.get('CommonPrefixes', [])], key=sort
             )
 
             for item in locations:
@@ -356,7 +353,7 @@ class S3(object):
                             etag=item.get('ETag'),
                             last_modified=item.get('LastModified'),
                             storage_class=item.get('StorageClass'),
-                            service=self
+                            service=self,
                         )
                     elif objects:
                         yield Prefix(bucket, item['Prefix'], service=self)
@@ -364,8 +361,7 @@ class S3(object):
                     prefix = item['Key'] if 'Key' in item else item['Prefix']
                     yield 's3://{}/{}'.format(bucket, prefix)
 
-    def _put(self, source, dest, num_callbacks=10,
-             policy='bucket-owner-full-control', **kwargs):
+    def _put(self, source, dest, num_callbacks=10, policy='bucket-owner-full-control', **kwargs):
         key = self._get_key(dest)
         obj = self.s3.Object(key.bucket.name, key.name)
         length = 0
@@ -377,25 +373,22 @@ class S3(object):
                 source,
                 ExtraArgs={'ACL': policy},
                 Callback=self.__create_callback(
-                    dest,
-                    total=os.fstat(source.fileno()).st_size,
-                    callback=kwargs.get('callback')
-                )
+                    dest, total=os.fstat(source.fileno()).st_size, callback=kwargs.get('callback')
+                ),
             )
         else:
             obj.upload_file(
                 source,
                 ExtraArgs={'ACL': policy},
                 Callback=self.__create_callback(
-                    dest,
-                    total=length,
-                    callback=kwargs.get('callback')
-                )
+                    dest, total=length, callback=kwargs.get('callback')
+                ),
             )
         return key
 
-    def _put_string(self, source, dest, num_callbacks=10,
-                    policy='bucket-owner-full-control', **kwargs):
+    def _put_string(
+        self, source, dest, num_callbacks=10, policy='bucket-owner-full-control', **kwargs
+    ):
         key = self._get_key(dest)
         obj = self.s3.Object(key.bucket.name, key.name)
         length = len(source)
@@ -419,15 +412,21 @@ class S3(object):
         response = self.client.head_object(Bucket=bucket, Key=key)
         return response['ContentLength']
 
-    def cat(self, source, buffersize=None, memsize=2**24, compressed=False,
-            encoding='UTF-8', raw=False):
+    def cat(
+        self,
+        source,
+        buffersize=None,
+        memsize=2 ** 24,
+        compressed=False,
+        encoding='UTF-8',
+        raw=False,
+    ):
         """Returns an iterator for the data in the key or nothing if the key
         doesn't exist. Decompresses data on the fly (if compressed is True
         or key ends with .gz) unless raw is True. Pass None for encoding to
         skip encoding.
         """
-        assert (self._is_s3(source) or isinstance(source, Key)), \
-                'source must be a valid s3 path'
+        assert self._is_s3(source) or isinstance(source, Key), 'source must be a valid s3 path'
 
         key = self._get_key(source) if not isinstance(source, Key) else source
         compressed = (compressed or key.name.endswith('.gz')) and not raw
@@ -442,13 +441,12 @@ class S3(object):
             # try to read the file multiple times
             for i in range(100):
                 obj = self.s3.Object(key.bucket.name, key.name)
-                buffersize = buffersize if buffersize is not None else 2**20
+                buffersize = buffersize if buffersize is not None else 2 ** 20
 
                 if not size:
                     size = obj.content_length
                 elif size != obj.content_length:
-                    raise AwsError(
-                        'key size unexpectedly changed while reading')
+                    raise AwsError('key size unexpectedly changed while reading')
 
                 r = obj.get(Range="bytes={}-".format(bytes_read))
 
@@ -504,8 +502,7 @@ class S3(object):
                 decoded = undecoded.decode(encoding)
                 yield decoded
 
-    def catdir(self, source, buffersize=None, compressed=False,
-               encoding='UTF-8'):
+    def catdir(self, source, buffersize=None, compressed=False, encoding='UTF-8'):
         """Iterates over a dir in s3 split on newline.
 
         Yields chunks of data from the file.
@@ -514,8 +511,9 @@ class S3(object):
         for f in self.listdir(source, keys=True):
             logger.debug('S3.catdir: %s', f)
             full_name = 's3://{}/{}'.format(f.bucket.name, f.name)
-            for l in self.cat(full_name, buffersize=buffersize,
-                              compressed=compressed, encoding=encoding):
+            for l in self.cat(
+                full_name, buffersize=buffersize, compressed=compressed, encoding=encoding
+            ):
                 yield l
 
     def cp(self, source, dest, **kwargs):
@@ -590,8 +588,7 @@ class S3(object):
                     for line in self.cat(f, compressed=f.endswith('gz')):
                         outfile.write(line)
         else:
-            raise AwsError(
-                "Copy-merging {} to {} is not supported".format(source, dest))
+            raise AwsError("Copy-merging {} to {} is not supported".format(source, dest))
 
     def cp_string(self, source, dest, **kwargs):
         """
@@ -660,16 +657,11 @@ class S3(object):
         """
         assert self._is_s3(name), "name must be in form s3://bucket/key"
 
-        it = self._list(bucket=self._bucket_name(name),
-                        prefix=self._key_name(name),
-                        **kwargs)
+        it = self._list(bucket=self._bucket_name(name), prefix=self._key_name(name), **kwargs)
         return iter(it) if iterator else list(it)
 
     def list_buckets(self):
-        return [
-            bucket['Name']
-            for bucket in self.client.list_buckets().get('Buckets', [])
-        ]
+        return [bucket['Name'] for bucket in self.client.list_buckets().get('Buckets', [])]
 
     def listdir(self, name, **kwargs):
         """ Returns a list of the files under the specified path.
@@ -703,10 +695,8 @@ class S3(object):
         assert self._is_s3(name), "name must be in form s3://bucket/key"
 
         return self._list(
-            prefix=self._key_name(name),
-            bucket=self._bucket_name(name),
-            objects=True,
-            delimiter='/')
+            prefix=self._key_name(name), bucket=self._bucket_name(name), objects=True, delimiter='/'
+        )
 
     def listglob(self, glb, **kwargs):
         """ Returns a list of the files matching a glob.
@@ -776,9 +766,7 @@ class S3(object):
 
         """
         for f in self.listdir(source, keys=True):
-            for l in self.read(str(f),
-                               compressed=compressed,
-                               encoding=encoding):
+            for l in self.read(str(f), compressed=compressed, encoding=encoding):
                 yield l
 
     def read(self, source, compressed=False, encoding='UTF-8'):
@@ -788,9 +776,7 @@ class S3(object):
 
         """
         buf = ''
-        for block in self.cat(source,
-                              compressed=compressed,
-                              encoding=encoding):
+        for block in self.cat(source, compressed=compressed, encoding=encoding):
             buf += block
             if '\n' in buf:
                 ret, buf = buf.rsplit('\n', 1)
@@ -825,10 +811,8 @@ class S3(object):
         bucket = self.s3.Bucket(self._bucket_name(target))
         errors = []
         for batch in self.__batches(
-                self._list(
-                    bucket=self._bucket_name(target),
-                    prefix=self._key_name(target),
-                    keys=True)):
+            self._list(bucket=self._bucket_name(target), prefix=self._key_name(target), keys=True)
+        ):
             keys = [dict(Key=n.name) for n in batch]
             response = bucket.delete_objects(Delete={'Objects': keys})
             if 'Errors' in response:
@@ -861,4 +845,3 @@ def split(path):
             return [path, '']
     else:
         return ['', '']
-

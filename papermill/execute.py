@@ -1,4 +1,4 @@
- # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals, print_function
 
@@ -16,15 +16,17 @@ from .preprocess import PapermillExecutePreprocessor, no_tqdm, log_outputs
 from .iorw import load_notebook_node, write_ipynb, read_yaml_file, get_pretty_path
 
 
-def execute_notebook(notebook,
-                     output,
-                     parameters=None,
-                     prepare_only=False,
-                     kernel_name=None,
-                     progress_bar=True,
-                     log_output=False,
-                     start_timeout=60,
-                     report_mode=False):
+def execute_notebook(
+    notebook,
+    output,
+    parameters=None,
+    prepare_only=False,
+    kernel_name=None,
+    progress_bar=True,
+    log_output=False,
+    start_timeout=60,
+    report_mode=False,
+):
     """Executes a single notebook locally.
     Args:
         notebook (str): Path to input notebook.
@@ -56,17 +58,12 @@ def execute_notebook(notebook,
         _parameterize_notebook(nb, kernel_name, parameters)
 
     # Record specified environment variable values.
-    nb.metadata.papermill[
-        'environment_variables'] = _fetch_environment_variables()
+    nb.metadata.papermill['environment_variables'] = _fetch_environment_variables()
     nb.metadata.papermill['output_path'] = output
 
     if not prepare_only:
         # Execute the Notebook.
-        _execute_parameterized_notebook(nb,
-                                        kernel_name,
-                                        progress_bar,
-                                        log_output,
-                                        start_timeout)
+        _execute_parameterized_notebook(nb, kernel_name, progress_bar, log_output, start_timeout)
 
     # Write final Notebook to disk.
     write_ipynb(nb, output)
@@ -98,11 +95,11 @@ def _parameterize_notebook(nb, kernel_name, parameters):
     if injected_cell_index >= 0:
         # Replace the injected cell with a new version
         before = nb.cells[:injected_cell_index]
-        after = nb.cells[injected_cell_index + 1:]
+        after = nb.cells[injected_cell_index + 1 :]
     elif param_cell_index >= 0:
         # Add an injected cell after the parameter cell
-        before = nb.cells[:param_cell_index + 1]
-        after = nb.cells[param_cell_index + 1:]
+        before = nb.cells[: param_cell_index + 1]
+        after = nb.cells[param_cell_index + 1 :]
     else:
         # Inject to the top of the notebook
         before = []
@@ -112,11 +109,9 @@ def _parameterize_notebook(nb, kernel_name, parameters):
     nb.metadata.papermill['parameters'] = parameters
 
 
-def _execute_parameterized_notebook(nb,
-                                    kernel_name=None,
-                                    progress_bar=True,
-                                    log_output=False,
-                                    start_timeout=60):
+def _execute_parameterized_notebook(
+    nb, kernel_name=None, progress_bar=True, log_output=False, start_timeout=60
+):
     """Performs the actual execution of the parameterized notebook locally.
     Args:
         nb (NotebookNode): Executable notebook object.
@@ -129,7 +124,8 @@ def _execute_parameterized_notebook(nb,
     processor = PapermillExecutePreprocessor(
         timeout=None,
         startup_timeout=start_timeout,
-        kernel_name=kernel_name or nb.metadata.kernelspec.name, )
+        kernel_name=kernel_name or nb.metadata.kernelspec.name,
+    )
     processor.progress_bar = progress_bar and not no_tqdm
     processor.log_output = log_output
 
@@ -140,7 +136,8 @@ def _execute_parameterized_notebook(nb,
     nb.metadata.papermill['end_time'] = t1.isoformat()
     nb.metadata.papermill['duration'] = (t1 - t0).total_seconds()
     nb.metadata.papermill['exception'] = any(
-        [cell.metadata.papermill.get('exception') for cell in nb.cells])
+        [cell.metadata.papermill.get('exception') for cell in nb.cells]
+    )
 
 
 def _build_parameter_code(kernel_name, parameters):
@@ -151,7 +148,9 @@ def _build_parameter_code(kernel_name, parameters):
         return _parameter_code_builders[kernelspec.language](parameters)
     raise PapermillException(
         "No parameter builder functions specified for kernel '%s' or language '%s'"
-        % (kernel_name, kernelspec.language))
+        % (kernel_name, kernelspec.language)
+    )
+
 
 def _find_first_tagged_cell_index(nb, tag):
     parameters_indices = []
@@ -162,6 +161,7 @@ def _find_first_tagged_cell_index(nb, tag):
         return -1
     return parameters_indices[0]
 
+
 def _translate_escaped_str(str_val):
     """Reusable by most interpreters"""
     if isinstance(str_val, string_types):
@@ -171,9 +171,11 @@ def _translate_escaped_str(str_val):
         str_val = str_val.replace('"', r'\"')
     return '"{}"'.format(str_val)
 
+
 def _translate_to_str(val):
     """Reusable by most interpreters"""
     return '{}'.format(val)
+
 
 # Registry for functions that build parameter assignment code.
 _parameter_code_builders = {}
@@ -184,13 +186,21 @@ _translate_type_int_python = _translate_to_str
 _translate_type_float_python = _translate_to_str
 _translate_type_bool_python = _translate_to_str
 
+
 def _translate_type_dict_python(val):
-    escaped = ', '.join(["{}: {}".format(_translate_type_str_python(k), _translate_type_python(v)) for k, v in val.items()])
+    escaped = ', '.join(
+        [
+            "{}: {}".format(_translate_type_str_python(k), _translate_type_python(v))
+            for k, v in val.items()
+        ]
+    )
     return '{{{}}}'.format(escaped)
+
 
 def _translate_type_list_python(val):
     escaped = ', '.join([_translate_type_python(v) for v in val])
     return '[{}]'.format(escaped)
+
 
 def _translate_type_python(val):
     """Translate each of the standard json/yaml types to appropiate objects in python."""
@@ -210,21 +220,28 @@ def _translate_type_python(val):
     # Use this generic translation as a last resort
     return _translate_escaped_str(val)
 
+
 # R translaters
 _translate_type_str_r = _translate_escaped_str
 _translate_type_int_r = _translate_to_str
 _translate_type_float_r = _translate_to_str
 
+
 def _translate_type_bool_r(val):
     return 'TRUE' if val else 'FALSE'
 
+
 def _translate_type_dict_r(val):
-    escaped = ', '.join(["{} = {}".format(_translate_type_str_r(k), _translate_type_r(v)) for k, v in val.items()])
+    escaped = ', '.join(
+        ["{} = {}".format(_translate_type_str_r(k), _translate_type_r(v)) for k, v in val.items()]
+    )
     return 'list({})'.format(escaped)
+
 
 def _translate_type_list_r(val):
     escaped = ', '.join([_translate_type_r(v) for v in val])
     return 'list({})'.format(escaped)
+
 
 def _translate_type_r(val):
     """Translate each of the standard json/yaml types to appropiate objects in R."""
@@ -244,26 +261,36 @@ def _translate_type_r(val):
     # Use this generic translation as a last resort
     return _translate_escaped_str(val)
 
+
 _translate_type_str_scala = _translate_escaped_str
 _translate_type_float_scala = _translate_to_str
+
 
 def _translate_type_int_scala(val):
     strval = _translate_to_str(val)
     return strval + "L" if (val > 2147483647 or val < -2147483648) else strval
 
+
 def _translate_type_bool_scala(val):
     return 'true' if val else 'false'
 
+
 def _translate_type_dict_scala(val):
     """Translate dicts to scala maps"""
-    escaped = ', '.join(["{} -> {}".format(_translate_type_str_scala(k), _translate_type_scala(v))
-                         for k, v in val.items()])
+    escaped = ', '.join(
+        [
+            "{} -> {}".format(_translate_type_str_scala(k), _translate_type_scala(v))
+            for k, v in val.items()
+        ]
+    )
     return 'Map({})'.format(escaped)
+
 
 def _translate_type_list_scala(val):
     """Translate list to scala Seq."""
     escaped = ', '.join([_translate_type_scala(v) for v in val])
     return 'Seq({})'.format(escaped)
+
 
 def _translate_type_scala(val):
     """Translate each of the standard json/yaml types to appropiate objects in scala."""
@@ -283,6 +310,7 @@ def _translate_type_scala(val):
     # Use this generic translation as a last resort
     return _translate_escaped_str(val)
 
+
 def register_param_builder(name):
     """Decorator for registering functions that write variable assignments for a given kernel or language."""
 
@@ -291,6 +319,7 @@ def register_param_builder(name):
         return func
 
     return wrapper
+
 
 @register_param_builder("python")
 def build_python_params(parameters):
@@ -309,6 +338,7 @@ def build_r_params(parameters):
         param_content += '{} = {}\n'.format(var, _translate_type_r(val))
     return param_content
 
+
 @register_param_builder("scala")
 def build_scala_params(parameters):
     """Writers parameter assignment code for Python kernels."""
@@ -316,6 +346,7 @@ def build_scala_params(parameters):
     for var, val in parameters.items():
         param_content += 'val {} = {}\n'.format(var, _translate_type_scala(val))
     return param_content
+
 
 def _fetch_environment_variables():
     ret = dict()
@@ -328,7 +359,8 @@ def _fetch_environment_variables():
 ERROR_MESSAGE_TEMPLATE = (
     '<span style="color:red; font-family:Helvetica Neue, Helvetica, Arial, sans-serif; font-size:2em;">'
     "An Exception was encountered at 'In [%s]'."
-    '</span>')
+    '</span>'
+)
 
 
 def raise_for_execution_errors(nb, output_path):
@@ -345,7 +377,8 @@ def raise_for_execution_errors(nb, output_path):
                     source=cell.source,
                     ename=output.ename,
                     evalue=output.evalue,
-                    traceback=output.traceback)
+                    traceback=output.traceback,
+                )
                 break
 
     if error:
@@ -354,12 +387,10 @@ def raise_for_execution_errors(nb, output_path):
         error_msg_cell = nbformat.v4.new_code_cell(
             source="%%html\n" + error_msg,
             outputs=[
-                nbformat.v4.new_output(
-                    output_type="display_data",
-                    data={"text/html": error_msg})
+                nbformat.v4.new_output(output_type="display_data", data={"text/html": error_msg})
             ],
-            metadata={"inputHidden": True,
-                      "hide_input": True})
+            metadata={"inputHidden": True, "hide_input": True},
+        )
         nb.cells = [error_msg_cell] + nb.cells
         write_ipynb(nb, output_path)
         raise error

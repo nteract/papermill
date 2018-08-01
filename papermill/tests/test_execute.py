@@ -9,6 +9,7 @@ import unittest
 from functools import partial
 
 import six
+
 if six.PY3:
     from unittest.mock import patch
 else:
@@ -19,8 +20,13 @@ from nbconvert import HTMLExporter
 
 from ..api import read_notebook
 from .. import execute
-from ..execute import (execute_notebook, log_outputs, _translate_type_python,
-                       _translate_type_r, _translate_type_scala)
+from ..execute import (
+    execute_notebook,
+    log_outputs,
+    _translate_type_python,
+    _translate_type_r,
+    _translate_type_scala,
+)
 from ..exceptions import PapermillExecutionError
 from . import get_notebook_path, RedirectOutput
 
@@ -32,81 +38,94 @@ else:
 execute_notebook = partial(execute_notebook, kernel_name=kernel_name)
 
 
-@pytest.mark.parametrize("test_input,expected", [
-    ("foo", '"foo"'),
-    ('{"foo": "bar"}', '"{\\"foo\\": \\"bar\\"}"'),
-    ({"foo": "bar"}, '{"foo": "bar"}'),
-    ({"foo": '"bar"'}, '{"foo": "\\"bar\\""}'),
-    ({"foo": ["bar"]}, '{"foo": ["bar"]}'),
-    ({"foo": {"bar": "baz"}}, '{"foo": {"bar": "baz"}}'),
-    ({"foo": {"bar": '"baz"'}}, '{"foo": {"bar": "\\"baz\\""}}'),
-    (["foo"], '["foo"]'),
-    (["foo", '"bar"'], '["foo", "\\"bar\\""]'),
-    ([{"foo": "bar"}], '[{"foo": "bar"}]'),
-    ([{"foo": '"bar"'}], '[{"foo": "\\"bar\\""}]'),
-    (12345, '12345'),
-    (-54321, '-54321'),
-    (1.2345, '1.2345'),
-    (-5432.1, '-5432.1'),
-    (True, 'True'),
-    (False, 'False')
-])
+@pytest.mark.parametrize(
+    "test_input,expected",
+    [
+        ("foo", '"foo"'),
+        ('{"foo": "bar"}', '"{\\"foo\\": \\"bar\\"}"'),
+        ({"foo": "bar"}, '{"foo": "bar"}'),
+        ({"foo": '"bar"'}, '{"foo": "\\"bar\\""}'),
+        ({"foo": ["bar"]}, '{"foo": ["bar"]}'),
+        ({"foo": {"bar": "baz"}}, '{"foo": {"bar": "baz"}}'),
+        ({"foo": {"bar": '"baz"'}}, '{"foo": {"bar": "\\"baz\\""}}'),
+        (["foo"], '["foo"]'),
+        (["foo", '"bar"'], '["foo", "\\"bar\\""]'),
+        ([{"foo": "bar"}], '[{"foo": "bar"}]'),
+        ([{"foo": '"bar"'}], '[{"foo": "\\"bar\\""}]'),
+        (12345, '12345'),
+        (-54321, '-54321'),
+        (1.2345, '1.2345'),
+        (-5432.1, '-5432.1'),
+        (True, 'True'),
+        (False, 'False'),
+    ],
+)
 def test_translate_type_python(test_input, expected):
     assert _translate_type_python(test_input) == expected
 
-@pytest.mark.parametrize("test_input,expected", [
-    ("foo", '"foo"'),
-    ('{"foo": "bar"}', '"{\\"foo\\": \\"bar\\"}"'),
-    ({"foo": "bar"}, 'list("foo" = "bar")'),
-    ({"foo": '"bar"'}, 'list("foo" = "\\"bar\\"")'),
-    ({"foo": ["bar"]}, 'list("foo" = list("bar"))'),
-    ({"foo": {"bar": "baz"}}, 'list("foo" = list("bar" = "baz"))'),
-    ({"foo": {"bar": '"baz"'}}, 'list("foo" = list("bar" = "\\"baz\\""))'),
-    (["foo"], 'list("foo")'),
-    (["foo", '"bar"'], 'list("foo", "\\"bar\\"")'),
-    ([{"foo": "bar"}], 'list(list("foo" = "bar"))'),
-    ([{"foo": '"bar"'}], 'list(list("foo" = "\\"bar\\""))'),
-    (12345, '12345'),
-    (-54321, '-54321'),
-    (1.2345, '1.2345'),
-    (-5432.1, '-5432.1'),
-    (True, 'TRUE'),
-    (False, 'FALSE')
-])
+
+@pytest.mark.parametrize(
+    "test_input,expected",
+    [
+        ("foo", '"foo"'),
+        ('{"foo": "bar"}', '"{\\"foo\\": \\"bar\\"}"'),
+        ({"foo": "bar"}, 'list("foo" = "bar")'),
+        ({"foo": '"bar"'}, 'list("foo" = "\\"bar\\"")'),
+        ({"foo": ["bar"]}, 'list("foo" = list("bar"))'),
+        ({"foo": {"bar": "baz"}}, 'list("foo" = list("bar" = "baz"))'),
+        ({"foo": {"bar": '"baz"'}}, 'list("foo" = list("bar" = "\\"baz\\""))'),
+        (["foo"], 'list("foo")'),
+        (["foo", '"bar"'], 'list("foo", "\\"bar\\"")'),
+        ([{"foo": "bar"}], 'list(list("foo" = "bar"))'),
+        ([{"foo": '"bar"'}], 'list(list("foo" = "\\"bar\\""))'),
+        (12345, '12345'),
+        (-54321, '-54321'),
+        (1.2345, '1.2345'),
+        (-5432.1, '-5432.1'),
+        (True, 'TRUE'),
+        (False, 'FALSE'),
+    ],
+)
 def test_translate_type_r(test_input, expected):
     assert _translate_type_r(test_input) == expected
 
 
-@pytest.mark.parametrize("test_input,expected", [
-    ("foo", '"foo"'),
-    ('{"foo": "bar"}', '"{\\"foo\\": \\"bar\\"}"'),
-    ({"foo": "bar"}, 'Map("foo" -> "bar")'),
-    ({"foo": '"bar"'}, 'Map("foo" -> "\\"bar\\"")'),
-    ({"foo": ["bar"]}, 'Map("foo" -> Seq("bar"))'),
-    ({"foo": {"bar": "baz"}}, 'Map("foo" -> Map("bar" -> "baz"))'),
-    ({"foo": {"bar": '"baz"'}}, 'Map("foo" -> Map("bar" -> "\\"baz\\""))'),
-    (["foo"], 'Seq("foo")'),
-    (["foo", '"bar"'], 'Seq("foo", "\\"bar\\"")'),
-    ([{"foo": "bar"}], 'Seq(Map("foo" -> "bar"))'),
-    ([{"foo": '"bar"'}], 'Seq(Map("foo" -> "\\"bar\\""))'),
-    (12345, '12345'),
-    (-54321, '-54321'),
-    (1.2345, '1.2345'),
-    (-5432.1, '-5432.1'),
-    (2147483648, '2147483648L'),
-    (-2147483649, '-2147483649L'),
-    (True, 'true'),
-    (False, 'false')
-])
+@pytest.mark.parametrize(
+    "test_input,expected",
+    [
+        ("foo", '"foo"'),
+        ('{"foo": "bar"}', '"{\\"foo\\": \\"bar\\"}"'),
+        ({"foo": "bar"}, 'Map("foo" -> "bar")'),
+        ({"foo": '"bar"'}, 'Map("foo" -> "\\"bar\\"")'),
+        ({"foo": ["bar"]}, 'Map("foo" -> Seq("bar"))'),
+        ({"foo": {"bar": "baz"}}, 'Map("foo" -> Map("bar" -> "baz"))'),
+        ({"foo": {"bar": '"baz"'}}, 'Map("foo" -> Map("bar" -> "\\"baz\\""))'),
+        (["foo"], 'Seq("foo")'),
+        (["foo", '"bar"'], 'Seq("foo", "\\"bar\\"")'),
+        ([{"foo": "bar"}], 'Seq(Map("foo" -> "bar"))'),
+        ([{"foo": '"bar"'}], 'Seq(Map("foo" -> "\\"bar\\""))'),
+        (12345, '12345'),
+        (-54321, '-54321'),
+        (1.2345, '1.2345'),
+        (-5432.1, '-5432.1'),
+        (2147483648, '2147483648L'),
+        (-2147483649, '-2147483649L'),
+        (True, 'true'),
+        (False, 'false'),
+    ],
+)
 def test_translate_type_scala(test_input, expected):
     assert _translate_type_scala(test_input) == expected
+
 
 class TestNotebookHelpers(unittest.TestCase):
     def setUp(self):
         self.test_dir = tempfile.mkdtemp()
         self.notebook_name = 'simple_execute.ipynb'
         self.notebook_path = get_notebook_path(self.notebook_name)
-        self.nb_test_executed_fname = os.path.join(self.test_dir, 'output_{}'.format(self.notebook_name))
+        self.nb_test_executed_fname = os.path.join(
+            self.test_dir, 'output_{}'.format(self.notebook_name)
+        )
 
     def tearDown(self):
         shutil.rmtree(self.test_dir)
@@ -114,17 +133,23 @@ class TestNotebookHelpers(unittest.TestCase):
     @patch(execute.__name__ + '.PapermillExecutePreprocessor')
     def test_start_timeout(self, preproc_mock):
         execute_notebook(self.notebook_path, self.nb_test_executed_fname, start_timeout=123)
-        preproc_mock.assert_called_once_with(timeout=None, startup_timeout=123, kernel_name=kernel_name)
+        preproc_mock.assert_called_once_with(
+            timeout=None, startup_timeout=123, kernel_name=kernel_name
+        )
 
     @patch(execute.__name__ + '.PapermillExecutePreprocessor')
     def test_default_start_timeout(self, preproc_mock):
         execute_notebook(self.notebook_path, self.nb_test_executed_fname)
-        preproc_mock.assert_called_once_with(timeout=None, startup_timeout=60, kernel_name=kernel_name)
+        preproc_mock.assert_called_once_with(
+            timeout=None, startup_timeout=60, kernel_name=kernel_name
+        )
 
     def test_cell_insertion(self):
         execute_notebook(self.notebook_path, self.nb_test_executed_fname, {'msg': 'Hello'})
         test_nb = read_notebook(self.nb_test_executed_fname)
-        self.assertListEqual(test_nb.node.cells[1].get('source').split('\n'), ['# Parameters', 'msg = "Hello"', ''])
+        self.assertListEqual(
+            test_nb.node.cells[1].get('source').split('\n'), ['# Parameters', 'msg = "Hello"', '']
+        )
         self.assertEqual(test_nb.parameters, {'msg': 'Hello'})
 
     def test_no_tags(self):
@@ -132,31 +157,47 @@ class TestNotebookHelpers(unittest.TestCase):
         nb_test_executed_fname = os.path.join(self.test_dir, 'output_{}'.format(notebook_name))
         execute_notebook(get_notebook_path(notebook_name), nb_test_executed_fname, {'msg': 'Hello'})
         test_nb = read_notebook(nb_test_executed_fname)
-        self.assertListEqual(test_nb.node.cells[0].get('source').split('\n'), ['# Parameters', 'msg = "Hello"', ''])
+        self.assertListEqual(
+            test_nb.node.cells[0].get('source').split('\n'), ['# Parameters', 'msg = "Hello"', '']
+        )
         self.assertEqual(test_nb.parameters, {'msg': 'Hello'})
 
     def test_quoted_params(self):
         execute_notebook(self.notebook_path, self.nb_test_executed_fname, {'msg': '"Hello"'})
         test_nb = read_notebook(self.nb_test_executed_fname)
-        self.assertListEqual(test_nb.node.cells[1].get('source').split('\n'), ['# Parameters', r'msg = "\"Hello\""', ''])
+        self.assertListEqual(
+            test_nb.node.cells[1].get('source').split('\n'),
+            ['# Parameters', r'msg = "\"Hello\""', ''],
+        )
         self.assertEqual(test_nb.parameters, {'msg': '"Hello"'})
 
     def test_backslash_params(self):
-        execute_notebook(self.notebook_path, self.nb_test_executed_fname, {'foo': r'do\ not\ crash'})
+        execute_notebook(
+            self.notebook_path, self.nb_test_executed_fname, {'foo': r'do\ not\ crash'}
+        )
         test_nb = read_notebook(self.nb_test_executed_fname)
-        self.assertListEqual(test_nb.node.cells[1].get('source').split('\n'), ['# Parameters', r'foo = "do\\ not\\ crash"', ''])
+        self.assertListEqual(
+            test_nb.node.cells[1].get('source').split('\n'),
+            ['# Parameters', r'foo = "do\\ not\\ crash"', ''],
+        )
         self.assertEqual(test_nb.parameters, {'foo': r'do\ not\ crash'})
 
     def test_backslash_quote_params(self):
         execute_notebook(self.notebook_path, self.nb_test_executed_fname, {'foo': r'bar=\"baz\"'})
         test_nb = read_notebook(self.nb_test_executed_fname)
-        self.assertListEqual(test_nb.node.cells[1].get('source').split('\n'), ['# Parameters', r'foo = "bar=\\\"baz\\\""', ''])
+        self.assertListEqual(
+            test_nb.node.cells[1].get('source').split('\n'),
+            ['# Parameters', r'foo = "bar=\\\"baz\\\""', ''],
+        )
         self.assertEqual(test_nb.parameters, {'foo': r'bar=\"baz\"'})
 
     def test_double_backslash_quote_params(self):
         execute_notebook(self.notebook_path, self.nb_test_executed_fname, {'foo': r'\\"bar\\"'})
         test_nb = read_notebook(self.nb_test_executed_fname)
-        self.assertListEqual(test_nb.node.cells[1].get('source').split('\n'), ['# Parameters', r'foo = "\\\\\"bar\\\\\""', ''])
+        self.assertListEqual(
+            test_nb.node.cells[1].get('source').split('\n'),
+            ['# Parameters', r'foo = "\\\\\"bar\\\\\""', ''],
+        )
         self.assertEqual(test_nb.parameters, {'foo': r'\\"bar\\"'})
 
     def test_prepare_only(self):
@@ -166,10 +207,13 @@ class TestNotebookHelpers(unittest.TestCase):
         execute_notebook(path, result_path, {'foo': r'do\ not\ crash'}, prepare_only=True)
         nb = read_notebook(result_path)
         self.assertEqual(nb.node.cells[0].cell_type, "code")
-        self.assertEqual(nb.node.cells[0].get('source').split('\n'), ['# Parameters', r'foo = "do\\ not\\ crash"', ''])
+        self.assertEqual(
+            nb.node.cells[0].get('source').split('\n'),
+            ['# Parameters', r'foo = "do\\ not\\ crash"', ''],
+        )
+
 
 class TestBrokenNotebook1(unittest.TestCase):
-
     def setUp(self):
         self.test_dir = tempfile.mkdtemp()
 
@@ -191,7 +235,6 @@ class TestBrokenNotebook1(unittest.TestCase):
 
 
 class TestBrokenNotebook2(unittest.TestCase):
-
     def setUp(self):
         self.test_dir = tempfile.mkdtemp()
 
@@ -214,7 +257,6 @@ class TestBrokenNotebook2(unittest.TestCase):
 
 
 class TestLogging(unittest.TestCase):
-
     def setUp(self):
         self.saved_stdout = sys.stdout
         self.out = io.StringIO()
@@ -233,7 +275,9 @@ class TestLogging(unittest.TestCase):
             stdout = redirect.get_stdout()
             self.assertEqual(stdout, u'Out [1] --------------------------------\n\n')
             stderr = redirect.get_stderr()
-            self.assertEqual(stderr, u'Out [1] --------------------------------\nINFO:test:test text\n\n')
+            self.assertEqual(
+                stderr, u'Out [1] --------------------------------\nINFO:test:test text\n\n'
+            )
 
         # stream output
         with RedirectOutput() as redirect:
@@ -247,23 +291,26 @@ class TestLogging(unittest.TestCase):
         with RedirectOutput() as redirect:
             log_outputs(nb.cells[2])
             stdout = redirect.get_stdout()
-            self.assertEqual(stdout,
-                             (
-                                "Out [3] --------------------------------\n"
-                                "<matplotlib.axes._subplots.AxesSubplot at 0x7f8391f10290>\n"
-                                "<matplotlib.figure.Figure at 0x7f830af7b350>\n"
-                                )
-                             )
+            self.assertEqual(
+                stdout,
+                (
+                    "Out [3] --------------------------------\n"
+                    "<matplotlib.axes._subplots.AxesSubplot at 0x7f8391f10290>\n"
+                    "<matplotlib.figure.Figure at 0x7f830af7b350>\n"
+                ),
+            )
             stderr = redirect.get_stderr()
             self.assertEqual(stderr, u'Out [3] --------------------------------\n\n')
 
-class TestNBConvertCalls(unittest.TestCase):
 
+class TestNBConvertCalls(unittest.TestCase):
     def setUp(self):
         self.test_dir = tempfile.mkdtemp()
         self.notebook_name = 'simple_execute.ipynb'
         self.notebook_path = get_notebook_path(self.notebook_name)
-        self.nb_test_executed_fname = os.path.join(self.test_dir, 'output_{}'.format(self.notebook_name))
+        self.nb_test_executed_fname = os.path.join(
+            self.test_dir, 'output_{}'.format(self.notebook_name)
+        )
 
         self.html_exporter = HTMLExporter()
         self.html_exporter.template_file = 'basic'
@@ -276,19 +323,21 @@ class TestNBConvertCalls(unittest.TestCase):
         (body, resources) = self.html_exporter.from_notebook_node(test_nb.node)
         self.assertTrue(body.startswith("\n<div"))
 
-class TestReportMode(unittest.TestCase):
 
+class TestReportMode(unittest.TestCase):
     def setUp(self):
         self.test_dir = tempfile.mkdtemp()
         self.notebook_name = 'report_mode_test.ipynb'
         self.notebook_path = get_notebook_path(self.notebook_name)
-        self.nb_test_executed_fname = os.path.join(self.test_dir, 'output_{}'.format(self.notebook_name))
+        self.nb_test_executed_fname = os.path.join(
+            self.test_dir, 'output_{}'.format(self.notebook_name)
+        )
 
     def tearDown(self):
         shutil.rmtree(self.test_dir)
 
     def test_report_mode(self):
-        nb = execute_notebook(self.notebook_path, self.nb_test_executed_fname, report_mode = True)
-        for cell in nb.cells: 
-            if cell.cell_type == 'code':  
+        nb = execute_notebook(self.notebook_path, self.nb_test_executed_fname, report_mode=True)
+        for cell in nb.cells:
+            if cell.cell_type == 'code':
                 self.assertEqual(cell.metadata.get('jupyter', {}).get('source_hidden'), True)

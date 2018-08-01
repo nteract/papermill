@@ -90,9 +90,7 @@ def read_notebook(path):
 
     """
     if not path.endswith(".ipynb"):
-        raise PapermillException(
-            "Requires an '.ipynb' file extension. Provided path: '%s'",
-            path)
+        raise PapermillException("Requires an '.ipynb' file extension. Provided path: '%s'", path)
 
     nb = Notebook()
     nb.path = path
@@ -140,6 +138,7 @@ class Notebook(object):
 
 
     """
+
     def __init__(self, node=None, path=None):
 
         if path is not None and not node:
@@ -170,8 +169,7 @@ class Notebook(object):
     @property
     def environment_variables(self):
         """dict: environment variables used by the notebook execution"""
-        return _get_papermill_metadata(
-            self.node, 'environment_variables', default={})
+        return _get_papermill_metadata(self.node, 'environment_variables', default={})
 
     @property
     def data(self):
@@ -205,7 +203,7 @@ class Notebook(object):
                 continue
             name = "Out [%s]" % str(execution_count)
             value = cell.metadata.get('papermill', {}).get('duration', 0.0)
-            df.loc[i] = self.filename, name, value, "time (s)",
+            df.loc[i] = self.filename, name, value, "time (s)"
         return df
 
     def display_output(self, name):
@@ -219,8 +217,7 @@ class Notebook(object):
         """
         outputs = _get_notebook_outputs(self.node)
         if name not in outputs:
-            raise PapermillException(
-                "Output Name '%s' is not available in this notebook.")
+            raise PapermillException("Output Name '%s' is not available in this notebook.")
         output = outputs[name]
         ip_display(output.data, metadata=output.metadata, raw=True)
 
@@ -256,6 +253,7 @@ class NotebookCollection(object):
     """Represents a collection of notebooks as a dictionary of notebooks.
 
     """
+
     def __init__(self):
 
         self._notebooks = {}
@@ -268,7 +266,8 @@ class NotebookCollection(object):
         if not isinstance(value, Notebook):
             raise PapermillException(
                 "Value must either be a path string or a Papermill Notebook object. Found: '%s'"
-                % str(type(value)))
+                % str(type(value))
+            )
         self._notebooks[key] = value
 
     def __getitem__(self, key):
