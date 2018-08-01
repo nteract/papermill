@@ -74,7 +74,6 @@ def execute_notebook(notebook,
     # always return notebook object
     return nb
 
-
 def _parameterize_notebook(nb, kernel_name, parameters):
     """Assigned parameters into the appropiate place in the input notebook
     Args:
@@ -89,22 +88,29 @@ def _parameterize_notebook(nb, kernel_name, parameters):
     # Generate parameter content based on the kernal_name
     kernel_name = kernel_name or nb.metadata.kernelspec.name
     param_content = _build_parameter_code(kernel_name, parameters)
-
     param_cell_index = _find_parameters_index(nb)
-    if param_cell_index >= 0:
-        old_parameters = nb.cells[param_cell_index]
-        old_parameters.metadata['tags'].remove('parameters')
-        old_parameters.metadata['tags'].append('default parameters')
+    param_cell = _get_cell(nb, param_cell_index)
+    meta_param_cell_index = nb.metadata.papermill.get('parameter_cell', param_cell_index)
 
-    newcell = nbformat.v4.new_code_cell(source=param_content)
-    newcell.metadata['tags'] = ['parameters']
+    # Check if we have a prior run's data to override
+    if 'parameters' in nb.metadata.papermill and \
+            param_cell_index == meta_param_cell_index and \
+            param_cell:
+        # Drop the old param cell as it's a prior run's injection
+        before = nb.cells[:param_cell_index]
+        after = nb.cells[param_cell_index + 1:]
+    else:
+        _prepare_default_parameter_cell(param_cell)
+        # Preserve the retagged parameter cell as a default parameter cell
+        before = nb.cells[:param_cell_index + 1]
+        after = nb.cells[param_cell_index + 1:]
 
-    before = nb.cells[:param_cell_index + 1]
-    after = nb.cells[param_cell_index + 1:]
-    nb.cells = before + [newcell] + after
+    new_cell = _build_cell(param_content, ['parameters'])
+    # Inject the new param cell
+    nb.cells = before + [new_cell] + after
 
     nb.metadata.papermill['parameters'] = parameters
-
+    nb.metadata.papermill['parameter_cell'] = len(before)
 
 def _execute_parameterized_notebook(nb,
                                     kernel_name=None,
@@ -134,8 +140,25 @@ def _execute_parameterized_notebook(nb,
     nb.metadata.papermill['end_time'] = t1.isoformat()
     nb.metadata.papermill['duration'] = (t1 - t0).total_seconds()
     nb.metadata.papermill['exception'] = any(
-        [cell.metadata.papermill.get('exception') for cell in nb.cells])
+        [cell.metadata.get('papermill', {}).get('exception') for cell in nb.cells])
 
+def _get_cell(nb, cell_index):
+    # Bounded index check
+    if cell_index >= 0 and cell_index < len(nb.cells):
+        return nb.cells[cell_index]
+    else:
+        return None
+
+def _prepare_default_parameter_cell(param_cell):
+    # Check if we have a parameter cell to move to default params
+    if param_cell:
+        param_cell.metadata['tags'].remove('parameters')
+        param_cell.metadata['tags'].append('default parameters')
+
+def _build_cell(contents, tags):
+    new_cell = nbformat.v4.new_code_cell(source=contents)
+    new_cell.metadata['tags'] = ['parameters']
+    return new_cell
 
 def _build_parameter_code(kernel_name, parameters):
     kernelspec = get_kernel_spec(kernel_name)
@@ -147,16 +170,15 @@ def _build_parameter_code(kernel_name, parameters):
         "No parameter builder functions specified for kernel '%s' or language '%s'"
         % (kernel_name, kernelspec.language))
 
-
 def _find_parameters_index(nb):
     parameters_indices = []
     for idx, cell in enumerate(nb.cells):
-        if "parameters" in cell.metadata.tags:
+        if 'parameters' in cell.metadata.tags:
             parameters_indices.append(idx)
     if not parameters_indices:
         return -1
     elif len(parameters_indices) > 1:
-        raise PapermillException("Multiple cells with parameters tag found")
+        raise PapermillException("Multiple cells with parmeters tag found")
     return parameters_indices[0]
 
 def _translate_escaped_str(str_val):
