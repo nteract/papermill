@@ -12,6 +12,7 @@ include README.rst
 include LICENSE
 include MANIFEST.in
 include *.md
+include *.toml
 
 include versioneer.py
 include papermill/_version.py

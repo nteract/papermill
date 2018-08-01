@@ -7,5 +7,6 @@ pytest-cov
 pytest-mock
 moto==1.2.0
 check-manifest
-black
+black; python_version >= '3.6'
+attrs>=17.4.0
 pre-commit
