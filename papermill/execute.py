@@ -43,9 +43,9 @@ def execute_notebook(notebook,
     print("Input Notebook:  %s" % get_pretty_path(notebook), file=sys.stderr)
     print("Output Notebook: %s" % get_pretty_path(output), file=sys.stderr)
     nb = load_notebook_node(notebook)
-    
+
     # Hide input if report-mode is set to True.
-    if report_mode: 
+    if report_mode:
         for cell in nb.cells:
             if cell.cell_type == 'code':
                 cell.metadata['jupyter'] = cell.get('jupyter', {})
@@ -90,19 +90,25 @@ def _parameterize_notebook(nb, kernel_name, parameters):
     kernel_name = kernel_name or nb.metadata.kernelspec.name
     param_content = _build_parameter_code(kernel_name, parameters)
 
-    param_cell_index = _find_parameters_index(nb)
-    if param_cell_index >= 0:
-        old_parameters = nb.cells[param_cell_index]
-        old_parameters.metadata['tags'].remove('parameters')
-        old_parameters.metadata['tags'].append('default parameters')
-
     newcell = nbformat.v4.new_code_cell(source=param_content)
-    newcell.metadata['tags'] = ['parameters']
+    newcell.metadata['tags'] = ['injected-parameters']
 
-    before = nb.cells[:param_cell_index + 1]
-    after = nb.cells[param_cell_index + 1:]
+    param_cell_index = _find_first_tagged_cell_index(nb, 'parameters')
+    injected_cell_index = _find_first_tagged_cell_index(nb, 'injected-parameters')
+    if injected_cell_index >= 0:
+        # Replace the injected cell with a new version
+        before = nb.cells[:injected_cell_index]
+        after = nb.cells[injected_cell_index + 1:]
+    elif param_cell_index >= 0:
+        # Add an injected cell after the parameter cell
+        before = nb.cells[:param_cell_index + 1]
+        after = nb.cells[param_cell_index + 1:]
+    else:
+        # Inject to the top of the notebook
+        before = []
+        after = nb.cells
+
     nb.cells = before + [newcell] + after
-
     nb.metadata.papermill['parameters'] = parameters
 
 
@@ -147,16 +153,13 @@ def _build_parameter_code(kernel_name, parameters):
         "No parameter builder functions specified for kernel '%s' or language '%s'"
         % (kernel_name, kernelspec.language))
 
-
-def _find_parameters_index(nb):
+def _find_first_tagged_cell_index(nb, tag):
     parameters_indices = []
     for idx, cell in enumerate(nb.cells):
-        if "parameters" in cell.metadata.tags:
+        if tag in cell.metadata.tags:
             parameters_indices.append(idx)
     if not parameters_indices:
         return -1
-    elif len(parameters_indices) > 1:
-        raise PapermillException("Multiple cells with parameters tag found")
     return parameters_indices[0]
 
 def _translate_escaped_str(str_val):

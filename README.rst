@@ -58,10 +58,10 @@ Parametrizing a Notebook
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 To parametrize your notebook designate a cell with the tag ``parameters``.
-Papermill looks for the ``parameters`` cell and treat those values as defaults
-for the parameters passed in at execution time. It acheive this by inserting a
-cell after the tagged cell. If no cell is tagged with ``parameters`` a cell will
-be inserted to the front of the notebook.
+
+Papermill looks for the ``parameters`` cell and treats this cell as defaults for the parameters passed in at execution time. Papermill will add a new cell tagged with ``injected-parameters`` with input parameters in order to overwrite the values in ``parameters``. If no cell is tagged with ``parameters`` the injected cell will be inserted at the top of the notebook.
+
+Additionally, if you rerun notebooks through papermill and it will reuse the ``injected-parameters`` cell from the prior run. In this case papermill will replace the old ``injected-parameters`` cell with the new run's inputs.
 
 .. image:: docs/img/parameters.png
 
