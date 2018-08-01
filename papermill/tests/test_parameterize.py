@@ -11,9 +11,9 @@ PYTHON = 'python2' if six.PY2 else 'python3'
 
 class TestNotebookParametrizing(unittest.TestCase):
     def count_nb_injected_parameter_cells(self, nb):
-        return len([c for c in nb.node.cells
-            if 'injected-parameters' in c.get('metadata').get('tags', [])])
-
+        return len(
+            [c for c in nb.node.cells if 'injected-parameters' in c.get('metadata').get('tags', [])]
+        )
 
     def test_no_tag_copying(self):
         # Test that injected cell does not copy other tags
@@ -38,14 +38,11 @@ class TestNotebookParametrizing(unittest.TestCase):
         _parameterize_notebook(test_nb.node, PYTHON, {'msg': 'Hello'})
 
         cell_zero = test_nb.node.cells[0]
-        self.assertTrue('parameters'
-                        in cell_zero.get('metadata').get('tags'))
-        self.assertTrue('injected-parameters'
-                        not in cell_zero.get('metadata').get('tags'))
+        self.assertTrue('parameters' in cell_zero.get('metadata').get('tags'))
+        self.assertTrue('injected-parameters' not in cell_zero.get('metadata').get('tags'))
 
         cell_one = test_nb.node.cells[1]
-        self.assertTrue('injected-parameters'
-                        in cell_one.get('metadata').get('tags'))
+        self.assertTrue('injected-parameters' in cell_one.get('metadata').get('tags'))
         self.assertEqual(self.count_nb_injected_parameter_cells(test_nb), 1)
 
     def test_repeated_run_injected_parameters_tag(self):
@@ -65,10 +62,8 @@ class TestNotebookParametrizing(unittest.TestCase):
         _parameterize_notebook(test_nb.node, PYTHON, {'msg': 'Hello'})
 
         cell_zero = test_nb.node.cells[0]
-        self.assertTrue('injected-parameters'
-                        in cell_zero.get('metadata').get('tags'))
-        self.assertTrue('parameters'
-                        not in cell_zero.get('metadata').get('tags'))
+        self.assertTrue('injected-parameters' in cell_zero.get('metadata').get('tags'))
+        self.assertTrue('parameters' not in cell_zero.get('metadata').get('tags'))
         self.assertEqual(self.count_nb_injected_parameter_cells(test_nb), 1)
 
     def test_repeated_run_no_parameters_tag(self):

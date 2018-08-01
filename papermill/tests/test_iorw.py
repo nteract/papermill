@@ -7,6 +7,7 @@ import os
 import io
 import tempfile
 from requests.exceptions import ConnectionError
+
 if six.PY3:
     from unittest.mock import Mock, patch
 else:
@@ -16,6 +17,7 @@ from ..exceptions import PapermillException
 from ..iorw import HttpHandler, LocalHandler, PapermillIO
 
 FIXTURE_PATH = os.path.join(os.path.dirname(__file__), 'fixtures')
+
 
 class TestPapermillIO(unittest.TestCase):
     """
@@ -37,7 +39,6 @@ class TestPapermillIO(unittest.TestCase):
 
         def pretty_path(self, path):
             return "{}/pretty/{}".format(path, self.ver)
-
 
     def setUp(self):
         self.papermill_io = PapermillIO()
@@ -69,7 +70,9 @@ class TestPapermillIO(unittest.TestCase):
         self.assertEqual(self.papermill_io.get_handler("fake2/path"), self.fake2)
 
     def test_read(self):
-        self.assertEqual(self.papermill_io.read("fake/path"), "contents from fake/path for version 1")
+        self.assertEqual(
+            self.papermill_io.read("fake/path"), "contents from fake/path for version 1"
+        )
 
     def test_listdir(self):
         self.assertEqual(self.papermill_io.listdir("fake/path"), ["fake", "contents"])
@@ -80,22 +83,21 @@ class TestPapermillIO(unittest.TestCase):
     def test_pretty_path(self):
         self.assertEqual(self.papermill_io.pretty_path("fake/path"), "fake/path/pretty/1")
 
+
 class TestLocalHandler(unittest.TestCase):
     """
     Tests for `LocalHandler`
     """
 
     def test_read_utf8(self):
-        self.assertEqual(
-            LocalHandler.read(os.path.join(FIXTURE_PATH, 'rock.txt')).strip(),
-            u'✄'
-        )
+        self.assertEqual(LocalHandler.read(os.path.join(FIXTURE_PATH, 'rock.txt')).strip(), u'✄')
 
     def test_write_utf8(self):
         path = os.path.join(tempfile.mkdtemp(), 'paper.txt')
         LocalHandler.write(u'✄', path)
         with io.open(path, 'r', encoding='utf-8') as f:
             self.assertEqual(f.read().strip(), u'✄')
+
 
 class TestHttpHandler(unittest.TestCase):
     """
@@ -110,9 +112,7 @@ class TestHttpHandler(unittest.TestCase):
         with self.assertRaises(PapermillException) as e:
             HttpHandler.listdir('http://example.com')
 
-        self.assertEqual(
-                '{}'.format(e.exception), 'listdir is not supported by HttpHandler'
-        )
+        self.assertEqual('{}'.format(e.exception), 'listdir is not supported by HttpHandler')
 
     def test_read(self):
         """

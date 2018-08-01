@@ -1,4 +1,4 @@
-#The following tests are purposely limited to the exposed interface by iorw.py
+# The following tests are purposely limited to the exposed interface by iorw.py
 
 import os.path
 import pytest
@@ -140,13 +140,16 @@ def test_s3_defaults():
     assert s1.s3 == s2.s3
 
 
-@pytest.mark.parametrize("value,expected", [
-    ('s3://foo/bar/baz', ['foo', 'bar/baz']),
-    ('s3://foo/bar/baz/', ['foo', 'bar/baz/']),
-    ('s3://foo', ['foo', '']),
-    ('s3://', ['', '']),
-    ('s3:///', ['', '']),
-])
+@pytest.mark.parametrize(
+    "value,expected",
+    [
+        ('s3://foo/bar/baz', ['foo', 'bar/baz']),
+        ('s3://foo/bar/baz/', ['foo', 'bar/baz/']),
+        ('s3://foo', ['foo', '']),
+        ('s3://', ['', '']),
+        ('s3:///', ['', '']),
+    ],
+)
 def test_split_success(value, expected):
     assert (split(value)) == expected
 
@@ -179,17 +182,14 @@ def s3_client():
     mock_s3 = moto.mock_s3()
     mock_s3.start()
     import boto3
+
     client = boto3.client('s3')
     client.create_bucket(Bucket=test_bucket_name)
-    client.put_object(Bucket=test_bucket_name,
-                      Key=test_file_path,
-                      Body=test_nb_content)
+    client.put_object(Bucket=test_bucket_name, Key=test_file_path, Body=test_nb_content)
     yield S3()
     try:
-        client.delete_object(Bucket=test_bucket_name,
-                             Key=test_file_path)
-        client.delete_object(Bucket=test_bucket_name,
-                             Key=test_file_path+'.txt')
+        client.delete_object(Bucket=test_bucket_name, Key=test_file_path)
+        client.delete_object(Bucket=test_bucket_name, Key=test_file_path + '.txt')
     except:
         pass
     mock_s3.stop()
@@ -199,6 +199,7 @@ def test_s3_read(s3_client):
     s3_path = "s3://{}/{}".format(test_bucket_name, test_file_path)
     data = read_from_gen(s3_client.read(s3_path))
     assert data == test_clean_nb_content
+
 
 def test_s3_write(s3_client):
     s3_path = "s3://{}/{}.txt".format(test_bucket_name, test_file_path)

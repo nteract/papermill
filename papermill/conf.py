@@ -1,5 +1,5 @@
- # -*- coding: utf-8 -*-
- 
+# -*- coding: utf-8 -*-
+
 """Manages the Settings for Papermill"""
 from __future__ import unicode_literals
 

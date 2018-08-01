@@ -19,6 +19,7 @@
 #
 import os
 import sys
+
 sys.path.insert(0, os.path.abspath('../..'))
 
 # -- General configuration ------------------------------------------------
@@ -30,10 +31,11 @@ sys.path.insert(0, os.path.abspath('../..'))
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc',
+extensions = [
+    'sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',
     'sphinx.ext.mathjax',
-    'sphinx.ext.napoleon'
+    'sphinx.ext.napoleon',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -112,14 +114,7 @@ html_static_path = ['_static']
 #
 # This is required for the alabaster theme
 # refs: http://alabaster.readthedocs.io/en/latest/installation.html#sidebars
-html_sidebars = {
-    '**': [
-        'about.html',
-        'navigation.html',
-        'relations.html',
-        'searchbox.html',
-    ]
-}
+html_sidebars = {'**': ['about.html', 'navigation.html', 'relations.html', 'searchbox.html']}
 
 
 # -- Options for HTMLHelp output ------------------------------------------
@@ -134,15 +129,12 @@ latex_elements = {
     # The paper size ('letterpaper' or 'a4paper').
     #
     # 'papersize': 'letterpaper',
-
     # The font size ('10pt', '11pt' or '12pt').
     #
     # 'pointsize': '10pt',
-
     # Additional stuff for the LaTeX preamble.
     #
     # 'preamble': '',
-
     # Latex figure (float) alignment
     #
     # 'figure_align': 'htbp',
@@ -152,8 +144,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'papermill.tex', 'papermill Documentation',
-     'nteract team', 'manual'),
+    (master_doc, 'papermill.tex', 'papermill Documentation', 'nteract team', 'manual')
 ]
 
 
@@ -161,10 +152,7 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [
-    (master_doc, 'papermill', 'papermill Documentation',
-     [author], 1)
-]
+man_pages = [(master_doc, 'papermill', 'papermill Documentation', [author], 1)]
 
 
 # -- Options for Texinfo output -------------------------------------------
@@ -173,9 +161,15 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'papermill', 'papermill Documentation',
-     author, 'papermill', 'One line description of project.',
-     'Miscellaneous'),
+    (
+        master_doc,
+        'papermill',
+        'papermill Documentation',
+        author,
+        'papermill',
+        'One line description of project.',
+        'Miscellaneous',
+    )
 ]
 
 # Example configuration for intersphinx: refer to the Python standard library.

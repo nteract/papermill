@@ -13,6 +13,7 @@ from .iorw import write_ipynb
 # environment does not have shared memory for processes, e.g. AWS Lambda
 try:
     from tqdm import tqdm
+
     no_tqdm = False
 except OSError:
     no_tqdm = True
@@ -20,6 +21,7 @@ except OSError:
 PENDING = "pending"
 RUNNING = "running"
 COMPLETED = "completed"
+
 
 def log_outputs(cell):
     execution_count = cell.get("execution_count")
@@ -44,6 +46,7 @@ def log_outputs(cell):
     # Log stderrs
     sys.stderr.write('{:-<40}'.format("Out [%s] " % execution_count) + "\n")
     sys.stderr.write("\n".join(stderrs) + "\n")
+
 
 class PapermillExecutePreprocessor(ExecutePreprocessor):
     """Module containing a preprocessor that executes the code cells
@@ -91,7 +94,8 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
             startup_timeout=self.startup_timeout,
             kernel_name=kernel_name,
             extra_arguments=self.extra_arguments,
-            cwd=path)
+            cwd=path,
+        )
         self.kc.allow_stdin = False
         # Parent class requires self.nb to be present temporarily during preproc
         self.nb = nb
@@ -160,7 +164,7 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
                 start_time=None,
                 end_time=None,
                 duration=None,
-                status=PENDING  # pending, running, completed
+                status=PENDING,  # pending, running, completed
             )
             if cell.get("outputs") is not None:
                 cell.outputs = []
@@ -182,8 +186,7 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
                     if not cell.source:
                         continue
 
-                    nb.cells[index], resources = self.preprocess_cell(
-                        cell, resources, index)
+                    nb.cells[index], resources = self.preprocess_cell(cell, resources, index)
                     cell.metadata['papermill']['exception'] = False
                     if self.log_output:
                         log_outputs(nb.cells[index])
@@ -195,8 +198,7 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
                     t1 = datetime.datetime.utcnow()
                     cell.metadata['papermill']['start_time'] = t0.isoformat()
                     cell.metadata['papermill']['end_time'] = t1.isoformat()
-                    cell.metadata['papermill']['duration'] = (
-                        t1 - t0).total_seconds()
+                    cell.metadata['papermill']['duration'] = (t1 - t0).total_seconds()
                     cell.metadata['papermill']['status'] = COMPLETED
                     future.result()
         return nb, resources

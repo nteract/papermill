@@ -12,50 +12,57 @@ from click.testing import CliRunner
 from mock import patch
 
 from .. import cli
-from ..cli import papermill, _is_int,  _is_float, _resolve_type
+from ..cli import papermill, _is_int, _is_float, _resolve_type
 
 
-
-
-@pytest.mark.parametrize("test_input,expected", [
-    ("True", True),
-    ("False", False),
-    ("None", None),
-    ("12.51", 12.51),
-    ("10", 10),
-    ("hello world", "hello world"),
-    (u"😍", u"😍"),
-])
+@pytest.mark.parametrize(
+    "test_input,expected",
+    [
+        ("True", True),
+        ("False", False),
+        ("None", None),
+        ("12.51", 12.51),
+        ("10", 10),
+        ("hello world", "hello world"),
+        (u"😍", u"😍"),
+    ],
+)
 def test_resolve_type(test_input, expected):
     assert _resolve_type(test_input) == expected
 
 
-@pytest.mark.parametrize("value,expected", [
-    (13.71, True),
-    ("False", False),
-    ("None", False),
-    (-8.2, True),
-    (10, True),
-    ("10", True),
-    ("12.31", True),
-    ("hello world", False),
-    (u"😍", False),
-])
+@pytest.mark.parametrize(
+    "value,expected",
+    [
+        (13.71, True),
+        ("False", False),
+        ("None", False),
+        (-8.2, True),
+        (10, True),
+        ("10", True),
+        ("12.31", True),
+        ("hello world", False),
+        (u"😍", False),
+    ],
+)
 def test_is_float(value, expected):
     assert (_is_float(value)) == expected
 
 
-@pytest.mark.parametrize("value,expected", [
-    (13.71, True),
-    ("False", False),
-    ("None", False),
-    (-8.2, True),
-    ("-23.2", False),
-    (10, True),
-    ("13", True),
-    ("hello world", False),
-    (u"😍", False),
-])
+@pytest.mark.parametrize(
+    "value,expected",
+    [
+        (13.71, True),
+        ("False", False),
+        ("None", False),
+        (-8.2, True),
+        ("-23.2", False),
+        (10, True),
+        ("13", True),
+        ("hello world", False),
+        (u"😍", False),
+    ],
+)
 def test_is_int(value, expected):
     assert (_is_int(value)) == expected
 
@@ -64,12 +71,18 @@ class TestCLI(unittest.TestCase):
     def setUp(self):
         self.runner = CliRunner()
         self.default_args = ['input.ipynb', 'output.ipynb']
-        self.sample_yaml_file = os.path.join(os.path.dirname(__file__), 'parameters', 'example.yaml')
-        self.sample_json_file = os.path.join(os.path.dirname(__file__), 'parameters', 'example.json')
+        self.sample_yaml_file = os.path.join(
+            os.path.dirname(__file__), 'parameters', 'example.yaml'
+        )
+        self.sample_json_file = os.path.join(
+            os.path.dirname(__file__), 'parameters', 'example.json'
+        )
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_parameters(self, execute_patch):
-        self.runner.invoke(papermill, self.default_args + ['-p', 'foo', 'bar', '--parameters', 'baz', '42'])
+        self.runner.invoke(
+            papermill, self.default_args + ['-p', 'foo', 'bar', '--parameters', 'baz', '42']
+        )
         execute_patch.assert_called_with(
             'input.ipynb',
             'output.ipynb',
@@ -79,11 +92,14 @@ class TestCLI(unittest.TestCase):
             log_output=False,
             progress_bar=True,
             start_timeout=60,
-            report_mode=False)
+            report_mode=False,
+        )
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_parameters_raw(self, execute_patch):
-        self.runner.invoke(papermill, self.default_args + ['-r', 'foo', 'bar', '--parameters_raw', 'baz', '42'])
+        self.runner.invoke(
+            papermill, self.default_args + ['-r', 'foo', 'bar', '--parameters_raw', 'baz', '42']
+        )
         execute_patch.assert_called_with(
             'input.ipynb',
             'output.ipynb',
@@ -93,11 +109,16 @@ class TestCLI(unittest.TestCase):
             log_output=False,
             progress_bar=True,
             start_timeout=60,
-            report_mode=False)
+            report_mode=False,
+        )
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_parameters_file(self, execute_patch):
-        self.runner.invoke(papermill, self.default_args + ['-f', self.sample_yaml_file, '--parameters_file', self.sample_json_file])
+        self.runner.invoke(
+            papermill,
+            self.default_args
+            + ['-f', self.sample_yaml_file, '--parameters_file', self.sample_json_file],
+        )
         execute_patch.assert_called_with(
             'input.ipynb',
             'output.ipynb',
@@ -108,11 +129,15 @@ class TestCLI(unittest.TestCase):
             log_output=False,
             progress_bar=True,
             start_timeout=60,
-            report_mode=False)
+            report_mode=False,
+        )
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_parameters_yaml(self, execute_patch):
-        self.runner.invoke(papermill, self.default_args + ['-y', '{"foo": "bar"}', '--parameters_yaml', '{"foo2": ["baz"]}'])
+        self.runner.invoke(
+            papermill,
+            self.default_args + ['-y', '{"foo": "bar"}', '--parameters_yaml', '{"foo2": ["baz"]}'],
+        )
         execute_patch.assert_called_with(
             'input.ipynb',
             'output.ipynb',
@@ -122,11 +147,15 @@ class TestCLI(unittest.TestCase):
             log_output=False,
             progress_bar=True,
             start_timeout=60,
-            report_mode=False)
+            report_mode=False,
+        )
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_parameters_yaml_override(self, execute_patch):
-        self.runner.invoke(papermill, self.default_args + ['--parameters_yaml', '{"foo": "bar"}', '-y', '{"foo": ["baz"]}'])
+        self.runner.invoke(
+            papermill,
+            self.default_args + ['--parameters_yaml', '{"foo": "bar"}', '-y', '{"foo": ["baz"]}'],
+        )
         execute_patch.assert_called_with(
             'input.ipynb',
             'output.ipynb',
@@ -137,11 +166,21 @@ class TestCLI(unittest.TestCase):
             log_output=False,
             progress_bar=True,
             start_timeout=60,
-            report_mode=False)
+            report_mode=False,
+        )
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_parameters_base64(self, execute_patch):
-        self.runner.invoke(papermill, self.default_args + ['--parameters_base64', 'eyJmb28iOiAicmVwbGFjZWQiLCAiYmFyIjogMn0=', '-b', 'eydmb28nOiAxfQ=='])
+        self.runner.invoke(
+            papermill,
+            self.default_args
+            + [
+                '--parameters_base64',
+                'eyJmb28iOiAicmVwbGFjZWQiLCAiYmFyIjogMn0=',
+                '-b',
+                'eydmb28nOiAxfQ==',
+            ],
+        )
         execute_patch.assert_called_with(
             'input.ipynb',
             'output.ipynb',
@@ -152,7 +191,8 @@ class TestCLI(unittest.TestCase):
             log_output=False,
             progress_bar=True,
             start_timeout=60,
-            report_mode=False)
+            report_mode=False,
+        )
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_prepare_only(self, execute_patch):
@@ -166,7 +206,8 @@ class TestCLI(unittest.TestCase):
             log_output=False,
             progress_bar=True,
             start_timeout=60,
-            report_mode=False)
+            report_mode=False,
+        )
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_prepare_only(self, execute_patch):
@@ -180,7 +221,8 @@ class TestCLI(unittest.TestCase):
             log_output=False,
             progress_bar=True,
             start_timeout=60,
-            report_mode=False)
+            report_mode=False,
+        )
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_kernel(self, execute_patch):
@@ -194,7 +236,8 @@ class TestCLI(unittest.TestCase):
             log_output=False,
             progress_bar=True,
             start_timeout=60,
-            report_mode=False)
+            report_mode=False,
+        )
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_progress_bar(self, execute_patch):
@@ -208,7 +251,8 @@ class TestCLI(unittest.TestCase):
             log_output=False,
             progress_bar=True,
             start_timeout=60,
-            report_mode=False)
+            report_mode=False,
+        )
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_no_progress_bar(self, execute_patch):
@@ -222,7 +266,8 @@ class TestCLI(unittest.TestCase):
             log_output=False,
             progress_bar=False,
             start_timeout=60,
-            report_mode=False)
+            report_mode=False,
+        )
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_log_output(self, execute_patch):
@@ -236,7 +281,8 @@ class TestCLI(unittest.TestCase):
             log_output=True,
             progress_bar=True,
             start_timeout=60,
-            report_mode=False)
+            report_mode=False,
+        )
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_no_log_output(self, execute_patch):
@@ -250,7 +296,8 @@ class TestCLI(unittest.TestCase):
             log_output=False,
             progress_bar=True,
             start_timeout=60,
-            report_mode=False)
+            report_mode=False,
+        )
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_start_timeout(self, execute_patch):
@@ -264,7 +311,8 @@ class TestCLI(unittest.TestCase):
             log_output=False,
             progress_bar=True,
             start_timeout=123,
-            report_mode=False)
+            report_mode=False,
+        )
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_report_mode(self, execute_patch):
@@ -278,7 +326,8 @@ class TestCLI(unittest.TestCase):
             log_output=False,
             progress_bar=True,
             start_timeout=123,
-            report_mode=False)
+            report_mode=False,
+        )
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_report_mode(self, execute_patch):
@@ -292,7 +341,8 @@ class TestCLI(unittest.TestCase):
             log_output=False,
             progress_bar=True,
             start_timeout=60,
-            report_mode=True)
+            report_mode=True,
+        )
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_no_report_mode(self, execute_patch):
@@ -306,33 +356,54 @@ class TestCLI(unittest.TestCase):
             log_output=False,
             progress_bar=True,
             start_timeout=60,
-            report_mode=False)
+            report_mode=False,
+        )
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_many_args(self, execute_patch):
-        self.runner.invoke(papermill, self.default_args + [
-            '-f', self.sample_yaml_file,
-            '-y', '{"yaml_foo": {"yaml_bar": "yaml_baz"}}',
-            '-b', 'eyJiYXNlNjRfZm9vIjogImJhc2U2NF9iYXIifQ==',
-            '-p', 'baz', 'replace',
-            '-r', 'foo', '54321',
-            '--kernel', 'R',
-            '--prepare-only',
-            '--log-output',
-            '--no-progress-bar',
-            '--start_timeout', '321',
-            '--report-mode'
-        ])
+        self.runner.invoke(
+            papermill,
+            self.default_args
+            + [
+                '-f',
+                self.sample_yaml_file,
+                '-y',
+                '{"yaml_foo": {"yaml_bar": "yaml_baz"}}',
+                '-b',
+                'eyJiYXNlNjRfZm9vIjogImJhc2U2NF9iYXIifQ==',
+                '-p',
+                'baz',
+                'replace',
+                '-r',
+                'foo',
+                '54321',
+                '--kernel',
+                'R',
+                '--prepare-only',
+                '--log-output',
+                '--no-progress-bar',
+                '--start_timeout',
+                '321',
+                '--report-mode',
+            ],
+        )
         execute_patch.assert_called_with(
             'input.ipynb',
             'output.ipynb',
-            {'foo': '54321', 'bar': 'value', 'baz': 'replace', 'yaml_foo': {'yaml_bar': 'yaml_baz'}, "base64_foo": "base64_bar"},
+            {
+                'foo': '54321',
+                'bar': 'value',
+                'baz': 'replace',
+                'yaml_foo': {'yaml_bar': 'yaml_baz'},
+                "base64_foo": "base64_bar",
+            },
             prepare_only=True,
             kernel_name='R',
             log_output=True,
             progress_bar=False,
             start_timeout=321,
-            report_mode=True)
+            report_mode=True,
+        )
 
 
 def test_cli_path():
@@ -343,9 +414,14 @@ def test_cli_path():
         click.echo('papermill calling %s and %s!' % notebook_path, output_path)
 
     runner = CliRunner()
-    result = runner.invoke(cli,
-                           ['papermill', 'notebooks/s3/s3_in/s3-simple_notebook.ipynb',
-                            'notebooks/s3/s3_out/output.ipynb'])
+    result = runner.invoke(
+        cli,
+        [
+            'papermill',
+            'notebooks/s3/s3_in/s3-simple_notebook.ipynb',
+            'notebooks/s3/s3_out/output.ipynb',
+        ],
+    )
     assert result.output
 
 
