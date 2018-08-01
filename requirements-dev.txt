@@ -7,3 +7,5 @@ pytest-cov
 pytest-mock
 moto==1.2.0
 check-manifest
+black
+pre-commit
