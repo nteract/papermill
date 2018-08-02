@@ -7,6 +7,7 @@ from concurrent import futures
 from nbconvert.preprocessors import ExecutePreprocessor
 from nbconvert.preprocessors.execute import CellExecutionError
 from nbformat.v4 import output_from_msg
+from traitlets import default
 
 from .iorw import write_ipynb
 
@@ -72,6 +73,14 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
 
     # TODO: Delete this wrapper when nbconvert allows for setting preprocessor
     # hood in a more convienent manner
+
+    @default("iopub_timeout")
+    def _default_iopub_timeout(self):
+        """The time to wait (in seconds) for IOPub output.
+        """
+        return 15
+        
+    
     def preprocess(self, nb, resources):
         """
         Copied with one edit of super -> papermill_preprocessor from nbconvert
@@ -225,9 +234,8 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
 
         while True:
             try:
-                # We've already waited for execute_reply, so all output
-                # should already be waiting. However, on slow networks, like
-                # in certain CI systems, waiting < 1 second might miss messages.
+                # We are not waiting for execute_reply, so all output
+                # will not be waiting for us. This may produce currently unknown issues.
                 # So long as the kernel sends a status:idle message when it
                 # finishes, we won't actually have to wait this long, anyway.
                 msg = self.kc.iopub_channel.get_msg(timeout=self.iopub_timeout)
