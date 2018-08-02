@@ -32,9 +32,9 @@ COMPLETED = "completed"
 def log_output(output):
     if output.output_type == "stream":
         if output.name == "stdout":
-            sys.stdout.write("".join(output.text) + "\n")
+            sys.stdout.write("".join(output.text))
         elif output.name == "stderr":
-            sys.stderr.write("".join(output.text) + "\n")
+            sys.stderr.write("".join(output.text))
     elif "data" in output and "text/plain" in output.data:
         sys.stdout.write("".join(output.data['text/plain']) + "\n")
         
@@ -236,6 +236,7 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
                 else:
                     continue
             elif msg_type == 'execute_input':
+                sys.stdout.write('Executing Cell {:-<40}\n'.format(content.get("execution_count", "*")))
                 continue
             elif msg_type == 'clear_output':
                 outs[:] = []
@@ -268,13 +269,13 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
                 output_idx_list = cell_map.setdefault(cell_index, [])
                 output_idx_list.append(len(outs))
 
-            if (self.log_output 
-                and (out.output_type == "stream" 
-                     or ("data" in out and "text/plain" in out.data))):
-                sys.stdout.write("Streamed output (likely from Cell {}):\n".format(cell_index+1))
+            if self.log_output:
                 log_output(out)
             outs.append(out)
 
         exec_reply = self._wait_for_reply(msg_id, cell)
+        if self.log_output: 
+            sys.stdout.write('Ending Cell {:-<43}\n'.format(
+                exec_reply.get("content",{}).get("execution_count", content)))
 
         return exec_reply, outs
