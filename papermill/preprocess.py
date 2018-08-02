@@ -22,7 +22,16 @@ PENDING = "pending"
 RUNNING = "running"
 COMPLETED = "completed"
 
-
+def log_output(output):
+    if output.output_type == "stream":
+        if output.name == "stdout":
+            sys.stdout.write("".join(output.text) + "\n")
+        elif output.name == "stderr":
+            sys.stderr.write("".join(output.text) + "\n")
+    elif "data" in output and "text/plain" in output.data:
+        sys.stdout.write("".join(output.data['text/plain']) + "\n")
+        
+        
 def log_outputs(cell):
     execution_count = cell.get("execution_count")
     if not execution_count:
