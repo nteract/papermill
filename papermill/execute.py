@@ -12,7 +12,7 @@ from six import string_types, integer_types
 
 from .conf import settings
 from .exceptions import PapermillException, PapermillExecutionError
-from .preprocess import PapermillExecutePreprocessor, no_tqdm, log_outputs
+from .preprocess import PapermillExecutePreprocessor, no_tqdm
 from .iorw import load_notebook_node, write_ipynb, read_yaml_file, get_pretty_path
 
 
