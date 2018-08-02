@@ -298,7 +298,7 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
             if (self.log_output 
                 and (out.output_type == "stream" 
                      or ("data" in out and "text/plain" in out.data))):
-                sys.stdout.write("Streamed output:\n")
+                sys.stdout.write("Streamed output (likely from Cell {}):\n".format(cell_index+1))
                 log_output(out)
             outs.append(out)
 
