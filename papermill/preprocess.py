@@ -172,8 +172,9 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
         with futures.ThreadPoolExecutor(max_workers=1) as executor:
 
             # Generate the iterator
-            if self.progress_bar:
-                execution_iterator = tqdm(enumerate(nb.cells), total=len(nb.cells))
+            if self.progress_bar and not no_tqdm:
+                execution_iterator = tqdm(enumerate(nb.cells), total=len(nb.cells), 
+                                          bar_format="{l_bar}{bar}{r_bar}\n")
             else:
                 execution_iterator = enumerate(nb.cells)
 

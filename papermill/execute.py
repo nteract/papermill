@@ -12,7 +12,7 @@ from six import string_types, integer_types
 
 from .conf import settings
 from .exceptions import PapermillException, PapermillExecutionError
-from .preprocess import PapermillExecutePreprocessor, no_tqdm
+from .preprocess import PapermillExecutePreprocessor
 from .iorw import load_notebook_node, write_ipynb, read_yaml_file, get_pretty_path
 
 
@@ -126,7 +126,7 @@ def _execute_parameterized_notebook(
         startup_timeout=start_timeout,
         kernel_name=kernel_name or nb.metadata.kernelspec.name,
     )
-    processor.progress_bar = progress_bar and not no_tqdm
+    processor.progress_bar = progress_bar
     processor.log_output = log_output
 
     processor.preprocess(nb, {})
