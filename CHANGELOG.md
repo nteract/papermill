@@ -1,7 +1,8 @@
 # Change Log
 
-## Unreleased
+## 0.14.0
 
+- Upgraded executor to stream outputs during execution
 - Fixed UTF-8 encoding issues for windows machines
 - Added [black](https://github.com/ambv/black) code formatter rules (experimental)
 - Contributors document added
