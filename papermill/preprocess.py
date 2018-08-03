@@ -49,12 +49,6 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
     # TODO: Delete this wrapper when nbconvert allows for setting preprocessor
     # hood in a more convienent manner
 
-    @default("iopub_timeout")
-    def _default_iopub_timeout(self):
-        """The time to wait (in seconds) for IOPub output.
-        """
-        return 15
-        
     
     def preprocess(self, nb, resources):
         """
@@ -210,9 +204,7 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
             try:
                 # We are not waiting for execute_reply, so all output
                 # will not be waiting for us. This may produce currently unknown issues.
-                # So long as the kernel sends a status:idle message when it
-                # finishes, we won't actually have to wait this long, anyway.
-                msg = self.kc.iopub_channel.get_msg(timeout=self.iopub_timeout)
+                msg = self.kc.iopub_channel.get_msg(timeout=None)
             except Empty:
                 self.log.warning("Timeout waiting for IOPub output")
                 if self.raise_on_iopub_timeout:
