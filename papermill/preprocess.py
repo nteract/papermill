@@ -229,7 +229,9 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
                 else:
                     continue
             elif msg_type == 'execute_input':
-                sys.stdout.write('Executing Cell {:-<40}\n'.format(content.get("execution_count", "*")))
+                if self.log_output:
+                    sys.stdout.write(
+                        'Executing Cell {:-<40}\n'.format(content.get("execution_count", "*")))
                 continue
             elif msg_type == 'clear_output':
                 outs[:] = []
@@ -256,8 +258,6 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
                 self.log.error("unhandled iopub msg: " + msg_type)
                 continue
             if display_id:
-                # record output index in:
-                #   _display_id_map[display_id][cell_idx]
                 cell_map = self._display_id_map.setdefault(display_id, {})
                 output_idx_list = cell_map.setdefault(cell_index, [])
                 output_idx_list.append(len(outs))
