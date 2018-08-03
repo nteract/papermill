@@ -22,11 +22,11 @@ from ..api import read_notebook
 from .. import execute
 from ..execute import (
     execute_notebook,
-    log_outputs,
     _translate_type_python,
     _translate_type_r,
     _translate_type_scala,
 )
+from ..preprocess import log_output
 from ..exceptions import PapermillExecutionError
 from . import get_notebook_path, RedirectOutput
 
@@ -271,36 +271,38 @@ class TestLogging(unittest.TestCase):
 
         # stderr output
         with RedirectOutput() as redirect:
-            log_outputs(nb.cells[0])
+            for output in nb.cells[0].get("outputs", []):
+                log_output(output)
             stdout = redirect.get_stdout()
-            self.assertEqual(stdout, u'Out [1] --------------------------------\n\n')
+            self.assertEqual(stdout, u"")
             stderr = redirect.get_stderr()
             self.assertEqual(
-                stderr, u'Out [1] --------------------------------\nINFO:test:test text\n\n'
+                stderr, u"INFO:test:test text\n"
             )
 
         # stream output
         with RedirectOutput() as redirect:
-            log_outputs(nb.cells[1])
-            stdout = redirect.get_stdout()
-            self.assertEqual(stdout, u'Out [2] --------------------------------\nhello world\n\n')
+            for output in nb.cells[1].get("outputs", []):
+                log_output(output)
+            stdout = redirect.get_stdout() 
+            self.assertEqual(stdout, u'hello world\n')
             stderr = redirect.get_stderr()
-            self.assertEqual(stderr, u'Out [2] --------------------------------\n\n')
+            self.assertEqual(stderr, u'')
 
         # text/plain output
         with RedirectOutput() as redirect:
-            log_outputs(nb.cells[2])
+            for output in nb.cells[2].get("outputs", []):
+                log_output(output)
             stdout = redirect.get_stdout()
             self.assertEqual(
                 stdout,
                 (
-                    "Out [3] --------------------------------\n"
                     "<matplotlib.axes._subplots.AxesSubplot at 0x7f8391f10290>\n"
                     "<matplotlib.figure.Figure at 0x7f830af7b350>\n"
                 ),
             )
             stderr = redirect.get_stderr()
-            self.assertEqual(stderr, u'Out [3] --------------------------------\n\n')
+            self.assertEqual(stderr, u'')
 
 
 class TestNBConvertCalls(unittest.TestCase):

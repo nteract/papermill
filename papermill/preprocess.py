@@ -6,8 +6,15 @@ import sys
 from concurrent import futures
 from nbconvert.preprocessors import ExecutePreprocessor
 from nbconvert.preprocessors.execute import CellExecutionError
+from nbformat.v4 import output_from_msg
+from traitlets import default
 
 from .iorw import write_ipynb
+
+try:
+    from queue import Empty  # Py 3
+except ImportError:
+    from Queue import Empty  # Py 2
 
 # tqdm creates 2 globals lock which raise OSException if the execution
 # environment does not have shared memory for processes, e.g. AWS Lambda
@@ -22,32 +29,16 @@ PENDING = "pending"
 RUNNING = "running"
 COMPLETED = "completed"
 
-
-def log_outputs(cell):
-    execution_count = cell.get("execution_count")
-    if not execution_count:
-        return
-
-    stderrs = []
-    stdouts = []
-    for output in cell.get("outputs", []):
-        if output.output_type == "stream":
-            if output.name == "stdout":
-                stdouts.append("".join(output.text))
-            elif output.name == "stderr":
-                stderrs.append("".join(output.text))
-        elif "data" in output and "text/plain" in output.data:
-            stdouts.append(output.data['text/plain'])
-
-    # Log stdouts
-    sys.stdout.write('{:-<40}'.format("Out [%s] " % execution_count) + "\n")
-    sys.stdout.write("\n".join(stdouts) + "\n")
-
-    # Log stderrs
-    sys.stderr.write('{:-<40}'.format("Out [%s] " % execution_count) + "\n")
-    sys.stderr.write("\n".join(stderrs) + "\n")
-
-
+def log_output(output):
+    if output.output_type == "stream":
+        if output.name == "stdout":
+            sys.stdout.write("".join(output.text))
+        elif output.name == "stderr":
+            sys.stderr.write("".join(output.text))
+    elif "data" in output and "text/plain" in output.data:
+        sys.stdout.write("".join(output.data['text/plain']) + "\n")
+        
+        
 class PapermillExecutePreprocessor(ExecutePreprocessor):
     """Module containing a preprocessor that executes the code cells
     and updates outputs"""
@@ -57,6 +48,8 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
 
     # TODO: Delete this wrapper when nbconvert allows for setting preprocessor
     # hood in a more convienent manner
+
+    
     def preprocess(self, nb, resources):
         """
         Copied with one edit of super -> papermill_preprocessor from nbconvert
@@ -173,8 +166,9 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
         with futures.ThreadPoolExecutor(max_workers=1) as executor:
 
             # Generate the iterator
-            if self.progress_bar:
-                execution_iterator = tqdm(enumerate(nb.cells), total=len(nb.cells))
+            if self.progress_bar and not no_tqdm:
+                execution_iterator = tqdm(enumerate(nb.cells), total=len(nb.cells), 
+                                          bar_format="{l_bar}{bar}{r_bar}\n")
             else:
                 execution_iterator = enumerate(nb.cells)
 
@@ -188,8 +182,6 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
 
                     nb.cells[index], resources = self.preprocess_cell(cell, resources, index)
                     cell.metadata['papermill']['exception'] = False
-                    if self.log_output:
-                        log_outputs(nb.cells[index])
 
                 except CellExecutionError:
                     cell.metadata['papermill']['exception'] = True
@@ -202,3 +194,81 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
                     cell.metadata['papermill']['status'] = COMPLETED
                     future.result()
         return nb, resources
+        
+    def run_cell(self, cell, cell_index=0):
+        msg_id = self.kc.execute(cell.source)
+        self.log.debug("Executing cell:\n%s", cell.source)
+        outs = cell.outputs = []
+
+        while True:
+            try:
+                # We are not waiting for execute_reply, so all output
+                # will not be waiting for us. This may produce currently unknown issues.
+                msg = self.kc.iopub_channel.get_msg(timeout=None)
+            except Empty:
+                self.log.warning("Timeout waiting for IOPub output")
+                if self.raise_on_iopub_timeout:
+                    raise RuntimeError("Timeout waiting for IOPub output")
+                else:
+                    break
+            if msg['parent_header'].get('msg_id') != msg_id:
+                # not an output from our execution
+                continue
+
+            msg_type = msg['msg_type']
+            self.log.debug("output: %s", msg_type)
+            content = msg['content']
+
+            # set the prompt number for the input and the output
+            if 'execution_count' in content:
+                cell['execution_count'] = content['execution_count']
+
+            if msg_type == 'status':
+                if content['execution_state'] == 'idle':
+                    break
+                else:
+                    continue
+            elif msg_type == 'execute_input':
+                if self.log_output:
+                    sys.stdout.write(
+                        'Executing Cell {:-<40}\n'.format(content.get("execution_count", "*")))
+                continue
+            elif msg_type == 'clear_output':
+                outs[:] = []
+                # clear display_id mapping for this cell
+                for display_id, cell_map in self._display_id_map.items():
+                    if cell_index in cell_map:
+                        cell_map[cell_index] = []
+                continue
+            elif msg_type.startswith('comm'):
+                continue
+
+            display_id = None
+            if msg_type in {'execute_result', 'display_data', 'update_display_data'}:
+                display_id = msg['content'].get('transient', {}).get('display_id', None)
+                if display_id:
+                    self._update_display_id(display_id, msg)
+                if msg_type == 'update_display_data':
+                    # update_display_data doesn't get recorded
+                    continue
+
+            try:
+                out = output_from_msg(msg)
+            except ValueError:
+                self.log.error("unhandled iopub msg: " + msg_type)
+                continue
+            if display_id:
+                cell_map = self._display_id_map.setdefault(display_id, {})
+                output_idx_list = cell_map.setdefault(cell_index, [])
+                output_idx_list.append(len(outs))
+
+            if self.log_output:
+                log_output(out)
+            outs.append(out)
+
+        exec_reply = self._wait_for_reply(msg_id, cell)
+        if self.log_output: 
+            sys.stdout.write('Ending Cell {:-<43}\n'.format(
+                exec_reply.get("content",{}).get("execution_count", content)))
+
+        return exec_reply, outs
