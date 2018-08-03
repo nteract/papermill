@@ -37,8 +37,8 @@ def log_output(output):
             sys.stderr.write("".join(output.text))
     elif "data" in output and "text/plain" in output.data:
         sys.stdout.write("".join(output.data['text/plain']) + "\n")
-        
-        
+
+
 class PapermillExecutePreprocessor(ExecutePreprocessor):
     """Module containing a preprocessor that executes the code cells
     and updates outputs"""
@@ -49,7 +49,7 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
     # TODO: Delete this wrapper when nbconvert allows for setting preprocessor
     # hood in a more convienent manner
 
-    
+
     def preprocess(self, nb, resources):
         """
         Copied with one edit of super -> papermill_preprocessor from nbconvert
@@ -167,8 +167,12 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
 
             # Generate the iterator
             if self.progress_bar and not no_tqdm:
-                execution_iterator = tqdm(enumerate(nb.cells), total=len(nb.cells), 
-                                          bar_format="{l_bar}{bar}{r_bar}\n")
+                bar_format = "{l_bar}{bar}{r_bar}"
+                if self.log_output:
+                    # We want to inject newlines if we're printing content between enumerations
+                    bar_format += "\n"
+                execution_iterator = tqdm(enumerate(nb.cells), total=len(nb.cells),
+                                          bar_format=bar_format)
             else:
                 execution_iterator = enumerate(nb.cells)
 
@@ -194,7 +198,7 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
                     cell.metadata['papermill']['status'] = COMPLETED
                     future.result()
         return nb, resources
-        
+
     def run_cell(self, cell, cell_index=0):
         msg_id = self.kc.execute(cell.source)
         self.log.debug("Executing cell:\n%s", cell.source)
@@ -267,7 +271,7 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
             outs.append(out)
 
         exec_reply = self._wait_for_reply(msg_id, cell)
-        if self.log_output: 
+        if self.log_output:
             sys.stdout.write('Ending Cell {:-<43}\n'.format(
                 exec_reply.get("content",{}).get("execution_count", content)))
 
