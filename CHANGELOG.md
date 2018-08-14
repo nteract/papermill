@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.14.2
+
+- Added output flushing for log-output option
+
 ## 0.14.1
 
 - Upgraded executor to stream outputs during execution
