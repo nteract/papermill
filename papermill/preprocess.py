@@ -37,6 +37,9 @@ def log_output(output):
             sys.stderr.write("".join(output.text))
     elif "data" in output and "text/plain" in output.data:
         sys.stdout.write("".join(output.data['text/plain']) + "\n")
+    # Force a flush to avoid long python buffering for messages
+    sys.stdout.flush()
+    sys.stderr.flush()
 
 
 class PapermillExecutePreprocessor(ExecutePreprocessor):
@@ -274,5 +277,7 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
         if self.log_output:
             sys.stdout.write('Ending Cell {:-<43}\n'.format(
                 exec_reply.get("content",{}).get("execution_count", content)))
+            # Ensure our last cell messages are not buffered by python
+            sys.stdout.flush()
 
         return exec_reply, outs
