@@ -1,7 +1,7 @@
 <a href="https://github.com/nteract/papermill"><img src="https://media.githubusercontent.com/media/nteract/logos/master/nteract_papermill/exports/images/png/papermill_logo_wide.png" height="48px" /></a>
 =======================================================================================================================================================================
 
-[![image](https://travis-ci.org/nteract/papermill.svg?branch=master)](https://travis-ci.org/nteract/papermill)
+[![Build Status](https://travis-ci.org/nteract/papermill.svg?branch=master)](https://travis-ci.org/nteract/papermill)
 [![image](https://codecov.io/github/nteract/papermill/coverage.svg?branch=master)](https://codecov.io/github/nteract/papermill?branch=master)
 [![Documentation Status](https://readthedocs.org/projects/papermill/badge/?version=latest)](http://papermill.readthedocs.io/en/latest/?badge=latest)
 [![image](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/nteract/papermill/master?filepath=papermill%2Ftests%2Fnotebooks%2Fbinder.ipynb)
