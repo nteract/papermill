@@ -20,12 +20,7 @@ from nbconvert import HTMLExporter
 
 from ..api import read_notebook
 from .. import execute
-from ..execute import (
-    execute_notebook,
-    _translate_type_python,
-    _translate_type_r,
-    _translate_type_scala,
-)
+from ..execute import execute_notebook
 from ..preprocess import log_output
 from ..exceptions import PapermillExecutionError
 from . import get_notebook_path, RedirectOutput
@@ -36,86 +31,6 @@ if six.PY2:
 else:
     kernel_name = 'python3'
 execute_notebook = partial(execute_notebook, kernel_name=kernel_name)
-
-
-@pytest.mark.parametrize(
-    "test_input,expected",
-    [
-        ("foo", '"foo"'),
-        ('{"foo": "bar"}', '"{\\"foo\\": \\"bar\\"}"'),
-        ({"foo": "bar"}, '{"foo": "bar"}'),
-        ({"foo": '"bar"'}, '{"foo": "\\"bar\\""}'),
-        ({"foo": ["bar"]}, '{"foo": ["bar"]}'),
-        ({"foo": {"bar": "baz"}}, '{"foo": {"bar": "baz"}}'),
-        ({"foo": {"bar": '"baz"'}}, '{"foo": {"bar": "\\"baz\\""}}'),
-        (["foo"], '["foo"]'),
-        (["foo", '"bar"'], '["foo", "\\"bar\\""]'),
-        ([{"foo": "bar"}], '[{"foo": "bar"}]'),
-        ([{"foo": '"bar"'}], '[{"foo": "\\"bar\\""}]'),
-        (12345, '12345'),
-        (-54321, '-54321'),
-        (1.2345, '1.2345'),
-        (-5432.1, '-5432.1'),
-        (True, 'True'),
-        (False, 'False'),
-    ],
-)
-def test_translate_type_python(test_input, expected):
-    assert _translate_type_python(test_input) == expected
-
-
-@pytest.mark.parametrize(
-    "test_input,expected",
-    [
-        ("foo", '"foo"'),
-        ('{"foo": "bar"}', '"{\\"foo\\": \\"bar\\"}"'),
-        ({"foo": "bar"}, 'list("foo" = "bar")'),
-        ({"foo": '"bar"'}, 'list("foo" = "\\"bar\\"")'),
-        ({"foo": ["bar"]}, 'list("foo" = list("bar"))'),
-        ({"foo": {"bar": "baz"}}, 'list("foo" = list("bar" = "baz"))'),
-        ({"foo": {"bar": '"baz"'}}, 'list("foo" = list("bar" = "\\"baz\\""))'),
-        (["foo"], 'list("foo")'),
-        (["foo", '"bar"'], 'list("foo", "\\"bar\\"")'),
-        ([{"foo": "bar"}], 'list(list("foo" = "bar"))'),
-        ([{"foo": '"bar"'}], 'list(list("foo" = "\\"bar\\""))'),
-        (12345, '12345'),
-        (-54321, '-54321'),
-        (1.2345, '1.2345'),
-        (-5432.1, '-5432.1'),
-        (True, 'TRUE'),
-        (False, 'FALSE'),
-    ],
-)
-def test_translate_type_r(test_input, expected):
-    assert _translate_type_r(test_input) == expected
-
-
-@pytest.mark.parametrize(
-    "test_input,expected",
-    [
-        ("foo", '"foo"'),
-        ('{"foo": "bar"}', '"{\\"foo\\": \\"bar\\"}"'),
-        ({"foo": "bar"}, 'Map("foo" -> "bar")'),
-        ({"foo": '"bar"'}, 'Map("foo" -> "\\"bar\\"")'),
-        ({"foo": ["bar"]}, 'Map("foo" -> Seq("bar"))'),
-        ({"foo": {"bar": "baz"}}, 'Map("foo" -> Map("bar" -> "baz"))'),
-        ({"foo": {"bar": '"baz"'}}, 'Map("foo" -> Map("bar" -> "\\"baz\\""))'),
-        (["foo"], 'Seq("foo")'),
-        (["foo", '"bar"'], 'Seq("foo", "\\"bar\\"")'),
-        ([{"foo": "bar"}], 'Seq(Map("foo" -> "bar"))'),
-        ([{"foo": '"bar"'}], 'Seq(Map("foo" -> "\\"bar\\""))'),
-        (12345, '12345'),
-        (-54321, '-54321'),
-        (1.2345, '1.2345'),
-        (-5432.1, '-5432.1'),
-        (2147483648, '2147483648L'),
-        (-2147483649, '-2147483649L'),
-        (True, 'true'),
-        (False, 'false'),
-    ],
-)
-def test_translate_type_scala(test_input, expected):
-    assert _translate_type_scala(test_input) == expected
 
 
 class TestNotebookHelpers(unittest.TestCase):
@@ -276,15 +191,13 @@ class TestLogging(unittest.TestCase):
             stdout = redirect.get_stdout()
             self.assertEqual(stdout, u"")
             stderr = redirect.get_stderr()
-            self.assertEqual(
-                stderr, u"INFO:test:test text\n"
-            )
+            self.assertEqual(stderr, u"INFO:test:test text\n")
 
         # stream output
         with RedirectOutput() as redirect:
             for output in nb.cells[1].get("outputs", []):
                 log_output(output)
-            stdout = redirect.get_stdout() 
+            stdout = redirect.get_stdout()
             self.assertEqual(stdout, u'hello world\n')
             stderr = redirect.get_stderr()
             self.assertEqual(stderr, u'')

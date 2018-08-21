@@ -5,15 +5,14 @@ from __future__ import unicode_literals, print_function
 import datetime
 import os
 import sys
-
+import six
 import nbformat
-from jupyter_client.kernelspec import get_kernel_spec
-from six import string_types, integer_types
 
 from .conf import settings
 from .exceptions import PapermillException, PapermillExecutionError
 from .preprocess import PapermillExecutePreprocessor
 from .iorw import load_notebook_node, write_ipynb, read_yaml_file, get_pretty_path
+from .translators import translate_parameters
 
 
 def execute_notebook(
@@ -80,12 +79,12 @@ def _parameterize_notebook(nb, kernel_name, parameters):
         parameters (dict): Arbitrary keyword arguments to pass to the notebook parameters.
     """
     # Load from a file if 'parameters' is a string.
-    if isinstance(parameters, string_types):
+    if isinstance(parameters, six.string_types):
         parameters = read_yaml_file(parameters)
 
     # Generate parameter content based on the kernal_name
     kernel_name = kernel_name or nb.metadata.kernelspec.name
-    param_content = _build_parameter_code(kernel_name, parameters)
+    param_content = translate_parameters(kernel_name, parameters)
 
     newcell = nbformat.v4.new_code_cell(source=param_content)
     newcell.metadata['tags'] = ['injected-parameters']
@@ -140,18 +139,6 @@ def _execute_parameterized_notebook(
     )
 
 
-def _build_parameter_code(kernel_name, parameters):
-    kernelspec = get_kernel_spec(kernel_name)
-    if kernel_name in _parameter_code_builders:
-        return _parameter_code_builders[kernel_name](parameters)
-    elif kernelspec.language in _parameter_code_builders:
-        return _parameter_code_builders[kernelspec.language](parameters)
-    raise PapermillException(
-        "No parameter builder functions specified for kernel '%s' or language '%s'"
-        % (kernel_name, kernelspec.language)
-    )
-
-
 def _find_first_tagged_cell_index(nb, tag):
     parameters_indices = []
     for idx, cell in enumerate(nb.cells):
@@ -160,192 +147,6 @@ def _find_first_tagged_cell_index(nb, tag):
     if not parameters_indices:
         return -1
     return parameters_indices[0]
-
-
-def _translate_escaped_str(str_val):
-    """Reusable by most interpreters"""
-    if isinstance(str_val, string_types):
-        str_val = str_val.encode('unicode_escape')
-        if sys.version_info >= (3, 0):
-            str_val = str_val.decode('utf-8')
-        str_val = str_val.replace('"', r'\"')
-    return '"{}"'.format(str_val)
-
-
-def _translate_to_str(val):
-    """Reusable by most interpreters"""
-    return '{}'.format(val)
-
-
-# Registry for functions that build parameter assignment code.
-_parameter_code_builders = {}
-
-# Python translaters
-_translate_type_str_python = _translate_escaped_str
-_translate_type_int_python = _translate_to_str
-_translate_type_float_python = _translate_to_str
-_translate_type_bool_python = _translate_to_str
-
-
-def _translate_type_dict_python(val):
-    escaped = ', '.join(
-        [
-            "{}: {}".format(_translate_type_str_python(k), _translate_type_python(v))
-            for k, v in val.items()
-        ]
-    )
-    return '{{{}}}'.format(escaped)
-
-
-def _translate_type_list_python(val):
-    escaped = ', '.join([_translate_type_python(v) for v in val])
-    return '[{}]'.format(escaped)
-
-
-def _translate_type_python(val):
-    """Translate each of the standard json/yaml types to appropiate objects in python."""
-    if isinstance(val, string_types):
-        return _translate_type_str_python(val)
-    # Needs to be before integer checks
-    elif isinstance(val, bool):
-        return _translate_type_bool_python(val)
-    elif isinstance(val, integer_types):
-        return _translate_type_int_python(val)
-    elif isinstance(val, float):
-        return _translate_type_float_python(val)
-    elif isinstance(val, dict):
-        return _translate_type_dict_python(val)
-    elif isinstance(val, list):
-        return _translate_type_list_python(val)
-    # Use this generic translation as a last resort
-    return _translate_escaped_str(val)
-
-
-# R translaters
-_translate_type_str_r = _translate_escaped_str
-_translate_type_int_r = _translate_to_str
-_translate_type_float_r = _translate_to_str
-
-
-def _translate_type_bool_r(val):
-    return 'TRUE' if val else 'FALSE'
-
-
-def _translate_type_dict_r(val):
-    escaped = ', '.join(
-        ["{} = {}".format(_translate_type_str_r(k), _translate_type_r(v)) for k, v in val.items()]
-    )
-    return 'list({})'.format(escaped)
-
-
-def _translate_type_list_r(val):
-    escaped = ', '.join([_translate_type_r(v) for v in val])
-    return 'list({})'.format(escaped)
-
-
-def _translate_type_r(val):
-    """Translate each of the standard json/yaml types to appropiate objects in R."""
-    if isinstance(val, string_types):
-        return _translate_type_str_r(val)
-    # Needs to be before integer checks
-    elif isinstance(val, bool):
-        return _translate_type_bool_r(val)
-    elif isinstance(val, integer_types):
-        return _translate_type_int_r(val)
-    elif isinstance(val, float):
-        return _translate_type_float_r(val)
-    elif isinstance(val, dict):
-        return _translate_type_dict_r(val)
-    elif isinstance(val, list):
-        return _translate_type_list_r(val)
-    # Use this generic translation as a last resort
-    return _translate_escaped_str(val)
-
-
-_translate_type_str_scala = _translate_escaped_str
-_translate_type_float_scala = _translate_to_str
-
-
-def _translate_type_int_scala(val):
-    strval = _translate_to_str(val)
-    return strval + "L" if (val > 2147483647 or val < -2147483648) else strval
-
-
-def _translate_type_bool_scala(val):
-    return 'true' if val else 'false'
-
-
-def _translate_type_dict_scala(val):
-    """Translate dicts to scala maps"""
-    escaped = ', '.join(
-        [
-            "{} -> {}".format(_translate_type_str_scala(k), _translate_type_scala(v))
-            for k, v in val.items()
-        ]
-    )
-    return 'Map({})'.format(escaped)
-
-
-def _translate_type_list_scala(val):
-    """Translate list to scala Seq."""
-    escaped = ', '.join([_translate_type_scala(v) for v in val])
-    return 'Seq({})'.format(escaped)
-
-
-def _translate_type_scala(val):
-    """Translate each of the standard json/yaml types to appropiate objects in scala."""
-    if isinstance(val, string_types):
-        return _translate_type_str_scala(val)
-    # Needs to be before integer checks
-    elif isinstance(val, bool):
-        return _translate_type_bool_scala(val)
-    elif isinstance(val, integer_types):
-        return _translate_type_int_scala(val)
-    elif isinstance(val, float):
-        return _translate_type_float_scala(val)
-    elif isinstance(val, dict):
-        return _translate_type_dict_scala(val)
-    elif isinstance(val, list):
-        return _translate_type_list_scala(val)
-    # Use this generic translation as a last resort
-    return _translate_escaped_str(val)
-
-
-def register_param_builder(name):
-    """Decorator for registering functions that write variable assignments for a given kernel or language."""
-
-    def wrapper(func):
-        _parameter_code_builders[name] = func
-        return func
-
-    return wrapper
-
-
-@register_param_builder("python")
-def build_python_params(parameters):
-    """Writers parameter assignment code for Python kernels."""
-    param_content = "# Parameters\n"
-    for var, val in parameters.items():
-        param_content += '{} = {}\n'.format(var, _translate_type_python(val))
-    return param_content
-
-
-@register_param_builder("R")
-def build_r_params(parameters):
-    """Writes parameters assignment code for R kernels."""
-    param_content = "# Parameters\n"
-    for var, val in parameters.items():
-        param_content += '{} = {}\n'.format(var, _translate_type_r(val))
-    return param_content
-
-
-@register_param_builder("scala")
-def build_scala_params(parameters):
-    """Writers parameter assignment code for Python kernels."""
-    param_content = "// Parameters\n"
-    for var, val in parameters.items():
-        param_content += 'val {} = {}\n'.format(var, _translate_type_scala(val))
-    return param_content
 
 
 def _fetch_environment_variables():
