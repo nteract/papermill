@@ -180,6 +180,13 @@ nbs.dataframe.head(10)
 
 ![image](docs/img/nbs_dataframe.png)
 
+Development Guide
+-----------------
+
+Read CONTRIBUTING.md for guidelines on how to setup a local development environment and make code changes back to papermill.
+
+For development guidelines look in the DEVELOPMENT_GUIDE.md file. This should inform you on how to make particular additions to the code base.
+
 Documentation
 -------------
 
