@@ -46,16 +46,16 @@ def execute_notebook(
     print("Output Notebook: %s" % get_pretty_path(output), file=sys.stderr)
     nb = load_notebook_node(notebook)
 
+    # Parameterize the Notebook.
+    if parameters:
+        _parameterize_notebook(nb, kernel_name, parameters)
+
     # Hide input if report-mode is set to True.
     if report_mode:
         for cell in nb.cells:
             if cell.cell_type == 'code':
                 cell.metadata['jupyter'] = cell.get('jupyter', {})
                 cell.metadata['jupyter']['source_hidden'] = True
-
-    # Parameterize the Notebook.
-    if parameters:
-        _parameterize_notebook(nb, kernel_name, parameters)
 
     # Record specified environment variable values.
     nb.metadata.papermill['environment_variables'] = _fetch_environment_variables()
