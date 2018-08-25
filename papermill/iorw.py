@@ -33,15 +33,15 @@ class PapermillIO(object):
         return self.get_handler(path).pretty_path(path)
 
     def reset(self):
-        self.__handlers = []
+        self._handlers = []
 
     def register(self, scheme, handler):
         # Keep these ordered as LIFO
-        self.__handlers.insert(0, (scheme, handler))
+        self._handlers.insert(0, (scheme, handler))
 
     def get_handler(self, path):
         local_handler = None
-        for scheme, handler in self.__handlers:
+        for scheme, handler in self._handlers:
             if scheme == 'local':
                 local_handler = handler
 

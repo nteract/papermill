@@ -29,6 +29,7 @@ PENDING = "pending"
 RUNNING = "running"
 COMPLETED = "completed"
 
+
 def log_output(output):
     if output.output_type == "stream":
         if output.name == "stdout":
@@ -51,7 +52,6 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
 
     # TODO: Delete this wrapper when nbconvert allows for setting preprocessor
     # hood in a more convienent manner
-
 
     def preprocess(self, nb, resources):
         """
@@ -174,8 +174,9 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
                 if self.log_output:
                     # We want to inject newlines if we're printing content between enumerations
                     bar_format += "\n"
-                execution_iterator = tqdm(enumerate(nb.cells), total=len(nb.cells),
-                                          bar_format=bar_format)
+                execution_iterator = tqdm(
+                    enumerate(nb.cells), total=len(nb.cells), bar_format=bar_format
+                )
             else:
                 execution_iterator = enumerate(nb.cells)
 
@@ -238,7 +239,8 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
             elif msg_type == 'execute_input':
                 if self.log_output:
                     sys.stdout.write(
-                        'Executing Cell {:-<40}\n'.format(content.get("execution_count", "*")))
+                        'Executing Cell {:-<40}\n'.format(content.get("execution_count", "*"))
+                    )
                 continue
             elif msg_type == 'clear_output':
                 outs[:] = []
@@ -275,8 +277,11 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
 
         exec_reply = self._wait_for_reply(msg_id, cell)
         if self.log_output:
-            sys.stdout.write('Ending Cell {:-<43}\n'.format(
-                exec_reply.get("content",{}).get("execution_count", content)))
+            sys.stdout.write(
+                'Ending Cell {:-<43}\n'.format(
+                    exec_reply.get("content", {}).get("execution_count", content)
+                )
+            )
             # Ensure our last cell messages are not buffered by python
             sys.stdout.flush()
 
