@@ -13,7 +13,8 @@ From the command line:
 Installing In-Notebook bindings
 -------------------------------
 
-* `Python <PythonBinding>`_ (included in this repo)
+* `Python`_
 * `R`_ (available in the **papermillr** project)
 
+.. _`Python`: https://github.com/nteract/papermill#python-in-notebook-bindings
 .. _`R`: https://github.com/nteract/papermillr

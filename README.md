@@ -44,7 +44,7 @@ pip install papermill
 Installing In-Notebook bindings
 -------------------------------
 
--   [Python](PythonBinding) (included in this repo)
+-   [Python](https://github.com/nteract/papermill#python-in-notebook-bindings) (included in this repo)
 -   [R](https://github.com/nteract/papermillr) (**experimentally** available in the
     **papermillr** project)
 
