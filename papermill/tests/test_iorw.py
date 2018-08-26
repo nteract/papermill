@@ -125,7 +125,7 @@ class TestHttpHandler(unittest.TestCase):
         with patch('papermill.iorw.requests.get') as mock_get:
             mock_get.return_value = Mock(text=text)
             self.assertEqual(HttpHandler.read(path), text)
-            mock_get.assert_called_once_with(path)
+            mock_get.assert_called_once_with(path, headers={'Accept' : 'application/json'})
 
     def test_write(self):
         """
