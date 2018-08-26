@@ -19,4 +19,5 @@ script:
   - python -m pip install -U --force-reinstall dist/papermill*.whl
   - python -m pip install -U --force-reinstall --no-deps dist/papermill*.tar.gz
 after_success:
+  - coverage xml -i
   - codecov
