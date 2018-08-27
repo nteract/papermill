@@ -1,6 +1,7 @@
 import sys
 from six import string_types, integer_types
 from jupyter_client.kernelspec import get_kernel_spec
+from .exceptions import PapermillException
 
 
 class PapermillTranslators(object):
