@@ -14,7 +14,7 @@ else:
     from mock import Mock, patch
 
 from ..exceptions import PapermillException
-from ..iorw import HttpHandler, LocalHandler, PapermillIO
+from ..iorw import HttpHandler, LocalHandler, ADLHandler, PapermillIO
 
 FIXTURE_PATH = os.path.join(os.path.dirname(__file__), 'fixtures')
 
@@ -97,6 +97,34 @@ class TestLocalHandler(unittest.TestCase):
         LocalHandler.write(u'✄', path)
         with io.open(path, 'r', encoding='utf-8') as f:
             self.assertEqual(f.read().strip(), u'✄')
+
+
+class TestADLHandler(unittest.TestCase):
+    """
+    Tests for `ADLHandler`
+    """
+
+    def setUp(self):
+        self.old_client = ADLHandler._client
+        self.mock_client = Mock(
+            read=Mock(return_value=["foo", "bar", "baz"]),
+            listdir=Mock(return_value=["foo", "bar", "baz"]),
+            write=Mock(),
+        )
+        ADLHandler._client = self.mock_client
+
+    def tearDown(self):
+        ADLHandler._client = self.old_client
+
+    def test_read(self):
+        self.assertEqual(ADLHandler.read("some_path"), "foo\nbar\nbaz")
+
+    def test_listdir(self):
+        self.assertEqual(ADLHandler.listdir("some_path"), ["foo", "bar", "baz"])
+
+    def test_write(self):
+        ADLHandler.write("foo", "bar")
+        self.mock_client.write.assert_called_once_with("foo", "bar")
 
 
 class TestHttpHandler(unittest.TestCase):

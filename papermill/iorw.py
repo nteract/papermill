@@ -13,6 +13,7 @@ import yaml
 from . import __version__
 from .exceptions import PapermillException
 from .s3 import S3
+from .adl import ADL
 
 
 class PapermillIO(object):
@@ -119,10 +120,38 @@ class S3Handler(object):
         return path
 
 
+class ADLHandler(object):
+    _client = None
+
+    @classmethod
+    def _get_client(cls):
+        if cls._client is None:
+            cls._client = ADL()
+        return cls._client
+
+    @classmethod
+    def read(cls, path):
+        lines = cls._get_client().read(path)
+        return "\n".join(lines)
+
+    @classmethod
+    def listdir(cls, path):
+        return cls._get_client().listdir(path)
+
+    @classmethod
+    def write(cls, buf, path):
+        return cls._get_client().write(buf, path)
+
+    @classmethod
+    def pretty_path(cls, path):
+        return path
+
+
 # Instantiate a PapermillIO instance and register Handlers.
 papermill_io = PapermillIO()
 papermill_io.register("local", LocalHandler)
 papermill_io.register("s3://", S3Handler)
+papermill_io.register("adl://", ADLHandler)
 papermill_io.register("http://", HttpHandler)
 papermill_io.register("https://", HttpHandler)
 

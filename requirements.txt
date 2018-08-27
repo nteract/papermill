@@ -12,3 +12,4 @@ tqdm
 jupyter_client
 pandas
 requests
+azure-datalake-store
