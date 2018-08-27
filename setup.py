@@ -45,7 +45,8 @@ try:
             'pip {} detected. Please install pip >= 9.0.1.'.format(pip.__version__)
         )
 except ImportError:
-    pip_message = 'No pip detected; we were unable to import pip. \n' 'To use papermill, please install pip >= 9.0.1.'
+    pip_message = ('No pip detected; we were unable to import pip. \n'
+                   'To use papermill, please install pip >= 9.0.1.')
 except Exception:
     pass
 
