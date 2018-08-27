@@ -7,8 +7,13 @@ python:
 install:
   - pip install setuptools pip --upgrade
   - pip install -e .[test]
-  - pip install check-manifest
+  - pip install check-manifest flake8
   - python -m ipykernel install --user
+before_script:
+  # stop the build if there are Python syntax errors or undefined names
+  - flake8 . --count --select=E901,E999,F821,F822,F823 --show-source --statistics
+  # exit-zero treats all errors as warnings.  The GitHub editor is 127 chars wide
+  - flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 script:
   # cd so we test the install, not the repo
   - check-manifest
