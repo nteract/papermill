@@ -9,7 +9,7 @@ import six
 import nbformat
 
 from .conf import settings
-from .exceptions import PapermillException, PapermillExecutionError
+from .exceptions import PapermillExecutionError
 from .preprocess import PapermillExecutePreprocessor
 from .iorw import load_notebook_node, write_ipynb, read_yaml_file, get_pretty_path
 from .translators import translate_parameters

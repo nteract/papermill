@@ -1,9 +1,8 @@
 import unittest
-import six
 
-if six.PY3:
+try:
     from unittest.mock import patch
-else:
+except ImportError:
     from mock import patch
 
 import pandas as pd

@@ -221,7 +221,7 @@ class S3(object):
 
     def __create_callback(self, filename, total=None, callback=None):
         if callback is None:
-            cur = 0  # TODO refactor cur name
+            cur = 0  # noqa TODO refactor cur name
 
             class Callback(object):
                 def __init__(self, total):
@@ -391,7 +391,6 @@ class S3(object):
     ):
         key = self._get_key(dest)
         obj = self.s3.Object(key.bucket.name, key.name)
-        length = len(source)
 
         if isinstance(source, str):
             source = source.encode('utf-8')
