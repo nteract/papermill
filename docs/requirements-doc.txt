@@ -1,3 +1,4 @@
+-r ../requirements.txt
 -r ../requirements-dev.txt
 Sphinx>=1.7
 sphinx_rtd_theme
