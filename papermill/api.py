@@ -78,8 +78,8 @@ def read_notebook(path):
     """
     Returns a Notebook object loaded from the location specified at `path`.
 
-    Parameter
-    ---------
+    Parameters
+    ----------
     path : str
         Path to a notebook `.ipynb` file.
 
@@ -103,8 +103,8 @@ def read_notebooks(path):
     Returns a NotebookCollection including the notebooks read from the
     directory specified by `path`.
 
-    Parameter
-    ---------
+    Parameters
+    ----------
     path : str
         Path to directory containing notebook `.ipynb` files.
 
@@ -135,7 +135,6 @@ class Notebook(object):
     Method
     ------
     display_output
-
 
     """
 
@@ -209,8 +208,8 @@ class Notebook(object):
     def display_output(self, name):
         """Display output from a named source notebook in a running notebook.
 
-        Parameter
-        ---------
+        Parameters
+        ----------
         name : str
             name of source notebook
 
