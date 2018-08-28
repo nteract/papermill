@@ -467,7 +467,7 @@ class S3(object):
                                 decoded = undecoded + s.decode(encoding)
                                 undecoded = ''
                                 yield decoded
-                            except UnicodeDecodeError as ude:
+                            except UnicodeDecodeError:
                                 undecoded += s
                                 if len(undecoded) > memsize:
                                     raise
@@ -476,12 +476,12 @@ class S3(object):
 
                         bytes_read += len(bytes)
 
-                except zlib.error as e:
+                except zlib.error:
                     logger.error("Error while decompressing [%s]", key.name)
                     raise
-                except UnicodeDecodeError as ude:
+                except UnicodeDecodeError:
                     raise
-                except Exception as e:
+                except Exception:
                     err = True
                     pass
 
