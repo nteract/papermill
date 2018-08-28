@@ -11,6 +11,5 @@ black; python_version >= '3.6'
 attrs>=17.4.0
 pre-commit
 # Until https://github.com/spulec/moto/issues/1793 is resolved
-# Once resolved, remove boto3 in requirements-doc.txt
 boto3 < 1.8.0
 botocore < 1.11.0
