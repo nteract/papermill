@@ -70,4 +70,10 @@ setup(
     install_requires=required,
     extras_require=extras_require,
     entry_points={'console_scripts': ['papermill = papermill.cli:papermill']},
+    project_urls= {
+        'Documentation': 'https://papermill.readthedocs.io',
+        'Funding': 'https://nteract.io',
+        'Source': 'https://github.com/nteract/papermill/',
+        'Tracker': 'https://github.com/nteract/papermill/issues',
+    },
 )
