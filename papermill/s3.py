@@ -225,7 +225,7 @@ class S3(object):
 
     def __create_callback(self, filename, total=None, callback=None):
         if callback is None:
-            cur = 0  # TODO refactor cur name
+            cur = 0  # noqa TODO refactor cur name
 
             class Callback(object):
                 def __init__(self, total):
@@ -395,7 +395,6 @@ class S3(object):
     ):
         key = self._get_key(dest)
         obj = self.s3.Object(key.bucket.name, key.name)
-        length = len(source)
 
         if isinstance(source, str):
             source = source.encode('utf-8')
@@ -474,7 +473,7 @@ class S3(object):
                                 decoded = undecoded + s.decode(encoding)
                                 undecoded = ''
                                 yield decoded
-                            except UnicodeDecodeError as ude:
+                            except UnicodeDecodeError:
                                 undecoded += s
                                 if len(undecoded) > memsize:
                                     raise
@@ -483,12 +482,12 @@ class S3(object):
 
                         bytes_read += len(bytes)
 
-                except zlib.error as e:
+                except zlib.error:
                     logger.error("Error while decompressing [%s]", key.name)
                     raise
-                except UnicodeDecodeError as ude:
+                except UnicodeDecodeError:
                     raise
-                except Exception as e:
+                except Exception:
                     err = True
                     pass
 

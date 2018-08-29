@@ -1,8 +1,7 @@
 import pytest
-import unittest
 from collections import OrderedDict
 
-from ..translators import translate_parameters, PythonTranslator, RTranslator, ScalaTranslator
+from ..translators import PythonTranslator, RTranslator, ScalaTranslator
 
 
 @pytest.mark.parametrize(

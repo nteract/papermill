@@ -7,7 +7,6 @@ from concurrent import futures
 from nbconvert.preprocessors import ExecutePreprocessor
 from nbconvert.preprocessors.execute import CellExecutionError
 from nbformat.v4 import output_from_msg
-from traitlets import default
 
 from .iorw import write_ipynb
 

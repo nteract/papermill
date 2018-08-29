@@ -1,6 +1,5 @@
 import io
 import os
-import pytest
 import shutil
 import sys
 import tempfile
@@ -10,9 +9,9 @@ from functools import partial
 
 import six
 
-if six.PY3:
+try:
     from unittest.mock import patch
-else:
+except ImportError:
     from mock import patch
 import nbformat
 

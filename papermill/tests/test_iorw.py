@@ -2,15 +2,14 @@
 
 import json
 import unittest
-import six
 import os
 import io
 import tempfile
 from requests.exceptions import ConnectionError
 
-if six.PY3:
+try:
     from unittest.mock import Mock, patch
-else:
+except ImportError:
     from mock import Mock, patch
 
 from ..exceptions import PapermillException
@@ -174,5 +173,5 @@ class TestHttpHandler(unittest.TestCase):
         path = 'http://localhost:9999'
         buf = '{"papermill": true}'
 
-        with self.assertRaises(ConnectionError) as e:
+        with self.assertRaises(ConnectionError):
             HttpHandler.write(buf, path)

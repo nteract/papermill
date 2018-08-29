@@ -6,12 +6,12 @@ import base64
 
 import click
 
-click.disable_unicode_literals_warning = True
-
 import yaml
 
 from .execute import execute_notebook
 from .iorw import read_yaml_file
+
+click.disable_unicode_literals_warning = True
 
 
 @click.command(context_settings=dict(help_option_names=['-h', '--help']))
