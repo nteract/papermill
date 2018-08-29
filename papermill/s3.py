@@ -697,7 +697,7 @@ class S3(object):
         objects: optional
             if True then this will return the actual boto objects for
             files or prefixes that are encountered
-        
+
         """
         assert self._is_s3(name), "name must be in form s3://bucket/prefix/"
 

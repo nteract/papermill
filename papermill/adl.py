@@ -1,6 +1,5 @@
-import os
-from azure.datalake.store import lib, core, multithread
 import re
+from azure.datalake.store import core, lib
 
 
 class ADL(object):
