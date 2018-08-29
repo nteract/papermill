@@ -5,6 +5,8 @@ python:
   - 3.5
   - 3.6
 matrix:
+  allow_failures:  # ModuleNotFoundError: No module named 'google_compute_engine'
+    - python: 3.7
   include:
     - python: 3.7
       dist: xenial    # required for Python 3.7 (travis-ci/travis-ci#9069)
