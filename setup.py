@@ -16,6 +16,7 @@ https://github.com/pypa/sampleproject
 from __future__ import print_function
 import os
 import sys
+from os import path
 from os.path import exists
 from setuptools import setup
 
@@ -66,8 +67,11 @@ if pip_message:
     print(pip_message, file=sys.stderr)
     sys.exit(1)
 
-# Prepare long_description for pypi metadata
-readme = open('README.rst', 'r').read() if exists('README.rst') else ''
+
+# Get the long description from the README file
+here = path.abspath(path.dirname(__file__))
+with open(path.join(here, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
 
 setup(
     name='papermill',
@@ -75,11 +79,12 @@ setup(
     cmdclass=versioneer.get_cmdclass(),
     description='Parametrize and run Jupyter and nteract Notebooks',
     author='nteract contributors',
-    author_email='jupyter@googlegroups.com',
+    author_email='nteract@googlegroups.com',
     license='BSD',
     # Note that this is a string of words separated by whitespace, not a list.
     keywords='jupyter mapreduce nteract pipeline notebook',
-    long_description=readme,
+    long_description=long_description,
+    long_description_content_type='text/markdown', 
     url='https://github.com/nteract/papermill',
     packages=['papermill'],
     install_requires=required,
