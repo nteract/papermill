@@ -17,7 +17,6 @@ from __future__ import print_function
 import os
 import sys
 from os import path
-from os.path import exists
 from setuptools import setup
 
 # io.open is needed for projects that support Python 2.7
@@ -84,7 +83,7 @@ setup(
     # Note that this is a string of words separated by whitespace, not a list.
     keywords='jupyter mapreduce nteract pipeline notebook',
     long_description=long_description,
-    long_description_content_type='text/markdown', 
+    long_description_content_type='text/markdown',
     url='https://github.com/nteract/papermill',
     packages=['papermill'],
     install_requires=required,
