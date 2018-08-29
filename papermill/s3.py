@@ -29,7 +29,8 @@ logger = logging.getLogger('papermill.s3')
 
 
 class Bucket(object):
-    """Represents a Bucket of storage on S3
+    """
+    Represents a Bucket of storage on S3
 
     Parameters
     ----------
@@ -52,7 +53,8 @@ class Bucket(object):
 
 
 class Prefix(object):
-    """Represents a prefix used in an S3 Bucket.
+    """
+    Represents a prefix used in an S3 Bucket.
 
     Parameters
     ----------
@@ -79,7 +81,8 @@ class Prefix(object):
 
 
 class Key(object):
-    """A key that represents a unique object in an S3 Bucket.
+    """
+    A key that represents a unique object in an S3 Bucket.
 
     Represents a file or stream.
 
@@ -149,7 +152,8 @@ def retry(num):
 
 
 class S3(object):
-    """Wraps S3.
+    """
+    Wraps S3.
 
     Parameters
     ----------
@@ -421,10 +425,12 @@ class S3(object):
         encoding='UTF-8',
         raw=False,
     ):
-        """Returns an iterator for the data in the key or nothing if the key
+        """
+        Returns an iterator for the data in the key or nothing if the key
         doesn't exist. Decompresses data on the fly (if compressed is True
         or key ends with .gz) unless raw is True. Pass None for encoding to
         skip encoding.
+
         """
         assert self._is_s3(source) or isinstance(source, Key), 'source must be a valid s3 path'
 
@@ -503,7 +509,8 @@ class S3(object):
                 yield decoded
 
     def catdir(self, source, buffersize=None, compressed=False, encoding='UTF-8'):
-        """Iterates over a dir in s3 split on newline.
+        """
+        Iterates over a dir in s3 split on newline.
 
         Yields chunks of data from the file.
 
@@ -517,7 +524,8 @@ class S3(object):
                 yield l
 
     def cp(self, source, dest, **kwargs):
-        """Copies to and from an s3 bucket to a file.
+        """
+        Copies to and from an s3 bucket to a file.
 
         The source and destination should be the fully qualified path of an
         s3 key and the filename to copy from/to.
@@ -533,7 +541,8 @@ class S3(object):
             return self._put(source, dest, **kwargs)
 
     def cpdir(self, source, dest, recursive=True, **kwargs):
-        """Copies to and from an s3 prefix to a directory.  The source and
+        """
+        Copies to and from an s3 prefix to a directory.  The source and
         destination should be the fully qualified path of an s3 prefix and the
         directory to copy from/to.
 
@@ -564,8 +573,10 @@ class S3(object):
                     self._put(s, d, **kwargs)
 
     def cpmerge(self, source, dest):
-        """Takes a source directory and a destination file as input and
+        """
+        Takes a source directory and a destination file as input and
         concatenates files in src into the destination local file.
+
         """
         fr = self._is_s3(source)
         to = self._is_s3(dest)
@@ -594,9 +605,12 @@ class S3(object):
         """
         Copies source string into the destination location.
 
-        Parameters:
-            source: the string with the content to copy
-            dest: the s3 location
+        Parameters
+        ----------
+        source: string
+            the string with the content to copy
+        dest: string
+            the s3 location
 
         Uses basestring type (python2) when checking if a string
 
@@ -641,18 +655,22 @@ class S3(object):
             pass
 
     def list(self, name, iterator=False, **kwargs):
-        """ Returns a list of the files under the specified path
-        name must be in the form of s3://bucket/prefix
+        """
+        Returns a list of the files under the specified path
+        name must be in the form of `s3://bucket/prefix`
 
-        optional params
-        ---------------
-        keys: if True then this will return the actual boto keys for files
-              that are encountered
-        objects: if True then this will return the actual boto objects for
-                 files or prefixes that are encountered
-        delimiter: if set this
-        iterator: if True return iterator rather than converting to list
-                  object
+        Parameters
+        ----------
+        keys: optional
+           if True then this will return the actual boto keys for files
+           that are encountered
+        objects: optional
+           if True then this will return the actual boto objects for
+           files or prefixes that are encountered
+        delimiter: optional
+           if set this
+        iterator: optional
+           if True return iterator rather than converting to list object
 
         """
         assert self._is_s3(name), "name must be in form s3://bucket/key"
@@ -664,18 +682,23 @@ class S3(object):
         return [bucket['Name'] for bucket in self.client.list_buckets().get('Buckets', [])]
 
     def listdir(self, name, **kwargs):
-        """ Returns a list of the files under the specified path.
+        """
+        Returns a list of the files under the specified path.
 
         This is different from list as it will only give you files under the
         current directory, much like ls.
 
-        name must be in the form of s3://bucket/prefix/
+        name must be in the form of `s3://bucket/prefix/`
 
-        optional params:
-        keys: if True then this will return the actual boto keys for files
+        Parameters
+        ----------
+        keys: optional
+            if True then this will return the actual boto keys for files
             that are encountered
-        objects: if True then this will return the actual boto objects for
+        objects: optional
+            if True then this will return the actual boto objects for
             files or prefixes that are encountered
+        
         """
         assert self._is_s3(name), "name must be in form s3://bucket/prefix/"
 
@@ -684,7 +707,8 @@ class S3(object):
         return self.list(name, delimiter='/', **kwargs)
 
     def listdir_iterator(self, name):
-        """ Iterates over a list of objects in a bucket.
+        """
+        Iterates over a list of objects in a bucket.
 
         Calls `bucket.list` which returns a
         `boto.s3.bucketlistresultset.bucketlistresultset`
@@ -699,7 +723,8 @@ class S3(object):
         )
 
     def listglob(self, glb, **kwargs):
-        """ Returns a list of the files matching a glob.
+        """
+        Returns a list of the files matching a glob.
 
         Name must be in the form of s3://bucket/glob
 
@@ -712,7 +737,8 @@ class S3(object):
         return r
 
     def listglobs(self, *args, **kwargs):
-        """ Returns a list of files for multiple glob operators.
+        """
+        Returns a list of files for multiple glob operators.
 
         Equivalent to list(listglob(args[0])) + list(listglob(args[1]))  + ...
 
@@ -725,7 +751,6 @@ class S3(object):
 
         The function reduce(func, seq) continually applies the function
         func() to the sequence seq. It returns a single value.
-
 
         """
         with futures.ThreadPoolExecutor(max_workers=kwargs.get('threads', len(args))) as executor:
@@ -760,7 +785,8 @@ class S3(object):
         return self.get_key(name)
 
     def readdir(self, source, compressed=False, encoding='UTF-8'):
-        """Iterates over a dir in s3 split on newline.
+        """
+        Iterates over a dir in s3 split on newline.
 
         Yields line in file in dir.
 
@@ -770,7 +796,8 @@ class S3(object):
                 yield l
 
     def read(self, source, compressed=False, encoding='UTF-8'):
-        """Iterates over a file in s3 split on newline.
+        """
+        Iterates over a file in s3 split on newline.
 
         Yields a line in file.
 
@@ -792,7 +819,8 @@ class S3(object):
             yield lines[-1]
 
     def rm(self, target):
-        """Remove a single key from s3.
+        """
+        Remove a single key from s3.
 
         If you want to remove a directory use rmdir.
 

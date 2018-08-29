@@ -3,9 +3,10 @@
 """"
 setup.py
 
-Note: Install ipython version based on python version.
-      If python 2, install ipython 5.x (python2 is not supported in ipython 6.
-
+Note: Do a version check for IPython.
+    IPython v6+ no longer supports Python 2.
+    If Python 2, intall ipython 5.x.
+    
 """
 from __future__ import print_function
 import os
@@ -69,4 +70,10 @@ setup(
     install_requires=required,
     extras_require=extras_require,
     entry_points={'console_scripts': ['papermill = papermill.cli:papermill']},
+    project_urls= {
+        'Documentation': 'https://papermill.readthedocs.io',
+        'Funding': 'https://nteract.io',
+        'Source': 'https://github.com/nteract/papermill/',
+        'Tracker': 'https://github.com/nteract/papermill/issues',
+    },
 )
