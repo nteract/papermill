@@ -7,12 +7,23 @@ Note: Do a version check for IPython.
     IPython v6+ no longer supports Python 2.
     If Python 2, intall ipython 5.x.
 
+See:
+https://packaging.python.org/tutorials/packaging-projects/
+https://packaging.python.org/en/latest/distributing.html
+https://github.com/pypa/sampleproject
+
 """
 from __future__ import print_function
 import os
 import sys
 from os.path import exists
 from setuptools import setup
+
+# io.open is needed for projects that support Python 2.7
+# It ensures open() defaults to text mode with universal newlines,
+# and accepts an argument to specify the text encoding
+# Python 3 only projects can skip this import
+from io import open
 
 import versioneer
 
@@ -55,17 +66,20 @@ if pip_message:
     print(pip_message, file=sys.stderr)
     sys.exit(1)
 
+# Prepare long_description for pypi metadata
+readme = open('README.rst', 'r').read() if exists('README.rst') else ''
 
 setup(
     name='papermill',
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
-    description='Parametrize and Run Jupyter Notebooks',
+    description='Parametrize and run Jupyter and nteract Notebooks',
     author='nteract contributors',
     author_email='jupyter@googlegroups.com',
     license='BSD',
-    keywords="jupyter mapreduce",
-    long_description=(open('README.rst').read() if exists('README.rst') else ''),
+    # Note that this is a string of words separated by whitespace, not a list.
+    keywords='jupyter mapreduce nteract pipeline notebook',
+    long_description=readme,
     url='https://github.com/nteract/papermill',
     packages=['papermill'],
     install_requires=required,
@@ -77,4 +91,13 @@ setup(
         'Source': 'https://github.com/nteract/papermill/',
         'Tracker': 'https://github.com/nteract/papermill/issues',
     },
+    classifiers=[
+        'Intended Audience :: Developers',
+        'Intended Audience :: System Administrators',
+        'Intended Audience :: Science/Research',
+        'License :: OSI Approved :: BSD License',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 2.7',
+    ],
 )
