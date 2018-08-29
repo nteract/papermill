@@ -75,7 +75,7 @@ setup(
     cmdclass=versioneer.get_cmdclass(),
     description='Parametrize and run Jupyter and nteract Notebooks',
     author='nteract contributors',
-    author_email='jupyter@googlegroups.com',
+    author_email='nteract@googlegroups.com',
     license='BSD',
     # Note that this is a string of words separated by whitespace, not a list.
     keywords='jupyter mapreduce nteract pipeline notebook',
