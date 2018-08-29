@@ -6,7 +6,7 @@ setup.py
 Note: Do a version check for IPython.
     IPython v6+ no longer supports Python 2.
     If Python 2, intall ipython 5.x.
-    
+
 """
 from __future__ import print_function
 import os
