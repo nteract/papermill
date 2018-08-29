@@ -1,5 +1,13 @@
 # Change Log
 
+## 0.15.0
+
+- Moved translator functions into registry
+- Added development guide to help new contributors
+- Travis, coverage, linting, and doc improvements
+- Added support for Azure data lake sources
+- Added python 3.7 testing
+
 ## 0.14.2
 
 - Added output flushing for log-output option
