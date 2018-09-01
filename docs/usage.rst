@@ -58,8 +58,14 @@ Using ``-f`` or ``--parameters_file``, users can provide a YAML file from which 
 .. code-block:: bash
 
     $ papermill local/input.ipynb s3://bkt/output.ipynb -y "
-    alpha: 0.6
-    l1_ratio: 0.1"
+    x:
+        - 0.0
+        - 1.0
+        - 2.0
+        - 3.0
+    linear_function:
+        slope: 3.0
+        intercept: 1.0"
 
 Using ``-y`` or ``--parameters_yaml``, users can directly provide a YAML string containing parameter values.
 
@@ -68,6 +74,20 @@ Using ``-y`` or ``--parameters_yaml``, users can directly provide a YAML string 
     $ papermill local/input.ipynb s3://bkt/output.ipynb -b YWxwaGE6IDAuNgpsMV9yYXRpbzogMC4xCg==
 
 Using ``-b`` or ``--parameters_base64``, users can provide a YAML string, base64-encoded, containing parameter values.
+
+When using YAML to pass arguments, through ``-y``, ``-b`` or ``-f``, parameter values can be arrays or dictionaries:
+
+.. code-block:: bash
+
+    $ papermill local/input.ipynb s3://bkt/output.ipynb -y "
+    x:
+        - 0.0
+        - 1.0
+        - 2.0
+        - 3.0
+    linear_function:
+        slope: 3.0
+        intercept: 1.0"
 
 Recording Values to the Notebook
 --------------------------------

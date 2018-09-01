@@ -117,6 +117,20 @@ $ papermill local/input.ipynb s3://bkt/output.ipynb -b YWxwaGE6IDAuNgpsMV9yYXRpb
 
 Using ``-b`` or ``--parameters_base64``, users can provide a YAML string, base64-encoded, containing parameter values.
 
+When using YAML to pass arguments, through ``-y``, ``-b`` or ``-f``, parameter values can be arrays or dictionaries:
+
+``` {.sourceCode .bash}
+$ papermill local/input.ipynb s3://bkt/output.ipynb -y "
+x:
+    - 0.0
+    - 1.0
+    - 2.0
+    - 3.0
+linear_function:
+    slope: 3.0
+    intercept: 1.0"
+```
+
 Python In-notebook Bindings
 ---------------------------
 
