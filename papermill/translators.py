@@ -175,11 +175,30 @@ class ScalaTranslator(TranslatorBase):
         return 'val {} = {}'.format(name, str_val)
 
 
+class JuliaTranslator(TranslatorBase):
+    @classmethod
+    def translate_dict(cls, val):
+        escaped = ', '.join(
+            ["{} => {}".format(cls.translate_str(k), cls.translate(v)) for k, v in val.items()]
+        )
+        return 'Dict({})'.format(escaped)
+
+    @classmethod
+    def translate_list(cls, val):
+        escaped = ', '.join([cls.translate(v) for v in val])
+        return '[{}]'.format(escaped)
+
+    @classmethod
+    def comment(cls, cmt_str):
+        return '# {}'.format(cmt_str).strip()
+
+
 # Instantiate a PapermillIO instance and register Handlers.
 papermill_translators = PapermillTranslators()
 papermill_translators.register("python", PythonTranslator)
 papermill_translators.register("R", RTranslator)
 papermill_translators.register("scala", ScalaTranslator)
+papermill_translators.register("julia", JuliaTranslator)
 
 
 def translate_parameters(kernel_name, parameters):

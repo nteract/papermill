@@ -1,7 +1,7 @@
 import pytest
 from collections import OrderedDict
 
-from ..translators import PythonTranslator, RTranslator, ScalaTranslator
+from ..translators import PythonTranslator, RTranslator, ScalaTranslator, JuliaTranslator
 
 
 @pytest.mark.parametrize(
@@ -173,3 +173,55 @@ def test_translate_assign_scala(input_name, input_value, expected):
 )
 def test_translate_codify_scala(parameters, expected):
     assert ScalaTranslator.codify(parameters) == expected
+
+
+@pytest.mark.parametrize(
+    "test_input,expected",
+    [
+        ("foo", '"foo"'),
+        ('{"foo": "bar"}', '"{\\"foo\\": \\"bar\\"}"'),
+        ({"foo": "bar"}, 'Dict("foo" => "bar")'),
+        ({"foo": '"bar"'}, 'Dict("foo" => "\\"bar\\"")'),
+        ({"foo": ["bar"]}, 'Dict("foo" => ["bar"])'),
+        ({"foo": {"bar": "baz"}}, 'Dict("foo" => Dict("bar" => "baz"))'),
+        ({"foo": {"bar": '"baz"'}}, 'Dict("foo" => Dict("bar" => "\\"baz\\""))'),
+        (["foo"], '["foo"]'),
+        (["foo", '"bar"'], '["foo", "\\"bar\\""]'),
+        ([{"foo": "bar"}], '[Dict("foo" => "bar")]'),
+        ([{"foo": '"bar"'}], '[Dict("foo" => "\\"bar\\"")]'),
+        (12345, '12345'),
+        (-54321, '-54321'),
+        (1.2345, '1.2345'),
+        (-5432.1, '-5432.1'),
+        (True, 'true'),
+        (False, 'false'),
+    ],
+)
+def test_translate_type_julia(test_input, expected):
+    assert JuliaTranslator.translate(test_input) == expected
+
+
+@pytest.mark.parametrize(
+    "parameters,expected",
+    [
+        ({"foo": "bar"}, '# Parameters\nfoo = "bar"\n'),
+        ({"foo": True}, '# Parameters\nfoo = true\n'),
+        ({"foo": 5}, '# Parameters\nfoo = 5\n'),
+        ({"foo": 1.1}, '# Parameters\nfoo = 1.1\n'),
+        ({"foo": ['bar', 'baz']}, '# Parameters\nfoo = ["bar", "baz"]\n'),
+        ({"foo": {'bar': 'baz'}}, '# Parameters\nfoo = Dict("bar" => "baz")\n'),
+        (
+            OrderedDict([['foo', 'bar'], ['baz', ['buz']]]),
+            '# Parameters\nfoo = "bar"\nbaz = ["buz"]\n',
+        ),
+    ],
+)
+def test_translate_codify_julia(parameters, expected):
+    assert JuliaTranslator.codify(parameters) == expected
+
+
+@pytest.mark.parametrize(
+    "test_input,expected", [("", '#'), ("foo", '# foo'), ('["best effort"]', '# ["best effort"]')]
+)
+def test_translate_comment_julia(test_input, expected):
+    assert JuliaTranslator.comment(test_input) == expected
