@@ -89,6 +89,48 @@ Amazon S3 account:
 $ papermill local/input.ipynb s3://bkt/output.ipynb -p alpha 0.6 -p l1_ratio 0.1
 ```
 
+In the above example, two parameters are set: ``alpha`` and ``l1_ratio`` using ``-p`` (``--parameters`` also works). Parameter values that look like booleans or numbers will be interpreted as such. Here are the different ways users may set parameters:
+
+``` {.sourceCode .bash}
+$ papermill local/input.ipynb s3://bkt/output.ipynb -r version 1.0
+```
+
+Using ``-r`` or ``--parameters_raw``, users can set parameters one by one. However, unlike ``-p``, the parameter will remain a string, even if it may be interpreted as a number or boolean.
+
+``` {.sourceCode .bash}
+$ papermill local/input.ipynb s3://bkt/output.ipynb -f parameters.yaml
+```
+
+Using ``-f`` or ``--parameters_file``, users can provide a YAML file from which parameter values should be read.
+
+``` {.sourceCode .bash}
+$ papermill local/input.ipynb s3://bkt/output.ipynb -y "
+alpha: 0.6
+l1_ratio: 0.1"
+```
+
+Using ``-y`` or ``--parameters_yaml``, users can directly provide a YAML string containing parameter values.
+
+``` {.sourceCode .bash}
+$ papermill local/input.ipynb s3://bkt/output.ipynb -b YWxwaGE6IDAuNgpsMV9yYXRpbzogMC4xCg==
+```
+
+Using ``-b`` or ``--parameters_base64``, users can provide a YAML string, base64-encoded, containing parameter values.
+
+When using YAML to pass arguments, through ``-y``, ``-b`` or ``-f``, parameter values can be arrays or dictionaries:
+
+``` {.sourceCode .bash}
+$ papermill local/input.ipynb s3://bkt/output.ipynb -y "
+x:
+    - 0.0
+    - 1.0
+    - 2.0
+    - 3.0
+linear_function:
+    slope: 3.0
+    intercept: 1.0"
+```
+
 Python In-notebook Bindings
 ---------------------------
 
