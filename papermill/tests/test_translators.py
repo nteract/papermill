@@ -1,7 +1,14 @@
 import pytest
 from collections import OrderedDict
+from .. import translators
+from ..exceptions import PapermillException
 
-from ..translators import PythonTranslator, RTranslator, ScalaTranslator, JuliaTranslator
+import six
+
+if six.PY3:
+    from unittest.mock import Mock, patch
+else:
+    from mock import Mock, patch
 
 
 @pytest.mark.parametrize(
@@ -27,7 +34,7 @@ from ..translators import PythonTranslator, RTranslator, ScalaTranslator, JuliaT
     ],
 )
 def test_translate_type_python(test_input, expected):
-    assert PythonTranslator.translate(test_input) == expected
+    assert translators.PythonTranslator.translate(test_input) == expected
 
 
 @pytest.mark.parametrize(
@@ -46,14 +53,14 @@ def test_translate_type_python(test_input, expected):
     ],
 )
 def test_translate_codify_python(parameters, expected):
-    assert PythonTranslator.codify(parameters) == expected
+    assert translators.PythonTranslator.codify(parameters) == expected
 
 
 @pytest.mark.parametrize(
     "test_input,expected", [("", '#'), ("foo", '# foo'), ("['best effort']", "# ['best effort']")]
 )
 def test_translate_comment_python(test_input, expected):
-    assert PythonTranslator.comment(test_input) == expected
+    assert translators.PythonTranslator.comment(test_input) == expected
 
 
 @pytest.mark.parametrize(
@@ -79,14 +86,14 @@ def test_translate_comment_python(test_input, expected):
     ],
 )
 def test_translate_type_r(test_input, expected):
-    assert RTranslator.translate(test_input) == expected
+    assert translators.RTranslator.translate(test_input) == expected
 
 
 @pytest.mark.parametrize(
     "test_input,expected", [("", '#'), ("foo", '# foo'), ("['best effort']", "# ['best effort']")]
 )
 def test_translate_comment_r(test_input, expected):
-    assert RTranslator.comment(test_input) == expected
+    assert translators.RTranslator.comment(test_input) == expected
 
 
 @pytest.mark.parametrize(
@@ -105,7 +112,7 @@ def test_translate_comment_r(test_input, expected):
     ],
 )
 def test_translate_codify_r(parameters, expected):
-    assert RTranslator.codify(parameters) == expected
+    assert translators.RTranslator.codify(parameters) == expected
 
 
 @pytest.mark.parametrize(
@@ -133,7 +140,7 @@ def test_translate_codify_r(parameters, expected):
     ],
 )
 def test_translate_type_scala(test_input, expected):
-    assert ScalaTranslator.translate(test_input) == expected
+    assert translators.ScalaTranslator.translate(test_input) == expected
 
 
 @pytest.mark.parametrize(
@@ -141,7 +148,7 @@ def test_translate_type_scala(test_input, expected):
     [("", '//'), ("foo", '// foo'), ("['best effort']", "// ['best effort']")],
 )
 def test_translate_comment_scala(test_input, expected):
-    assert ScalaTranslator.comment(test_input) == expected
+    assert translators.ScalaTranslator.comment(test_input) == expected
 
 
 @pytest.mark.parametrize(
@@ -153,7 +160,7 @@ def test_translate_comment_scala(test_input, expected):
     ],
 )
 def test_translate_assign_scala(input_name, input_value, expected):
-    assert ScalaTranslator.assign(input_name, input_value) == expected
+    assert translators.ScalaTranslator.assign(input_name, input_value) == expected
 
 
 @pytest.mark.parametrize(
@@ -172,7 +179,7 @@ def test_translate_assign_scala(input_name, input_value, expected):
     ],
 )
 def test_translate_codify_scala(parameters, expected):
-    assert ScalaTranslator.codify(parameters) == expected
+    assert translators.ScalaTranslator.codify(parameters) == expected
 
 
 @pytest.mark.parametrize(
@@ -198,7 +205,7 @@ def test_translate_codify_scala(parameters, expected):
     ],
 )
 def test_translate_type_julia(test_input, expected):
-    assert JuliaTranslator.translate(test_input) == expected
+    assert translators.JuliaTranslator.translate(test_input) == expected
 
 
 @pytest.mark.parametrize(
@@ -217,11 +224,64 @@ def test_translate_type_julia(test_input, expected):
     ],
 )
 def test_translate_codify_julia(parameters, expected):
-    assert JuliaTranslator.codify(parameters) == expected
+    assert translators.JuliaTranslator.codify(parameters) == expected
 
 
 @pytest.mark.parametrize(
     "test_input,expected", [("", '#'), ("foo", '# foo'), ('["best effort"]', '# ["best effort"]')]
 )
 def test_translate_comment_julia(test_input, expected):
-    assert JuliaTranslator.comment(test_input) == expected
+    assert translators.JuliaTranslator.comment(test_input) == expected
+
+
+def test_kernel_translator_with_exact_kernel_name():
+    with patch.object(
+        translators, "get_kernel_spec", return_value=Mock(language="unregistered_language")
+    ):
+        my_new_kernel_translator = Mock()
+        translators.papermill_translators.register("my_new_kernel", my_new_kernel_translator)
+        assert (
+            translators.papermill_translators.kernel_translator("my_new_kernel")
+            is my_new_kernel_translator
+        )
+
+
+def test_kernel_translator_with_no_such_kernel():
+    with patch.object(
+        translators, "get_kernel_spec", return_value=Mock(language="unregistered_language")
+    ):
+        with pytest.raises(PapermillException):
+            translators.papermill_translators.kernel_translator("unregistered_kernel")
+
+
+def test_translate_uses_str_representation_of_unknown_types():
+    class FooClass:
+        def __str__(self):
+            return "foo"
+
+    obj = FooClass()
+    assert translators.TranslatorBase.translate(obj) == '"foo"'
+
+
+def test_translator_must_implement_translate_dict():
+    class MyNewTranslator(translators.TranslatorBase):
+        pass
+
+    with pytest.raises(NotImplementedError):
+        MyNewTranslator.translate_dict({"foo": "bar"})
+
+
+def test_translator_must_implement_translate_list():
+    class MyNewTranslator(translators.TranslatorBase):
+        pass
+
+    with pytest.raises(NotImplementedError):
+        MyNewTranslator.translate_list(["foo", "bar"])
+
+
+def test_translator_must_implement_comment():
+    class MyNewTranslator(translators.TranslatorBase):
+        pass
+
+    with pytest.raises(NotImplementedError):
+        MyNewTranslator.comment("foo")

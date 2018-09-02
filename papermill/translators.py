@@ -61,11 +61,11 @@ class TranslatorBase(object):
 
     @classmethod
     def translate_dict(cls, val):
-        raise NotImplemented('dict type translation not implemented for {}'.format(cls))
+        raise NotImplementedError('dict type translation not implemented for {}'.format(cls))
 
     @classmethod
     def translate_list(cls, val):
-        raise NotImplemented('list type translation not implemented for {}'.format(cls))
+        raise NotImplementedError('list type translation not implemented for {}'.format(cls))
 
     @classmethod
     def translate(cls, val):
@@ -88,7 +88,7 @@ class TranslatorBase(object):
 
     @classmethod
     def comment(cls, cmt_str):
-        raise NotImplemented('comment translation not implemented for {}'.format(cls))
+        raise NotImplementedError('comment translation not implemented for {}'.format(cls))
 
     @classmethod
     def assign(cls, name, str_val):
