@@ -1,11 +1,11 @@
 import unittest
-from ..adl import ADL
-import six
+from ..adl import ADL, core as adl_core, lib as adl_lib
 
+import six
 if six.PY3:
-    from unittest.mock import Mock, MagicMock
+    from unittest.mock import Mock, MagicMock, patch
 else:
-    from mock import Mock, MagicMock
+    from mock import Mock, MagicMock, patch
 
 
 class ADLTest(unittest.TestCase):
@@ -49,3 +49,12 @@ class ADLTest(unittest.TestCase):
     def test_write_opens_file_and_writes_to_it(self):
         self.adl.write("hello world", "adl://foo_store.azuredatalakestore.net/path/to/file")
         self.fakeFile.write.assert_called_once_with(b"hello world")
+
+    @patch.object(adl_lib, 'auth', return_value="my_token")
+    @patch.object(adl_core, 'AzureDLFileSystem', return_value="my_adapter")
+    def test_create_adapter(self, azure_dl_filesystem_mock, auth_mock):
+        sut = ADL()
+        actual = sut._create_adapter("my_store_name")
+        assert actual == "my_adapter"
+        auth_mock.assert_called_once_with()
+        azure_dl_filesystem_mock.assert_called_once_with("my_token", store_name="my_store_name")
