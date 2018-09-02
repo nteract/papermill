@@ -2,6 +2,7 @@ import unittest
 from ..adl import ADL, core as adl_core, lib as adl_lib
 
 import six
+
 if six.PY3:
     from unittest.mock import Mock, MagicMock, patch
 else:
