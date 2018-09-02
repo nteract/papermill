@@ -5,8 +5,13 @@ import pytest
 import boto3
 import moto
 from moto import mock_s3
+from ..s3 import Bucket, Prefix, Key, S3, split, retry
+import six
 
-from ..s3 import Bucket, Prefix, Key, S3, split
+if six.PY3:
+    from unittest.mock import Mock, call
+else:
+    from mock import Mock, call
 
 
 @pytest.fixture
@@ -112,11 +117,16 @@ def test_prefix_str(bucket_sqs):
 
 def test_prefix_repr(bucket_sqs):
     p1 = Prefix(bucket_sqs, 'sqs_prefix_test', 'sqs')
-    assert p1.__repr__
+    assert repr(p1) == 's3://' + str(bucket_sqs) + '/sqs_prefix_test'
 
 
 def test_key_init():
     pass
+
+
+def test_key_repr():
+    k = Key("foo", "bar")
+    assert repr(k) == "s3://foo/bar"
 
 
 def test_key_defaults():
@@ -224,3 +234,20 @@ def test_s3_listdir(s3_client):
     dir_listings = s3_client.listdir(s3_dir)
     assert len(dir_listings) == 1
     assert s3_path in dir_listings
+
+
+def test_retry():
+    m = Mock(side_effect=Exception(), __name__="m", __module__="test_s3", __doc__="m")
+    wrapped_m = retry(3)(m)
+    with pytest.raises(Exception):
+        wrapped_m("foo")
+    m.assert_has_calls([call("foo"), call("foo"), call("foo")])
+
+
+def test_batches(s3_client):
+    s = S3()
+    batches = s._S3__batches(iter(["foo", "bar", "baz"]), size=2)
+    assert next(batches) == ["foo", "bar"]
+    assert next(batches) == ["baz"]
+    with pytest.raises(StopIteration):
+        next(batches)

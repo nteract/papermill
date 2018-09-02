@@ -77,7 +77,7 @@ class Prefix(object):
         return 's3://{}/{}'.format(self.bucket.name, self.name)
 
     def __repr__(self):
-        return str(self)
+        return self.__str__()
 
 
 class Key(object):
@@ -130,7 +130,7 @@ class Key(object):
         return 's3://{}/{}'.format(self.bucket.name, self.name)
 
     def __repr__(self):
-        return str(self)
+        return self.__str__()
 
 
 # retry decorator
