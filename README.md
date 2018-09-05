@@ -12,7 +12,7 @@ Jupyter Notebooks.
 
 Papermill lets you:
 
--   **parametrize** notebooks
+-   **parameterize** notebooks
 -   **execute** and **collect** metrics across the notebooks
 -   **summarize collections** of notebooks
 
@@ -35,7 +35,7 @@ example:
 Installation
 ------------
 
-From the commmand line:
+From the command line:
 
 ``` {.sourceCode .bash}
 pip install papermill
@@ -53,13 +53,13 @@ Other language bindings welcome if someone would like to maintain parallel imple
 Usage
 -----
 
-### Parametrizing a Notebook
+### Parameterizing a Notebook
 
-To parametrize your notebook designate a cell with the tag ``parameters``.
+To parameterize your notebook designate a cell with the tag ``parameters``.
 
 Papermill looks for the ``parameters`` cell and treats this cell as defaults for the parameters passed in at execution time. Papermill will add a new cell tagged with ``injected-parameters`` with input parameters in order to overwrite the values in ``parameters``. If no cell is tagged with ``parameters`` the injected cell will be inserted at the top of the notebook.
 
-Additionally, if you rerun notebooks through papermill and it will reuse the ``injected-parameters`` cell from the prior run. In this case papermill will replace the old ``injected-parameters`` cell with the new run's inputs.
+Additionally, if you rerun notebooks through papermill and it will reuse the ``injected-parameters`` cell from the prior run. In this case Papermill will replace the old ``injected-parameters`` cell with the new run's inputs.
 
 ![image](docs/img/parameters.png)
 
@@ -209,7 +209,7 @@ import papermill as pm
 nbs = pm.read_notebooks('/path/to/results/')
 
 # Show named plot from 'notebook1.ipynb'
-# Accepts a key or list of keys to plot in order.
+# Accept a key or list of keys to plot in order.
 nbs.display_output('train_1.ipynb', 'matplotlib_hist')
 ```
 
@@ -225,12 +225,12 @@ nbs.dataframe.head(10)
 Development Guide
 -----------------
 
-Read CONTRIBUTING.md for guidelines on how to setup a local development environment and make code changes back to papermill.
+Read CONTRIBUTING.md for guidelines on how to setup a local development environment and make code changes back to Papermill.
 
 For development guidelines look in the DEVELOPMENT_GUIDE.md file. This should inform you on how to make particular additions to the code base.
 
 Documentation
 -------------
 
-We host the [papermill documentation](http://papermill.readthedocs.io)
+We host the [Papermill documentation](http://papermill.readthedocs.io)
 on ReadTheDocs.
