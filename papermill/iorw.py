@@ -60,7 +60,7 @@ class PapermillIO(object):
 class HttpHandler(object):
     @classmethod
     def read(cls, path):
-        return requests.get(path, headers={'Accept' : 'application/json'}).text
+        return requests.get(path, headers={'Accept': 'application/json'}).text
 
     @classmethod
     def listdir(cls, path):
