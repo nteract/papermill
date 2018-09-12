@@ -11,7 +11,7 @@ import requests
 import yaml
 
 from . import __version__
-from .exceptions import PapermillException
+from .exceptions import PapermillException, NoSuchDirectory
 from .s3 import S3
 from .adl import ADL
 
@@ -92,7 +92,7 @@ class LocalHandler(object):
         if not dir.endswith("/"):
             dir += "/"
         if not os.path.exists(dir):
-            raise Exception('output folder {} doesn\'t exist!'.format(dir))
+            raise NoSuchDirectory('output folder {} doesn\'t exist.'.format(dir))
         with io.open(path, 'w', encoding="utf-8") as f:
             f.write(buf)
 
