@@ -99,7 +99,7 @@ class TestLocalHandler(unittest.TestCase):
 
     def test_write_no_directory_exists(self):
         with self.assertRaises(FileNotFoundError):
-            LocalHandler.write("buffer", "fake/path/fake/path/fakenb.ipynb")
+            LocalHandler.write("buffer", "fake/path/fakenb.ipynb")
 
 
 class TestADLHandler(unittest.TestCase):
