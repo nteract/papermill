@@ -88,12 +88,12 @@ class LocalHandler(object):
 
     @classmethod
     def write(cls, buf, path):
-        path = (path.split("/"))[:-1]
-        path = "/".join(path)
-        if not path.endswith("/"):
-            path += "/"
-        if not os.path.exists(path):
-            raise FileNotFoundError('output folder {} doesn\'t exist!'.format(path))
+        dir = (path.split("/"))[:-1]
+        dir = "/".join(dir)
+        if not dir.endswith("/"):
+            dir += "/"
+        if not os.path.exists(dir):
+            raise FileNotFoundError('output folder {} doesn\'t exist!'.format(dir))
         with io.open(path, 'w', encoding="utf-8") as f:
             f.write(buf)
 
