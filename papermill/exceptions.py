@@ -13,6 +13,10 @@ class FileExistsError(AwsError):
     """Raised when a File already exists on S3."""
 
 
+class FileNotFoundError(AwsError):
+    """Raised when a folder doesn't exist"""
+
+
 class PapermillException(Exception):
     """Raised when an exception is encountered when operating on a notebook."""
 
