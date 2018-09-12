@@ -33,5 +33,6 @@ class PapermillExecutionError(PapermillException):
 
         super(PapermillExecutionError, self).__init__(message)
 
+
 class NoSuchDirectory(Exception):
     """Raised when a folder doesn't exist"""
