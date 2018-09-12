@@ -98,8 +98,8 @@ class TestLocalHandler(unittest.TestCase):
             self.assertEqual(f.read().strip(), u'✄')
 
     def test_write_no_directory_exists(self):
-        self.assertEqual(LocalHandler.write("buffer", "fake/path/fake/path/fakenb.ipynb"),
-                         "output folder fake/path doesn't exist.")
+        with self.assertRaises(FileNotFoundError):
+            LocalHandler.write("buffer", "fake/path/fake/path/fakenb.ipynb")
 
 
 class TestADLHandler(unittest.TestCase):
