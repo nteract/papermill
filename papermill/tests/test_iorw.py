@@ -12,6 +12,11 @@ try:
 except ImportError:
     from mock import Mock, patch
 
+try:
+    FileNotFoundError
+except NameError:
+    FileNotFoundError = IOError
+
 from ..exceptions import PapermillException
 from ..iorw import HttpHandler, LocalHandler, ADLHandler, PapermillIO
 

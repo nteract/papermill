@@ -15,6 +15,11 @@ from .exceptions import PapermillException
 from .s3 import S3
 from .adl import ADL
 
+try:
+    FileNotFoundError
+except NameError:
+    FileNotFoundError = IOError
+
 
 class PapermillIO(object):
     def __init__(self):
@@ -99,7 +104,6 @@ class LocalHandler(object):
 
 
 class S3Handler(object):
-
     keyname = None
 
     @classmethod
