@@ -12,6 +12,11 @@ try:
 except ImportError:
     from mock import Mock, patch
 
+try:
+    FileNotFoundError
+except NameError:
+    FileNotFoundError = IOError
+
 from ..exceptions import PapermillException
 from ..iorw import HttpHandler, LocalHandler, ADLHandler, PapermillIO
 
@@ -96,6 +101,10 @@ class TestLocalHandler(unittest.TestCase):
         LocalHandler.write(u'✄', path)
         with io.open(path, 'r', encoding='utf-8') as f:
             self.assertEqual(f.read().strip(), u'✄')
+
+    def test_write_no_directory_exists(self):
+        with self.assertRaises(FileNotFoundError):
+            LocalHandler.write("buffer", "fake/path/fakenb.ipynb")
 
 
 class TestADLHandler(unittest.TestCase):

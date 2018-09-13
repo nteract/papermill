@@ -15,6 +15,11 @@ from .exceptions import PapermillException
 from .s3 import S3
 from .adl import ADL
 
+try:
+    FileNotFoundError
+except NameError:
+    FileNotFoundError = IOError
+
 
 class PapermillIO(object):
     def __init__(self):
@@ -88,6 +93,8 @@ class LocalHandler(object):
 
     @classmethod
     def write(cls, buf, path):
+        if not os.path.exists(os.path.dirname(path)):
+            raise FileNotFoundError('output folder {} doesn\'t exist.'.format(os.path.dirname(path)))
         with io.open(path, 'w', encoding="utf-8") as f:
             f.write(buf)
 
@@ -97,7 +104,6 @@ class LocalHandler(object):
 
 
 class S3Handler(object):
-
     keyname = None
 
     @classmethod
