@@ -5,7 +5,7 @@ import unittest
 import os
 import io
 import tempfile
-import warnings
+import pytest
 from requests.exceptions import ConnectionError
 
 try:
@@ -80,11 +80,8 @@ class TestPapermillIO(unittest.TestCase):
         )
 
     def test_read_with_no_file_extension(self):
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            # Trigger a warning.
+        with pytest.warns(UserWarning):
             self.papermill_io.read("fake/path")
-            assert "the file is not specified with any format" in str(w[-1].message)
 
     def test_listdir(self):
         self.assertEqual(self.papermill_io.listdir("fake/path"), ["fake", "contents"])
@@ -93,11 +90,8 @@ class TestPapermillIO(unittest.TestCase):
         self.assertEqual(self.papermill_io.write("buffer", "fake/path"), "wrote buffer")
 
     def test_write_with_no_file_extension(self):
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            # Trigger a warning.
+        with pytest.warns(UserWarning):
             self.papermill_io.write("buffer", "fake/path")
-            assert "the file is not specified with any format" in str(w[-1].message)
 
     def test_pretty_path(self):
         self.assertEqual(self.papermill_io.pretty_path("fake/path"), "fake/path/pretty/1")
