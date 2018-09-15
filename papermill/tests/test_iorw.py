@@ -79,7 +79,7 @@ class TestPapermillIO(unittest.TestCase):
         )
 
     def test_read_with_no_file_extension(self):
-        with self.assertWarns("the file is not specified with any format : path"):
+        with self.assertWarns(UserWarning):
             self.papermill_io.read("fake/path")
 
     def test_listdir(self):
