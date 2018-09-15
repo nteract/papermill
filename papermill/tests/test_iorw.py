@@ -90,7 +90,7 @@ class TestPapermillIO(unittest.TestCase):
 
     def test_write_with_no_file_extension(self):
         with self.assertWarns(UserWarning):
-            self.papermill_io.write("fake/path")
+            self.papermill_io.write("buffer", "fake/path")
 
     def test_pretty_path(self):
         self.assertEqual(self.papermill_io.pretty_path("fake/path"), "fake/path/pretty/1")
