@@ -13,4 +13,3 @@ jupyter_client
 pandas
 requests
 azure-datalake-store >= 0.0.30
-pytest
