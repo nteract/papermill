@@ -23,7 +23,7 @@ script:
   # cd so we test the install, not the repo
   - check-manifest
   - cd `mktemp -d`
-  - pytest -v --maxfail=2 --cov=papermill --pyargs papermill -W
+  - pytest -v --maxfail=2 --cov=papermill --pyargs papermill
   - mv .coverage $TRAVIS_BUILD_DIR/.coverage
   - cd $TRAVIS_BUILD_DIR
   - python setup.py sdist bdist_wheel
