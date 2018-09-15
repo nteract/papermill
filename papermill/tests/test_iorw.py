@@ -84,7 +84,6 @@ class TestPapermillIO(unittest.TestCase):
             warnings.simplefilter("always")
             # Trigger a warning.
             self.papermill_io.read("fake/path")
-            assert len(w) == 1
             assert "the file is not specified with any format" in str(w[-1].message)
 
     def test_listdir(self):
@@ -98,7 +97,6 @@ class TestPapermillIO(unittest.TestCase):
             warnings.simplefilter("always")
             # Trigger a warning.
             self.papermill_io.write("buffer", "fake/path")
-            assert len(w) == 1
             assert "the file is not specified with any format" in str(w[-1].message)
 
     def test_pretty_path(self):
