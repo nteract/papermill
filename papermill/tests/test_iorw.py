@@ -83,6 +83,10 @@ class TestPapermillIO(unittest.TestCase):
         with pytest.warns(UserWarning):
             self.papermill_io.read("fake/path")
 
+    def test_read_with_invalid_file_extension(self):
+        with pytest.warns(UserWarning):
+            self.papermill_io.read("fake/path/fakeinputpath.ipynb1")
+
     def test_listdir(self):
         self.assertEqual(self.papermill_io.listdir("fake/path"), ["fake", "contents"])
 
@@ -92,6 +96,10 @@ class TestPapermillIO(unittest.TestCase):
     def test_write_with_no_file_extension(self):
         with pytest.warns(UserWarning):
             self.papermill_io.write("buffer", "fake/path")
+
+    def test_write_with_invalid_file_extension(self):
+        with pytest.warns(UserWarning):
+            self.papermill_io.write("buffer", "fake/path/fakeoutputpath.ipynb1")
 
     def test_pretty_path(self):
         self.assertEqual(self.papermill_io.pretty_path("fake/path"), "fake/path/pretty/1")
