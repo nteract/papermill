@@ -9,6 +9,8 @@ import os
 import nbformat
 import requests
 import yaml
+import fnmatch
+import warnings
 
 from . import __version__
 from .exceptions import PapermillException
@@ -26,10 +28,14 @@ class PapermillIO(object):
         self.reset()
 
     def read(self, path):
+        if not fnmatch.fnmatch(os.path.basename(path), "*.*"):
+            warnings.warn("the file is not specified with any format : " + os.path.basename(path))
         return self.get_handler(path).read(path)
 
     def write(self, buf, path):
         # Usually no return object here
+        if not fnmatch.fnmatch(os.path.basename(path), "*.*"):
+            warnings.warn("the file is not specified with any format : " + os.path.basename(path))
         return self.get_handler(path).write(buf, path)
 
     def listdir(self, path):
