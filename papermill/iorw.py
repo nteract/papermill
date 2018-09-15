@@ -30,8 +30,8 @@ class PapermillIO(object):
     def read(self, path):
         if not fnmatch.fnmatch(os.path.basename(path), "*.*"):
             warnings.warn("the file is not specified with any extension : " + os.path.basename(path))
-        elif not fnmatch.fnmatch(os.path.basename(path), "*.ipynb") or fnmatch.fnmatch(os.path.basename(path),
-                                                                                       "*.json"):
+        elif not (fnmatch.fnmatch(os.path.basename(path), "*.ipynb") or fnmatch.fnmatch(os.path.basename(path),
+                                                                                        "*.json")):
             warnings.warn("the file extension is not in either .ipynb or .json")
         return self.get_handler(path).read(path)
 
@@ -39,8 +39,8 @@ class PapermillIO(object):
         # Usually no return object here
         if not fnmatch.fnmatch(os.path.basename(path), "*.*"):
             warnings.warn("the file is not specified with any extension : " + os.path.basename(path))
-        elif not fnmatch.fnmatch(os.path.basename(path), "*.ipynb") or fnmatch.fnmatch(os.path.basename(path),
-                                                                                       "*.json"):
+        elif not (fnmatch.fnmatch(os.path.basename(path), "*.ipynb") or fnmatch.fnmatch(os.path.basename(path),
+                                                                                        "*.json")):
             warnings.warn("the file extension is not in either .ipynb or .json")
         return self.get_handler(path).write(buf, path)
 
