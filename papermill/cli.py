@@ -58,8 +58,8 @@ def print_the_paermill_version(ctx, param, value):
     '--start_timeout', type=int, default=60, help="Time in seconds to wait for kernel to start."
 )
 @click.option('--report-mode/--not-report-mode', default=False, help="Flag for hiding input.")
-@click.option('-V', '--version', is_flag=True, callback=print_the_paermill_version,
-              expose_value=False, is_eager=True, help='Print the current papermill version and exit.')
+@click.option('--version', default=1.0, is_flag=True, callback=print_the_paermill_version,
+              expose_value=False, is_eager=True, help='Flag for displaying the version.')
 def papermill(
     notebook_path,
     output_path,
