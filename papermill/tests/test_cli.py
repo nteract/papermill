@@ -362,7 +362,7 @@ class TestCLI(unittest.TestCase):
     @patch(cli.__name__ + '.execute_notebook')
     def test_version(self, execute_patch):
         self.runner.invoke(papermill, ['--version'])
-        execute_patch.assert_called_with(
+        execute_patch.assert_not_called(
             'input.ipynb',
             'output.ipynb',
             {},
