@@ -25,6 +25,7 @@ def execute_notebook(
     log_output=False,
     start_timeout=60,
     report_mode=False,
+    version=1.0,
 ):
     """Executes a single notebook locally.
     Args:
@@ -37,6 +38,7 @@ def execute_notebook(
         log_output (bool): Flag for whether or not to write notebook output to stderr.
         start_timeout (int): Duration to wait for kernel start-up.
         report_mode (bool): Flag for whether or not to hide input.
+        version : Flag for knowing the version of the papermill running.
 
     Returns:
          nb (NotebookNode): Executed notebook object
