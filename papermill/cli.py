@@ -16,7 +16,7 @@ from . import __version__ as papermill_version
 click.disable_unicode_literals_warning = True
 
 
-def print_the_paermill_version(ctx, param, value):
+def print_papermill_version(ctx, param, value):
     if not value:
         return
     print("{version} from {path} ({pyver})".format(
@@ -62,7 +62,7 @@ def print_the_paermill_version(ctx, param, value):
     '--start_timeout', type=int, default=60, help="Time in seconds to wait for kernel to start."
 )
 @click.option('--report-mode/--not-report-mode', default=False, help="Flag for hiding input.")
-@click.option('--version', is_flag=True, callback=print_the_paermill_version,
+@click.option('--version', is_flag=True, callback=print_papermill_version,
               expose_value=False, is_eager=True, help='Flag for displaying the version.')
 def papermill(
     notebook_path,
