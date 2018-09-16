@@ -70,7 +70,7 @@ def test_is_int(value, expected):
 class TestCLI(unittest.TestCase):
     def setUp(self):
         self.runner = CliRunner()
-        self.default_args = ['input.ipynb', 'output.ipynb']
+        self.default_args = ['input.ipynb', 'output.ipynb', '--version']
         self.sample_yaml_file = os.path.join(
             os.path.dirname(__file__), 'parameters', 'example.yaml'
         )
@@ -93,7 +93,6 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
-            version=1.0,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -111,7 +110,6 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
-            version=1.0,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -132,7 +130,6 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
-            version=1.0,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -151,7 +148,6 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
-            version=1.0,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -171,7 +167,6 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
-            version=1.0,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -197,7 +192,6 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
-            version=1.0,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -213,7 +207,6 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
-            version=1.0,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -229,7 +222,6 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
-            version=1.0,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -245,7 +237,6 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
-            version=1.0,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -261,7 +252,6 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
-            version=1.0,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -277,7 +267,6 @@ class TestCLI(unittest.TestCase):
             progress_bar=False,
             start_timeout=60,
             report_mode=False,
-            version=1.0,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -293,7 +282,6 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
-            version=1.0,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -309,7 +297,6 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
-            version=1.0,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -325,7 +312,6 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=123,
             report_mode=False,
-            version=1.0,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -341,7 +327,6 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=123,
             report_mode=False,
-            version=1.0,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -357,7 +342,6 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=60,
             report_mode=True,
-            version=1.0,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -373,7 +357,6 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
-            version=1.0,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -389,7 +372,6 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
-            version=1.0,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -436,7 +418,6 @@ class TestCLI(unittest.TestCase):
             progress_bar=False,
             start_timeout=321,
             report_mode=True,
-            version=1.0,
         )
 
 
