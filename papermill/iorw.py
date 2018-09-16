@@ -32,7 +32,8 @@ class PapermillIO(object):
             warnings.warn("the file is not specified with any extension : " + os.path.basename(path))
         elif not (fnmatch.fnmatch(os.path.basename(path), "*.ipynb") or
                   fnmatch.fnmatch(os.path.basename(path), "*.json")):
-            warnings.warn("The specified input file ({}) does not end in '.ipynb' or '.json'".format(path))
+            warnings.warn("The specified input file ({}) does not end in '.ipynb' or '.json'"
+                          .format(path))
         return self.get_handler(path).read(path)
 
     def write(self, buf, path):
@@ -41,7 +42,8 @@ class PapermillIO(object):
             warnings.warn("the file is not specified with any extension : " + os.path.basename(path))
         elif not (fnmatch.fnmatch(os.path.basename(path), "*.ipynb") or
                   fnmatch.fnmatch(os.path.basename(path), "*.json")):
-            warnings.warn("The specified input file ({}) does not end in '.ipynb' or '.json'".format(path))
+            warnings.warn("The specified input file ({}) does not end in '.ipynb' or '.json'"
+                          .format(path))
         return self.get_handler(path).write(buf, path)
 
     def listdir(self, path):
