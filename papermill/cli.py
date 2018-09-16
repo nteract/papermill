@@ -14,11 +14,13 @@ from .api import Notebook as notebook
 
 click.disable_unicode_literals_warning = True
 
+
 def print_the_paermill_version(ctx, param, value):
     if not value:
         return
     print(notebook.version)
     ctx.exit()
+
 
 @click.command(context_settings=dict(help_option_names=['-h', '--help']))
 @click.argument('notebook_path')
