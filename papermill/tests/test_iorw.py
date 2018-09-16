@@ -5,6 +5,7 @@ import unittest
 import os
 import io
 import tempfile
+import pytest
 from requests.exceptions import ConnectionError
 
 try:
@@ -78,11 +79,27 @@ class TestPapermillIO(unittest.TestCase):
             self.papermill_io.read("fake/path"), "contents from fake/path for version 1"
         )
 
+    def test_read_with_no_file_extension(self):
+        with pytest.warns(UserWarning):
+            self.papermill_io.read("fake/path")
+
+    def test_read_with_invalid_file_extension(self):
+        with pytest.warns(UserWarning):
+            self.papermill_io.read("fake/path/fakeinputpath.ipynb1")
+
     def test_listdir(self):
         self.assertEqual(self.papermill_io.listdir("fake/path"), ["fake", "contents"])
 
     def test_write(self):
         self.assertEqual(self.papermill_io.write("buffer", "fake/path"), "wrote buffer")
+
+    def test_write_with_no_file_extension(self):
+        with pytest.warns(UserWarning):
+            self.papermill_io.write("buffer", "fake/path")
+
+    def test_write_with_invalid_file_extension(self):
+        with pytest.warns(UserWarning):
+            self.papermill_io.write("buffer", "fake/path/fakeoutputpath.ipynb1")
 
     def test_pretty_path(self):
         self.assertEqual(self.papermill_io.pretty_path("fake/path"), "fake/path/pretty/1")
