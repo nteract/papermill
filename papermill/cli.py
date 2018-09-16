@@ -10,6 +10,7 @@ import yaml
 
 from .execute import execute_notebook
 from .iorw import read_yaml_file
+from .api import Notebook as notebook
 
 click.disable_unicode_literals_warning = True
 
@@ -50,6 +51,17 @@ click.disable_unicode_literals_warning = True
     '--start_timeout', type=int, default=60, help="Time in seconds to wait for kernel to start."
 )
 @click.option('--report-mode/--not-report-mode', default=False, help="Flag for hiding input.")
+
+def print_the_paermill_version(ctx, param, value):
+    if not value:
+        return
+    print(notebook.version)
+    ctx.exit()
+
+@click.command()
+@click.option('-V', '--version', is_flag=True, callback=print_the_paermill_version,
+              expose_value=False, is_eager=True, help='Print the current papermill version and exit.')
+
 def papermill(
     notebook_path,
     output_path,

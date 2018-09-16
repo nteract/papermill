@@ -405,6 +405,21 @@ class TestCLI(unittest.TestCase):
             report_mode=True,
         )
 
+    @patch(cli.__name__ + '.execute_notebook')
+    def test_version_output(self, execute_patch):
+        self.runner.invoke(papermill, self.default_args + ['--version'])
+        execute_patch.assert_called_with(
+            'input.ipynb',
+            'output.ipynb',
+            {},
+            prepare_only=False,
+            kernel_name=None,
+            log_output=False,
+            progress_bar=True,
+            start_timeout=60,
+            report_mode=False,
+        )
+
 
 def test_cli_path():
     @click.command()
