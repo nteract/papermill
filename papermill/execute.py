@@ -37,7 +37,6 @@ def execute_notebook(
         log_output (bool): Flag for whether or not to write notebook output to stderr.
         start_timeout (int): Duration to wait for kernel start-up.
         report_mode (bool): Flag for whether or not to hide input.
-        version : Flag for knowing the version of the papermill running.
 
     Returns:
          nb (NotebookNode): Executed notebook object
