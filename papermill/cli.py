@@ -7,11 +7,23 @@ import base64
 import click
 
 import yaml
+import platform
 
 from .execute import execute_notebook
 from .iorw import read_yaml_file
+from . import __version__ as papermill_version
 
 click.disable_unicode_literals_warning = True
+
+
+def print_papermill_version(ctx, param, value):
+    if not value:
+        return
+    print("{version} from {path} ({pyver})".format(
+        version=papermill_version,
+        path=__file__,
+        pyver=platform.python_version()))
+    ctx.exit()
 
 
 @click.command(context_settings=dict(help_option_names=['-h', '--help']))
@@ -50,6 +62,8 @@ click.disable_unicode_literals_warning = True
     '--start_timeout', type=int, default=60, help="Time in seconds to wait for kernel to start."
 )
 @click.option('--report-mode/--not-report-mode', default=False, help="Flag for hiding input.")
+@click.option('--version', is_flag=True, callback=print_papermill_version,
+              expose_value=False, is_eager=True, help='Flag for displaying the version.')
 def papermill(
     notebook_path,
     output_path,
