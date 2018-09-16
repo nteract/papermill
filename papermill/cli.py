@@ -7,6 +7,7 @@ import base64
 import click
 
 import yaml
+import platform
 
 from .execute import execute_notebook
 from .iorw import read_yaml_file
@@ -18,7 +19,10 @@ click.disable_unicode_literals_warning = True
 def print_the_paermill_version(ctx, param, value):
     if not value:
         return
-    print(papermill_version)
+    print("{version} from {path} ({pyver})".format(
+        version=papermill_version,
+        path=__file__,
+        pyver=platform.python_version()))
     ctx.exit()
 
 
