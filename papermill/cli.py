@@ -10,7 +10,7 @@ import yaml
 
 from .execute import execute_notebook
 from .iorw import read_yaml_file
-from .api import Notebook as notebook
+from . import __version__ as papermill_version
 
 click.disable_unicode_literals_warning = True
 
@@ -18,7 +18,7 @@ click.disable_unicode_literals_warning = True
 def print_the_paermill_version(ctx, param, value):
     if not value:
         return
-    print(notebook.version)
+    print(papermill_version)
     ctx.exit()
 
 
@@ -58,7 +58,7 @@ def print_the_paermill_version(ctx, param, value):
     '--start_timeout', type=int, default=60, help="Time in seconds to wait for kernel to start."
 )
 @click.option('--report-mode/--not-report-mode', default=False, help="Flag for hiding input.")
-@click.option('--version', default=1.0, is_flag=True, callback=print_the_paermill_version,
+@click.option('--version', is_flag=True, callback=print_the_paermill_version,
               expose_value=False, is_eager=True, help='Flag for displaying the version.')
 def papermill(
     notebook_path,
@@ -74,7 +74,6 @@ def papermill(
     log_output,
     start_timeout,
     report_mode,
-    version,
 ):
     """This utility executes a single notebook on a container.
 
@@ -106,7 +105,6 @@ def papermill(
         log_output=log_output,
         start_timeout=start_timeout,
         report_mode=report_mode,
-        version=version,
     )
 
 

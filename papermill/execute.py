@@ -25,7 +25,6 @@ def execute_notebook(
     log_output=False,
     start_timeout=60,
     report_mode=False,
-    version=1.0,
 ):
     """Executes a single notebook locally.
     Args:
