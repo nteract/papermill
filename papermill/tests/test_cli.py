@@ -362,7 +362,7 @@ class TestCLI(unittest.TestCase):
     @patch(cli.__name__ + '.execute_notebook')
     def test_version(self, execute_patch):
         self.runner.invoke(papermill, ['--version'])
-        execute_patch.assert_not_called(self)
+        execute_patch.assert_not_called()
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_many_args(self, execute_patch):
