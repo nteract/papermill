@@ -93,6 +93,7 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
+            version=1.0,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -110,6 +111,7 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
+            version=1.0,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -130,6 +132,7 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
+            version=1.0,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -148,6 +151,7 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
+            version=1.0,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -167,6 +171,7 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
+            version=1.0,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -192,6 +197,7 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
+            version=1.0,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -207,6 +213,7 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
+            version=1.0,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -222,6 +229,7 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
+            version=1.0,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -237,6 +245,7 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
+            version=1.0,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -252,6 +261,7 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
+            version=1.0,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -267,6 +277,7 @@ class TestCLI(unittest.TestCase):
             progress_bar=False,
             start_timeout=60,
             report_mode=False,
+            version=1.0,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -282,6 +293,7 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
+            version=1.0,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -297,6 +309,7 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
+            version=1.0,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -312,6 +325,7 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=123,
             report_mode=False,
+            version=1.0,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -327,6 +341,7 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=123,
             report_mode=False,
+            version=1.0,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -342,6 +357,7 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=60,
             report_mode=True,
+            version=1.0,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -357,6 +373,23 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
+            version=1.0,
+        )
+
+    @patch(cli.__name__ + '.execute_notebook')
+    def test_version(self, execute_patch):
+        self.runner.invoke(papermill, self.default_args + ['--version'])
+        execute_patch.assert_called_with(
+            'input.ipynb',
+            'output.ipynb',
+            {},
+            prepare_only=True,
+            kernel_name=None,
+            log_output=False,
+            progress_bar=True,
+            start_timeout=60,
+            report_mode=False,
+            version=1.0,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -403,6 +436,7 @@ class TestCLI(unittest.TestCase):
             progress_bar=False,
             start_timeout=321,
             report_mode=True,
+            version=1.0,
         )
 
 
