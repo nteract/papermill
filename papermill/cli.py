@@ -144,5 +144,6 @@ def _is_float(value):
     else:
         return True
 
+
 if __name__ == '__main__':
     papermill()
