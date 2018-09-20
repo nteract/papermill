@@ -3,8 +3,8 @@
 from __future__ import unicode_literals, print_function
 
 import datetime
+import logging
 import os
-import sys
 import six
 import nbformat
 
@@ -13,6 +13,9 @@ from .exceptions import PapermillExecutionError
 from .preprocess import PapermillExecutePreprocessor
 from .iorw import load_notebook_node, write_ipynb, read_yaml_file, get_pretty_path
 from .translators import translate_parameters
+
+logging.basicConfig(level=logging.INFO, format="%(message)s")
+logger = logging.getLogger('papermill')
 
 
 def execute_notebook(
@@ -41,8 +44,10 @@ def execute_notebook(
     Returns:
          nb (NotebookNode): Executed notebook object
     """
-    print("Input Notebook:  %s" % get_pretty_path(notebook), file=sys.stderr)
-    print("Output Notebook: %s" % get_pretty_path(output), file=sys.stderr)
+
+    logger.info("Input Notebook:  %s" % get_pretty_path(notebook))
+    logger.info("Output Notebook: %s" % get_pretty_path(output))
+
     nb = load_notebook_node(notebook)
 
     # Parameterize the Notebook.
