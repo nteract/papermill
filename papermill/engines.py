@@ -1,0 +1,224 @@
+import copy
+import datetime
+import dateutil
+
+from functools import wraps
+
+# tqdm creates 2 globals lock which raise OSException if the execution
+# environment does not have shared memory for processes, e.g. AWS Lambda
+try:
+    from tqdm import tqdm
+
+    no_tqdm = False
+except OSError:
+    no_tqdm = True
+
+from .preprocess import PapermillExecutePreprocessor
+from .iorw import write_ipynb
+
+
+def catch_nb_assignment(func):
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        nb = kwargs.get('nb')
+        if nb:
+            # Reassign if executing notebook object was replaced
+            self.nb = nb
+        return func(self, *args, **kwargs)
+    return wrapper
+
+
+class PapermillEngines(object):
+    def __init__(self):
+        self._engines = {}
+
+    def register(self, name, engine):
+        self._engines[name] = engine
+
+    def get_engine(self, name=None):
+        engine = self._engines.get(name)
+        if not engine:
+            raise PapermillException("No engine named '{}' found".format(name))
+        return engine
+
+    def execute_notebook_with_engine(self, engine_name, nb, kernel_name, **kwargs):
+        return self.get_engine(engine_name).wrap_and_execute_notebook(nb, kernel_name, **kwargs)
+
+
+class EngineNotebookWrapper(object):
+    DEFAULT_BAR_FORMAT = "{l_bar}{bar}{r_bar}"
+    PENDING = "pending"
+    RUNNING = "running"
+    COMPLETED = "completed"
+
+    def __init__(self,
+                 nb,
+                 output_path=None,
+                 log_output=False,
+                 progress_bar=True):
+        # Deep copy the input to isolate the object being executed against
+        self.nb = copy.deepcopy(nb)
+        self.output_path = output_path
+        self.log_output = log_output
+        self.set_timer()
+        self.pbar = None
+        if progress_bar and not no_tqdm:
+            self.set_pbar()
+
+    def set_pbar(self):
+        bar_format = self.DEFAULT_BAR_FORMAT
+        if self.log_output:
+            # We want to inject newlines if we're printing content between enumerations
+            bar_format += "\n"
+
+        self.pbar = tqdm(
+            total=len(self.nb.cells),
+            bar_format=self.DEFAULT_BAR_FORMAT)
+
+    def set_timer(self):
+        self.start_time = datetime.datetime.utcnow()
+        self.end_time = None
+
+    def save(self):
+        if self.output_path:
+            write_ipynb(self.nb, self.output_path)
+
+    @catch_nb_assignment
+    def tick(self, **kwargs):
+        self.save()
+
+    @catch_nb_assignment
+    def notebook_start(self, **kwargs):
+        for cell in self.nb.cells:
+            # Reset the cell execution counts.
+            if cell.get("execution_count") is not None:
+                cell.execution_count = None
+
+            # Clear out the papermill metadata for each cell.
+            cell.metadata['papermill'] = dict(
+                exception=None,
+                start_time=None,
+                end_time=None,
+                duration=None,
+                status=self.PENDING,  # pending, running, completed
+            )
+            if cell.get("outputs") is not None:
+                cell.outputs = []
+
+        self.set_timer()
+        self.save()
+
+    @catch_nb_assignment
+    def cell_start(self, cell, **kwargs):
+        start_time = datetime.datetime.utcnow()
+        cell.metadata['papermill']['start_time'] = start_time.isoformat()
+        cell.metadata['papermill']["status"] = self.RUNNING
+        cell.metadata['papermill']['exception'] = False
+
+        self.save()
+
+    @catch_nb_assignment
+    def cell_exception(self, cell, **kwargs):
+        cell.metadata['papermill']['exception'] = True
+        self.nb.metadata['papermill']['exception'] = True
+
+    @catch_nb_assignment
+    def cell_complete(self, cell, **kwargs):
+        end_time = datetime.datetime.utcnow()
+        cell.metadata['papermill']['end_time'] = end_time.isoformat()
+        if cell.metadata['papermill'].get('start_time'):
+            start_time = dateutil.parser.parse(cell.metadata['papermill']['start_time'])
+            cell.metadata['papermill']['duration'] = (end_time - start_time).total_seconds()
+        cell.metadata['papermill']['status'] = self.COMPLETED
+
+        self.save()
+        if self.pbar:
+            self.pbar.update(1)
+
+    @catch_nb_assignment
+    def notebook_complete(self, **kwargs):
+        self.end_time = datetime.datetime.utcnow()
+        self.nb.metadata.papermill['start_time'] = self.start_time.isoformat()
+        self.nb.metadata.papermill['end_time'] = self.end_time.isoformat()
+        self.nb.metadata.papermill['duration'] = (self.end_time - self.start_time).total_seconds()
+
+        if self.pbar:
+            self.pbar.close()
+
+        # Force a final sync
+        self.save()
+
+
+class EngineBase(object):
+    @classmethod
+    def extract_exception(cls, nb):
+        """Reusable by most engines"""
+        return any([cell.metadata.papermill.get('exception') for cell in nb.cells])
+
+    @classmethod
+    def wrap_and_execute_notebook(
+        cls,
+        nb,
+        kernel_name,
+        output_path=None,
+        progress_bar=True,
+        log_output=False,
+        **kwargs
+    ):
+        engine_nb = EngineNotebookWrapper(
+            nb,
+            output_path=output_path,
+            progress_bar=progress_bar,
+            log_output=log_output,
+        )
+
+        engine_nb.notebook_start()
+        try:
+            cls.execute_notebook(
+                engine_nb,
+                kernel_name,
+                log_output=log_output,
+                **kwargs
+            )
+        finally:
+            engine_nb.notebook_complete()
+
+        return engine_nb.nb
+
+    @classmethod
+    def execute_notebook(cls, engine_nb, **kwargs):
+        raise NotImplementedError("'execute_notebook' is not implemented for this engine")
+
+
+class NBConvertEngine(EngineBase):
+    @classmethod
+    def execute_notebook(
+        cls,
+        engine_nb,
+        kernel_name,
+        log_output=False,
+        start_timeout=60,
+        execution_timeout=None,
+        **kwargs
+    ):
+        """Performs the actual execution of the parameterized notebook locally.
+        Args:
+            nb (NotebookNode): Executable notebook object.
+            kernel_name (str): Name of kernel to execute the notebook against.
+            log_output (bool): Flag for whether or not to write notebook output to stderr.
+            start_timeout (int): Duration to wait for kernel start-up.
+            execution_timeout (int): Duration to wait before failing execution (default: never).
+        """
+        processor = PapermillExecutePreprocessor(
+            timeout=execution_timeout,
+            startup_timeout=start_timeout,
+            kernel_name=kernel_name
+        )
+        processor.log_output = log_output
+        processor.preprocess(engine_nb, {})
+
+
+# Instantiate a PapermillIO instance and register Handlers.
+papermill_engines = PapermillEngines()
+papermill_engines.register(None, NBConvertEngine)
+papermill_engines.register('nbconvert', NBConvertEngine)

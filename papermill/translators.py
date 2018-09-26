@@ -18,8 +18,9 @@ class PapermillTranslators(object):
         elif kernelspec.language in self._translators:
             return self._translators[kernelspec.language]
         raise PapermillException(
-            "No parameter translator functions specified for kernel '%s' or language '%s'"
-            % (kernel_name, kernelspec.language)
+            "No parameter translator functions specified for kernel '{}' or language '{}'".format(
+                kernel_name, kernelspec.language
+            )
         )
 
 

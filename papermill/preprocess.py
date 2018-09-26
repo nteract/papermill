@@ -1,32 +1,17 @@
 from __future__ import unicode_literals, print_function
+from future.utils import raise_from
 
 import datetime
 import sys
 
-from concurrent import futures
 from nbconvert.preprocessors import ExecutePreprocessor
 from nbconvert.preprocessors.execute import CellExecutionError
 from nbformat.v4 import output_from_msg
-
-from .iorw import write_ipynb
 
 try:
     from queue import Empty  # Py 3
 except ImportError:
     from Queue import Empty  # Py 2
-
-# tqdm creates 2 globals lock which raise OSException if the execution
-# environment does not have shared memory for processes, e.g. AWS Lambda
-try:
-    from tqdm import tqdm
-
-    no_tqdm = False
-except OSError:
-    no_tqdm = True
-
-PENDING = "pending"
-RUNNING = "running"
-COMPLETED = "completed"
 
 
 def log_output(output):
@@ -49,10 +34,9 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
     # Copyright (c) IPython Development Team.
     # Distributed under the terms of the Modified BSD License.
 
-    # TODO: Delete this wrapper when nbconvert allows for setting preprocessor
-    # hood in a more convienent manner
+    # TODO: Delete this wrapper and push shared changes to nbconvert
 
-    def preprocess(self, nb, resources):
+    def preprocess(self, engine_nb, resources):
         """
         Copied with one edit of super -> papermill_preprocessor from nbconvert
 
@@ -62,12 +46,13 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
 
         Parameters
         ----------
-        nb : NotebookNode
-            Notebook being executed.
+        engine_nb : EngineNotebookWrapper
+            Wrapped notebook being executed.
         resources : dictionary
             Additional resources used in the conversion process. For example,
             passing ``{'metadata': {'path': run_path}}`` sets the
             execution path to ``run_path``.
+
 
         Returns
         -------
@@ -76,6 +61,7 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
         resources : dictionary
             Additional resources used in the conversion process.
         """
+        nb = engine_nb.nb
         path = resources.get('metadata', {}).get('path') or None
 
         # clear display_id map
@@ -96,7 +82,7 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
         self.nb = nb
 
         try:
-            nb, resources = self.papermill_preprocess(nb, resources)
+            nb, resources = self.papermill_process(engine_nb, resources)
         finally:
             self.kc.stop_channels()
             self.km.shutdown_kernel(now=self.shutdown_kernel == 'immediate')
@@ -119,7 +105,7 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
 
         return km, kc
 
-    def papermill_preprocess(self, nb, resources):
+    def papermill_process(self, engine_nb, resources):
         """
         This function acts as a replacement for the grandparent's `preprocess`
         method.
@@ -138,68 +124,26 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
 
         Parameters
         ----------
-        nb : NotebookNode
-            Notebook being converted
+        engine_nb : EngineNotebookWrapper
+            Engine wrapper of notebook being converted
         resources : dictionary
             Additional resources used in the conversion process.  Allows
             preprocessors to pass variables into the Jinja engine.
 
         """
-        output_path = nb.metadata.papermill['output_path']
-
-        # Reset the notebook.
-        for cell in nb.cells:
-            # Reset the cell execution counts.
-            if cell.get("execution_count") is not None:
-                cell.execution_count = None
-
-            # Clear out the papermill metadata for each cell.
-            cell.metadata['papermill'] = dict(
-                exception=None,
-                start_time=None,
-                end_time=None,
-                duration=None,
-                status=PENDING,  # pending, running, completed
-            )
-            if cell.get("outputs") is not None:
-                cell.outputs = []
-
         # Execute each cell and update the output in real time.
-        with futures.ThreadPoolExecutor(max_workers=1) as executor:
-
-            # Generate the iterator
-            if self.progress_bar and not no_tqdm:
-                bar_format = "{l_bar}{bar}{r_bar}"
-                if self.log_output:
-                    # We want to inject newlines if we're printing content between enumerations
-                    bar_format += "\n"
-                execution_iterator = tqdm(
-                    enumerate(nb.cells), total=len(nb.cells), bar_format=bar_format
-                )
-            else:
-                execution_iterator = enumerate(nb.cells)
-
-            for index, cell in execution_iterator:
-                cell.metadata["papermill"]["status"] = RUNNING
-                future = executor.submit(write_ipynb, nb, output_path)
-                t0 = datetime.datetime.utcnow()
-                try:
-                    if not cell.source:
-                        continue
-
-                    nb.cells[index], resources = self.preprocess_cell(cell, resources, index)
-                    cell.metadata['papermill']['exception'] = False
-
-                except CellExecutionError:
-                    cell.metadata['papermill']['exception'] = True
-                    break
-                finally:
-                    t1 = datetime.datetime.utcnow()
-                    cell.metadata['papermill']['start_time'] = t0.isoformat()
-                    cell.metadata['papermill']['end_time'] = t1.isoformat()
-                    cell.metadata['papermill']['duration'] = (t1 - t0).total_seconds()
-                    cell.metadata['papermill']['status'] = COMPLETED
-                    future.result()
+        nb = engine_nb.nb
+        for index, cell in enumerate(nb.cells):
+            try:
+                engine_nb.cell_start(cell)
+                if not cell.source:
+                    continue
+                nb.cells[index], resources = self.preprocess_cell(cell, resources, index)
+            except CellExecutionError as ex:
+                engine_nb.cell_exception(nb.cells[index], exception=ex)
+                break
+            finally:
+                engine_nb.cell_complete(nb.cells[index])
         return nb, resources
 
     def run_cell(self, cell, cell_index=0):

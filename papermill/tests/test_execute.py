@@ -18,7 +18,7 @@ import nbformat
 from nbconvert import HTMLExporter
 
 from ..api import read_notebook
-from .. import execute
+from .. import engines
 from ..execute import execute_notebook
 from ..preprocess import log_output
 from ..exceptions import PapermillExecutionError
@@ -44,14 +44,14 @@ class TestNotebookHelpers(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.test_dir)
 
-    @patch(execute.__name__ + '.PapermillExecutePreprocessor')
+    @patch(engines.__name__ + '.PapermillExecutePreprocessor')
     def test_start_timeout(self, preproc_mock):
         execute_notebook(self.notebook_path, self.nb_test_executed_fname, start_timeout=123)
         preproc_mock.assert_called_once_with(
             timeout=None, startup_timeout=123, kernel_name=kernel_name
         )
 
-    @patch(execute.__name__ + '.PapermillExecutePreprocessor')
+    @patch(engines.__name__ + '.PapermillExecutePreprocessor')
     def test_default_start_timeout(self, preproc_mock):
         execute_notebook(self.notebook_path, self.nb_test_executed_fname)
         preproc_mock.assert_called_once_with(

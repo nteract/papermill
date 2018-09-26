@@ -24,6 +24,10 @@ Finally, register the new handler to the `papermill_translators` object. The tra
 
 Test additions are easy to create -- just copy the few language specific pytest methods in `test_translators.py` and swap to your new translator name / expected values.
 
+## Engines
+
+TODO
+
 ## CLI / Execute
 
 When adding an option to papermill, first look in `cli.py` and then `execute.py` for the two places to add your new configurable.

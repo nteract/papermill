@@ -45,9 +45,12 @@ def print_papermill_version(ctx, param, value):
     '--parameters_base64', '-b', multiple=True, help='Base64 encoded YAML string as parameters.'
 )
 @click.option(
+    '--engine', help='The execution engine name to use in evaluating the notebook.'
+)
+@click.option(
     '--prepare-only/--prepare-execute',
     default=False,
-    help="Flag for outputting the notebook without execution, " "but with parameters applied.",
+    help="Flag for outputting the notebook without execution, but with parameters applied.",
 )
 @click.option('--kernel', '-k', help='Name of kernel to run.')
 @click.option(
@@ -72,6 +75,7 @@ def papermill(
     parameters_file,
     parameters_yaml,
     parameters_base64,
+    engine,
     prepare_only,
     kernel,
     progress_bar,
@@ -103,6 +107,7 @@ def papermill(
         notebook_path,
         output_path,
         parameters_final,
+        engine_name=engine,
         prepare_only=prepare_only,
         kernel_name=kernel,
         progress_bar=progress_bar,
