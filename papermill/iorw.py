@@ -24,26 +24,42 @@ except NameError:
 
 
 class PapermillIO(object):
+    '''
+    The holder which houses any io system registered with the system.
+    This object is used in a singleton manner to save and load particular
+    named Handler objects for reference externally.
+    '''
+
     def __init__(self):
         self.reset()
 
     def read(self, path):
         if not fnmatch.fnmatch(os.path.basename(path), "*.*"):
-            warnings.warn("the file is not specified with any extension : " + os.path.basename(path))
-        elif not (fnmatch.fnmatch(os.path.basename(path), "*.ipynb") or
-                  fnmatch.fnmatch(os.path.basename(path), "*.json")):
-            warnings.warn("The specified input file ({}) does not end in '.ipynb' or '.json'"
-                          .format(path))
+            warnings.warn(
+                "the file is not specified with any extension : " + os.path.basename(path)
+            )
+        elif not (
+            fnmatch.fnmatch(os.path.basename(path), "*.ipynb")
+            or fnmatch.fnmatch(os.path.basename(path), "*.json")
+        ):
+            warnings.warn(
+                "The specified input file ({}) does not end in '.ipynb' or '.json'".format(path)
+            )
         return self.get_handler(path).read(path)
 
     def write(self, buf, path):
         # Usually no return object here
         if not fnmatch.fnmatch(os.path.basename(path), "*.*"):
-            warnings.warn("the file is not specified with any extension : " + os.path.basename(path))
-        elif not (fnmatch.fnmatch(os.path.basename(path), "*.ipynb") or
-                  fnmatch.fnmatch(os.path.basename(path), "*.json")):
-            warnings.warn("The specified input file ({}) does not end in '.ipynb' or '.json'"
-                          .format(path))
+            warnings.warn(
+                "the file is not specified with any extension : " + os.path.basename(path)
+            )
+        elif not (
+            fnmatch.fnmatch(os.path.basename(path), "*.ipynb")
+            or fnmatch.fnmatch(os.path.basename(path), "*.json")
+        ):
+            warnings.warn(
+                "The specified input file ({}) does not end in '.ipynb' or '.json'".format(path)
+            )
         return self.get_handler(path).write(buf, path)
 
     def listdir(self, path):

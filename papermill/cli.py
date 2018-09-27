@@ -19,10 +19,11 @@ click.disable_unicode_literals_warning = True
 def print_papermill_version(ctx, param, value):
     if not value:
         return
-    print("{version} from {path} ({pyver})".format(
-        version=papermill_version,
-        path=__file__,
-        pyver=platform.python_version()))
+    print(
+        "{version} from {path} ({pyver})".format(
+            version=papermill_version, path=__file__, pyver=platform.python_version()
+        )
+    )
     ctx.exit()
 
 
@@ -44,9 +45,7 @@ def print_papermill_version(ctx, param, value):
 @click.option(
     '--parameters_base64', '-b', multiple=True, help='Base64 encoded YAML string as parameters.'
 )
-@click.option(
-    '--engine', help='The execution engine name to use in evaluating the notebook.'
-)
+@click.option('--engine', help='The execution engine name to use in evaluating the notebook.')
 @click.option(
     '--prepare-only/--prepare-execute',
     default=False,
@@ -65,8 +64,14 @@ def print_papermill_version(ctx, param, value):
     '--start_timeout', type=int, default=60, help="Time in seconds to wait for kernel to start."
 )
 @click.option('--report-mode/--not-report-mode', default=False, help="Flag for hiding input.")
-@click.option('--version', is_flag=True, callback=print_papermill_version,
-              expose_value=False, is_eager=True, help='Flag for displaying the version.')
+@click.option(
+    '--version',
+    is_flag=True,
+    callback=print_papermill_version,
+    expose_value=False,
+    is_eager=True,
+    help='Flag for displaying the version.',
+)
 def papermill(
     notebook_path,
     output_path,

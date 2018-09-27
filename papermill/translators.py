@@ -5,6 +5,12 @@ from .exceptions import PapermillException
 
 
 class PapermillTranslators(object):
+    '''
+    The holder which houses any translator registered with the system.
+    This object is used in a singleton manner to save and load particular
+    named TranslatorBase objects for reference externally.
+    '''
+
     def __init__(self):
         self._translators = {}
 

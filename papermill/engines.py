@@ -18,6 +18,11 @@ from .iorw import write_ipynb
 
 
 def catch_nb_assignment(func):
+    """
+    Wrapper which helps catch `nb` keyword arguments and assign onto self
+    when passed to the wrapped function.
+    """
+
     @wraps(func)
     def wrapper(self, *args, **kwargs):
         nb = kwargs.get('nb')
@@ -25,10 +30,17 @@ def catch_nb_assignment(func):
             # Reassign if executing notebook object was replaced
             self.nb = nb
         return func(self, *args, **kwargs)
+
     return wrapper
 
 
 class PapermillEngines(object):
+    """
+    The holder which houses any engine registered with the system.
+    This object is used in a singleton manner to save and load particular
+    named EngineBase objects for reference externally.
+    """
+
     def __init__(self):
         self._engines = {}
 
@@ -36,26 +48,35 @@ class PapermillEngines(object):
         self._engines[name] = engine
 
     def get_engine(self, name=None):
+        """
+        Retrieves an engine by name.
+        """
         engine = self._engines.get(name)
         if not engine:
             raise PapermillException("No engine named '{}' found".format(name))
         return engine
 
     def execute_notebook_with_engine(self, engine_name, nb, kernel_name, **kwargs):
+        """
+        Fetches the approiate engine and executes the nb object against it.
+        """
         return self.get_engine(engine_name).wrap_and_execute_notebook(nb, kernel_name, **kwargs)
 
 
 class EngineNotebookWrapper(object):
+    """
+    This class is a wrapper for notebook objects to house execution state
+    related to the notebook being run through an engine. In particular the
+    EngineNotebookWrapper provides common update callbacks for use within
+    engines to facilitate metadata and persistence actions in a shared manner.
+    """
+
     DEFAULT_BAR_FORMAT = "{l_bar}{bar}{r_bar}"
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
 
-    def __init__(self,
-                 nb,
-                 output_path=None,
-                 log_output=False,
-                 progress_bar=True):
+    def __init__(self, nb, output_path=None, log_output=False, progress_bar=True):
         # Deep copy the input to isolate the object being executed against
         self.nb = copy.deepcopy(nb)
         self.output_path = output_path
@@ -66,29 +87,57 @@ class EngineNotebookWrapper(object):
             self.set_pbar()
 
     def set_pbar(self):
+        """
+        Initializes the progress bar object for this notebook run.
+
+        This is called automatically when constructed.
+        """
         bar_format = self.DEFAULT_BAR_FORMAT
         if self.log_output:
             # We want to inject newlines if we're printing content between enumerations
             bar_format += "\n"
 
-        self.pbar = tqdm(
-            total=len(self.nb.cells),
-            bar_format=self.DEFAULT_BAR_FORMAT)
+        self.pbar = tqdm(total=len(self.nb.cells), bar_format=self.DEFAULT_BAR_FORMAT)
 
     def set_timer(self):
+        """
+        Initializes the execution timer for the notebook.
+
+        This is called automatically when constructed.
+        """
         self.start_time = datetime.datetime.utcnow()
         self.end_time = None
 
+    @catch_nb_assignment
     def save(self):
+        """
+        If an output path is know, this triggers a save of the wrapped notebook
+        state to the provided path.
+        """
         if self.output_path:
             write_ipynb(self.nb, self.output_path)
 
     @catch_nb_assignment
     def tick(self, **kwargs):
+        """
+        Used for periodic io syncs by threaded engines.
+        Useful for long running cells where saving part-way through execution
+        gives downstream readers visibility in the output notebook path.
+        """
         self.save()
 
     @catch_nb_assignment
     def notebook_start(self, **kwargs):
+        """
+        Initializes and clears the metadata for the notebook and its cells, and
+        saves the notebook to the output path.
+
+        Called by EngineBase when execution begins.
+        """
+        self.nb.metadata.papermill['start_time'] = self.start_time.isoformat()
+        self.nb.metadata.papermill['end_time'] = None
+        self.nb.metadata.papermill['duration'] = None
+
         for cell in self.nb.cells:
             # Reset the cell execution counts.
             if cell.get("execution_count") is not None:
@@ -110,6 +159,10 @@ class EngineNotebookWrapper(object):
 
     @catch_nb_assignment
     def cell_start(self, cell, **kwargs):
+        """
+        Optionally called by engines during execution to initialize the
+        metadata for a cell and save the notebook to the output path.
+        """
         start_time = datetime.datetime.utcnow()
         cell.metadata['papermill']['start_time'] = start_time.isoformat()
         cell.metadata['papermill']["status"] = self.RUNNING
@@ -118,15 +171,25 @@ class EngineNotebookWrapper(object):
         self.save()
 
     @catch_nb_assignment
-    def cell_exception(self, cell, **kwargs):
-        cell.metadata['papermill']['exception'] = True
+    def cell_exception(self, cell=None, **kwargs):
+        """
+        Called by engines when an exception is raised within a notebook to
+        set the metadata on the notebook indicating the location of the
+        failure.
+        """
+        if cell:
+            cell.metadata['papermill']['exception'] = True
         self.nb.metadata['papermill']['exception'] = True
 
     @catch_nb_assignment
     def cell_complete(self, cell, **kwargs):
+        """
+        Optionally called by engines during execution to finalize the
+        metadata for a cell and save the notebook to the output path.
+        """
         end_time = datetime.datetime.utcnow()
         cell.metadata['papermill']['end_time'] = end_time.isoformat()
-        if cell.metadata['papermill'].get('start_time'):
+        if 'start_time' not in cell.metadata['papermill']:
             start_time = dateutil.parser.parse(cell.metadata['papermill']['start_time'])
             cell.metadata['papermill']['duration'] = (end_time - start_time).total_seconds()
         cell.metadata['papermill']['status'] = self.COMPLETED
@@ -137,8 +200,15 @@ class EngineNotebookWrapper(object):
 
     @catch_nb_assignment
     def notebook_complete(self, **kwargs):
+        """
+        Finalizes the metadata for the notebook and saves the notebook to
+        the output path.
+
+        Called by EngineBase when execution concludes, regardless of exceptions.
+        """
         self.end_time = datetime.datetime.utcnow()
-        self.nb.metadata.papermill['start_time'] = self.start_time.isoformat()
+        if 'start_time' not in self.nb.metadata.papermill:
+            self.nb.metadata.papermill['start_time'] = self.start_time.isoformat()
         self.nb.metadata.papermill['end_time'] = self.end_time.isoformat()
         self.nb.metadata.papermill['duration'] = (self.end_time - self.start_time).total_seconds()
 
@@ -150,36 +220,32 @@ class EngineNotebookWrapper(object):
 
 
 class EngineBase(object):
-    @classmethod
-    def extract_exception(cls, nb):
-        """Reusable by most engines"""
-        return any([cell.metadata.papermill.get('exception') for cell in nb.cells])
+    """
+    Base class from which engines should inherit and implement execute_notebook.
+    Defines wrap_and_execute_notebook method which is used to correctly setup
+    the EngineNotebookWrapper object for engines to interact against.
+    """
 
     @classmethod
     def wrap_and_execute_notebook(
-        cls,
-        nb,
-        kernel_name,
-        output_path=None,
-        progress_bar=True,
-        log_output=False,
-        **kwargs
+        cls, nb, kernel_name, output_path=None, progress_bar=True, log_output=False, **kwargs
     ):
+        """
+        Wraps the notebook object in an EngineNotebookWrapper in order to track
+        execution state in a uniform manner. This is meant to help simplify
+        engine implementations to just focus on iterating and executing the
+        cell contents.
+        """
         engine_nb = EngineNotebookWrapper(
-            nb,
-            output_path=output_path,
-            progress_bar=progress_bar,
-            log_output=log_output,
+            nb, output_path=output_path, progress_bar=progress_bar, log_output=log_output
         )
 
         engine_nb.notebook_start()
         try:
-            cls.execute_notebook(
-                engine_nb,
-                kernel_name,
-                log_output=log_output,
-                **kwargs
-            )
+            nb = cls.execute_notebook(engine_nb, kernel_name, log_output=log_output, **kwargs)
+            # Update the notebook object in case the executor didn't do it for us
+            if nb:
+                engine_nb.nb = nb
         finally:
             engine_nb.notebook_complete()
 
@@ -191,6 +257,11 @@ class EngineBase(object):
 
 
 class NBConvertEngine(EngineBase):
+    """
+    A notebook engine which can execute a notebook document and update the
+    engine_nb.nb object with the results.
+    """
+
     @classmethod
     def execute_notebook(
         cls,
@@ -201,7 +272,9 @@ class NBConvertEngine(EngineBase):
         execution_timeout=None,
         **kwargs
     ):
-        """Performs the actual execution of the parameterized notebook locally.
+        """
+        Performs the actual execution of the parameterized notebook locally.
+
         Args:
             nb (NotebookNode): Executable notebook object.
             kernel_name (str): Name of kernel to execute the notebook against.
@@ -210,9 +283,7 @@ class NBConvertEngine(EngineBase):
             execution_timeout (int): Duration to wait before failing execution (default: never).
         """
         processor = PapermillExecutePreprocessor(
-            timeout=execution_timeout,
-            startup_timeout=start_timeout,
-            kernel_name=kernel_name
+            timeout=execution_timeout, startup_timeout=start_timeout, kernel_name=kernel_name
         )
         processor.log_output = log_output
         processor.preprocess(engine_nb, {})
