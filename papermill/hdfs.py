@@ -1,13 +1,9 @@
-from .s3 import retry
-
-import requests
-from six.moves import http_client
-
 import logging
 
 from pywebhdfs.errors import FileNotFound
-from pywebhdfs.webhdfs import (PyWebHdfsClient, _is_standby_exception,
-                               _move_active_host_to_head)
+from pywebhdfs.webhdfs import (PyWebHdfsClient)
+
+from .s3 import retry
 
 logger = logging.getLogger('papermill.hdfs')
 
