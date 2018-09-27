@@ -14,6 +14,7 @@ from . import __version__
 from .exceptions import PapermillException
 from .s3 import S3
 from .adl import ADL
+from .hdfs import HDFS
 
 
 class PapermillIO(object):
@@ -76,6 +77,29 @@ class HttpHandler(object):
         return path
 
 
+class HDFSHandler(object):
+    host = None
+    port = None
+    user_name = None
+
+    @classmethod
+    def read(cls, path):
+        hdfs_client = HDFS(host=cls.host, port=cls.port, user_name=cls.user_name);
+        return hdfs_client._read(path)
+    @classmethod
+    def listdir(cls, path):
+        hdfs_client = HDFS(host=cls.host, port=cls.port, user_name=cls.user_name);
+        return hdfs_client._list(path)
+
+    @classmethod
+    def write(cls, path):
+        hdfs_client = HDFS(host=cls.host, port=cls.port, user_name=cls.user_name);
+        return hdfs_client._write(path)
+
+    @classmethod
+    def pretty_path(cls, path):
+        return path
+
 class LocalHandler(object):
     @classmethod
     def read(cls, path):
@@ -97,7 +121,6 @@ class LocalHandler(object):
 
 
 class S3Handler(object):
-
     keyname = None
 
     @classmethod
@@ -154,6 +177,7 @@ papermill_io.register("s3://", S3Handler)
 papermill_io.register("adl://", ADLHandler)
 papermill_io.register("http://", HttpHandler)
 papermill_io.register("https://", HttpHandler)
+papermill_io.register("hdfs://", HDFSHandler)
 
 
 def read_yaml_file(path):
