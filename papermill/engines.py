@@ -1,37 +1,21 @@
+import sys
 import copy
 import datetime
 import dateutil
 
 from functools import wraps
 
+
 # tqdm creates 2 globals lock which raise OSException if the execution
 # environment does not have shared memory for processes, e.g. AWS Lambda
 try:
-    from tqdm import tqdm
-
+    from tqdm import tqdm, tqdm_notebook
     no_tqdm = False
 except OSError:
     no_tqdm = True
 
 from .preprocess import PapermillExecutePreprocessor
 from .iorw import write_ipynb
-
-
-def catch_nb_assignment(func):
-    """
-    Wrapper which helps catch `nb` keyword arguments and assign onto self
-    when passed to the wrapped function.
-    """
-
-    @wraps(func)
-    def wrapper(self, *args, **kwargs):
-        nb = kwargs.get('nb')
-        if nb:
-            # Reassign if executing notebook object was replaced
-            self.nb = nb
-        return func(self, *args, **kwargs)
-
-    return wrapper
 
 
 class PapermillEngines(object):
@@ -61,6 +45,25 @@ class PapermillEngines(object):
         Fetches the approiate engine and executes the nb object against it.
         """
         return self.get_engine(engine_name).wrap_and_execute_notebook(nb, kernel_name, **kwargs)
+
+
+def catch_nb_assignment(func):
+    """
+    Wrapper which helps catch `nb` keyword arguments and assign onto self
+    when passed to the wrapped function.
+    Used for callback methods when the caller may optionally have a new copy
+    of the originally wrapped `nb`object.
+    """
+
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        nb = kwargs.get('nb')
+        if nb:
+            # Reassign if executing notebook object was replaced
+            self.nb = nb
+        return func(self, *args, **kwargs)
+
+    return wrapper
 
 
 class EngineNotebookWrapper(object):
@@ -97,7 +100,14 @@ class EngineNotebookWrapper(object):
             # We want to inject newlines if we're printing content between enumerations
             bar_format += "\n"
 
-        self.pbar = tqdm(total=len(self.nb.cells), bar_format=self.DEFAULT_BAR_FORMAT)
+        if 'ipykernel' in sys.modules:
+            # Load the notebook version if we're being called from a notebook
+            self.pbar = tqdm_notebook(total=len(self.nb.cells))
+        else:
+            self.pbar = tqdm(total=len(self.nb.cells), bar_format=bar_format)
+
+    def now(self):
+        return datetime.datetime.utcnow()
 
     def set_timer(self):
         """
@@ -105,26 +115,23 @@ class EngineNotebookWrapper(object):
 
         This is called automatically when constructed.
         """
-        self.start_time = datetime.datetime.utcnow()
+        self.start_time = self.now()
         self.end_time = None
 
     @catch_nb_assignment
-    def save(self):
+    def save(self, **kwargs):
         """
-        If an output path is know, this triggers a save of the wrapped notebook
-        state to the provided path.
+        If an output path is known, this triggers a save of the wrapped
+        notebook state to the provided path.
+
+        Can be used outside of cell state changes if execution is taking
+        a long time to conclude but the notebook object should be synced.
+
+        e.g. you may want to save the notebook every 10 minutes when running
+        a 5 hour cell execution to capture output messages in the notebook.
         """
         if self.output_path:
             write_ipynb(self.nb, self.output_path)
-
-    @catch_nb_assignment
-    def tick(self, **kwargs):
-        """
-        Used for periodic io syncs by threaded engines.
-        Useful for long running cells where saving part-way through execution
-        gives downstream readers visibility in the output notebook path.
-        """
-        self.save()
 
     @catch_nb_assignment
     def notebook_start(self, **kwargs):
@@ -163,7 +170,7 @@ class EngineNotebookWrapper(object):
         Optionally called by engines during execution to initialize the
         metadata for a cell and save the notebook to the output path.
         """
-        start_time = datetime.datetime.utcnow()
+        start_time = self.now()
         cell.metadata['papermill']['start_time'] = start_time.isoformat()
         cell.metadata['papermill']["status"] = self.RUNNING
         cell.metadata['papermill']['exception'] = False
@@ -187,7 +194,7 @@ class EngineNotebookWrapper(object):
         Optionally called by engines during execution to finalize the
         metadata for a cell and save the notebook to the output path.
         """
-        end_time = datetime.datetime.utcnow()
+        end_time = self.now()
         cell.metadata['papermill']['end_time'] = end_time.isoformat()
         if 'start_time' not in cell.metadata['papermill']:
             start_time = dateutil.parser.parse(cell.metadata['papermill']['start_time'])
@@ -206,17 +213,24 @@ class EngineNotebookWrapper(object):
 
         Called by EngineBase when execution concludes, regardless of exceptions.
         """
-        self.end_time = datetime.datetime.utcnow()
+        self.end_time = self.now()
         if 'start_time' not in self.nb.metadata.papermill:
             self.nb.metadata.papermill['start_time'] = self.start_time.isoformat()
         self.nb.metadata.papermill['end_time'] = self.end_time.isoformat()
         self.nb.metadata.papermill['duration'] = (self.end_time - self.start_time).total_seconds()
 
-        if self.pbar:
-            self.pbar.close()
+        self.cleanup_pbar()
 
         # Force a final sync
         self.save()
+
+    def cleanup_pbar(self):
+        if self.pbar:
+            self.pbar.close()
+            self.pbar = None
+
+    def __del__(self):
+        self.cleanup_pbar()
 
 
 class EngineBase(object):
@@ -282,6 +296,7 @@ class NBConvertEngine(EngineBase):
             start_timeout (int): Duration to wait for kernel start-up.
             execution_timeout (int): Duration to wait before failing execution (default: never).
         """
+
         processor = PapermillExecutePreprocessor(
             timeout=execution_timeout, startup_timeout=start_timeout, kernel_name=kernel_name
         )
@@ -289,7 +304,7 @@ class NBConvertEngine(EngineBase):
         processor.preprocess(engine_nb, {})
 
 
-# Instantiate a PapermillIO instance and register Handlers.
+# Instantiate a PapermillEngines instance and register Handlers.
 papermill_engines = PapermillEngines()
 papermill_engines.register(None, NBConvertEngine)
 papermill_engines.register('nbconvert', NBConvertEngine)

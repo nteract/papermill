@@ -45,10 +45,10 @@ def execute_notebook(
     Returns:
          nb (NotebookNode): Executed notebook object
     """
-    logger.info("Input Notebook:  %s" % get_pretty_path(notebook))
-    logger.info("Output Notebook: %s" % get_pretty_path(output))
+    logger.info("Input Notebook:  %s" % get_pretty_path(input_path))
+    logger.info("Output Notebook: %s" % get_pretty_path(output_path))
 
-    nb = load_notebook_node(notebook)
+    nb = load_notebook_node(input_path)
     # Fetch the kernel name if it's not supplied
     kernel_name = kernel_name or nb.metadata.kernelspec.name
 
