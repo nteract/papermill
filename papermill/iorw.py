@@ -86,6 +86,7 @@ class HDFSHandler(object):
     def read(cls, path):
         hdfs_client = HDFS(host=cls.host, port=cls.port, user_name=cls.user_name);
         return hdfs_client._read(path)
+
     @classmethod
     def listdir(cls, path):
         hdfs_client = HDFS(host=cls.host, port=cls.port, user_name=cls.user_name);
@@ -99,6 +100,7 @@ class HDFSHandler(object):
     @classmethod
     def pretty_path(cls, path):
         return path
+
 
 class LocalHandler(object):
     @classmethod
