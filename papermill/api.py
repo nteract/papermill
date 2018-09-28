@@ -216,7 +216,7 @@ class Notebook(object):
         """
         outputs = _get_notebook_outputs(self.node)
         if name not in outputs:
-            raise PapermillException("Output Name '%s' is not available in this notebook.")
+            raise PapermillException("Output Name '%s' is not available in this notebook." % name)
         output = outputs[name]
         ip_display(output.data, metadata=output.metadata, raw=True)
 
