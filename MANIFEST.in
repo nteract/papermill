@@ -22,6 +22,7 @@ include .coveragerc
 graft docs
 # exclude build files
 prune docs/_build
-
+# exclude sample notebooks for binder
+prune binder/
 # Scripts
 graft scripts

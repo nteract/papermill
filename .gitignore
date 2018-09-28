@@ -105,3 +105,6 @@ ENV/
 
 # pytest
 .pytest_cache
+
+# Binder example
+binder/*run*.ipynb
