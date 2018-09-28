@@ -95,15 +95,14 @@ class EngineNotebookWrapper(object):
 
         This is called automatically when constructed.
         """
-        bar_format = self.DEFAULT_BAR_FORMAT
-        if self.log_output:
-            # We want to inject newlines if we're printing content between enumerations
-            bar_format += "\n"
-
         if 'ipykernel' in sys.modules:
             # Load the notebook version if we're being called from a notebook
             self.pbar = tqdm_notebook(total=len(self.nb.cells))
         else:
+            bar_format = self.DEFAULT_BAR_FORMAT
+            if self.log_output:
+                # We want to inject newlines if we're printing content between enumerations
+                bar_format += "\n"
             self.pbar = tqdm(total=len(self.nb.cells), bar_format=bar_format)
 
     def now(self):
@@ -144,6 +143,7 @@ class EngineNotebookWrapper(object):
         self.nb.metadata.papermill['start_time'] = self.start_time.isoformat()
         self.nb.metadata.papermill['end_time'] = None
         self.nb.metadata.papermill['duration'] = None
+        self.nb.metadata.papermill['exception'] = None
 
         for cell in self.nb.cells:
             # Reset the cell execution counts.
