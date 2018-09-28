@@ -52,6 +52,16 @@ class HDFS(object):
         except FileNotFound:
             return False
 
+    def _is_empty(self, path):
+        try:
+            file_status = self.__webhdfs.get_file_dir_status(path)
+            if len(file_status) > 0:
+                return False
+            else:
+                return True
+        except:
+            raise
+
     def _path_basename(self, path):
         base_path = path.split(self._path_separator)[:-1]
         return '/'.join(base_path)
