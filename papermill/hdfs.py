@@ -83,8 +83,8 @@ class HDFS(object):
                 return False
             else:
                 return True
-        except:
-            raise
+        except Exception as e:
+            raise e
 
     def _path_basename(self, path):
         """:param path:str
