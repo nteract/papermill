@@ -78,6 +78,7 @@ class EngineNotebookWrapper(object):
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
+    FAILED = "failed"
 
     def __init__(self, nb, output_path=None, log_output=False, progress_bar=True):
         # Deep copy the input to isolate the object being executed against
@@ -140,6 +141,8 @@ class EngineNotebookWrapper(object):
 
         Called by EngineBase when execution begins.
         """
+        self.set_timer()
+
         self.nb.metadata.papermill['start_time'] = self.start_time.isoformat()
         self.nb.metadata.papermill['end_time'] = None
         self.nb.metadata.papermill['duration'] = None
@@ -161,7 +164,6 @@ class EngineNotebookWrapper(object):
             if cell.get("outputs") is not None:
                 cell.outputs = []
 
-        self.set_timer()
         self.save()
 
     @catch_nb_assignment
@@ -170,22 +172,21 @@ class EngineNotebookWrapper(object):
         Optionally called by engines during execution to initialize the
         metadata for a cell and save the notebook to the output path.
         """
-        start_time = self.now()
-        cell.metadata['papermill']['start_time'] = start_time.isoformat()
+        cell.metadata['papermill']['start_time'] = self.now().isoformat()
         cell.metadata['papermill']["status"] = self.RUNNING
         cell.metadata['papermill']['exception'] = False
 
         self.save()
 
     @catch_nb_assignment
-    def cell_exception(self, cell=None, **kwargs):
+    def cell_exception(self, cell, **kwargs):
         """
         Called by engines when an exception is raised within a notebook to
         set the metadata on the notebook indicating the location of the
         failure.
         """
-        if cell:
-            cell.metadata['papermill']['exception'] = True
+        cell.metadata['papermill']['exception'] = True
+        cell.metadata['papermill']['status'] = self.FAILED
         self.nb.metadata['papermill']['exception'] = True
 
     @catch_nb_assignment
@@ -196,10 +197,11 @@ class EngineNotebookWrapper(object):
         """
         end_time = self.now()
         cell.metadata['papermill']['end_time'] = end_time.isoformat()
-        if 'start_time' not in cell.metadata['papermill']:
+        if cell.metadata['papermill'].get('start_time'):
             start_time = dateutil.parser.parse(cell.metadata['papermill']['start_time'])
             cell.metadata['papermill']['duration'] = (end_time - start_time).total_seconds()
-        cell.metadata['papermill']['status'] = self.COMPLETED
+        if cell.metadata['papermill']['status'] != self.FAILED:
+            cell.metadata['papermill']['status'] = self.COMPLETED
 
         self.save()
         if self.pbar:
@@ -214,10 +216,9 @@ class EngineNotebookWrapper(object):
         Called by EngineBase when execution concludes, regardless of exceptions.
         """
         self.end_time = self.now()
-        if 'start_time' not in self.nb.metadata.papermill:
-            self.nb.metadata.papermill['start_time'] = self.start_time.isoformat()
         self.nb.metadata.papermill['end_time'] = self.end_time.isoformat()
-        self.nb.metadata.papermill['duration'] = (self.end_time - self.start_time).total_seconds()
+        if self.nb.metadata.papermill.get('start_time'):
+            self.nb.metadata.papermill['duration'] = (self.end_time - self.start_time).total_seconds()
 
         self.cleanup_pbar()
 
@@ -261,6 +262,7 @@ class EngineBase(object):
             if nb:
                 engine_nb.nb = nb
         finally:
+            engine_nb.cleanup_pbar()
             engine_nb.notebook_complete()
 
         return engine_nb.nb
