@@ -107,8 +107,9 @@ class LocalHandler(object):
 
     @classmethod
     def write(cls, buf, path):
-        if not os.path.exists(os.path.dirname(path)):
-            raise FileNotFoundError('output folder {} doesn\'t exist.'.format(os.path.dirname(path)))
+        dirname = os.path.dirname(path)
+        if dirname and not os.path.exists(dirname):
+            raise FileNotFoundError("output folder {} doesn't exist.".format(dirname))
         with io.open(path, 'w', encoding="utf-8") as f:
             f.write(buf)
 

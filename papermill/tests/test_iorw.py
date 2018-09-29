@@ -123,6 +123,11 @@ class TestLocalHandler(unittest.TestCase):
         with self.assertRaises(FileNotFoundError):
             LocalHandler.write("buffer", "fake/path/fakenb.ipynb")
 
+    def test_write_local_directory(self):
+        with patch.object(io, 'open'):
+            # Shouldn't raise with missing directory
+            LocalHandler.write("buffer", "local.ipynb")
+
 
 class TestADLHandler(unittest.TestCase):
     """
