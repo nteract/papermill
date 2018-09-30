@@ -5,11 +5,11 @@ import dateutil
 
 from functools import wraps
 
-
 # tqdm creates 2 globals lock which raise OSException if the execution
 # environment does not have shared memory for processes, e.g. AWS Lambda
 try:
     from tqdm import tqdm, tqdm_notebook
+
     no_tqdm = False
 except OSError:
     no_tqdm = True
@@ -154,7 +154,7 @@ class EngineNotebookWrapper(object):
                 cell.execution_count = None
 
             # Clear out the papermill metadata for each cell.
-            cell.metadata['papermill'] = dict(
+            cell.metadata.papermill = dict(
                 exception=None,
                 start_time=None,
                 end_time=None,
@@ -172,9 +172,9 @@ class EngineNotebookWrapper(object):
         Optionally called by engines during execution to initialize the
         metadata for a cell and save the notebook to the output path.
         """
-        cell.metadata['papermill']['start_time'] = self.now().isoformat()
-        cell.metadata['papermill']["status"] = self.RUNNING
-        cell.metadata['papermill']['exception'] = False
+        cell.metadata.papermill['start_time'] = self.now().isoformat()
+        cell.metadata.papermill["status"] = self.RUNNING
+        cell.metadata.papermill['exception'] = False
 
         self.save()
 
@@ -185,9 +185,9 @@ class EngineNotebookWrapper(object):
         set the metadata on the notebook indicating the location of the
         failure.
         """
-        cell.metadata['papermill']['exception'] = True
-        cell.metadata['papermill']['status'] = self.FAILED
-        self.nb.metadata['papermill']['exception'] = True
+        cell.metadata.papermill['exception'] = True
+        cell.metadata.papermill['status'] = self.FAILED
+        self.nb.metadata.papermill['exception'] = True
 
     @catch_nb_assignment
     def cell_complete(self, cell, **kwargs):
@@ -196,12 +196,12 @@ class EngineNotebookWrapper(object):
         metadata for a cell and save the notebook to the output path.
         """
         end_time = self.now()
-        cell.metadata['papermill']['end_time'] = end_time.isoformat()
-        if cell.metadata['papermill'].get('start_time'):
-            start_time = dateutil.parser.parse(cell.metadata['papermill']['start_time'])
-            cell.metadata['papermill']['duration'] = (end_time - start_time).total_seconds()
-        if cell.metadata['papermill']['status'] != self.FAILED:
-            cell.metadata['papermill']['status'] = self.COMPLETED
+        cell.metadata.papermill['end_time'] = end_time.isoformat()
+        if cell.metadata.papermill.get('start_time'):
+            start_time = dateutil.parser.parse(cell.metadata.papermill['start_time'])
+            cell.metadata.papermill['duration'] = (end_time - start_time).total_seconds()
+        if cell.metadata.papermill['status'] != self.FAILED:
+            cell.metadata.papermill['status'] = self.COMPLETED
 
         self.save()
         if self.pbar:
@@ -218,7 +218,16 @@ class EngineNotebookWrapper(object):
         self.end_time = self.now()
         self.nb.metadata.papermill['end_time'] = self.end_time.isoformat()
         if self.nb.metadata.papermill.get('start_time'):
-            self.nb.metadata.papermill['duration'] = (self.end_time - self.start_time).total_seconds()
+            self.nb.metadata.papermill['duration'] = (
+                self.end_time - self.start_time
+            ).total_seconds()
+
+        # Cleanup cell statuses in case callbacks were never called
+        for cell in self.nb.cells:
+            if cell.metadata.papermill['status'] == self.FAILED:
+                break
+            elif cell.metadata.papermill['status'] == self.PENDING:
+                cell.metadata.papermill['status'] = self.COMPLETED
 
         self.cleanup_pbar()
 
@@ -226,7 +235,7 @@ class EngineNotebookWrapper(object):
         self.save()
 
     def cleanup_pbar(self):
-        if self.pbar:
+        if hasattr(self, 'pbar') and self.pbar:
             self.pbar.close()
             self.pbar = None
 
@@ -268,7 +277,7 @@ class EngineBase(object):
         return engine_nb.nb
 
     @classmethod
-    def execute_notebook(cls, engine_nb, **kwargs):
+    def execute_notebook(cls, engine_nb, kernel_name, **kwargs):
         raise NotImplementedError("'execute_notebook' is not implemented for this engine")
 
 
@@ -303,7 +312,7 @@ class NBConvertEngine(EngineBase):
             timeout=execution_timeout, startup_timeout=start_timeout, kernel_name=kernel_name
         )
         processor.log_output = log_output
-        processor.preprocess(engine_nb, {})
+        processor.preprocess(engine_nb, kwargs)
 
 
 # Instantiate a PapermillEngines instance and register Handlers.
