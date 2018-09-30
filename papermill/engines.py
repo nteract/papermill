@@ -14,6 +14,7 @@ try:
 except OSError:
     no_tqdm = True
 
+from .exceptions import PapermillException
 from .preprocess import PapermillExecutePreprocessor
 from .iorw import write_ipynb
 

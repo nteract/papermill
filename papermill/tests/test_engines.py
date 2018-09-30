@@ -1,11 +1,11 @@
 import sys
 import abc
 import copy
-import mock
 import dateutil
 import unittest
 
 from mock import Mock, PropertyMock, patch
+from nbformat.notebooknode import NotebookNode
 
 from . import get_notebook_path
 
@@ -315,7 +315,7 @@ class TestEngineBase(unittest.TestCase):
         '''
         with patch.object(EngineBase, 'execute_notebook') as exec_mock:
             with patch.object(engines, 'EngineNotebookWrapper') as wrap_mock:
-                nb = EngineBase.wrap_and_execute_notebook(
+                EngineBase.wrap_and_execute_notebook(
                     self.nb,
                     'python3',
                     output_path='foo.ipynb',
@@ -323,9 +323,6 @@ class TestEngineBase(unittest.TestCase):
                     log_output=True,
                     bar='baz',
                 )
-
-                self.assertIsNotNone(nb)
-                self.assertNotEqual(self.nb, nb)
 
                 wrap_mock.assert_called_once_with(
                     self.nb, output_path='foo.ipynb', progress_bar=False, log_output=True
@@ -349,6 +346,10 @@ class TestEngineBase(unittest.TestCase):
             nb = CellCallbackEngine.wrap_and_execute_notebook(
                 self.nb, 'python3', output_path='foo.ipynb'
             )
+
+            self.assertEqual(nb, AnyMock(NotebookNode))
+            self.assertNotEqual(self.nb, nb)
+
             self.assertEqual(save_mock.call_count, 8)
 
             self.assertIsNotNone(nb.metadata.papermill['start_time'])
@@ -373,6 +374,10 @@ class TestEngineBase(unittest.TestCase):
             nb = NoCellCallbackEngine.wrap_and_execute_notebook(
                 self.nb, 'python3', output_path='foo.ipynb'
             )
+
+            self.assertEqual(nb, AnyMock(NotebookNode))
+            self.assertNotEqual(self.nb, nb)
+
             self.assertEqual(save_mock.call_count, 2)
 
             self.assertIsNotNone(nb.metadata.papermill['start_time'])
@@ -412,6 +417,9 @@ class TestNBConvertEngine(unittest.TestCase):
                     execution_timeout=1000,
                 )
 
+                self.assertEqual(nb, AnyMock(NotebookNode))
+                self.assertNotEqual(self.nb, nb)
+
                 pep_mock.assert_called_once()
                 pep_mock.assert_called_once_with(
                     timeout=1000, startup_timeout=30, kernel_name='python3'
@@ -429,6 +437,7 @@ class TestNBConvertEngine(unittest.TestCase):
                 self.nb, 'python3', output_path='foo.ipynb', progress_bar=False, log_output=False
             )
             self.assertEqual(save_mock.call_count, 8)
+            self.assertEqual(nb, AnyMock(NotebookNode))
 
             self.assertIsNotNone(nb.metadata.papermill['start_time'])
             self.assertIsNotNone(nb.metadata.papermill['end_time'])

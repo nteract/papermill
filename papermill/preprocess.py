@@ -1,7 +1,6 @@
 from __future__ import unicode_literals, print_function
-from future.utils import raise_from
+from future.utils import raise_from  # noqa: F401
 
-import datetime
 import sys
 
 from nbconvert.preprocessors import ExecutePreprocessor
