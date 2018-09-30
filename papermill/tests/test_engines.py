@@ -376,26 +376,28 @@ class TestEngineBase(unittest.TestCase):
                 pass
 
         with patch.object(EngineNotebookWrapper, 'save') as save_mock:
-            nb = NoCellCallbackEngine.wrap_and_execute_notebook(
-                self.nb, 'python', output_path='foo.ipynb'
-            )
+            with patch.object(EngineNotebookWrapper, 'complete_pbar') as pbar_comp_mock:
+                nb = NoCellCallbackEngine.wrap_and_execute_notebook(
+                    self.nb, 'python', output_path='foo.ipynb'
+                )
 
-            self.assertEqual(nb, AnyMock(NotebookNode))
-            self.assertNotEqual(self.nb, nb)
+                self.assertEqual(nb, AnyMock(NotebookNode))
+                self.assertNotEqual(self.nb, nb)
 
-            self.assertEqual(save_mock.call_count, 2)
+                self.assertEqual(save_mock.call_count, 2)
+                pbar_comp_mock.assert_called_once()
 
-            self.assertIsNotNone(nb.metadata.papermill['start_time'])
-            self.assertIsNotNone(nb.metadata.papermill['end_time'])
-            self.assertEqual(nb.metadata.papermill['duration'], AnyMock(float))
-            self.assertFalse(nb.metadata.papermill['exception'])
+                self.assertIsNotNone(nb.metadata.papermill['start_time'])
+                self.assertIsNotNone(nb.metadata.papermill['end_time'])
+                self.assertEqual(nb.metadata.papermill['duration'], AnyMock(float))
+                self.assertFalse(nb.metadata.papermill['exception'])
 
-            for cell in nb.cells:
-                self.assertIsNone(cell.metadata.papermill['start_time'])
-                self.assertIsNone(cell.metadata.papermill['end_time'])
-                self.assertIsNone(cell.metadata.papermill['duration'])
-                self.assertIsNone(cell.metadata.papermill['exception'])
-                self.assertEqual(cell.metadata.papermill['status'], EngineNotebookWrapper.COMPLETED)
+                for cell in nb.cells:
+                    self.assertIsNone(cell.metadata.papermill['start_time'])
+                    self.assertIsNone(cell.metadata.papermill['end_time'])
+                    self.assertIsNone(cell.metadata.papermill['duration'])
+                    self.assertIsNone(cell.metadata.papermill['exception'])
+                    self.assertEqual(cell.metadata.papermill['status'], EngineNotebookWrapper.COMPLETED)
 
 
 class TestNBConvertEngine(unittest.TestCase):

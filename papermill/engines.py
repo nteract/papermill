@@ -230,10 +230,16 @@ class EngineNotebookWrapper(object):
             elif cell.metadata.papermill['status'] == self.PENDING:
                 cell.metadata.papermill['status'] = self.COMPLETED
 
+        self.complete_pbar()
         self.cleanup_pbar()
 
         # Force a final sync
         self.save()
+
+    def complete_pbar(self):
+        if hasattr(self, 'pbar') and self.pbar:
+            self.pbar.n = len(self.nb.cells)
+            self.pbar.refresh()
 
     def cleanup_pbar(self):
         if hasattr(self, 'pbar') and self.pbar:
