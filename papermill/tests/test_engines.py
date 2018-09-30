@@ -14,13 +14,16 @@ from ..iorw import load_notebook_node
 from ..engines import EngineNotebookWrapper, EngineBase, NBConvertEngine
 
 
+# ABC inheritable compatible with Python 2 and 3
+ABC = abc.ABCMeta('ABC', (object,), {'__slots__': ()})
+
 def AnyMock(cls):
     """
     Mocks a matcher for any instance of class cls.
     e.g. my_mock.called_once_with(Any(int), "bar")
     """
 
-    class AnyMock(metaclass=abc.ABCMeta):
+    class AnyMock(ABC):
         def __eq__(self, other):
             return isinstance(other, cls)
 
@@ -60,13 +63,14 @@ class TestEngineNotebookWrapper(unittest.TestCase):
 
     def test_notebook_pbar(self):
         # Need this or the tqdm notebook status printer fails
-        with patch('ipywidgets.IntProgress'):
-            with patch.dict(sys.modules, {'ipykernel': True}):
-                engine_nb = EngineNotebookWrapper(self.nb)
+        with patch('ipywidgets.HBox'):
+            with patch('ipywidgets.IntProgress'):
+                with patch.dict(sys.modules, {'ipykernel': True}):
+                    engine_nb = EngineNotebookWrapper(self.nb)
 
-        self.assertEqual(engine_nb.pbar.total, len(self.nb.cells))
-        self.assertEqual(engine_nb.pbar.gui, True)
-        self.assertEqual(engine_nb.pbar.bar_format, '{n}/|/{l_bar}{r_bar}')
+            self.assertEqual(engine_nb.pbar.total, len(self.nb.cells))
+            self.assertEqual(engine_nb.pbar.gui, True)
+            self.assertEqual(engine_nb.pbar.bar_format, '{n}/|/{l_bar}{r_bar}')
 
     def test_no_pbar(self):
         engine_nb = EngineNotebookWrapper(self.nb, progress_bar=False)
@@ -317,7 +321,7 @@ class TestEngineBase(unittest.TestCase):
             with patch.object(engines, 'EngineNotebookWrapper') as wrap_mock:
                 EngineBase.wrap_and_execute_notebook(
                     self.nb,
-                    'python3',
+                    'python',
                     output_path='foo.ipynb',
                     progress_bar=False,
                     log_output=True,
@@ -329,7 +333,7 @@ class TestEngineBase(unittest.TestCase):
                 )
                 wrap_mock.return_value.notebook_start.assert_called_once()
                 exec_mock.assert_called_once_with(
-                    wrap_mock.return_value, 'python3', log_output=True, bar='baz'
+                    wrap_mock.return_value, 'python', log_output=True, bar='baz'
                 )
                 wrap_mock.return_value.notebook_complete.assert_called_once()
                 wrap_mock.return_value.cleanup_pbar.assert_called_once()
@@ -344,7 +348,7 @@ class TestEngineBase(unittest.TestCase):
 
         with patch.object(EngineNotebookWrapper, 'save') as save_mock:
             nb = CellCallbackEngine.wrap_and_execute_notebook(
-                self.nb, 'python3', output_path='foo.ipynb'
+                self.nb, 'python', output_path='foo.ipynb'
             )
 
             self.assertEqual(nb, AnyMock(NotebookNode))
@@ -372,7 +376,7 @@ class TestEngineBase(unittest.TestCase):
 
         with patch.object(EngineNotebookWrapper, 'save') as save_mock:
             nb = NoCellCallbackEngine.wrap_and_execute_notebook(
-                self.nb, 'python3', output_path='foo.ipynb'
+                self.nb, 'python', output_path='foo.ipynb'
             )
 
             self.assertEqual(nb, AnyMock(NotebookNode))
@@ -408,7 +412,7 @@ class TestNBConvertEngine(unittest.TestCase):
             with patch.object(EngineNotebookWrapper, 'save') as save_mock:
                 nb = NBConvertEngine.wrap_and_execute_notebook(
                     self.nb,
-                    'python3',
+                    'python',
                     output_path='foo.ipynb',
                     progress_bar=False,
                     log_output=True,
@@ -422,7 +426,7 @@ class TestNBConvertEngine(unittest.TestCase):
 
                 pep_mock.assert_called_once()
                 pep_mock.assert_called_once_with(
-                    timeout=1000, startup_timeout=30, kernel_name='python3'
+                    timeout=1000, startup_timeout=30, kernel_name='python'
                 )
                 log_out_mock.assert_called_once_with(True)
                 pep_mock.return_value.preprocess.assert_called_once_with(
@@ -434,7 +438,7 @@ class TestNBConvertEngine(unittest.TestCase):
     def test_nb_convert_engine_execute(self):
         with patch.object(EngineNotebookWrapper, 'save') as save_mock:
             nb = NBConvertEngine.wrap_and_execute_notebook(
-                self.nb, 'python3', output_path='foo.ipynb', progress_bar=False, log_output=False
+                self.nb, 'python', output_path='foo.ipynb', progress_bar=False, log_output=False
             )
             self.assertEqual(save_mock.call_count, 8)
             self.assertEqual(nb, AnyMock(NotebookNode))
