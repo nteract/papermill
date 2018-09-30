@@ -26,7 +26,19 @@ Test additions are easy to create -- just copy the few language specific pytest 
 
 ## Engines
 
-TODO
+By default papermill uses nbconvert to process notebook. But it's setup as a plug-n-play system so any function which can process a notebook and return the output nbformat object can be registered into papermill.
+
+To enable a new engine, first look in `engines.py` at the `NBConvertEngine` as a working example. This class inherits from `EngineBase` and is required to implement the classmethod `execute_notebook`. The first argument to this method is an `EngineNotebookWrapper` -- which is built and passed in the base class `wrap_and_execute_notebook` classmethod -- and is used to provide callback bindings for cell execution signals.
+
+The `EngineNotebookWrapper` class tracks the notebook object in progress, which is copied from the input notebook to provide functional execution isolation. It also tracks metadata updates and execution timing. In general you don't need to worry about this class except to know it has a `nb` attribute and three callbacks you can call from your engine implementation.
+
+- `cell_start` takes a cell argument and sets the cell metadata up for execution. This triggers a notebook save.
+- `cell_exception` takes a cell argument and flags the cell as failed. This does **not** triggers a notebook save (as the notebook completion after cell failure will save).
+- `cell_complete` takes a cell argument and finalizes timing information in the cell metadata. This triggers a notebook save.
+
+These functions can be optionally called to better render and populate notebooks with appropriate metadata attributes to reflect their execution. Manually saving the notebook object is unnecessary as the base class wrapper will save the notebook on notebook start and completion on your behalf. If you wish to disable saving, overwrite the `wrap_and_execute_notebook` and prevent the `output_path` from propagating to the base method call.
+
+To update tests you'll need to add a new test class in `test_engines.py`. Copying the `TestNBConvertEngine` class and modifying it is recommended.
 
 ## CLI / Execute
 
