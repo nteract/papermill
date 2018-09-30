@@ -17,6 +17,7 @@ from ..engines import EngineNotebookWrapper, EngineBase, NBConvertEngine
 # ABC inheritable compatible with Python 2 and 3
 ABC = abc.ABCMeta('ABC', (object,), {'__slots__': ()})
 
+
 def AnyMock(cls):
     """
     Mocks a matcher for any instance of class cls.
