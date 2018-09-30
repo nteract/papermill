@@ -1,0 +1,3 @@
+-r ../requirements.txt
+matplotlib
+-e git://github.com/nteract/papermill.git#egg=master
