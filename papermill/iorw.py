@@ -84,17 +84,17 @@ class HDFSHandler(object):
 
     @classmethod
     def read(cls, path):
-        hdfs_client = HDFS(host=cls.host, port=cls.port, user_name=cls.user_name)
+        hdfs_client = HDFS(host=cls.host, port=cls.port, user=cls.user_name)
         return hdfs_client.read(path)
 
     @classmethod
     def listdir(cls, path):
-        hdfs_client = HDFS(host=cls.host, port=cls.port, user_name=cls.user_name)
+        hdfs_client = HDFS(host=cls.host, port=cls.port, user=cls.user_name)
         return hdfs_client.list(path)
 
     @classmethod
     def write(cls, path):
-        hdfs_client = HDFS(host=cls.host, port=cls.port, user_name=cls.user_name)
+        hdfs_client = HDFS(host=cls.host, port=cls.port, user=cls.user_name)
         return hdfs_client.write(path)
 
     @classmethod
