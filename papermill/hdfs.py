@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Utilities for working with S3."""
+"""Utilities for working with HDFS."""
 import logging
 
 from pywebhdfs.errors import FileNotFound
