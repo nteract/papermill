@@ -1,4 +1,5 @@
 import unittest
+import pytest
 
 try:
     from unittest.mock import patch
@@ -35,6 +36,10 @@ class TestNotebookClass(unittest.TestCase):
             columns=['name', 'value', 'type', 'filename'],
         )
         assert_frame_equal(nb.dataframe, expected_df)
+
+        with pytest.raises(PapermillException) as excinfo:
+            nb.display_output('foo')
+        assert "Output Name 'foo' is not available in this notebook." in str(excinfo.value)
 
     def test_bad_file_ext(self):
 
