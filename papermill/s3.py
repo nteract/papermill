@@ -16,14 +16,13 @@ import tempfile
 import threading
 import zlib
 
-
 import boto3
 from boto3.session import Session
 
 import six
 
 from .exceptions import AwsError, FileExistsError
-
+from .utils import retry
 
 logger = logging.getLogger('papermill.s3')
 
@@ -104,14 +103,14 @@ class Key(object):
     # TODO make size, etag, etc properties that can be called from the
     # object as needed
     def __init__(
-        self,
-        bucket,
-        name,
-        size=None,
-        etag=None,
-        last_modified=None,
-        storage_class=None,
-        service=None,
+            self,
+            bucket,
+            name,
+            size=None,
+            etag=None,
+            last_modified=None,
+            storage_class=None,
+            service=None,
     ):
         self.bucket = Bucket(bucket, service=service)
         self.name = name
@@ -131,24 +130,6 @@ class Key(object):
 
     def __repr__(self):
         return self.__str__()
-
-
-# retry decorator
-def retry(num):
-    def decorate(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            for i in range(num):
-                try:
-                    return func(*args, **kwargs)
-                except Exception as e:
-                    logger.debug('retrying: {}'.format(e))
-            else:
-                raise Exception  # TODO verify what to raise
-
-        return wrapper
-
-    return decorate
 
 
 class S3(object):
@@ -233,7 +214,6 @@ class S3(object):
                     self.total = total
 
                 def __call__(self, retr):
-
                     if self.total:
                         self.cur += retr  # TODO refactor cur and retr names
                         logger.debug(
@@ -314,14 +294,14 @@ class S3(object):
 
     @retry(3)
     def _list(
-        self,
-        prefix='',
-        bucket=None,
-        delimiter=None,
-        keys=False,
-        objects=False,
-        page_size=1000,
-        **kwargs
+            self,
+            prefix='',
+            bucket=None,
+            delimiter=None,
+            keys=False,
+            objects=False,
+            page_size=1000,
+            **kwargs
     ):
         assert bucket is not None, 'You must specify a bucket to list'
 
@@ -391,7 +371,7 @@ class S3(object):
         return key
 
     def _put_string(
-        self, source, dest, num_callbacks=10, policy='bucket-owner-full-control', **kwargs
+            self, source, dest, num_callbacks=10, policy='bucket-owner-full-control', **kwargs
     ):
         key = self._get_key(dest)
         obj = self.s3.Object(key.bucket.name, key.name)
@@ -416,13 +396,13 @@ class S3(object):
         return response['ContentLength']
 
     def cat(
-        self,
-        source,
-        buffersize=None,
-        memsize=2 ** 24,
-        compressed=False,
-        encoding='UTF-8',
-        raw=False,
+            self,
+            source,
+            buffersize=None,
+            memsize=2 ** 24,
+            compressed=False,
+            encoding='UTF-8',
+            raw=False,
     ):
         """
         Returns an iterator for the data in the key or nothing if the key
@@ -518,7 +498,7 @@ class S3(object):
             logger.debug('S3.catdir: %s', f)
             full_name = 's3://{}/{}'.format(f.bucket.name, f.name)
             for l in self.cat(
-                full_name, buffersize=buffersize, compressed=compressed, encoding=encoding
+                    full_name, buffersize=buffersize, compressed=compressed, encoding=encoding
             ):
                 yield l
 
@@ -838,7 +818,7 @@ class S3(object):
         bucket = self.s3.Bucket(self._bucket_name(target))
         errors = []
         for batch in self.__batches(
-            self._list(bucket=self._bucket_name(target), prefix=self._key_name(target), keys=True)
+                self._list(bucket=self._bucket_name(target), prefix=self._key_name(target), keys=True)
         ):
             keys = [dict(Key=n.name) for n in batch]
             response = bucket.delete_objects(Delete={'Objects': keys})
