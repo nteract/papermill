@@ -1,7 +1,8 @@
-from functools import wraps, reduce
+from functools import wraps
 import logging
 
 logger = logging.getLogger('papermill.utils')
+
 
 # retry decorator
 def retry(num):

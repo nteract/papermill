@@ -5,7 +5,7 @@ from past.builtins import basestring, str
 
 from concurrent import futures
 import fnmatch
-from functools import wraps, reduce
+from functools import reduce
 import gzip
 import itertools
 import logging
