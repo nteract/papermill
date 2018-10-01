@@ -19,11 +19,13 @@ class HDFS(object):
            :param user: HDFS user name used for authentication
            :param kerb_ticket: kerberos tickets for authenticating
            :param **kwargs for handling extra parameters following.
-           >>> fs = pa.hdfs.connect(host='host',port='50070', user='hdfs', kerb_ticket=None, **kwargs)
+           >>> fs = pa.hdfs.connect(host='host',port='50070', user='hdfs',
+           kerb_ticket=None, **kwargs)
        """
 
     def __init__(self, host=None, port=None, user=None, kerb_ticket=None, driver=None, **kwargs):
-        self.fs = pa.hdfs.connect(host, port, user=user, kerb_ticket=kerb_ticket, driver=driver, **kwargs)
+        self.fs = pa.hdfs.connect(host, port, user=user, kerb_ticket=kerb_ticket,
+                                  driver=driver, **kwargs)
 
     def path_separator(self):
         """:returns the path separator /"""
@@ -51,7 +53,8 @@ class HDFS(object):
             with self.fs.open(path, mode='r') as f:
                 return f.read()
         else:
-            raise FileNotFoundError("file {path} doesn't exist".format(path=path))
+            raise FileNotFoundError("file {path} doesn't exist"
+                                    .format(path=path))
 
     def write(self, path, content=None):
         with self.fs.open(path, mode='w') as f:
@@ -68,11 +71,13 @@ class HDFS(object):
             with self.fs.open(path, 'a+') as f:
                 f.write(content)
         else:
-            raise FileNotFoundError("parent path {path} doesn't exist".format(path=self.path_basename(path)))
+            raise FileNotFoundError("parent path {path} doesn't exist"
+                                    .format(path=self.path_basename(path)))
 
     @retry(3)
     def list(self, path, detail=False):
         if self.fs.exists(path):
             return self.fs.ls(path, detail)
         else:
-            raise FileNotFoundError("directory {path} doesn't exist".format(path=path))
+            raise FileNotFoundError("directory {path} doesn't exist"
+                                    .format(path=path))
