@@ -85,17 +85,17 @@ class HDFSHandler(object):
     @classmethod
     def read(cls, path):
         hdfs_client = HDFS(host=cls.host, port=cls.port, user_name=cls.user_name)
-        return hdfs_client._read(path)
+        return hdfs_client.read(path)
 
     @classmethod
     def listdir(cls, path):
         hdfs_client = HDFS(host=cls.host, port=cls.port, user_name=cls.user_name)
-        return hdfs_client._list(path)
+        return hdfs_client.list(path)
 
     @classmethod
     def write(cls, path):
         hdfs_client = HDFS(host=cls.host, port=cls.port, user_name=cls.user_name)
-        return hdfs_client._write(path)
+        return hdfs_client.write(path)
 
     @classmethod
     def pretty_path(cls, path):
@@ -179,7 +179,7 @@ papermill_io.register("s3://", S3Handler)
 papermill_io.register("adl://", ADLHandler)
 papermill_io.register("http://", HttpHandler)
 papermill_io.register("https://", HttpHandler)
-papermill_io.register("hdfs://", HDFSHandler)
+papermill_io.register("webhdfs://", HDFSHandler)
 
 
 def read_yaml_file(path):

@@ -85,78 +85,77 @@ class HDFS(object):
                 return True
 
 
-def path_basename(self, path):
-    """:param path:str
-       :returns base path of the given path"""
-    base_path = path.split(self.path_separator)[:-1]
-    return '/'.join(base_path)
+    def path_basename(self, path):
+        """:param path:str
+           :returns base path of the given path"""
+        base_path = path.split(self.path_separator)[:-1]
+        return '/'.join(base_path)
 
 
-@retry(3)
-def list(self, path):
-    """:param path:str
-       :returns lists the files in the directory"""
-    if self.exists(path) and not self.is_file(path):
-        hdfs_files = self.__webhdfs.list_dir(path)
-        if not path.endswith('/'):
-            path += '/'
-        for f in hdfs_files['FileStatuses']['FileStatus']:
-            yield path + f['pathSuffix']
-    else:
-        raise FileNotFound("directory {directory} doesn't exist".format(directory=path))
+    @retry(3)
+    def list(self, path):
+        """:param path:str
+           :returns lists the files in the directory"""
+        if self.exists(path) and not self.is_file(path):
+            hdfs_files = self.__webhdfs.list_dir(path)
+            if not path.endswith('/'):
+                path += '/'
+            for f in hdfs_files['FileStatuses']['FileStatus']:
+                yield path + f['pathSuffix']
+        else:
+            raise FileNotFound("directory {directory} doesn't exist".format(directory=path))
 
 
-def read(self, path, size=None, offset=0, binary=False):
-    """:param path:str
-       :returns reads contents of the given file path and returns"""
-    if self.exists(path) and not self.is_file(path):
-        raise FileNotFoundError("file {path} doesn't exist".format(path=path))
-    read = self.__webhdfs.read_file(path, offset=offset)
-    if not binary:
-        read = read.decode('utf-8')
-    return read
+    def read(self, path, size=None, offset=0, binary=False):
+        """:param path:str
+           :returns reads contents of the given file path and returns"""
+        if self.exists(path) and not self.is_file(path):
+            raise FileNotFoundError("file {path} doesn't exist".format(path=path))
+        read = self.__webhdfs.read_file(path, offset=offset)
+        if not binary:
+            read = read.decode('utf-8')
+        return read
 
 
-def write(self, path, s=""):
-    """:param path:str
-       :returns writes the given content to file. By default it'll overwrite the existing file's
-    contents. Can be disabled."""
-    if not self.exists(path) and self.exists(self.path_basename(path)):
-        return self.__webhdfs.create_file(path, s, overwrite=True)
-    else:
-        raise FileNotFound("parent directory {} doesn't exist".format(self.path_basename(path)))
+    def write(self, path, s=""):
+        """:param path:str
+           :returns writes the given content to file. By default it'll overwrite the existing file's
+        contents. Can be disabled."""
+        if not self.exists(path) and self.exists(self.path_basename(path)):
+            return self.__webhdfs.create_file(path, s, overwrite=True)
+        else:
+            raise FileNotFound("parent directory {} doesn't exist".format(self.path_basename(path)))
 
 
-def mkdir(self, path, recursive, exist_ok=False):
-    """:param path:str
-       creates the directory in hdfs"""
-    if not recursive and not self.is_dir(self.path_basename(path)):
-        raise IOError("No parent directory found for {}.".format(path))
-    if not exist_ok and self.exists(path):
-        raise IOError("Path already exists at {}.".format(path))
-    self.__webhdfs.make_dir(path)
+    def mkdir(self, path, recursive, exist_ok=False):
+        """:param path:str
+           creates the directory in hdfs"""
+        if not recursive and not self.is_dir(self.path_basename(path)):
+            raise IOError("No parent directory found for {}.".format(path))
+        if not exist_ok and self.exists(path):
+            raise IOError("Path already exists at {}.".format(path))
+        self.__webhdfs.make_dir(path)
 
 
-def remove(self, path, recursive):
-    """:param path:str
-       deletes the given path from hdfs"""
-    if self.exists(path):
-        if self.is_dir(path) and not self.is_empty(path) and not recursive:
-            raise IOError("Folder {folder} is not empty, pass recursive True".format(folder=path))
-        elif self.is_dir(path) and self.is_empty(path):
-            self.__webhdfs.delete_file_dir(path, True)
-            logger.info("path {folder} is delted".format(folder=path))
-        elif self.is_file(path):
-            self.__webhdfs.delete_file_dir(path, False)
-            logger.info("file {path} is deleted".format(path=path))
-    else:
-        raise FileNotFound("Path {path} doesn't exist".format(path=path))
+    def remove(self, path, recursive):
+        """:param path:str
+           deletes the given path from hdfs"""
+        if self.exists(path):
+            if self.is_dir(path) and not self.is_empty(path) and not recursive:
+                raise IOError("Folder {folder} is not empty, pass recursive True".format(folder=path))
+            elif self.is_dir(path) and self.is_empty(path):
+                self.__webhdfs.delete_file_dir(path, True)
+                logger.info("path {folder} is delted".format(folder=path))
+            elif self.is_file(path):
+                self.__webhdfs.delete_file_dir(path, False)
+                logger.info("file {path} is deleted".format(path=path))
+        else:
+            raise FileNotFound("Path {path} doesn't exist".format(path=path))
 
-
-def append(self, path, s, binary):
-    """:param path:str
-       appends given content to a file if exists"""
-    if self.exists(path) and self.is_file(path):
-        return self.__webhdfs.append_file(path, s)
-    else:
-        raise FileNotFound("File {path} doesn't exist".format(path=path))
+        def append(self, path, s, binary):
+            """:param path:str
+               appends given content to a file if exists"""
+            if self.exists(path) and self.is_file(path):
+                return self.__webhdfs.append_file(path, s)
+            else:
+                raise FileNotFound("File {path} doesn't exist".format(path=path))
