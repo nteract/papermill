@@ -179,7 +179,7 @@ papermill_io.register("s3://", S3Handler)
 papermill_io.register("adl://", ADLHandler)
 papermill_io.register("http://", HttpHandler)
 papermill_io.register("https://", HttpHandler)
-papermill_io.register("webhdfs://", HDFSHandler)
+papermill_io.register("hdfs://", HDFSHandler)
 
 
 def read_yaml_file(path):
