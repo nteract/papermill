@@ -109,7 +109,7 @@ class HDFS(object):
         """:param path:str
            :returns reads contents of the given file path and returns"""
         if self._exists(path) and not self._is_file(path):
-            raise IOError("file {path} doesn't exist".format(path=path))
+            raise FileNotFoundError("file {path} doesn't exist".format(path=path))
         read = self.__webhdfs.read_file(path, offset=offset, length='null' if size < 0 else size)
         if not binary:
             read = read.decode('utf-8')
