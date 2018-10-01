@@ -71,10 +71,8 @@ class HDFS(object):
             raise FileNotFoundError("parent path {path} doesn't exist".format(path=self.path_basename(path)))
 
     @retry(3)
-    def list(self, path, detail = False):
+    def list(self, path, detail=False):
         if self.fs.exists(path):
             return self.fs.ls(path, detail)
         else:
             raise FileNotFoundError("directory {path} doesn't exist".format(path=path))
-
-
