@@ -17,6 +17,8 @@ install:
   # Needed for python 3.7 on travis to import boto because there's a partial package in the root site packages
   - pip install google-compute-engine
   - python -m ipykernel install --user
+  - pip install Cython==0.23.4
+  - pip install -r requirements.txt
 before_script:
   - flake8 . --count --ignore=E203,E731,F811,W503 --max-complexity=23 --max-line-length=104 --show-source --statistics
 script:
