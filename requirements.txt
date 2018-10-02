@@ -15,5 +15,4 @@ requests
 azure-datalake-store >= 0.0.30
 numpy >= 1.15.1
 Cython
-CMake
 pyarrow >= 0.10.0
