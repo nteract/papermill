@@ -1,5 +1,16 @@
 # Change Log
 
+## 0.15.1
+
+- Added support for Julia kernels
+- Many improvements to README.md and documentation
+- nbconvert dependency pinned to >= 5.3
+- Improved error handling for missing directories
+- Warnings added when an unexpected file extension is used
+- Papermill version is visible to the CLI
+- More messages us logging module now (and can be filtered accordingly)
+- Binder link from README was greatly improved to demostrate papermill features
+
 ## 0.15.0
 
 - Moved translator functions into registry
