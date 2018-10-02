@@ -13,5 +13,6 @@ pre-commit
 # Until https://github.com/spulec/moto/issues/1793 is resolved
 boto3 < 1.8.0
 botocore < 1.11.0
+numpy >= 1.15.1
 Cython
-pyarrow
+pyarrow >= 0.10.0
