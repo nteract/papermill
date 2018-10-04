@@ -19,10 +19,11 @@ click.disable_unicode_literals_warning = True
 def print_papermill_version(ctx, param, value):
     if not value:
         return
-    print("{version} from {path} ({pyver})".format(
-        version=papermill_version,
-        path=__file__,
-        pyver=platform.python_version()))
+    print(
+        "{version} from {path} ({pyver})".format(
+            version=papermill_version, path=__file__, pyver=platform.python_version()
+        )
+    )
     ctx.exit()
 
 
@@ -44,14 +45,15 @@ def print_papermill_version(ctx, param, value):
 @click.option(
     '--parameters_base64', '-b', multiple=True, help='Base64 encoded YAML string as parameters.'
 )
+@click.option('--engine', help='The execution engine name to use in evaluating the notebook.')
 @click.option(
     '--prepare-only/--prepare-execute',
     default=False,
-    help="Flag for outputting the notebook without execution, " "but with parameters applied.",
+    help="Flag for outputting the notebook without execution, but with parameters applied.",
 )
 @click.option('--kernel', '-k', help='Name of kernel to run.')
 @click.option(
-    '--progress-bar/--no-progress-bar', default=True, help="Flag for turning on the progress bar."
+    '--progress-bar/--no-progress-bar', default=None, help="Flag for turning on the progress bar."
 )
 @click.option(
     '--log-output/--no-log-output',
@@ -62,8 +64,14 @@ def print_papermill_version(ctx, param, value):
     '--start_timeout', type=int, default=60, help="Time in seconds to wait for kernel to start."
 )
 @click.option('--report-mode/--not-report-mode', default=False, help="Flag for hiding input.")
-@click.option('--version', is_flag=True, callback=print_papermill_version,
-              expose_value=False, is_eager=True, help='Flag for displaying the version.')
+@click.option(
+    '--version',
+    is_flag=True,
+    callback=print_papermill_version,
+    expose_value=False,
+    is_eager=True,
+    help='Flag for displaying the version.',
+)
 def papermill(
     notebook_path,
     output_path,
@@ -72,6 +80,7 @@ def papermill(
     parameters_file,
     parameters_yaml,
     parameters_base64,
+    engine,
     prepare_only,
     kernel,
     progress_bar,
@@ -86,6 +95,9 @@ def papermill(
     output in the destination notebook.
 
     """
+    if progress_bar is None:
+        progress_bar = not log_output
+
     # Read in Parameters
     parameters_final = {}
     for params in parameters_base64 or []:
@@ -103,6 +115,7 @@ def papermill(
         notebook_path,
         output_path,
         parameters_final,
+        engine_name=engine,
         prepare_only=prepare_only,
         kernel_name=kernel,
         progress_bar=progress_bar,

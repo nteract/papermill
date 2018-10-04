@@ -260,11 +260,11 @@ def test_translate_uses_str_representation_of_unknown_types():
             return "foo"
 
     obj = FooClass()
-    assert translators.TranslatorBase.translate(obj) == '"foo"'
+    assert translators.Translator.translate(obj) == '"foo"'
 
 
 def test_translator_must_implement_translate_dict():
-    class MyNewTranslator(translators.TranslatorBase):
+    class MyNewTranslator(translators.Translator):
         pass
 
     with pytest.raises(NotImplementedError):
@@ -272,7 +272,7 @@ def test_translator_must_implement_translate_dict():
 
 
 def test_translator_must_implement_translate_list():
-    class MyNewTranslator(translators.TranslatorBase):
+    class MyNewTranslator(translators.Translator):
         pass
 
     with pytest.raises(NotImplementedError):
@@ -280,7 +280,7 @@ def test_translator_must_implement_translate_list():
 
 
 def test_translator_must_implement_comment():
-    class MyNewTranslator(translators.TranslatorBase):
+    class MyNewTranslator(translators.Translator):
         pass
 
     with pytest.raises(NotImplementedError):

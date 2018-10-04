@@ -18,11 +18,27 @@ _Note: You can also extend the registry in your own modules to enable domain spe
 
 When you wish to add a new language or kernel to papermill, look in the `translators.py` file.
 
-Like with the iorw pattern, there is a `papermill_translators` object at the root of the file which holds all key-value mappins from kernel / language names to translators. Each Translator inherits from TranslatorBase which gives the basic JSON conversion structures. Then for each JSON type you'll need to add a the relevant translate_type class method. Additionally, you'll want to implement the `comment` function for mapping single line comments. For languages which have a special format for assigning variables you can also override the assign method (see ScalaTranslator for an example).
+Like with the iorw pattern, there is a `papermill_translators` object at the root of the file which holds all key-value mappins from kernel / language names to translators. Each Translator inherits from `Translator` which gives the basic JSON conversion structures. Then for each JSON type you'll need to add a the relevant translate_type class method. Additionally, you'll want to implement the `comment` function for mapping single line comments. For languages which have a special format for assigning variables you can also override the assign method (see ScalaTranslator for an example).
 
 Finally, register the new handler to the `papermill_translators` object. The translator name must either match the kernelor language name being processed to be used for your notebook execution. This will enable any notebook using the named kernel to use your new parameter translations.
 
 Test additions are easy to create -- just copy the few language specific pytest methods in `test_translators.py` and swap to your new translator name / expected values.
+
+## Engines
+
+By default papermill uses nbconvert to process notebook. But it's setup as a plug-n-play system so any function which can process a notebook and return the output nbformat object can be registered into papermill.
+
+To enable a new engine, first look in `engines.py` at the `NBConvertEngine` as a working example. This class inherits from `Engine` and is required to implement the classmethod `execute_managed_notebook`. The first argument to this method is an `NotebookExecutionManager` -- which is built and passed in the Engine `execute_notebook` classmethod -- and is used to provide callback bindings for cell execution signals.
+
+The `NotebookExecutionManager` class tracks the notebook object in progress, which is copied from the input notebook to provide functional execution isolation. It also tracks metadata updates and execution timing. In general you don't need to worry about this class except to know it has a `nb` attribute and three callbacks you can call from your engine implementation.
+
+- `cell_start` takes a cell argument and sets the cell metadata up for execution. This triggers a notebook save.
+- `cell_exception` takes a cell argument and flags the cell as failed. This does **not** triggers a notebook save (as the notebook completion after cell failure will save).
+- `cell_complete` takes a cell argument and finalizes timing information in the cell metadata. This triggers a notebook save.
+
+These functions can be optionally called to better render and populate notebooks with appropriate metadata attributes to reflect their execution. Manually saving the notebook object is unnecessary as the base class wrapper will save the notebook on notebook start and completion on your behalf. If you wish to disable saving, overwrite the `wrap_and_execute_notebook` and prevent the `output_path` from propagating to the base method call.
+
+To update tests you'll need to add a new test class in `test_engines.py`. Copying the `TestNBConvertEngine` class and modifying it is recommended.
 
 ## CLI / Execute
 

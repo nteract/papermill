@@ -1,28 +1,24 @@
-import io
 import os
+import six
 import shutil
-import sys
 import tempfile
 import unittest
 
 from functools import partial
 
-import six
-
 try:
     from unittest.mock import patch
 except ImportError:
     from mock import patch
-import nbformat
 
 from nbconvert import HTMLExporter
 
+from .. import engines
+from ..log import logger
 from ..api import read_notebook
-from .. import execute
 from ..execute import execute_notebook
-from ..preprocess import log_output
 from ..exceptions import PapermillExecutionError
-from . import get_notebook_path, RedirectOutput
+from . import get_notebook_path
 
 
 if six.PY2:
@@ -44,18 +40,18 @@ class TestNotebookHelpers(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.test_dir)
 
-    @patch(execute.__name__ + '.PapermillExecutePreprocessor')
+    @patch(engines.__name__ + '.PapermillExecutePreprocessor')
     def test_start_timeout(self, preproc_mock):
         execute_notebook(self.notebook_path, self.nb_test_executed_fname, start_timeout=123)
         preproc_mock.assert_called_once_with(
-            timeout=None, startup_timeout=123, kernel_name=kernel_name
+            timeout=None, startup_timeout=123, kernel_name=kernel_name, log=logger
         )
 
-    @patch(execute.__name__ + '.PapermillExecutePreprocessor')
+    @patch(engines.__name__ + '.PapermillExecutePreprocessor')
     def test_default_start_timeout(self, preproc_mock):
         execute_notebook(self.notebook_path, self.nb_test_executed_fname)
         preproc_mock.assert_called_once_with(
-            timeout=None, startup_timeout=60, kernel_name=kernel_name
+            timeout=None, startup_timeout=60, kernel_name=kernel_name, log=logger
         )
 
     def test_cell_insertion(self):
@@ -170,53 +166,6 @@ class TestBrokenNotebook2(unittest.TestCase):
         self.assertEqual(nb.node.cells[3].execution_count, None)
 
 
-class TestLogging(unittest.TestCase):
-    def setUp(self):
-        self.saved_stdout = sys.stdout
-        self.out = io.StringIO()
-        sys.stdout = self.out
-
-    def tearDown(self):
-        sys.stdout = self.saved_stdout
-
-    def test_logging(self):
-
-        nb = nbformat.read(get_notebook_path('test_logging.ipynb'), as_version=4)
-
-        # stderr output
-        with RedirectOutput() as redirect:
-            for output in nb.cells[0].get("outputs", []):
-                log_output(output)
-            stdout = redirect.get_stdout()
-            self.assertEqual(stdout, u"")
-            stderr = redirect.get_stderr()
-            self.assertEqual(stderr, u"INFO:test:test text\n")
-
-        # stream output
-        with RedirectOutput() as redirect:
-            for output in nb.cells[1].get("outputs", []):
-                log_output(output)
-            stdout = redirect.get_stdout()
-            self.assertEqual(stdout, u'hello world\n')
-            stderr = redirect.get_stderr()
-            self.assertEqual(stderr, u'')
-
-        # text/plain output
-        with RedirectOutput() as redirect:
-            for output in nb.cells[2].get("outputs", []):
-                log_output(output)
-            stdout = redirect.get_stdout()
-            self.assertEqual(
-                stdout,
-                (
-                    "<matplotlib.axes._subplots.AxesSubplot at 0x7f8391f10290>\n"
-                    "<matplotlib.figure.Figure at 0x7f830af7b350>\n"
-                ),
-            )
-            stderr = redirect.get_stderr()
-            self.assertEqual(stderr, u'')
-
-
 class TestNBConvertCalls(unittest.TestCase):
     def setUp(self):
         self.test_dir = tempfile.mkdtemp()
@@ -230,7 +179,12 @@ class TestNBConvertCalls(unittest.TestCase):
         self.html_exporter.template_file = 'basic'
 
     def test_convert_output_to_html(self):
-        execute_notebook(self.notebook_path, self.nb_test_executed_fname, {'msg': 'Hello'})
+        execute_notebook(
+            self.notebook_path,
+            self.nb_test_executed_fname,
+            {'msg': 'Hello'},
+            engine_name='nbconvert',
+        )
         test_nb = read_notebook(self.nb_test_executed_fname)
 
         # Ensure the notebook builds valid html without crashing
