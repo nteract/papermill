@@ -8,7 +8,7 @@ class PapermillTranslators(object):
     '''
     The holder which houses any translator registered with the system.
     This object is used in a singleton manner to save and load particular
-    named TranslatorBase objects for reference externally.
+    named Translator objects for reference externally.
     '''
 
     def __init__(self):
@@ -30,7 +30,7 @@ class PapermillTranslators(object):
         )
 
 
-class TranslatorBase(object):
+class Translator(object):
     @classmethod
     def translate_raw_str(csl, val):
         """Reusable by most interpreters"""
@@ -109,7 +109,7 @@ class TranslatorBase(object):
         return content
 
 
-class PythonTranslator(TranslatorBase):
+class PythonTranslator(Translator):
     @classmethod
     def translate_bool(cls, val):
         return cls.translate_raw_str(val)
@@ -131,7 +131,7 @@ class PythonTranslator(TranslatorBase):
         return '# {}'.format(cmt_str).strip()
 
 
-class RTranslator(TranslatorBase):
+class RTranslator(Translator):
     @classmethod
     def translate_bool(cls, val):
         return 'TRUE' if val else 'FALSE'
@@ -153,7 +153,7 @@ class RTranslator(TranslatorBase):
         return '# {}'.format(cmt_str).strip()
 
 
-class ScalaTranslator(TranslatorBase):
+class ScalaTranslator(Translator):
     @classmethod
     def translate_int(cls, val):
         strval = cls.translate_raw_str(val)
@@ -182,7 +182,7 @@ class ScalaTranslator(TranslatorBase):
         return 'val {} = {}'.format(name, str_val)
 
 
-class JuliaTranslator(TranslatorBase):
+class JuliaTranslator(Translator):
     @classmethod
     def translate_dict(cls, val):
         escaped = ', '.join(

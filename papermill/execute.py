@@ -2,20 +2,17 @@
 
 from __future__ import unicode_literals, print_function
 
-import logging
 import os
 import six
 import copy
 import nbformat
 
+from .log import logger
 from .conf import settings
 from .exceptions import PapermillExecutionError
 from .iorw import load_notebook_node, write_ipynb, read_yaml_file, get_pretty_path
 from .translators import translate_parameters
 from .engines import papermill_engines
-
-logging.basicConfig(level=logging.INFO, format="%(message)s")
-logger = logging.getLogger('papermill')
 
 
 def execute_notebook(

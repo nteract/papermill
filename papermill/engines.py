@@ -14,6 +14,7 @@ try:
 except OSError:
     no_tqdm = True
 
+from .log import logger
 from .exceptions import PapermillException
 from .preprocess import PapermillExecutePreprocessor
 from .iorw import write_ipynb
@@ -23,7 +24,7 @@ class PapermillEngines(object):
     """
     The holder which houses any engine registered with the system.
     This object is used in a singleton manner to save and load particular
-    named EngineBase objects for reference externally.
+    named Engine objects for reference externally.
     """
 
     def __init__(self):
@@ -45,7 +46,7 @@ class PapermillEngines(object):
         """
         Fetches the approiate engine and executes the nb object against it.
         """
-        return self.get_engine(engine_name).wrap_and_execute_notebook(nb, kernel_name, **kwargs)
+        return self.get_engine(engine_name).execute_notebook(nb, kernel_name, **kwargs)
 
 
 def catch_nb_assignment(func):
@@ -67,11 +68,11 @@ def catch_nb_assignment(func):
     return wrapper
 
 
-class EngineNotebookWrapper(object):
+class NotebookExecutionManager(object):
     """
     This class is a wrapper for notebook objects to house execution state
     related to the notebook being run through an engine. In particular the
-    EngineNotebookWrapper provides common update callbacks for use within
+    NotebookExecutionManager provides common update callbacks for use within
     engines to facilitate metadata and persistence actions in a shared manner.
     """
 
@@ -86,7 +87,8 @@ class EngineNotebookWrapper(object):
         self.nb = copy.deepcopy(nb)
         self.output_path = output_path
         self.log_output = log_output
-        self.set_timer()
+        self.start_time = None
+        self.end_time = None
         self.pbar = None
         if progress_bar and not no_tqdm:
             self.set_pbar()
@@ -140,7 +142,7 @@ class EngineNotebookWrapper(object):
         Initializes and clears the metadata for the notebook and its cells, and
         saves the notebook to the output path.
 
-        Called by EngineBase when execution begins.
+        Called by Engine when execution begins.
         """
         self.set_timer()
 
@@ -214,7 +216,7 @@ class EngineNotebookWrapper(object):
         Finalizes the metadata for the notebook and saves the notebook to
         the output path.
 
-        Called by EngineBase when execution concludes, regardless of exceptions.
+        Called by Engine when execution concludes, regardless of exceptions.
         """
         self.end_time = self.now()
         self.nb.metadata.papermill['end_time'] = self.end_time.isoformat()
@@ -250,54 +252,54 @@ class EngineNotebookWrapper(object):
         self.cleanup_pbar()
 
 
-class EngineBase(object):
+class Engine(object):
     """
-    Base class from which engines should inherit and implement execute_notebook.
-    Defines wrap_and_execute_notebook method which is used to correctly setup
-    the EngineNotebookWrapper object for engines to interact against.
-    """
-
-    @classmethod
-    def wrap_and_execute_notebook(
-        cls, nb, kernel_name, output_path=None, progress_bar=True, log_output=False, **kwargs
-    ):
-        """
-        Wraps the notebook object in an EngineNotebookWrapper in order to track
-        execution state in a uniform manner. This is meant to help simplify
-        engine implementations to just focus on iterating and executing the
-        cell contents.
-        """
-        engine_nb = EngineNotebookWrapper(
-            nb, output_path=output_path, progress_bar=progress_bar, log_output=log_output
-        )
-
-        engine_nb.notebook_start()
-        try:
-            nb = cls.execute_notebook(engine_nb, kernel_name, log_output=log_output, **kwargs)
-            # Update the notebook object in case the executor didn't do it for us
-            if nb:
-                engine_nb.nb = nb
-        finally:
-            engine_nb.cleanup_pbar()
-            engine_nb.notebook_complete()
-
-        return engine_nb.nb
-
-    @classmethod
-    def execute_notebook(cls, engine_nb, kernel_name, **kwargs):
-        raise NotImplementedError("'execute_notebook' is not implemented for this engine")
-
-
-class NBConvertEngine(EngineBase):
-    """
-    A notebook engine which can execute a notebook document and update the
-    engine_nb.nb object with the results.
+    Base class from which engines should inherit and implement execute_managed_notebook.
+    Defines execute_notebook method which is used to correctly setup
+    the NotebookExecutionManager object for engines to interact against.
     """
 
     @classmethod
     def execute_notebook(
+        cls, nb, kernel_name, output_path=None, progress_bar=True, log_output=False, **kwargs
+    ):
+        """
+        Wraps the notebook object in an NotebookExecutionManager in order to track
+        execution state in a uniform manner. This is meant to help simplify
+        engine implementations to just focus on iterating and executing the
+        cell contents.
+        """
+        nb_man = NotebookExecutionManager(
+            nb, output_path=output_path, progress_bar=progress_bar, log_output=log_output
+        )
+
+        nb_man.notebook_start()
+        try:
+            nb = cls.execute_managed_notebook(nb_man, kernel_name, log_output=log_output, **kwargs)
+            # Update the notebook object in case the executor didn't do it for us
+            if nb:
+                nb_man.nb = nb
+        finally:
+            nb_man.cleanup_pbar()
+            nb_man.notebook_complete()
+
+        return nb_man.nb
+
+    @classmethod
+    def execute_managed_notebook(cls, nb_man, kernel_name, **kwargs):
+        raise NotImplementedError("'execute_managed_notebook' is not implemented for this engine")
+
+
+class NBConvertEngine(Engine):
+    """
+    A notebook engine which can execute a notebook document and update the
+    nb_man.nb object with the results.
+    """
+
+    @classmethod
+    def execute_managed_notebook(
         cls,
-        engine_nb,
+        nb_man,
         kernel_name,
         log_output=False,
         start_timeout=60,
@@ -316,10 +318,13 @@ class NBConvertEngine(EngineBase):
         """
 
         processor = PapermillExecutePreprocessor(
-            timeout=execution_timeout, startup_timeout=start_timeout, kernel_name=kernel_name
+            timeout=execution_timeout,
+            startup_timeout=start_timeout,
+            kernel_name=kernel_name,
+            log=logger,
         )
-        processor.log_output = log_output
-        processor.preprocess(engine_nb, kwargs)
+        processor.log_outputs = log_outputs
+        processor.preprocess(nb_man, kwargs)
 
 
 # Instantiate a PapermillEngines instance and register Handlers.
