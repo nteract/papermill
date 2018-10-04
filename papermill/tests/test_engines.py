@@ -111,9 +111,7 @@ class TestNotebookExecutionManager(unittest.TestCase):
         nb_man.save = Mock()
         nb_man.notebook_start()
 
-        self.assertEqual(
-            nb_man.nb.metadata.papermill['start_time'], nb_man.start_time.isoformat()
-        )
+        self.assertEqual(nb_man.nb.metadata.papermill['start_time'], nb_man.start_time.isoformat())
         self.assertIsNone(nb_man.nb.metadata.papermill['end_time'])
         self.assertIsNone(nb_man.nb.metadata.papermill['duration'])
         self.assertIsNone(nb_man.nb.metadata.papermill['exception'])
@@ -349,9 +347,7 @@ class TestEngineBase(unittest.TestCase):
                     nb_man.cell_complete(cell)
 
         with patch.object(NotebookExecutionManager, 'save') as save_mock:
-            nb = CellCallbackEngine.execute_notebook(
-                self.nb, 'python', output_path='foo.ipynb'
-            )
+            nb = CellCallbackEngine.execute_notebook(self.nb, 'python', output_path='foo.ipynb')
 
             self.assertEqual(nb, AnyMock(NotebookNode))
             self.assertNotEqual(self.nb, nb)
@@ -368,7 +364,9 @@ class TestEngineBase(unittest.TestCase):
                 self.assertIsNotNone(cell.metadata.papermill['end_time'])
                 self.assertEqual(cell.metadata.papermill['duration'], AnyMock(float))
                 self.assertFalse(cell.metadata.papermill['exception'])
-                self.assertEqual(cell.metadata.papermill['status'], NotebookExecutionManager.COMPLETED)
+                self.assertEqual(
+                    cell.metadata.papermill['status'], NotebookExecutionManager.COMPLETED
+                )
 
     def test_no_cell_callback_execute(self):
         class NoCellCallbackEngine(Engine):
@@ -398,7 +396,9 @@ class TestEngineBase(unittest.TestCase):
                     self.assertIsNone(cell.metadata.papermill['end_time'])
                     self.assertIsNone(cell.metadata.papermill['duration'])
                     self.assertIsNone(cell.metadata.papermill['exception'])
-                    self.assertEqual(cell.metadata.papermill['status'], NotebookExecutionManager.COMPLETED)
+                    self.assertEqual(
+                        cell.metadata.papermill['status'], NotebookExecutionManager.COMPLETED
+                    )
 
 
 class TestNBConvertEngine(unittest.TestCase):
@@ -430,10 +430,7 @@ class TestNBConvertEngine(unittest.TestCase):
 
                 pep_mock.assert_called_once()
                 pep_mock.assert_called_once_with(
-                    timeout=1000,
-                    startup_timeout=30,
-                    kernel_name='python',
-                    log=logger,
+                    timeout=1000, startup_timeout=30, kernel_name='python', log=logger
                 )
                 log_out_mock.assert_called_once_with(True)
                 pep_mock.return_value.preprocess.assert_called_once_with(
@@ -460,30 +457,43 @@ class TestNBConvertEngine(unittest.TestCase):
                 self.assertIsNotNone(cell.metadata.papermill['end_time'])
                 self.assertEqual(cell.metadata.papermill['duration'], AnyMock(float))
                 self.assertFalse(cell.metadata.papermill['exception'])
-                self.assertEqual(cell.metadata.papermill['status'], NotebookExecutionManager.COMPLETED)
+                self.assertEqual(
+                    cell.metadata.papermill['status'], NotebookExecutionManager.COMPLETED
+                )
 
     def test_nb_convert_log_outputs(self):
         with patch.object(logger, 'info') as info_mock:
             with patch.object(logger, 'warning') as warning_mock:
-                with patch.object(NotebookExecutionManager, 'save') as save_mock:
-                    nb = NBConvertEngine.execute_notebook(
-                        self.nb, 'python', output_path='foo.ipynb', progress_bar=False, log_output=True
+                with patch.object(NotebookExecutionManager, 'save'):
+                    NBConvertEngine.execute_notebook(
+                        self.nb,
+                        'python',
+                        output_path='foo.ipynb',
+                        progress_bar=False,
+                        log_output=True,
                     )
                     info_mock.assert_has_calls(
-                        [call('Executing notebook with kernel: python'),
-                         call('Executing Cell 1---------------------------------------'),
-                         call('Ending Cell 1------------------------------------------'),
-                         call('Executing Cell 2---------------------------------------'),
-                         call('None\n'),
-                         call('Ending Cell 2------------------------------------------')])
+                        [
+                            call('Executing notebook with kernel: python'),
+                            call('Executing Cell 1---------------------------------------'),
+                            call('Ending Cell 1------------------------------------------'),
+                            call('Executing Cell 2---------------------------------------'),
+                            call('None\n'),
+                            call('Ending Cell 2------------------------------------------'),
+                        ]
+                    )
                     warning_mock.is_not_called()
 
     def test_nb_convert_no_log_outputs(self):
         with patch.object(logger, 'info') as info_mock:
             with patch.object(logger, 'warning') as warning_mock:
-                with patch.object(NotebookExecutionManager, 'save') as save_mock:
-                    nb = NBConvertEngine.execute_notebook(
-                        self.nb, 'python', output_path='foo.ipynb', progress_bar=False, log_output=False
+                with patch.object(NotebookExecutionManager, 'save'):
+                    NBConvertEngine.execute_notebook(
+                        self.nb,
+                        'python',
+                        output_path='foo.ipynb',
+                        progress_bar=False,
+                        log_output=False,
                     )
                     info_mock.is_not_called()
                     warning_mock.is_not_called()

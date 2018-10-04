@@ -5,8 +5,6 @@ import sys
 
 from nbconvert.preprocessors import ExecutePreprocessor
 from nbconvert.preprocessors.execute import CellExecutionError
-from collections import MutableSequence
-from nbformat import NotebookNode
 from nbformat.v4 import output_from_msg
 
 try:

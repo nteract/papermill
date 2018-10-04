@@ -8,10 +8,10 @@ from . import get_notebook_path
 from ..log import logger
 from ..preprocess import PapermillExecutePreprocessor
 
+
 class TestPapermillExecutePreprocessor(unittest.TestCase):
     def setUp(self):
-        self.nb = nbformat.read(
-            get_notebook_path('test_logging.ipynb'), as_version=4)
+        self.nb = nbformat.read(get_notebook_path('test_logging.ipynb'), as_version=4)
         self.preprocessor = PapermillExecutePreprocessor(log=logger)
         self.preprocessor.nb = self.nb
 
@@ -31,7 +31,9 @@ class TestPapermillExecutePreprocessor(unittest.TestCase):
         with patch.object(logger, 'info') as info_mock:
             for output in self.nb.cells[2].get("outputs", []):
                 self.preprocessor.log_output_message(output)
-            info_mock.assert_has_calls([
-                call("<matplotlib.axes._subplots.AxesSubplot at 0x7f8391f10290>"),
-                call("<matplotlib.figure.Figure at 0x7f830af7b350>"),
-            ])
+            info_mock.assert_has_calls(
+                [
+                    call("<matplotlib.axes._subplots.AxesSubplot at 0x7f8391f10290>"),
+                    call("<matplotlib.figure.Figure at 0x7f830af7b350>"),
+                ]
+            )

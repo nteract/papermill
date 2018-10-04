@@ -1,5 +1,4 @@
 import os
-import sys
 import six
 import shutil
 import tempfile
@@ -45,20 +44,14 @@ class TestNotebookHelpers(unittest.TestCase):
     def test_start_timeout(self, preproc_mock):
         execute_notebook(self.notebook_path, self.nb_test_executed_fname, start_timeout=123)
         preproc_mock.assert_called_once_with(
-            timeout=None,
-            startup_timeout=123,
-            kernel_name=kernel_name,
-            log=logger,
+            timeout=None, startup_timeout=123, kernel_name=kernel_name, log=logger
         )
 
     @patch(engines.__name__ + '.PapermillExecutePreprocessor')
     def test_default_start_timeout(self, preproc_mock):
         execute_notebook(self.notebook_path, self.nb_test_executed_fname)
         preproc_mock.assert_called_once_with(
-            timeout=None,
-            startup_timeout=60,
-            kernel_name=kernel_name,
-            log=logger,
+            timeout=None, startup_timeout=60, kernel_name=kernel_name, log=logger
         )
 
     def test_cell_insertion(self):
