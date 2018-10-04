@@ -317,14 +317,16 @@ class NBConvertEngine(Engine):
             execution_timeout (int): Duration to wait before failing execution (default: never).
         """
 
-        processor = PapermillExecutePreprocessor(
+        # The preprocessor concept is from nbconvert, and is misleading here.
+        # It actually represents a notebook processor, not a preparation object.
+        preprocessor = PapermillExecutePreprocessor(
             timeout=execution_timeout,
             startup_timeout=start_timeout,
             kernel_name=kernel_name,
             log=logger,
         )
-        processor.log_outputs = log_outputs
-        processor.preprocess(nb_man, kwargs)
+        preprocessor.log_output = log_output
+        preprocessor.preprocess(nb_man, kwargs)
 
 
 # Instantiate a PapermillEngines instance and register Handlers.

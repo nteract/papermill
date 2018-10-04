@@ -53,7 +53,7 @@ def print_papermill_version(ctx, param, value):
 )
 @click.option('--kernel', '-k', help='Name of kernel to run.')
 @click.option(
-    '--progress-bar/--no-progress-bar', default=True, help="Flag for turning on the progress bar."
+    '--progress-bar/--no-progress-bar', default=None, help="Flag for turning on the progress bar."
 )
 @click.option(
     '--log-output/--no-log-output',
@@ -95,6 +95,9 @@ def papermill(
     output in the destination notebook.
 
     """
+    if progress_bar is None:
+        progress_bar = not log_output
+
     # Read in Parameters
     parameters_final = {}
     for params in parameters_base64 or []:

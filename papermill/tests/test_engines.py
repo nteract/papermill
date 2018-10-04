@@ -4,12 +4,13 @@ import copy
 import dateutil
 import unittest
 
-from mock import Mock, PropertyMock, patch
+from mock import Mock, PropertyMock, patch, call
 from nbformat.notebooknode import NotebookNode
 
 from . import get_notebook_path
 
 from .. import engines
+from ..log import logger
 from ..iorw import load_notebook_node
 from ..engines import NotebookExecutionManager, Engine, NBConvertEngine
 
@@ -429,7 +430,10 @@ class TestNBConvertEngine(unittest.TestCase):
 
                 pep_mock.assert_called_once()
                 pep_mock.assert_called_once_with(
-                    timeout=1000, startup_timeout=30, kernel_name='python'
+                    timeout=1000,
+                    startup_timeout=30,
+                    kernel_name='python',
+                    log=logger,
                 )
                 log_out_mock.assert_called_once_with(True)
                 pep_mock.return_value.preprocess.assert_called_once_with(
@@ -441,7 +445,7 @@ class TestNBConvertEngine(unittest.TestCase):
     def test_nb_convert_engine_execute(self):
         with patch.object(NotebookExecutionManager, 'save') as save_mock:
             nb = NBConvertEngine.execute_notebook(
-                self.nb, 'python', output_path='foo.ipynb', progress_bar=False, log_output=False
+                self.nb, 'python', output_path='foo.ipynb', progress_bar=False, log_output=True
             )
             self.assertEqual(save_mock.call_count, 8)
             self.assertEqual(nb, AnyMock(NotebookNode))
@@ -457,3 +461,29 @@ class TestNBConvertEngine(unittest.TestCase):
                 self.assertEqual(cell.metadata.papermill['duration'], AnyMock(float))
                 self.assertFalse(cell.metadata.papermill['exception'])
                 self.assertEqual(cell.metadata.papermill['status'], NotebookExecutionManager.COMPLETED)
+
+    def test_nb_convert_log_outputs(self):
+        with patch.object(logger, 'info') as info_mock:
+            with patch.object(logger, 'warning') as warning_mock:
+                with patch.object(NotebookExecutionManager, 'save') as save_mock:
+                    nb = NBConvertEngine.execute_notebook(
+                        self.nb, 'python', output_path='foo.ipynb', progress_bar=False, log_output=True
+                    )
+                    info_mock.assert_has_calls(
+                        [call('Executing notebook with kernel: python'),
+                         call('Executing Cell 1---------------------------------------'),
+                         call('Ending Cell 1------------------------------------------'),
+                         call('Executing Cell 2---------------------------------------'),
+                         call('None\n'),
+                         call('Ending Cell 2------------------------------------------')])
+                    warning_mock.is_not_called()
+
+    def test_nb_convert_no_log_outputs(self):
+        with patch.object(logger, 'info') as info_mock:
+            with patch.object(logger, 'warning') as warning_mock:
+                with patch.object(NotebookExecutionManager, 'save') as save_mock:
+                    nb = NBConvertEngine.execute_notebook(
+                        self.nb, 'python', output_path='foo.ipynb', progress_bar=False, log_output=False
+                    )
+                    info_mock.is_not_called()
+                    warning_mock.is_not_called()

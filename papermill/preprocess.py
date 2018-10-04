@@ -5,6 +5,8 @@ import sys
 
 from nbconvert.preprocessors import ExecutePreprocessor
 from nbconvert.preprocessors.execute import CellExecutionError
+from collections import MutableSequence
+from nbformat import NotebookNode
 from nbformat.v4 import output_from_msg
 
 try:
@@ -13,98 +15,34 @@ except ImportError:
     from Queue import Empty  # Py 2
 
 
-def log_output(output):
-    if output.output_type == "stream":
-        if output.name == "stdout":
-            sys.stdout.write("".join(output.text))
-        elif output.name == "stderr":
-            sys.stderr.write("".join(output.text))
-    elif "data" in output and "text/plain" in output.data:
-        sys.stdout.write("".join(output.data['text/plain']) + "\n")
-    # Force a flush to avoid long python buffering for messages
-    sys.stdout.flush()
-    sys.stderr.flush()
-
-
 class PapermillExecutePreprocessor(ExecutePreprocessor):
     """Module containing a preprocessor that executes the code cells
     and updates outputs"""
 
-    # Copyright (c) IPython Development Team.
-    # Distributed under the terms of the Modified BSD License.
-
-    # TODO: Delete this wrapper and push shared changes to nbconvert
-
-    def preprocess(self, engine_nb, resources):
+    def preprocess(self, nb_man, resources, km=None):
         """
-        Copied with one edit of super -> papermill_preprocessor from nbconvert
-
-        Preprocess notebook executing each code cell.
-
-        The input argument `nb` is modified in-place.
-
-        Parameters
-        ----------
-        engine_nb : EngineNotebookWrapper
-            Wrapped notebook being executed.
-        resources : dictionary
-            Additional resources used in the conversion process. For example,
-            passing ``{'metadata': {'path': run_path}}`` sets the
-            execution path to ``run_path``.
-
-
-        Returns
-        -------
-        nb : NotebookNode
-            The executed notebook.
-        resources : dictionary
-            Additional resources used in the conversion process.
+        Wraps the parent class process call slightly
         """
-        nb = engine_nb.nb
-        path = resources.get('metadata', {}).get('path') or None
-
-        # clear display_id map
-        self._display_id_map = {}
-
-        kernel_name = nb.metadata.get('kernelspec', {}).get('name', 'python')
-        if self.kernel_name:
-            kernel_name = self.kernel_name
-        self.log.info("Executing notebook with kernel: %s" % kernel_name)
-        self.km, self.kc = self.start_new_kernel(
-            startup_timeout=self.startup_timeout,
-            kernel_name=kernel_name,
-            extra_arguments=self.extra_arguments,
-            cwd=path,
-        )
-        self.kc.allow_stdin = False
-        # Parent class requires self.nb to be present temporarily during preproc
-        self.nb = nb
-
-        try:
-            nb, resources = self.papermill_process(engine_nb, resources)
-        finally:
-            self.kc.stop_channels()
-            self.km.shutdown_kernel(now=self.shutdown_kernel == 'immediate')
-            # Parent class required self.nb be removed after preproc
-            delattr(self, 'nb')
+        with self.setup_preprocessor(nb_man.nb, resources, km=km):
+            if self.log_output:
+                self.log.info("Executing notebook with kernel: %s" % self.kernel_name)
+            nb, resources = self.papermill_process(nb_man, resources)
+            info_msg = self._wait_for_reply(self.kc.kernel_info())
+            nb.metadata['language_info'] = info_msg['content']['language_info']
 
         return nb, resources
 
-    def start_new_kernel(self, startup_timeout=60, kernel_name='python', **kwargs):
-        km = self.kernel_manager_class(kernel_name=kernel_name)
-        km.start_kernel(**kwargs)
-        kc = km.client()
-        kc.start_channels()
-        try:
-            kc.wait_for_ready(timeout=startup_timeout)
-        except RuntimeError:
-            kc.stop_channels()
-            km.shutdown_kernel()
-            raise
+    def start_new_kernel(self, **kwargs):
+        """
+        Wraps the parent class process call slightly
+        """
+        km, kc = super(PapermillExecutePreprocessor, self).start_new_kernel(**kwargs)
+        # Note sure if we need this anymore?
+        kc.allow_stdin = False
 
         return km, kc
 
-    def papermill_process(self, engine_nb, resources):
+    def papermill_process(self, nb_man, resources):
         """
         This function acts as a replacement for the grandparent's `preprocess`
         method.
@@ -123,7 +61,7 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
 
         Parameters
         ----------
-        engine_nb : EngineNotebookWrapper
+        nb_man : NotebookExecutionManager
             Engine wrapper of notebook being converted
         resources : dictionary
             Additional resources used in the conversion process.  Allows
@@ -131,23 +69,40 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
 
         """
         # Execute each cell and update the output in real time.
-        nb = engine_nb.nb
+        nb = nb_man.nb
         for index, cell in enumerate(nb.cells):
             try:
-                engine_nb.cell_start(cell)
+                nb_man.cell_start(cell)
                 if not cell.source:
                     continue
                 nb.cells[index], resources = self.preprocess_cell(cell, resources, index)
             except CellExecutionError as ex:
-                engine_nb.cell_exception(nb.cells[index], exception=ex)
+                nb_man.cell_exception(nb.cells[index], exception=ex)
                 break
             finally:
-                engine_nb.cell_complete(nb.cells[index])
+                nb_man.cell_complete(nb.cells[index])
         return nb, resources
 
+    def log_output_message(self, output):
+        if output.output_type == "stream":
+            if output.name == "stdout":
+                self.log.info("".join(output.text))
+            elif output.name == "stderr":
+                # In case users want to redirect stderr differently, pipe to warning
+                self.log.warning("".join(output.text))
+        elif "data" in output and "text/plain" in output.data:
+            self.log.info("".join(output.data['text/plain']))
+        # Force a flush to avoid long python buffering for messages
+        sys.stdout.flush()
+        sys.stderr.flush()
+
+    # TODO: Update nbconvert to allow for msg yielding so we can log as messages arrive
     def run_cell(self, cell, cell_index=0):
         msg_id = self.kc.execute(cell.source)
-        self.log.debug("Executing cell:\n%s", cell.source)
+        # Log check added to original implementation
+        if self.log_output:
+            self.log.info('Executing Cell {:-<40}'.format(cell_index + 1))
+        self.log.debug("Executing cell contents:\n%s", cell.source)
         outs = cell.outputs = []
 
         while True:
@@ -179,10 +134,6 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
                 else:
                     continue
             elif msg_type == 'execute_input':
-                if self.log_output:
-                    sys.stdout.write(
-                        'Executing Cell {:-<40}\n'.format(content.get("execution_count", "*"))
-                    )
                 continue
             elif msg_type == 'clear_output':
                 outs[:] = []
@@ -213,18 +164,17 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
                 output_idx_list = cell_map.setdefault(cell_index, [])
                 output_idx_list.append(len(outs))
 
+            # Log check added to original implementation
             if self.log_output:
-                log_output(out)
+                self.log_output_message(out)
             outs.append(out)
 
         exec_reply = self._wait_for_reply(msg_id, cell)
+        # Log check added to original implementation
         if self.log_output:
-            sys.stdout.write(
-                'Ending Cell {:-<43}\n'.format(
-                    exec_reply.get("content", {}).get("execution_count", content)
-                )
-            )
+            self.log.info('Ending Cell {:-<43}'.format(cell_index + 1))
             # Ensure our last cell messages are not buffered by python
             sys.stdout.flush()
+            sys.stderr.flush()
 
         return exec_reply, outs

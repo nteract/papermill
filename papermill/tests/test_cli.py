@@ -307,6 +307,22 @@ class TestCLI(unittest.TestCase):
             prepare_only=False,
             kernel_name=None,
             log_output=True,
+            progress_bar=False,
+            start_timeout=60,
+            report_mode=False,
+        )
+
+    @patch(cli.__name__ + '.execute_notebook')
+    def test_log_output_plus_progress(self, execute_patch):
+        self.runner.invoke(papermill, self.default_args + ['--log-output', '--progress-bar'])
+        execute_patch.assert_called_with(
+            'input.ipynb',
+            'output.ipynb',
+            {},
+            engine_name=None,
+            prepare_only=False,
+            kernel_name=None,
+            log_output=True,
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
