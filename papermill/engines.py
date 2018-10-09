@@ -1,7 +1,11 @@
+import os
 import sys
 import copy
+import json
+import time
 import datetime
 import dateutil
+import tempfile
 
 from functools import wraps
 
@@ -290,6 +294,92 @@ class Engine(object):
         raise NotImplementedError("'execute_managed_notebook' is not implemented for this engine")
 
 
+class KaggleEngine(Engine):
+    """
+    A kaggle.com based execution engine.
+    """
+
+    METADATA = {
+        # "id": "betatim/slug-slug-blah",
+        # "title": "Slug slug blah",
+        "code_file": "notebook.ipynb",
+        # "language": "python",
+        "kernel_type": "notebook",
+        "is_private": "true",
+        "enable_gpu": "false",
+        "enable_internet": "false",
+        "dataset_sources": [],
+        "competition_sources": [],
+        "kernel_sources": [],
+    }
+
+    def _wait_for(kernel_id):
+        """Wait for `kernel_name` to finish executing"""
+        import kaggle
+
+        while True:
+            time.sleep(1)
+            status = kaggle.api.kernels_status(kernel_id)
+            if status['status'] == 'complete':
+                break
+
+    @classmethod
+    def execute_managed_notebook(
+        cls,
+        nb_man,
+        kernel_name,
+        log_output=False,
+        start_timeout=60,
+        execution_timeout=None,
+        **kwargs
+    ):
+        """
+        Performs the actual execution of the parameterized notebook locally.
+
+        Args:
+            nb (NotebookNode): Executable notebook object.
+            kernel_name (str): Name of kernel to execute the notebook against.
+            start_timeout (int): Duration to wait for kernel start-up.
+            execution_timeout (int): Duration to wait before failing execution (default: never).
+        """
+        import kaggle
+
+        # make sure to operate on a copy
+        metadata = dict(cls.METADATA)
+        username = kaggle.api.get_config_value(kaggle.api.CONFIG_NAME_USER)
+
+        slug = "blah-haha"
+        metadata['id'] = '/'.join((username, slug))
+        metadata['title'] = "blah Haha"
+        # Kaggle only supports Python 3?
+        if kernel_name == 'python3':
+            kernel_name = 'python'
+        metadata['language'] = kernel_name
+
+        with tempfile.TemporaryDirectory() as work_dir:
+            nb_fname = os.path.join(work_dir, 'notebook.ipynb')
+            metadata_fname = os.path.join(work_dir, 'kernel-metadata.json')
+
+            with open(nb_fname, 'w') as f:
+                json.dump(nb_man.nb, f)
+
+            with open(metadata_fname, 'w') as f:
+                json.dump(metadata, f)
+
+            kaggle.api.kernels_push_cli(work_dir)
+            cls._wait_for(metadata['id'])
+
+        with tempfile.TemporaryDirectory() as work_dir:
+            kaggle.api.kernels_pull_cli(metadata['id'], path=work_dir)
+            print(work_dir)
+            import pdb; pdb.set_trace()
+            with open(os.path.join(work_dir, '{}.ipynb'.format(slug))) as f:
+                nb = json.load(f)
+
+            nb_man.nb = nb
+
+
+
 class NBConvertEngine(Engine):
     """
     A notebook engine which can execute a notebook document and update the
@@ -333,3 +423,4 @@ class NBConvertEngine(Engine):
 papermill_engines = PapermillEngines()
 papermill_engines.register(None, NBConvertEngine)
 papermill_engines.register('nbconvert', NBConvertEngine)
+papermill_engines.register('kaggle', KaggleEngine())
