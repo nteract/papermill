@@ -6,12 +6,13 @@ try:
 except ImportError:
     from mock import patch
 
+import os
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
 
 from nbformat.v4 import new_notebook, new_code_cell, new_markdown_cell, new_output
 
-from .. import display, read_notebook, read_notebooks, PapermillException, record
+from .. import display, read_notebook, read_notebooks, PapermillException, record, current_notebook_output_path
 from ..api import Notebook, _get_notebook_outputs
 from . import get_notebook_path, get_notebook_dir
 
@@ -152,3 +153,19 @@ def test_record(ip_display_mock):
     ip_display_mock.assert_called_once_with(
         {'application/papermill.record+json': {'a': 3}}, raw=True
     )
+
+
+class TestCurrentNotebookOutputPath(unittest.TestCase):    
+    OUTPUT_PATH_VARNAME = 'PAPERMILL_OUTPUT_PATH'
+
+    def test_with_relative_path(self):    
+        os.environ[self.OUTPUT_PATH_VARNAME] = 'rel_dir/nb.ipynb'
+        assert current_notebook_output_path() == os.path.abspath('rel_dir/nb.ipynb')
+    
+    def test_with_absolute_path(self):    
+        os.environ[self.OUTPUT_PATH_VARNAME] = '/abs_dir/nb.ipynb'
+        assert current_notebook_output_path() == '/abs_dir/nb.ipynb'
+    
+    def test_with_protocol_specifier(self):    
+        os.environ[self.OUTPUT_PATH_VARNAME] = 'file://abs_dir/nb.ipynb'
+        assert current_notebook_output_path() == 'file://abs_dir/nb.ipynb'
