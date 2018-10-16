@@ -135,10 +135,10 @@ def current_notebook_output_path():
     rel_path = os.environ['PAPERMILL_OUTPUT_PATH']
     if rel_path is None:
         return None
-    
+
     if re.match('^\w+://.*', rel_path):
         return rel_path
-    
+
     return os.path.abspath(rel_path)
 
 

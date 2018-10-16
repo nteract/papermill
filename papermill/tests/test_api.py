@@ -158,17 +158,17 @@ def test_record(ip_display_mock):
     )
 
 
-class TestCurrentNotebookOutputPath(unittest.TestCase):    
+class TestCurrentNotebookOutputPath(unittest.TestCase):
     OUTPUT_PATH_VARNAME = 'PAPERMILL_OUTPUT_PATH'
 
-    def test_with_relative_path(self):    
+    def test_with_relative_path(self):
         os.environ[self.OUTPUT_PATH_VARNAME] = 'rel_dir/nb.ipynb'
         assert current_notebook_output_path() == os.path.abspath('rel_dir/nb.ipynb')
-    
-    def test_with_absolute_path(self):    
+
+    def test_with_absolute_path(self):
         os.environ[self.OUTPUT_PATH_VARNAME] = '/abs_dir/nb.ipynb'
         assert current_notebook_output_path() == '/abs_dir/nb.ipynb'
-    
-    def test_with_protocol_specifier(self):    
+
+    def test_with_protocol_specifier(self):
         os.environ[self.OUTPUT_PATH_VARNAME] = 'file://abs_dir/nb.ipynb'
         assert current_notebook_output_path() == 'file://abs_dir/nb.ipynb'
