@@ -12,7 +12,10 @@ from pandas.util.testing import assert_frame_equal
 
 from nbformat.v4 import new_notebook, new_code_cell, new_markdown_cell, new_output
 
-from .. import display, read_notebook, read_notebooks, PapermillException, record, current_notebook_output_path
+from .. import (
+    display, read_notebook, read_notebooks,
+    PapermillException, record, current_notebook_output_path
+)
 from ..api import Notebook, _get_notebook_outputs
 from . import get_notebook_path, get_notebook_dir
 
