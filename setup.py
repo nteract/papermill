@@ -5,7 +5,7 @@ setup.py
 
 Note: Do a version check for IPython.
     IPython v6+ no longer supports Python 2.
-    If Python 2, intall ipython 5.x.
+    If Python 2, install ipython 5.x.
 
 See:
 https://packaging.python.org/tutorials/packaging-projects/
