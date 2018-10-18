@@ -5,6 +5,11 @@ import dateutil
 
 from functools import wraps
 
+from .log import logger
+from .exceptions import PapermillException
+from .preprocess import PapermillExecutePreprocessor
+from .iorw import write_ipynb
+
 # tqdm creates 2 globals lock which raise OSException if the execution
 # environment does not have shared memory for processes, e.g. AWS Lambda
 try:
@@ -13,11 +18,7 @@ try:
     no_tqdm = False
 except OSError:
     no_tqdm = True
-
-from .log import logger
-from .exceptions import PapermillException
-from .preprocess import PapermillExecutePreprocessor
-from .iorw import write_ipynb
+using_ipykernel = 'ipykernel' in sys.modules
 
 
 class PapermillEngines(object):
@@ -99,7 +100,7 @@ class NotebookExecutionManager(object):
 
         This is called automatically when constructed.
         """
-        if 'ipykernel' in sys.modules:
+        if using_ipykernel:
             # Load the notebook version if we're being called from a notebook
             self.pbar = tqdm_notebook(total=len(self.nb.cells))
         else:
