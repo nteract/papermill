@@ -950,7 +950,7 @@ def get_versions():
     return {"version": "0+unknown", "full-revisionid": None,
             "dirty": None,
             "error": "unable to compute version", "date": None}
-'''
+'''  # noqa: W605
 
 
 @register_vcs_handler("git", "get_keywords")
