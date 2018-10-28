@@ -1,4 +1,3 @@
-import sys
 import abc
 import copy
 import dateutil
@@ -65,9 +64,9 @@ class TestNotebookExecutionManager(unittest.TestCase):
 
     def test_notebook_pbar(self):
         # Need this or the tqdm notebook status printer fails
-        with patch('ipywidgets.HBox'):
-            with patch('ipywidgets.IntProgress'):
-                with patch.dict(sys.modules, {'ipykernel': True}):
+        with patch.object(engines, 'using_ipykernel', return_value=True):
+            with patch('ipywidgets.HBox'):
+                with patch('ipywidgets.IntProgress'):
                     nb_man = NotebookExecutionManager(self.nb)
 
             self.assertEqual(nb_man.pbar.total, len(self.nb.cells))
