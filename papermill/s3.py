@@ -729,7 +729,7 @@ class S3(object):
 
         """
         r = []
-        regex = re.compile('[*?\[]')
+        regex = re.compile(r'[*?\[]')
         for file in self.list(regex.split(glb, 1)[0], **kwargs):
             if fnmatch.fnmatch(str(file), glb):
                 r.append(file)
