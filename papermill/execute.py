@@ -88,7 +88,6 @@ def prepare_notebook_metadata(nb, input_path, output_path, report_mode=False):
                 cell.metadata['jupyter']['source_hidden'] = True
 
     # Record specified environment variable values.
-    nb.metadata.papermill['environment_variables'] = _fetch_environment_variables()
     nb.metadata.papermill['input_path'] = input_path
     nb.metadata.papermill['output_path'] = output_path
 
@@ -144,14 +143,6 @@ def _find_first_tagged_cell_index(nb, tag):
     if not parameters_indices:
         return -1
     return parameters_indices[0]
-
-
-def _fetch_environment_variables():
-    ret = dict()
-    for name, value in os.environ.items():
-        if name in settings.ENVIRONMENT_VARIABLES:
-            ret[name] = value
-    return ret
 
 
 ERROR_MESSAGE_TEMPLATE = (
