@@ -6,6 +6,7 @@ import os
 import six
 import copy
 import nbformat
+import uuid
 
 from .log import logger
 from .conf import settings
@@ -160,9 +161,16 @@ ERROR_MESSAGE_TEMPLATE = (
     '</span>'
 )
 
+def add_cell_id_metadata(cells):
+    for cell in cells:
+        cell.metadata["papermill"] = cell.metadata.get("papermill", {})
+        if not cell.metadata.get("papermill",{}).get("cell_id"):
+            cell.metadata['papermill'].update({"cell_id": str(uuid.uuid4())}) 
+    return cells
 
 def raise_for_execution_errors(nb, output_path):
     error = None
+    nb.cells = add_cell_id_metadata(nb.cells)
     for cell in nb.cells:
         if cell.get("outputs") is None:
             continue
