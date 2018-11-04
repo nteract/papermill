@@ -157,7 +157,7 @@ def _fetch_environment_variables():
 
 ERROR_MESSAGE_TEMPLATE = (
     '<span style="color:red; font-family:Helvetica Neue, Helvetica, Arial, sans-serif; font-size:2em;">'
-    "An Exception was encountered at 'In [%s]'."
+    "An Exception was encountered at <a href='#{err_cell_id}'>'In [{count}]'</a>."
     '</span>'
 )
 
@@ -166,7 +166,7 @@ def add_cell_id_metadata(cells):
     for cell in cells:
         cell.metadata["papermill"] = cell.metadata.get("papermill", {})
         if not cell.metadata.get("papermill",{}).get("cell_id"):
-            cell.metadata['papermill'].update({"cell_id": str(uuid.uuid4())}) 
+            cell.metadata['papermill'].update({"cell_id": "a" + str(uuid.uuid4())}) 
     return cells
 
 def html_cells_with_anchors(cells):
@@ -186,6 +186,7 @@ def html_cells_with_anchors(cells):
 
 def raise_for_execution_errors(nb, output_path):
     error = None
+    err_cell_id = ""
     nb.cells = add_cell_id_metadata(nb.cells)
     nb.cells = html_cells_with_anchors(nb.cells)
     
@@ -202,11 +203,13 @@ def raise_for_execution_errors(nb, output_path):
                     evalue=output.evalue,
                     traceback=output.traceback,
                 )
+                err_cell_id = cell.metadata.get("papermill", {}).get("cell_id", "")
                 break
 
     if error:
         # Write notebook back out with the Error Message at the top of the Notebook.
-        error_msg = ERROR_MESSAGE_TEMPLATE % str(error.exec_count)
+        error_msg = ERROR_MESSAGE_TEMPLATE.format(err_cell_id=err_cell_id, 
+                                                  count=str(error.exec_count))
         error_msg_cell = nbformat.v4.new_code_cell(
             source="%%html\n" + error_msg,
             outputs=[
