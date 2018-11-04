@@ -163,36 +163,40 @@ ERROR_MESSAGE_TEMPLATE = (
 )
 
 ID_MSG_TEMPLATE = "<h1 id={cell_id}>Cell ID {cell_id}<a href=#{cell_id}>¶</a></h1>"
+
+
 def add_cell_id_metadata(cells):
     for cell in cells:
         cell.metadata["papermill"] = cell.metadata.get("papermill", {})
-        if not cell.metadata.get("papermill",{}).get("cell_id"):
-            cell.metadata['papermill'].update({"cell_id": "a" + str(uuid.uuid4())}) 
+        if not cell.metadata.get("papermill", {}).get("cell_id"):
+            cell.metadata['papermill'].update({"cell_id": "a" + str(uuid.uuid4())})
     return cells
 
+
 def html_cells_with_anchors(cells):
-    other_cells = copy.deepcopy(cells)  
+    other_cells = copy.deepcopy(cells)
     for id, cell in enumerate(other_cells):
         cell_id = cell.metadata.get('papermill', {}).get("cell_id")
         id_msg = ID_MSG_TEMPLATE.format(cell_id=cell_id)
         other_cells[id] = nbformat.v4.new_code_cell(
             source="%%html\n" + id_msg,
             outputs=[
-                nbformat.v4.new_output(output_type="display_data", 
+                nbformat.v4.new_output(output_type="display_data",
                                        data={"text/html": id_msg})
             ],
             metadata={"inputHidden": True, "hide_input": True},
-            )
+        )
     return other_cells
+
 
 def raise_for_execution_errors(nb, output_path):
     error = None
     err_cell_id = ""
     old_cells = copy.deepcopy(nb.cells)
-    
+
     nb.cells = add_cell_id_metadata(nb.cells)
     nb.cells = list(itertools.chain(*zip(html_cells_with_anchors(nb.cells), nb.cells)))
-    
+
     for cell in nb.cells:
         if cell.get("outputs") is None:
             continue
@@ -211,7 +215,7 @@ def raise_for_execution_errors(nb, output_path):
 
     if error:
         # Write notebook back out with the Error Message at the top of the Notebook.
-        error_msg = ERROR_MESSAGE_TEMPLATE.format(err_cell_id=err_cell_id, 
+        error_msg = ERROR_MESSAGE_TEMPLATE.format(err_cell_id=err_cell_id,
                                                   count=str(error.exec_count))
         error_msg_cell = nbformat.v4.new_code_cell(
             source="%%html\n" + error_msg,
