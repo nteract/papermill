@@ -188,6 +188,8 @@ def html_cells_with_anchors(cells):
 def raise_for_execution_errors(nb, output_path):
     error = None
     err_cell_id = ""
+    old_cells = copy.deepcopy(nb.cells)
+    
     nb.cells = add_cell_id_metadata(nb.cells)
     nb.cells = list(itertools.chain(*zip(html_cells_with_anchors(nb.cells), nb.cells)))
     
@@ -221,3 +223,5 @@ def raise_for_execution_errors(nb, output_path):
         nb.cells = [error_msg_cell] + nb.cells
         write_ipynb(nb, output_path)
         raise error
+    else:
+        nb.cells = old_cells
