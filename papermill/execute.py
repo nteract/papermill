@@ -161,6 +161,7 @@ ERROR_MESSAGE_TEMPLATE = (
     '</span>'
 )
 
+ID_MSG_TEMPLATE = "<h1 id={cell_id}>Cell ID {cell_id}<a href=#{cell_id}>¶</a></h1>"
 def add_cell_id_metadata(cells):
     for cell in cells:
         cell.metadata["papermill"] = cell.metadata.get("papermill", {})
@@ -168,9 +169,26 @@ def add_cell_id_metadata(cells):
             cell.metadata['papermill'].update({"cell_id": str(uuid.uuid4())}) 
     return cells
 
+def html_cells_with_anchors(cells):
+    other_cells = copy.deepcopy(cells)  
+    for id, cell in enumerate(other_cells):
+        cell_id = cell.metadata.get('papermill', {}).get("cell_id")
+        id_msg = ID_MSG_TEMPLATE.format(cell_id=cell_id)
+        other_cells[id] = nbformat.v4.new_code_cell(
+            source="%%html\n" + id_msg,
+            outputs=[
+                nbformat.v4.new_output(output_type="display_data", 
+                                       data={"text/html": id_msg})
+            ],
+            metadata={"inputHidden": True, "hide_input": True},
+            )
+    return other_cells
+
 def raise_for_execution_errors(nb, output_path):
     error = None
     nb.cells = add_cell_id_metadata(nb.cells)
+    nb.cells = html_cells_with_anchors(nb.cells)
+    
     for cell in nb.cells:
         if cell.get("outputs") is None:
             continue
