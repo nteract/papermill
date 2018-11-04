@@ -7,6 +7,7 @@ import six
 import copy
 import nbformat
 import uuid
+import itertools
 
 from .log import logger
 from .conf import settings
@@ -188,7 +189,7 @@ def raise_for_execution_errors(nb, output_path):
     error = None
     err_cell_id = ""
     nb.cells = add_cell_id_metadata(nb.cells)
-    nb.cells = html_cells_with_anchors(nb.cells)
+    nb.cells = list(itertools.chain(*zip(html_cells_with_anchors(nb.cells), nb.cells)))
     
     for cell in nb.cells:
         if cell.get("outputs") is None:
