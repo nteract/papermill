@@ -1,4 +1,5 @@
 import re
+import io
 from six.moves import urllib
 from azure.storage.blob import BlockBlobService
 
@@ -32,12 +33,21 @@ class AzureBlobStore(object):
 
     def read(self, url):
         params = self._split_url(url)
+        output_stream = io.BytesIO()
         block_blob_service = self._block_blob_service(
             account_name=params["account"], sas_token=params["sas_token"]
         )
-        return block_blob_service.get_blob_to_text(
-            container_name=params["container"], blob_name=params["blob"]
+
+        block_blob_service.get_blob_to_stream(
+            container_name=params["container"],
+            blob_name=params["blob"],
+            stream=output_stream,
         )
+
+        output_stream.seek(0)
+        return [
+            line.decode("utf-8") for line in output_stream
+        ]
 
     def listdir(self, url):
         params = self._split_url(url)
