@@ -1,5 +1,13 @@
 # Change Log
 
+## 0.16.0
+
+- Added engines abstraction and command line argument
+- Moved some nbconvert wrappers out of papermill
+- Added Azure blob storage support
+- Fixed botocore upgrade comptability issue (all version of boto now supported again)
+- Removed whitelisted environment variable assignment
+
 ## 0.15.1
 
 - Added support for Julia kernels
