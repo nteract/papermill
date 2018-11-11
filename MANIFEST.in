@@ -8,6 +8,7 @@ recursive-include papermill *.txt
 include setup.py
 include requirements.txt
 include requirements-dev.txt
+include pytest.ini
 include README.rst
 include LICENSE
 include MANIFEST.in

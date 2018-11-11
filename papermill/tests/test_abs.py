@@ -64,8 +64,7 @@ class ABSTest(unittest.TestCase):
 
     def test_write_file(self):
         self.abs.write(
-            "hello world",
-            "abs://myaccount.blob.core.windows.net/sascontainer/sasblob.txt?sastoken",
+            "hello world", "abs://myaccount.blob.core.windows.net/sascontainer/sasblob.txt?sastoken"
         )
         self.create_blob_from_text.assert_called_once_with(
             container_name="sascontainer", blob_name="sasblob.txt", text="hello world"
