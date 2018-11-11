@@ -8,7 +8,6 @@ import copy
 import nbformat
 
 from .log import logger
-from .conf import settings
 from .exceptions import PapermillExecutionError
 from .iorw import load_notebook_node, write_ipynb, read_yaml_file, get_pretty_path
 from .translators import translate_parameters
