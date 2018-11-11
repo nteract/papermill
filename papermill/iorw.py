@@ -136,22 +136,17 @@ class LocalHandler(object):
 
 
 class S3Handler(object):
-    keyname = None
-
     @classmethod
     def read(cls, path):
-        s3_client = S3(keyname=cls.keyname)
-        return "\n".join(s3_client.read(path))
+        return "\n".join(S3().read(path))
 
     @classmethod
     def listdir(cls, path):
-        s3_client = S3(keyname=cls.keyname)
-        return s3_client.listdir(path)
+        return S3().listdir(path)
 
     @classmethod
     def write(cls, buf, path):
-        s3_client = S3(keyname=cls.keyname)
-        return s3_client.cp_string(buf, path)
+        return S3().cp_string(buf, path)
 
     @classmethod
     def pretty_path(cls, path):

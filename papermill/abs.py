@@ -4,15 +4,12 @@ from azure.storage.blob import BlockBlobService
 
 
 class AzureBlobStore(object):
-
     def __init__(self):
         pass
 
     def _block_blob_service(self, account_name, sas_token):
 
-        block_blob_service = BlockBlobService(
-            account_name=account_name, sas_token=sas_token
-        )
+        block_blob_service = BlockBlobService(account_name=account_name, sas_token=sas_token)
         return block_blob_service
 
     @classmethod
@@ -21,9 +18,7 @@ class AzureBlobStore(object):
         see: https://docs.microsoft.com/en-us/azure/storage/common/storage-dotnet-shared-access-signature-part-1  # noqa: E501
         abs://myaccount.blob.core.windows.net/sascontainer/sasblob.txt?sastoken
         """
-        match = re.match(
-            r"abs://(.*)\.blob\.core\.windows\.net\/(.*)\/(.*)\?(.*)$", url
-        )
+        match = re.match(r"abs://(.*)\.blob\.core\.windows\.net\/(.*)\/(.*)\?(.*)$", url)
         if not match:
             raise Exception("Invalid azure blob url '{0}'".format(url))
         else:

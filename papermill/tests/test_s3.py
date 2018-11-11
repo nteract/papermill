@@ -4,14 +4,10 @@ import os.path
 import pytest
 import boto3
 import moto
-from moto import mock_s3
-from ..s3 import Bucket, Prefix, Key, S3, split, retry
-import six
 
-if six.PY3:
-    from unittest.mock import Mock, call
-else:
-    from mock import Mock, call
+from moto import mock_s3
+
+from ..s3 import Bucket, Prefix, Key, S3
 
 
 @pytest.fixture
@@ -145,33 +141,10 @@ def test_key_defaults():
 @mock_s3
 def test_s3_defaults():
     s1 = S3()
-    s2 = S3(None, None, None, 'us-east-1')
+    s2 = S3()
     assert s1.session == s2.session
     assert s1.client == s2.client
     assert s1.s3 == s2.s3
-
-
-@pytest.mark.parametrize(
-    "value,expected",
-    [
-        ('s3://foo/bar/baz', ['foo', 'bar/baz']),
-        ('s3://foo/bar/baz/', ['foo', 'bar/baz/']),
-        ('s3://foo', ['foo', '']),
-        ('s3://', ['', '']),
-        ('s3:///', ['', '']),
-    ],
-)
-def test_split_success(value, expected):
-    assert (split(value)) == expected
-
-
-def test_split_error():
-
-    with pytest.raises(ValueError):
-        split('foo/bar/baz')
-
-    with pytest.raises(ValueError):
-        split('https://foo/bar/baz')
 
 
 local_dir = os.path.dirname(os.path.abspath(__file__))
@@ -234,20 +207,3 @@ def test_s3_listdir(s3_client):
     dir_listings = s3_client.listdir(s3_dir)
     assert len(dir_listings) == 1
     assert s3_path in dir_listings
-
-
-def test_retry():
-    m = Mock(side_effect=Exception(), __name__="m", __module__="test_s3", __doc__="m")
-    wrapped_m = retry(3)(m)
-    with pytest.raises(Exception):
-        wrapped_m("foo")
-    m.assert_has_calls([call("foo"), call("foo"), call("foo")])
-
-
-def test_batches(s3_client):
-    s = S3()
-    batches = s._S3__batches(iter(["foo", "bar", "baz"]), size=2)
-    assert next(batches) == ["foo", "bar"]
-    assert next(batches) == ["baz"]
-    with pytest.raises(StopIteration):
-        next(batches)
