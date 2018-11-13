@@ -4,9 +4,21 @@ import six
 from ..abs import AzureBlobStore
 
 if six.PY3:
-    from unittest.mock import Mock
+    from unittest.mock import Mock, patch, ANY
 else:
-    from mock import Mock
+    from mock import Mock, patch, ANY
+
+
+class MockBytesIO(object):
+
+    def __init__(self):
+        self.list = [b"hello", b"world!"]
+
+    def __getitem__(self, index):
+        return self.list[index]
+
+    def seek(self, seed):
+        pass
 
 
 class ABSTest(unittest.TestCase):
@@ -16,10 +28,10 @@ class ABSTest(unittest.TestCase):
 
     def setUp(self):
         self.list_blobs = Mock(return_value=["foo", "bar", "baz"])
-        self.get_blob_to_text = Mock(return_value=["hello"])
+        self.get_blob_to_stream = Mock()
         self.create_blob_from_text = Mock()
         self._block_blob_service = Mock(
-            get_blob_to_text=self.get_blob_to_text,
+            get_blob_to_stream=self.get_blob_to_stream,
             list_blobs=self.list_blobs,
             create_blob_from_text=self.create_blob_from_text,
         )
@@ -51,20 +63,23 @@ class ABSTest(unittest.TestCase):
         )
         self.list_blobs.assert_called_once_with("sascontainer")
 
-    def test_reads_file(self):
-        self.assertEquals(
+    @patch("papermill.abs.io.BytesIO", side_effect=MockBytesIO)
+    def test_reads_file(self, mockBytesIO):
+        self.assertEqual(
             self.abs.read(
                 "abs://myaccount.blob.core.windows.net/sascontainer/sasblob.txt?sastoken"
             ),
-            ["hello"],
+            ["hello", "world!"],
         )
-        self.get_blob_to_text.assert_called_once_with(
-            container_name="sascontainer", blob_name="sasblob.txt"
+
+        self.get_blob_to_stream.assert_called_once_with(
+            container_name="sascontainer", blob_name="sasblob.txt", stream=ANY
         )
 
     def test_write_file(self):
         self.abs.write(
-            "hello world", "abs://myaccount.blob.core.windows.net/sascontainer/sasblob.txt?sastoken"
+            "hello world",
+            "abs://myaccount.blob.core.windows.net/sascontainer/sasblob.txt?sastoken",
         )
         self.create_blob_from_text.assert_called_once_with(
             container_name="sascontainer", blob_name="sasblob.txt", text="hello world"
