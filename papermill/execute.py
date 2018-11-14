@@ -49,7 +49,7 @@ def execute_notebook(
 
     # Parameterize the Notebook.
     if parameters:
-        nb = parameterize_notebook(nb, kernel_name, parameters)
+        nb = parameterize_notebook(nb, kernel_name, parameters, report_mode)
 
     nb = prepare_notebook_metadata(nb, input_path, output_path, report_mode)
 
@@ -92,7 +92,7 @@ def prepare_notebook_metadata(nb, input_path, output_path, report_mode=False):
     return nb
 
 
-def parameterize_notebook(nb, kernel_name, parameters):
+def parameterize_notebook(nb, kernel_name, parameters, report_mode=False):
     """Assigned parameters into the appropiate place in the input notebook
     Args:
         nb (NotebookNode): Executable notebook object
@@ -106,11 +106,14 @@ def parameterize_notebook(nb, kernel_name, parameters):
     # Copy the nb object to avoid polluting the input
     nb = copy.deepcopy(nb)
 
-    # Generate parameter content based on the kernal_name
+    # Generate parameter content based on the kernel_name
     param_content = translate_parameters(kernel_name, parameters)
 
     newcell = nbformat.v4.new_code_cell(source=param_content)
     newcell.metadata['tags'] = ['injected-parameters']
+
+    if report_mode:
+        newcell.metadata['jupyter']['source_hidden'] = True
 
     param_cell_index = _find_first_tagged_cell_index(nb, 'parameters')
     injected_cell_index = _find_first_tagged_cell_index(nb, 'injected-parameters')
