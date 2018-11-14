@@ -111,7 +111,7 @@ def parameterize_notebook(nb, kernel_name, parameters, report_mode=False):
 
     newcell = nbformat.v4.new_code_cell(source=param_content)
     newcell.metadata['tags'] = ['injected-parameters']
-    
+
     if report_mode:
         newcell.metadata['jupyter']['source_hidden'] = True
 
