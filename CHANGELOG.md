@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.16.1
+
+- Fixed issue with azure blob io operations
+
 ## 0.16.0
 
 - Added engines abstraction and command line argument
