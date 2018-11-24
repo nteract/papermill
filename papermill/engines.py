@@ -2,7 +2,6 @@ import sys
 import copy
 import datetime
 import dateutil
-import os
 
 from functools import wraps
 
@@ -270,9 +269,6 @@ class Engine(object):
         engine implementations to just focus on iterating and executing the
         cell contents.
         """
-        if output_path is not None:
-            cls.pass_environment_variable('PAPERMILL_OUTPUT_PATH', str(output_path))
-
         nb_man = NotebookExecutionManager(
             nb, output_path=output_path, progress_bar=progress_bar, log_output=log_output
         )
@@ -292,10 +288,6 @@ class Engine(object):
     @classmethod
     def execute_managed_notebook(cls, nb_man, kernel_name, **kwargs):
         raise NotImplementedError("'execute_managed_notebook' is not implemented for this engine")
-
-    @classmethod
-    def pass_environment_variable(cls, name, value):
-        os.environ[name] = value
 
 
 class NBConvertEngine(Engine):

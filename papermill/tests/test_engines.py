@@ -318,29 +318,25 @@ class TestEngineBase(unittest.TestCase):
         the correct underlying calls for execute_notebook.
         '''
         with patch.object(Engine, 'execute_managed_notebook') as exec_mock:
-            with patch.object(Engine, 'pass_environment_variable') as env_mock:
-                with patch.object(engines, 'NotebookExecutionManager') as wrap_mock:
-                    Engine.execute_notebook(
-                        self.nb,
-                        'python',
-                        output_path='foo.ipynb',
-                        progress_bar=False,
-                        log_output=True,
-                        bar='baz',
-                    )
+            with patch.object(engines, 'NotebookExecutionManager') as wrap_mock:
+                Engine.execute_notebook(
+                    self.nb,
+                    'python',
+                    output_path='foo.ipynb',
+                    progress_bar=False,
+                    log_output=True,
+                    bar='baz',
+                )
 
-                    wrap_mock.assert_called_once_with(
-                        self.nb, output_path='foo.ipynb', progress_bar=False, log_output=True
-                    )
-                    wrap_mock.return_value.notebook_start.assert_called_once()
-                    exec_mock.assert_called_once_with(
-                        wrap_mock.return_value, 'python', log_output=True, bar='baz'
-                    )
-                    env_mock.assert_called_once_with(
-                        'PAPERMILL_OUTPUT_PATH', 'foo.ipynb'
-                    )
-                    wrap_mock.return_value.notebook_complete.assert_called_once()
-                    wrap_mock.return_value.cleanup_pbar.assert_called_once()
+                wrap_mock.assert_called_once_with(
+                    self.nb, output_path='foo.ipynb', progress_bar=False, log_output=True
+                )
+                wrap_mock.return_value.notebook_start.assert_called_once()
+                exec_mock.assert_called_once_with(
+                    wrap_mock.return_value, 'python', log_output=True, bar='baz'
+                )
+                wrap_mock.return_value.notebook_complete.assert_called_once()
+                wrap_mock.return_value.cleanup_pbar.assert_called_once()
 
     def test_cell_callback_execute(self):
         class CellCallbackEngine(Engine):

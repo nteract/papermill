@@ -7,7 +7,6 @@ Provides the API for papermill
 """
 from __future__ import unicode_literals
 import os
-import re
 
 import IPython
 from IPython.display import display as ip_display, Markdown
@@ -120,26 +119,6 @@ def read_notebooks(path):
         fn = os.path.basename(notebook_path)
         nb_collection[fn] = read_notebook(notebook_path)
     return nb_collection
-
-
-def current_notebook_output_path():
-    """
-    Returns the output path for the notebook which is currently executed.
-
-    Returns
-    -------
-    output_path : str or None
-        The absolute path to the output notebook if available. `None` otherwise.
-        The returned path may contain a protocol specification, e.g., `s3://` or `file://`.
-    """
-    rel_path = os.environ['PAPERMILL_OUTPUT_PATH']
-    if rel_path is None:
-        return None
-
-    if re.match('^\w+://.*', rel_path):
-        return rel_path
-
-    return os.path.abspath(rel_path)
 
 
 class Notebook(object):
