@@ -199,7 +199,7 @@ class TestCLI(unittest.TestCase):
             start_timeout=60,
             report_mode=False,
         )
-    
+
     @patch(cli.__name__ + '.execute_notebook')
     def test_input_path_parameter(self, execute_patch):
         self.runner.invoke(
@@ -219,7 +219,7 @@ class TestCLI(unittest.TestCase):
             start_timeout=60,
             report_mode=False,
         )
-    
+
     @patch(cli.__name__ + '.execute_notebook')
     def test_output_path_parameter(self, execute_patch):
         self.runner.invoke(
