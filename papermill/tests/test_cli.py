@@ -199,6 +199,46 @@ class TestCLI(unittest.TestCase):
             start_timeout=60,
             report_mode=False,
         )
+    
+    @patch(cli.__name__ + '.execute_notebook')
+    def test_input_path_parameter(self, execute_patch):
+        self.runner.invoke(
+            papermill,
+            self.default_args + ['--input-path-parameter']
+        )
+        execute_patch.assert_called_with(
+            'input.ipynb',
+            'output.ipynb',
+            # Last input wins dict update
+            {'PAPERMILL_INPUT_PATH': 'input.ipynb'},
+            engine_name=None,
+            prepare_only=False,
+            kernel_name=None,
+            log_output=False,
+            progress_bar=True,
+            start_timeout=60,
+            report_mode=False,
+        )
+    
+    @patch(cli.__name__ + '.execute_notebook')
+    def test_output_path_parameter(self, execute_patch):
+        self.runner.invoke(
+            papermill,
+            self.default_args + ['--output-path-parameter']
+        )
+        execute_patch.assert_called_with(
+            'input.ipynb',
+            'output.ipynb',
+            # Last input wins dict update
+            {'PAPERMILL_OUTPUT_PATH': 'output.ipynb'},
+            engine_name=None,
+            prepare_only=False,
+            kernel_name=None,
+            log_output=False,
+            progress_bar=True,
+            start_timeout=60,
+            report_mode=False,
+        )
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_engine(self, execute_patch):
