@@ -51,6 +51,10 @@ class TestNotebookClass(unittest.TestCase):
         with self.assertRaises(ValueError):
             Notebook(node=None, path='collection/result1.ipynb')
 
+    def test_malformed_execution_count(self):
+        path = get_notebook_path('result_no_exec.ipynb')
+        nb = read_notebook(path)
+        print(nb.metrics)
 
 class TestNotebookCollection(unittest.TestCase):
     def test(self):
