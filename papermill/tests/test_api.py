@@ -56,6 +56,7 @@ class TestNotebookClass(unittest.TestCase):
         nb = read_notebook(path)
         print(nb.metrics)
 
+
 class TestNotebookCollection(unittest.TestCase):
     def test(self):
 
