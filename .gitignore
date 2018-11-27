@@ -103,8 +103,14 @@ ENV/
 # pyCharm
 .idea
 
+# VSCode
+.vscode/
+
 # pytest
 .pytest_cache
+
+# scissor fixture
+papermill/tests/fixtures/scissor.txt
 
 # Binder example
 binder/*run*.ipynb

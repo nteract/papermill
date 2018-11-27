@@ -51,6 +51,15 @@ class TestNotebookClass(unittest.TestCase):
         with self.assertRaises(ValueError):
             Notebook(node=None, path='collection/result1.ipynb')
 
+    def test_malformed_execution_count(self):
+        path = get_notebook_path('result_no_exec.ipynb')
+        nb = read_notebook(path)
+        expected_df = pd.DataFrame(
+            [],
+            columns=['filename', 'cell', 'value', 'type'],
+        )
+        assert_frame_equal(nb.metrics, expected_df)
+
 
 class TestNotebookCollection(unittest.TestCase):
     def test(self):
