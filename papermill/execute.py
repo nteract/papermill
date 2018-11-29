@@ -162,7 +162,7 @@ ERROR_MESSAGE_TEMPLATE = (
     '</span>'
 )
 
-ID_MSG_TEMPLATE = "<h1 id={cell_id}>Cell ID {cell_id}<a href=#{cell_id}>¶</a></h1>"
+ID_MSG_TEMPLATE = "<a id={cell_id}></a>"
 
 
 def add_cell_id_metadata(cells):
