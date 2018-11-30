@@ -12,6 +12,8 @@ import yaml
 import fnmatch
 import warnings
 
+import entrypoints
+
 from . import __version__
 from .exceptions import PapermillException
 from .s3 import S3
@@ -75,6 +77,11 @@ class PapermillIO(object):
     def register(self, scheme, handler):
         # Keep these ordered as LIFO
         self._handlers.insert(0, (scheme, handler))
+
+    def register_entry_points(self):
+        # Load handlers provided by other packages
+        for entrypoint in entrypoints.get_group_all("papermill.handlers"):
+            self.register(entrypoint.name, entrypoint.load())
 
     def get_handler(self, path):
         local_handler = None
@@ -215,6 +222,7 @@ papermill_io.register("adl://", ADLHandler)
 papermill_io.register("abs://", ABSHandler)
 papermill_io.register("http://", HttpHandler)
 papermill_io.register("https://", HttpHandler)
+papermill_io.register_entry_points()
 
 
 def read_yaml_file(path):
