@@ -22,7 +22,6 @@ from ..exceptions import PapermillException
 from ..iorw import HttpHandler, LocalHandler, ADLHandler, PapermillIO
 
 FIXTURE_PATH = os.path.join(os.path.dirname(__file__), 'fixtures')
-SAMPLE_PACKAGE = samples_dir = os.path.join(os.path.dirname(__file__), 'entrypointpackage')
 
 
 class TestPapermillIO(unittest.TestCase):
