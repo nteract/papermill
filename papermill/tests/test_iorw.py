@@ -22,6 +22,7 @@ from ..exceptions import PapermillException
 from ..iorw import HttpHandler, LocalHandler, ADLHandler, PapermillIO
 
 FIXTURE_PATH = os.path.join(os.path.dirname(__file__), 'fixtures')
+SAMPLE_PACKAGE = samples_dir = os.path.join(os.path.dirname(__file__), 'entrypointpackage')
 
 
 class TestPapermillIO(unittest.TestCase):
@@ -60,6 +61,25 @@ class TestPapermillIO(unittest.TestCase):
 
         self.papermill_io.register("local", self.fake2)
         self.assertEqual(self.papermill_io.get_handler("dne"), self.fake2)
+
+    def test_entrypoint_register(self):
+
+        fake_entrypoint = Mock(load=Mock())
+        fake_entrypoint.name = "fake-from-entry-point://"
+
+        # patcher =
+        with patch(
+            "entrypoints.get_group_all", return_value=[fake_entrypoint]
+        ) as mock_get_group_all:
+
+            self.papermill_io.register_entry_points()
+            for scheme, handler in self.papermill_io._handlers:
+                print(scheme, handler)
+            mock_get_group_all.assert_called_once_with("papermill.handlers")
+            assert (
+                self.papermill_io.get_handler("fake-from-entry-point://")
+                == fake_entrypoint.load.return_value
+            )
 
     def test_register_ordering(self):
         # Should match fake1 with fake2 path
