@@ -49,19 +49,19 @@ def print_papermill_version(ctx, param, value):
     '--inject-input-path',
     is_flag=True,
     default=False,
-    help='Insert the path of the input notebook as PAPERMILL_INPUT_PATH in the notebook\'s parameters.',
+    help="Insert the path of the input notebook as PAPERMILL_INPUT_PATH in the notebook's parameters.",
 )
 @click.option(
     '--inject-output-path',
     is_flag=True,
     default=False,
-    help='Insert the path of the output notebook as PAPERMILL_OUTPUT_PATH in the notebook\'s parameters.',
+    help="Insert the path of the output notebook as PAPERMILL_OUTPUT_PATH in the notebook's parameters.",
 )
 @click.option(
     '--inject-paths',
     is_flag=True,
     default=False,
-    help='Insert the paths of both input/output notebook as PAPERMILL_INPUT_PATH/PAPERMILL_OUTPUT_PATH in the notebook\'s parameters.',
+    help="Insert the paths of both input/output notebook as PAPERMILL_INPUT_PATH/PAPERMILL_OUTPUT_PATH in the notebook's parameters.",
 )
 @click.option('--engine', help='The execution engine name to use in evaluating the notebook.')
 @click.option(
