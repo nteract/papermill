@@ -3,6 +3,7 @@
 from __future__ import unicode_literals
 
 import base64
+import logging
 
 import click
 
@@ -95,6 +96,8 @@ def papermill(
     output in the destination notebook.
 
     """
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
+
     if progress_bar is None:
         progress_bar = not log_output
 
