@@ -46,14 +46,22 @@ def print_papermill_version(ctx, param, value):
     '--parameters_base64', '-b', multiple=True, help='Base64 encoded YAML string as parameters.'
 )
 @click.option(
-    '--input-path-parameter/--no-input-path-parameter',
+    '--inject-input-path',
+    is_flag=True,
     default=False,
-    help='Includes notebook_path as PAPERMILL_INPUT_PATH in the notebook\'s parameters.',
+    help='Insert the path of the input notebook as PAPERMILL_INPUT_PATH in the notebook\'s parameters.',
 )
 @click.option(
-    '--output-path-parameter/--no-output-path-parameter',
+    '--inject-output-path',
+    is_flag=True,
     default=False,
-    help='Includes output_path as PAPERMILL_OUTPUT_PATH in the notebook\'s parameters.',
+    help='Insert the path of the output notebook as PAPERMILL_OUTPUT_PATH in the notebook\'s parameters.',
+)
+@click.option(
+    '--inject-paths',
+    is_flag=True,
+    default=False,
+    help='Insert the paths of both input/output notebook as PAPERMILL_INPUT_PATH/PAPERMILL_OUTPUT_PATH in the notebook\'s parameters.',
 )
 @click.option('--engine', help='The execution engine name to use in evaluating the notebook.')
 @click.option(
@@ -90,8 +98,9 @@ def papermill(
     parameters_file,
     parameters_yaml,
     parameters_base64,
-    input_path_parameter,
-    output_path_parameter,
+    inject_input_path,
+    inject_output_path,
+    inject_paths,
     engine,
     prepare_only,
     kernel,
@@ -112,9 +121,9 @@ def papermill(
 
     # Read in Parameters
     parameters_final = {}
-    if input_path_parameter:
+    if inject_input_path or inject_paths:
         parameters_final['PAPERMILL_INPUT_PATH'] = notebook_path
-    if output_path_parameter:
+    if inject_output_path or inject_paths:
         parameters_final['PAPERMILL_OUTPUT_PATH'] = output_path
     for params in parameters_base64 or []:
         parameters_final.update(yaml.load(base64.b64decode(params)))

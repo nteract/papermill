@@ -201,10 +201,10 @@ class TestCLI(unittest.TestCase):
         )
 
     @patch(cli.__name__ + '.execute_notebook')
-    def test_input_path_parameter(self, execute_patch):
+    def test_inject_input_path(self, execute_patch):
         self.runner.invoke(
             papermill,
-            self.default_args + ['--input-path-parameter']
+            self.default_args + ['--inject-input-path']
         )
         execute_patch.assert_called_with(
             'input.ipynb',
@@ -221,16 +221,39 @@ class TestCLI(unittest.TestCase):
         )
 
     @patch(cli.__name__ + '.execute_notebook')
-    def test_output_path_parameter(self, execute_patch):
+    def test_inject_output_path(self, execute_patch):
         self.runner.invoke(
             papermill,
-            self.default_args + ['--output-path-parameter']
+            self.default_args + ['--inject-output-path']
         )
         execute_patch.assert_called_with(
             'input.ipynb',
             'output.ipynb',
             # Last input wins dict update
             {'PAPERMILL_OUTPUT_PATH': 'output.ipynb'},
+            engine_name=None,
+            prepare_only=False,
+            kernel_name=None,
+            log_output=False,
+            progress_bar=True,
+            start_timeout=60,
+            report_mode=False,
+        )
+
+    @patch(cli.__name__ + '.execute_notebook')
+    def test_inject_paths(self, execute_patch):
+        self.runner.invoke(
+            papermill,
+            self.default_args + ['--inject-paths']
+        )
+        execute_patch.assert_called_with(
+            'input.ipynb',
+            'output.ipynb',
+            # Last input wins dict update
+            {
+                'PAPERMILL_INPUT_PATH': 'input.ipynb',
+                'PAPERMILL_OUTPUT_PATH': 'output.ipynb'
+            },
             engine_name=None,
             prepare_only=False,
             kernel_name=None,
