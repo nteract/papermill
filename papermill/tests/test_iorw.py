@@ -74,7 +74,7 @@ class TestPapermillIO(unittest.TestCase):
             self.papermill_io.register_entry_points()
             for scheme, handler in self.papermill_io._handlers:
                 print(scheme, handler)
-            mock_get_group_all.assert_called_once_with("papermill.handlers")
+            mock_get_group_all.assert_called_once_with("papermill.io")
             assert (
                 self.papermill_io.get_handler("fake-from-entry-point://")
                 == fake_entrypoint.load.return_value

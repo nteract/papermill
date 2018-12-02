@@ -80,7 +80,7 @@ class PapermillIO(object):
 
     def register_entry_points(self):
         # Load handlers provided by other packages
-        for entrypoint in entrypoints.get_group_all("papermill.handlers"):
+        for entrypoint in entrypoints.get_group_all("papermill.io"):
             self.register(entrypoint.name, entrypoint.load())
 
     def get_handler(self, path):
