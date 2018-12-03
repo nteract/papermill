@@ -1,5 +1,7 @@
 import logging
+import os
 
+from contextlib import contextmanager
 from functools import wraps
 
 
@@ -25,3 +27,21 @@ def retry(num):
         return wrapper
 
     return decorate
+
+
+@contextmanager
+def chdir(path):
+    """Change working directory to `path` and restore old path on exit.
+
+    `path` can be `None` in which case this is a no-op.
+    """
+    if path is None:
+        yield
+
+    else:
+        old_dir = os.getcwd()
+        os.chdir(path)
+        try:
+            yield
+        finally:
+            os.chdir(old_dir)

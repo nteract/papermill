@@ -11,6 +11,7 @@ from .exceptions import PapermillExecutionError
 from .iorw import load_notebook_node, write_ipynb, read_yaml_file, get_pretty_path
 from .translators import translate_parameters
 from .engines import papermill_engines
+from .utils import chdir
 
 
 def execute_notebook(
@@ -24,6 +25,7 @@ def execute_notebook(
     log_output=False,
     start_timeout=60,
     report_mode=False,
+    cwd=None,
 ):
     """Executes a single notebook locally.
     Args:
@@ -36,12 +38,15 @@ def execute_notebook(
         log_output (bool): Flag for whether or not to write notebook output_path to stderr.
         start_timeout (int): Duration to wait for kernel start-up.
         report_mode (bool): Flag for whether or not to hide input.
+        cwd (str): Working directory to use when executing the notebook.
 
     Returns:
          nb (NotebookNode): Executed notebook object
     """
     logger.info("Input Notebook:  %s" % get_pretty_path(input_path))
     logger.info("Output Notebook: %s" % get_pretty_path(output_path))
+    if cwd is not None:
+        logger.info("Working directory: %s" % get_pretty_path(cwd))
 
     nb = load_notebook_node(input_path)
     # Fetch the kernel name if it's not supplied
@@ -54,17 +59,18 @@ def execute_notebook(
     nb = prepare_notebook_metadata(nb, input_path, output_path, report_mode)
 
     if not prepare_only:
-        # Execute the Notebook.
-        nb = papermill_engines.execute_notebook_with_engine(
-            engine_name,
-            nb,
-            input_path=input_path,
-            output_path=output_path,
-            kernel_name=kernel_name,
-            progress_bar=progress_bar,
-            log_output=log_output,
-            start_timeout=start_timeout,
-        )
+        # Execute the Notebook in `cwd` if it is set
+        with chdir(cwd):
+            nb = papermill_engines.execute_notebook_with_engine(
+                engine_name,
+                nb,
+                input_path=input_path,
+                output_path=output_path,
+                kernel_name=kernel_name,
+                progress_bar=progress_bar,
+                log_output=log_output,
+                start_timeout=start_timeout,
+            )
 
     # Check for errors first (it saves on error before raising)
     raise_for_execution_errors(nb, output_path)
