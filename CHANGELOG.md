@@ -1,5 +1,12 @@
 # Change Log
 
+## 0.16.2
+
+- Injected parameter cells now respect `--report-mode`
+- Logging level is only set for logger through CLI commands
+- Output and input paths can be automatically passed to notebooks with the `--inject-paths` option
+- Entrypoints have been added for registration of new `papermill.io` and `papermill.engine` plugins via setup files
+
 ## 0.16.1
 
 - Fixed issue with azure blob io operations
