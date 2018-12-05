@@ -61,6 +61,24 @@ class TestPapermillIO(unittest.TestCase):
         self.papermill_io.register("local", self.fake2)
         self.assertEqual(self.papermill_io.get_handler("dne"), self.fake2)
 
+    def test_entrypoint_register(self):
+
+        fake_entrypoint = Mock(load=Mock())
+        fake_entrypoint.name = "fake-from-entry-point://"
+
+        with patch(
+            "entrypoints.get_group_all", return_value=[fake_entrypoint]
+        ) as mock_get_group_all:
+
+            self.papermill_io.register_entry_points()
+            for scheme, handler in self.papermill_io._handlers:
+                print(scheme, handler)
+            mock_get_group_all.assert_called_once_with("papermill.io")
+            assert (
+                self.papermill_io.get_handler("fake-from-entry-point://")
+                == fake_entrypoint.load.return_value
+            )
+
     def test_register_ordering(self):
         # Should match fake1 with fake2 path
         self.assertEqual(self.papermill_io.get_handler("fake2/path"), self.fake1)

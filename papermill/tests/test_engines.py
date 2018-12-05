@@ -8,7 +8,7 @@ from nbformat.notebooknode import NotebookNode
 
 from . import get_notebook_path
 
-from .. import engines
+from .. import engines, exceptions
 from ..log import logger
 from ..iorw import load_notebook_node
 from ..engines import NotebookExecutionManager, Engine, NBConvertEngine
@@ -496,3 +496,39 @@ class TestNBConvertEngine(unittest.TestCase):
                     )
                     info_mock.is_not_called()
                     warning_mock.is_not_called()
+
+
+class TestEngineRegistration(unittest.TestCase):
+    def setUp(self):
+        self.papermill_engines = engines.PapermillEngines()
+
+    def test_registration(self):
+        mock_engine = Mock()
+        self.papermill_engines.register("mock_engine", mock_engine)
+        self.assertIn("mock_engine", self.papermill_engines._engines)
+        self.assertIs(mock_engine, self.papermill_engines._engines["mock_engine"])
+
+    def test_getting(self):
+        mock_engine = Mock()
+        self.papermill_engines.register("mock_engine", mock_engine)
+        # test retrieving an engine works
+        retrieved_engine = self.papermill_engines.get_engine("mock_engine")
+        self.assertIs(mock_engine, retrieved_engine)
+        # test you can't retrieve a non-registered engine
+        self.assertRaises(
+            exceptions.PapermillException, self.papermill_engines.get_engine, "non-existent"
+        )
+
+    def test_registering_entry_points(self):
+        fake_entrypoint = Mock(load=Mock())
+        fake_entrypoint.name = "fake-engine"
+
+        with patch(
+            "entrypoints.get_group_all", return_value=[fake_entrypoint]
+        ) as mock_get_group_all:
+
+            self.papermill_engines.register_entry_points()
+            mock_get_group_all.assert_called_once_with("papermill.engine")
+            self.assertEqual(
+                self.papermill_engines.get_engine("fake-engine"), fake_entrypoint.load.return_value
+            )

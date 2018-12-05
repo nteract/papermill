@@ -4,6 +4,7 @@ import datetime
 import dateutil
 
 from functools import wraps
+import entrypoints
 
 from .log import logger
 from .exceptions import PapermillException
@@ -33,6 +34,11 @@ class PapermillEngines(object):
 
     def register(self, name, engine):
         self._engines[name] = engine
+
+    def register_entry_points(self):
+        # Load handlers provided by other packages
+        for entrypoint in entrypoints.get_group_all("papermill.engine"):
+            self.register(entrypoint.name, entrypoint.load())
 
     def get_engine(self, name=None):
         """
@@ -334,3 +340,4 @@ class NBConvertEngine(Engine):
 papermill_engines = PapermillEngines()
 papermill_engines.register(None, NBConvertEngine)
 papermill_engines.register('nbconvert', NBConvertEngine)
+papermill_engines.register_entry_points()
