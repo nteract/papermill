@@ -340,3 +340,4 @@ class NBConvertEngine(Engine):
 papermill_engines = PapermillEngines()
 papermill_engines.register(None, NBConvertEngine)
 papermill_engines.register('nbconvert', NBConvertEngine)
+papermill_engines.register_entry_points()
