@@ -523,7 +523,6 @@ class TestEngineRegistration(unittest.TestCase):
         fake_entrypoint = Mock(load=Mock())
         fake_entrypoint.name = "fake-engine"
 
-        # patcher =
         with patch(
             "entrypoints.get_group_all", return_value=[fake_entrypoint]
         ) as mock_get_group_all:

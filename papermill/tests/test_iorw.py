@@ -66,7 +66,6 @@ class TestPapermillIO(unittest.TestCase):
         fake_entrypoint = Mock(load=Mock())
         fake_entrypoint.name = "fake-from-entry-point://"
 
-        # patcher =
         with patch(
             "entrypoints.get_group_all", return_value=[fake_entrypoint]
         ) as mock_get_group_all:
