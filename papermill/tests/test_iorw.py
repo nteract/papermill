@@ -18,8 +18,9 @@ try:
 except NameError:
     FileNotFoundError = IOError
 
+from .. import iorw
+from ..iorw import HttpHandler, LocalHandler, ADLHandler, PapermillIO, read_yaml_file
 from ..exceptions import PapermillException
-from ..iorw import HttpHandler, LocalHandler, ADLHandler, PapermillIO
 
 FIXTURE_PATH = os.path.join(os.path.dirname(__file__), 'fixtures')
 
@@ -50,6 +51,12 @@ class TestPapermillIO(unittest.TestCase):
         self.fake1 = self.FakeHandler(1)
         self.fake2 = self.FakeHandler(2)
         self.papermill_io.register("fake", self.fake1)
+
+        self.old_papermill_io = iorw.papermill_io
+        iorw.papermill_io = self.papermill_io
+
+    def tearDown(self):
+        iorw.papermill_io = self.old_papermill_io
 
     def test_get_handler(self):
         self.assertEqual(self.papermill_io.get_handler("fake"), self.fake1)
@@ -104,6 +111,24 @@ class TestPapermillIO(unittest.TestCase):
     def test_read_with_invalid_file_extension(self):
         with pytest.warns(UserWarning):
             self.papermill_io.read("fake/path/fakeinputpath.ipynb1")
+
+    def test_read_with_valid_file_extension(self):
+        with pytest.warns(None) as warns:
+            self.papermill_io.read("fake/path/fakeinputpath.ipynb")
+        self.assertEqual(len(warns), 0)
+
+    def test_read_yaml_with_no_file_extension(self):
+        with pytest.warns(UserWarning):
+            read_yaml_file("fake/path")
+
+    def test_read_yaml_with_invalid_file_extension(self):
+        with pytest.warns(UserWarning):
+            read_yaml_file("fake/path/fakeinputpath.ipynb")
+
+    def test_read_yaml_with_valid_file_extension(self):
+        with pytest.warns(None) as warns:
+            read_yaml_file("fake/path/fakeinputpath.yaml")
+        self.assertEqual(len(warns), 0)
 
     def test_listdir(self):
         self.assertEqual(self.papermill_io.listdir("fake/path"), ["fake", "contents"])
