@@ -94,6 +94,7 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
+            cwd=None,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -112,6 +113,7 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
+            cwd=None,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -133,6 +135,7 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
+            cwd=None,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -152,6 +155,7 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
+            cwd=None,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -172,6 +176,7 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
+            cwd=None,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -198,6 +203,7 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
+            cwd=None,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -333,6 +339,24 @@ class TestCLI(unittest.TestCase):
         )
 
     @patch(cli.__name__ + '.execute_notebook')
+    def test_set_cwd(self, execute_patch):
+        self.runner.invoke(papermill,
+                           self.default_args + ['--cwd', 'a/path/here'])
+        execute_patch.assert_called_with(
+            'input.ipynb',
+            'output.ipynb',
+            {},
+            engine_name=None,
+            prepare_only=False,
+            kernel_name=None,
+            log_output=False,
+            progress_bar=True,
+            start_timeout=60,
+            report_mode=False,
+            cwd='a/path/here',
+        )
+
+    @patch(cli.__name__ + '.execute_notebook')
     def test_progress_bar(self, execute_patch):
         self.runner.invoke(papermill, self.default_args + ['--progress-bar'])
         execute_patch.assert_called_with(
@@ -346,6 +370,7 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
+            cwd=None,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -362,6 +387,7 @@ class TestCLI(unittest.TestCase):
             progress_bar=False,
             start_timeout=60,
             report_mode=False,
+            cwd=None,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -378,6 +404,7 @@ class TestCLI(unittest.TestCase):
             progress_bar=False,
             start_timeout=60,
             report_mode=False,
+            cwd=None,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -394,6 +421,7 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
+            cwd=None,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -410,6 +438,7 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
+            cwd=None,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -458,6 +487,7 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=60,
             report_mode=True,
+            cwd=None,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -474,6 +504,7 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
+            cwd=None,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -528,6 +559,7 @@ class TestCLI(unittest.TestCase):
             progress_bar=False,
             start_timeout=321,
             report_mode=True,
+            cwd=None,
         )
 
 
