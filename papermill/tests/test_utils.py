@@ -1,7 +1,9 @@
+import os
+
 import pytest
 import six
 
-from ..utils import retry
+from ..utils import retry, chdir
 
 if six.PY3:
     from unittest.mock import Mock, call
@@ -15,3 +17,13 @@ def test_retry():
     with pytest.raises(RuntimeError):
         wrapped_m("foo")
     m.assert_has_calls([call("foo"), call("foo"), call("foo")])
+
+
+def test_chdir():
+    old_cwd = os.getcwd()
+
+    with chdir('/tmp'):
+        assert os.getcwd() != old_cwd
+        assert os.getcwd() == '/tmp'
+
+    assert os.getcwd() == old_cwd
