@@ -113,6 +113,7 @@ def parameterize_notebook(nb, kernel_name, parameters, report_mode=False):
     newcell.metadata['tags'] = ['injected-parameters']
 
     if report_mode:
+        newcell.metadata['jupyter'] = newcell.get('jupyter', {})
         newcell.metadata['jupyter']['source_hidden'] = True
 
     param_cell_index = _find_first_tagged_cell_index(nb, 'parameters')
