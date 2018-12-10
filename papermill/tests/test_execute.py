@@ -205,7 +205,7 @@ class TestReportMode(unittest.TestCase):
         shutil.rmtree(self.test_dir)
 
     def test_report_mode(self):
-        nb = execute_notebook(self.notebook_path, self.nb_test_executed_fname, report_mode=True)
+        nb = execute_notebook(self.notebook_path, self.nb_test_executed_fname, {'a': 0}, report_mode=True)
         for cell in nb.cells:
             if cell.cell_type == 'code':
                 self.assertEqual(cell.metadata.get('jupyter', {}).get('source_hidden'), True)
