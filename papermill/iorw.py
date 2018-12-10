@@ -36,32 +36,30 @@ class PapermillIO(object):
     def __init__(self):
         self.reset()
 
-    def read(self, path):
-        if not fnmatch.fnmatch(os.path.basename(path), "*.*"):
+    def read(self, path, extensions=['.ipynb', '.json']):
+        if not fnmatch.fnmatch(os.path.basename(path), '*.*'):
             warnings.warn(
                 "the file is not specified with any extension : " + os.path.basename(path)
             )
-        elif not (
-            fnmatch.fnmatch(os.path.basename(path), "*.ipynb")
-            or fnmatch.fnmatch(os.path.basename(path), "*.json")
+        elif not any(
+            fnmatch.fnmatch(os.path.basename(path), '*' + ext) for ext in extensions
         ):
             warnings.warn(
-                "The specified input file ({}) does not end in '.ipynb' or '.json'".format(path)
+                "The specified input file ({}) does not end in one of {}".format(path, extensions)
             )
         return self.get_handler(path).read(path)
 
-    def write(self, buf, path):
+    def write(self, buf, path, extensions=['.ipynb', '.json']):
         # Usually no return object here
-        if not fnmatch.fnmatch(os.path.basename(path), "*.*"):
+        if not fnmatch.fnmatch(os.path.basename(path), '*.*'):
             warnings.warn(
                 "the file is not specified with any extension : " + os.path.basename(path)
             )
-        elif not (
-            fnmatch.fnmatch(os.path.basename(path), "*.ipynb")
-            or fnmatch.fnmatch(os.path.basename(path), "*.json")
+        elif not any(
+            fnmatch.fnmatch(os.path.basename(path), '*' + ext) for ext in extensions
         ):
             warnings.warn(
-                "The specified input file ({}) does not end in '.ipynb' or '.json'".format(path)
+                "The specified input file ({}) does not end in one of {}".format(path, extensions)
             )
         return self.get_handler(path).write(buf, path)
 
@@ -227,7 +225,7 @@ papermill_io.register_entry_points()
 
 def read_yaml_file(path):
     """Reads a YAML file from the location specified at 'path'."""
-    return yaml.load(papermill_io.read(path))
+    return yaml.load(papermill_io.read(path, ['.json', '.yaml', '.yml']))
 
 
 def write_ipynb(nb, path):
