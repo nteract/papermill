@@ -320,6 +320,7 @@ class TestCLI(unittest.TestCase):
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
+            cwd=None,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
