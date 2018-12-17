@@ -53,14 +53,13 @@ class TestNotebookExecutionManager(unittest.TestCase):
 
         self.assertEqual(nb_man.pbar.total, len(self.nb.cells))
         self.assertEqual(nb_man.pbar.gui, False)
-        self.assertEqual(nb_man.pbar.bar_format, NotebookExecutionManager.DEFAULT_BAR_FORMAT)
 
     def test_logging_pbar(self):
         nb_man = NotebookExecutionManager(self.nb, log_output=True)
 
         self.assertEqual(nb_man.pbar.total, len(self.nb.cells))
         self.assertEqual(nb_man.pbar.gui, False)
-        self.assertEqual(nb_man.pbar.bar_format, NotebookExecutionManager.DEFAULT_BAR_FORMAT + '\n')
+        self.assertEqual(nb_man.pbar.bar_format[-1], '\n')
 
     def test_notebook_pbar(self):
         # Need this or the tqdm notebook status printer fails
