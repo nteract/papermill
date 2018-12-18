@@ -25,7 +25,7 @@ cd papermill
 We prefer to use [conda](https://conda.io/docs/user-guide/tasks/manage-environments.html) to manage the development environment.
 ```
 conda create -n dev
-. activate env
+. activate dev
 ```
 or [virtualenv](https://packaging.python.org/guides/installing-using-pip-and-virtualenv/) if you prefer.
 ```
@@ -35,7 +35,7 @@ source dev/bin/activate
 
 Install Papermill using:
 ```
-pip install -e .[dev]
+pip install -e '.[dev]'
 ```
 
 _Note: When you are finished you can use `source deactivate` to go back to your base environment._
