@@ -15,7 +15,9 @@ class ADLTest(unittest.TestCase):
     """
 
     def setUp(self):
-        self.ls = Mock(return_value=["foo", "bar", "baz"])
+        self.ls = Mock(
+            return_value=["path/to/directory/foo", "path/to/directory/bar", "path/to/directory/baz"]
+        )
         self.fakeFile = MagicMock()
         self.fakeFile.__iter__.return_value = [b"a", b"b", b"c"]
         self.fakeFile.__enter__.return_value = self.fakeFile
@@ -36,10 +38,14 @@ class ADLTest(unittest.TestCase):
 
     def test_listdir_calls_ls_on_adl_adapter(self):
         self.assertEqual(
-            self.adl.listdir("adl://foo_store.azuredatalakestore.net/path/to/file"),
-            ["foo", "bar", "baz"],
+            self.adl.listdir("adl://foo_store.azuredatalakestore.net/path/to/directory"),
+            [
+                "adl://foo_store.azuredatalakestore.net/path/to/directory/foo",
+                "adl://foo_store.azuredatalakestore.net/path/to/directory/bar",
+                "adl://foo_store.azuredatalakestore.net/path/to/directory/baz",
+            ],
         )
-        self.ls.assert_called_once_with("path/to/file")
+        self.ls.assert_called_once_with("path/to/directory")
 
     def test_read_opens_and_reads_file(self):
         self.assertEquals(
