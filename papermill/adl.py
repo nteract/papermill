@@ -25,7 +25,12 @@ class ADL(object):
     def listdir(self, url):
         (store_name, path) = self._split_url(url)
         adapter = self._create_adapter(store_name)
-        return adapter.ls(path)
+        return [
+            "adl://{store_name}.azuredatalakestore.net/{path_to_child}".format(
+                store_name=store_name, path_to_child=path_to_child
+            )
+            for path_to_child in adapter.ls(path)
+        ]
 
     def read(self, url):
         (store_name, path) = self._split_url(url)
