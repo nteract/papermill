@@ -1,6 +1,5 @@
 import sys
 from six import string_types, integer_types
-from jupyter_client.kernelspec import get_kernel_spec
 from .exceptions import PapermillException
 
 
@@ -17,15 +16,14 @@ class PapermillTranslators(object):
     def register(self, language, translator):
         self._translators[language] = translator
 
-    def kernel_translator(self, kernel_name):
-        kernelspec = get_kernel_spec(kernel_name)
+    def find_translator(self, kernel_name, language):
         if kernel_name in self._translators:
             return self._translators[kernel_name]
-        elif kernelspec.language in self._translators:
-            return self._translators[kernelspec.language]
+        elif language in self._translators:
+            return self._translators[language]
         raise PapermillException(
             "No parameter translator functions specified for kernel '{}' or language '{}'".format(
-                kernel_name, kernelspec.language
+                kernel_name, language
             )
         )
 
@@ -208,5 +206,5 @@ papermill_translators.register("scala", ScalaTranslator)
 papermill_translators.register("julia", JuliaTranslator)
 
 
-def translate_parameters(kernel_name, parameters):
-    return papermill_translators.kernel_translator(kernel_name).codify(parameters)
+def translate_parameters(kernel_name, language, parameters):
+    return papermill_translators.find_translator(kernel_name, language).codify(parameters)

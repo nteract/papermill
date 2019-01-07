@@ -49,16 +49,17 @@ def execute_notebook(
         logger.info("Working directory: %s" % get_pretty_path(cwd))
 
     nb = load_notebook_node(input_path)
-    # Fetch the kernel name if it's not supplied
-    kernel_name = kernel_name or nb.metadata.kernelspec.name
 
     # Parameterize the Notebook.
     if parameters:
-        nb = parameterize_notebook(nb, kernel_name, parameters, report_mode)
+        nb = parameterize_notebook(nb, parameters, report_mode)
 
     nb = prepare_notebook_metadata(nb, input_path, output_path, report_mode)
 
     if not prepare_only:
+        # Fetch the kernel name if it's not supplied
+        kernel_name = kernel_name or nb.metadata.kernelspec.name
+
         # Execute the Notebook in `cwd` if it is set
         with chdir(cwd):
             nb = papermill_engines.execute_notebook_with_engine(
@@ -99,7 +100,7 @@ def prepare_notebook_metadata(nb, input_path, output_path, report_mode=False):
     return nb
 
 
-def parameterize_notebook(nb, kernel_name, parameters, report_mode=False):
+def parameterize_notebook(nb, parameters, report_mode=False):
     """Assigned parameters into the appropiate place in the input notebook
     Args:
         nb (NotebookNode): Executable notebook object
@@ -113,8 +114,11 @@ def parameterize_notebook(nb, kernel_name, parameters, report_mode=False):
     # Copy the nb object to avoid polluting the input
     nb = copy.deepcopy(nb)
 
+    kernel_name = nb.metadata.kernelspec.name
+    language = nb.metadata.kernelspec.language
+
     # Generate parameter content based on the kernel_name
-    param_content = translate_parameters(kernel_name, parameters)
+    param_content = translate_parameters(kernel_name, language, parameters)
 
     newcell = nbformat.v4.new_code_cell(source=param_content)
     newcell.metadata['tags'] = ['injected-parameters']
