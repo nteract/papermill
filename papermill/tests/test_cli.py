@@ -427,6 +427,23 @@ class TestCLI(unittest.TestCase):
         )
 
     @patch(cli.__name__ + '.execute_notebook')
+    def test_log_level(self, execute_patch):
+        self.runner.invoke(papermill, self.default_args + ['--log-level', 'WARNING'])
+        execute_patch.assert_called_with(
+            'input.ipynb',
+            'output.ipynb',
+            {},
+            engine_name=None,
+            prepare_only=False,
+            kernel_name=None,
+            log_output=False,
+            progress_bar=True,
+            start_timeout=60,
+            report_mode=False,
+            cwd=None,
+        )
+
+    @patch(cli.__name__ + '.execute_notebook')
     def test_start_timeout(self, execute_patch):
         self.runner.invoke(papermill, self.default_args + ['--start_timeout', '123'])
         execute_patch.assert_called_with(

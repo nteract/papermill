@@ -84,6 +84,12 @@ def print_papermill_version(ctx, param, value):
     help="Flag for writing notebook output to stderr.",
 )
 @click.option(
+    '--log-level',
+    type=click.Choice(['NOTSET', 'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']),
+    default='INFO',
+    help='Set log level'
+)
+@click.option(
     '--start_timeout', type=int, default=60, help="Time in seconds to wait for kernel to start."
 )
 @click.option('--report-mode/--not-report-mode', default=False, help="Flag for hiding input.")
@@ -112,6 +118,7 @@ def papermill(
     cwd,
     progress_bar,
     log_output,
+    log_level,
     start_timeout,
     report_mode,
 ):
@@ -122,7 +129,7 @@ def papermill(
     output in the destination notebook.
 
     """
-    logging.basicConfig(level=logging.INFO, format="%(message)s")
+    logging.basicConfig(level=log_level, format="%(message)s")
 
     if progress_bar is None:
         progress_bar = not log_output
