@@ -18,6 +18,7 @@ def execute_notebook(
     input_path,
     output_path,
     parameters=None,
+    injected_parameters_str=None,
     engine_name=None,
     prepare_only=False,
     kernel_name=None,
@@ -32,6 +33,7 @@ def execute_notebook(
         input_path (str): Path to input notebook.
         output_path (str): Path to save executed notebook.
         parameters (dict): Arbitrary keyword arguments to pass to the notebook parameters.
+        injected_parameters_str (str): Arbitrary string to place at end of injected-parameters cell.
         prepare_only (bool): Flag to determine if execution should occur or not.
         kernel_name (str): Name of kernel to execute the notebook against.
         progress_bar (bool): Flag for whether or not to show the progress bar.
@@ -53,8 +55,8 @@ def execute_notebook(
     kernel_name = kernel_name or nb.metadata.kernelspec.name
 
     # Parameterize the Notebook.
-    if parameters:
-        nb = parameterize_notebook(nb, kernel_name, parameters, report_mode)
+    if parameters or injected_parameters_str:
+        nb = parameterize_notebook(nb, kernel_name, parameters, injected_parameters_str, report_mode)
 
     nb = prepare_notebook_metadata(nb, input_path, output_path, report_mode)
 
@@ -99,12 +101,13 @@ def prepare_notebook_metadata(nb, input_path, output_path, report_mode=False):
     return nb
 
 
-def parameterize_notebook(nb, kernel_name, parameters, report_mode=False):
+def parameterize_notebook(nb, kernel_name, parameters, injected_parameters_str, report_mode=False):
     """Assigned parameters into the appropiate place in the input notebook
     Args:
         nb (NotebookNode): Executable notebook object
         kernel_name (str): Name of kernel to execute the notebook against.
         parameters (dict): Arbitrary keyword arguments to pass to the notebook parameters.
+        injected_parameters_str (str): Arbitrary string to place at end of injected-parameters cell.
     """
     # Load from a file if 'parameters' is a string.
     if isinstance(parameters, six.string_types):
@@ -114,9 +117,11 @@ def parameterize_notebook(nb, kernel_name, parameters, report_mode=False):
     nb = copy.deepcopy(nb)
 
     # Generate parameter content based on the kernel_name
-    param_content = translate_parameters(kernel_name, parameters)
+    param_content = translate_parameters(kernel_name, parameters) if parameters else ""
+    injected_content = injected_parameters_str if injected_parameters_str else ""
+    newcell_content = "{}{}".format(param_content, injected_content)
 
-    newcell = nbformat.v4.new_code_cell(source=param_content)
+    newcell = nbformat.v4.new_code_cell(source=newcell_content)
     newcell.metadata['tags'] = ['injected-parameters']
 
     if report_mode:
