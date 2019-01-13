@@ -1,4 +1,5 @@
 import os
+import io
 import six
 import shutil
 import tempfile
@@ -16,6 +17,7 @@ from nbconvert import HTMLExporter
 from .. import engines
 from ..log import logger
 from ..api import read_notebook
+from ..utils import chdir
 from ..execute import execute_notebook
 from ..exceptions import PapermillExecutionError
 from . import get_notebook_path
@@ -212,3 +214,46 @@ class TestReportMode(unittest.TestCase):
         for cell in nb.cells:
             if cell.cell_type == 'code':
                 self.assertEqual(cell.metadata.get('jupyter', {}).get('source_hidden'), True)
+
+
+class TestCWD(unittest.TestCase):
+    def setUp(self):
+        self.test_dir = tempfile.mkdtemp()
+        self.base_test_dir = tempfile.mkdtemp()
+
+        self.check_notebook_name = 'read_check.ipynb'
+        self.check_notebook_path = os.path.join(self.base_test_dir, 'read_check.ipynb')
+        # Setup read paths so base_test_dir has check_notebook_name
+        shutil.copyfile(get_notebook_path(self.check_notebook_name), self.check_notebook_path)
+        with io.open(os.path.join(self.test_dir, 'check.txt'), 'w', encoding='utf-8') as f:
+            # Needed for read_check to pass
+            f.write('exists')
+
+        self.simple_notebook_name = 'simple_execute.ipynb'
+        self.simple_notebook_path = os.path.join(self.base_test_dir, 'simple_execute.ipynb')
+        # Setup read paths so base_test_dir has simple_notebook_name
+        shutil.copyfile(get_notebook_path(self.simple_notebook_name), self.simple_notebook_path)
+
+        self.nb_test_executed_fname = 'test_output.ipynb'
+
+    def tearDown(self):
+        shutil.rmtree(self.test_dir)
+        shutil.rmtree(self.base_test_dir)
+
+    def test_local_save_ignores_cwd_assignment(self):
+        with chdir(self.base_test_dir):
+            # Both paths are relative
+            execute_notebook(
+                self.simple_notebook_name, self.nb_test_executed_fname, cwd=self.test_dir
+            )
+        self.assertTrue(os.path.isfile(os.path.join(
+            self.base_test_dir, self.nb_test_executed_fname)))
+
+    def test_execution_respects_cwd_assignment(self):
+        with chdir(self.base_test_dir):
+            # Both paths are relative
+            execute_notebook(
+                self.check_notebook_name, self.nb_test_executed_fname, cwd=self.test_dir
+            )
+        self.assertTrue(os.path.isfile(os.path.join(
+            self.base_test_dir, self.nb_test_executed_fname)))

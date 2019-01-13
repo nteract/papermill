@@ -8,7 +8,7 @@ import nbformat
 
 from .log import logger
 from .exceptions import PapermillExecutionError
-from .iorw import load_notebook_node, write_ipynb, read_yaml_file, get_pretty_path
+from .iorw import load_notebook_node, write_ipynb, read_yaml_file, get_pretty_path, local_file_io_cwd
 from .translators import translate_parameters
 from .engines import papermill_engines
 from .utils import chdir
@@ -45,41 +45,42 @@ def execute_notebook(
     """
     logger.info("Input Notebook:  %s" % get_pretty_path(input_path))
     logger.info("Output Notebook: %s" % get_pretty_path(output_path))
-    if cwd is not None:
-        logger.info("Working directory: %s" % get_pretty_path(cwd))
+    with local_file_io_cwd():
+        if cwd is not None:
+            logger.info("Working directory: {}".format(get_pretty_path(cwd)))
 
-    nb = load_notebook_node(input_path)
+        nb = load_notebook_node(input_path)
 
-    # Parameterize the Notebook.
-    if parameters:
-        nb = parameterize_notebook(nb, parameters, report_mode)
+        # Parameterize the Notebook.
+        if parameters:
+            nb = parameterize_notebook(nb, parameters, report_mode)
 
-    nb = prepare_notebook_metadata(nb, input_path, output_path, report_mode)
+        nb = prepare_notebook_metadata(nb, input_path, output_path, report_mode)
 
-    if not prepare_only:
-        # Fetch the kernel name if it's not supplied
-        kernel_name = kernel_name or nb.metadata.kernelspec.name
+        if not prepare_only:
+            # Fetch the kernel name if it's not supplied
+            kernel_name = kernel_name or nb.metadata.kernelspec.name
 
-        # Execute the Notebook in `cwd` if it is set
-        with chdir(cwd):
-            nb = papermill_engines.execute_notebook_with_engine(
-                engine_name,
-                nb,
-                input_path=input_path,
-                output_path=output_path,
-                kernel_name=kernel_name,
-                progress_bar=progress_bar,
-                log_output=log_output,
-                start_timeout=start_timeout,
-            )
+            # Execute the Notebook in `cwd` if it is set
+            with chdir(cwd):
+                nb = papermill_engines.execute_notebook_with_engine(
+                    engine_name,
+                    nb,
+                    input_path=input_path,
+                    output_path=output_path,
+                    kernel_name=kernel_name,
+                    progress_bar=progress_bar,
+                    log_output=log_output,
+                    start_timeout=start_timeout,
+                )
 
-        # Check for errors first (it saves on error before raising)
-        raise_for_execution_errors(nb, output_path)
+            # Check for errors first (it saves on error before raising)
+            raise_for_execution_errors(nb, output_path)
 
-    # Write final output in case the engine didn't write it on cell completion.
-    write_ipynb(nb, output_path)
+        # Write final output in case the engine didn't write it on cell completion.
+        write_ipynb(nb, output_path)
 
-    return nb
+        return nb
 
 
 def prepare_notebook_metadata(nb, input_path, output_path, report_mode=False):

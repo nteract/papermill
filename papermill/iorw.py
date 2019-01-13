@@ -3,22 +3,24 @@
 from __future__ import unicode_literals
 
 import io
-import json
 import os
-
-import nbformat
-import requests
+import json
 import yaml
 import fnmatch
+import nbformat
+import requests
 import warnings
-
 import entrypoints
 
+from contextlib import contextmanager
+
 from . import __version__
-from .exceptions import PapermillException
 from .s3 import S3
+from .log import logger
 from .adl import ADL
 from .abs import AzureBlobStore
+from .utils import chdir
+from .exceptions import PapermillException
 
 try:
     FileNotFoundError
@@ -118,26 +120,34 @@ class HttpHandler(object):
 
 
 class LocalHandler(object):
-    @classmethod
-    def read(cls, path):
-        with io.open(path, 'r', encoding="utf-8") as f:
-            return f.read()
+    def __init__(self):
+        self._cwd = None
 
-    @classmethod
-    def listdir(cls, path):
-        return [os.path.join(path, fn) for fn in os.listdir(path)]
+    def read(self, path):
+        with chdir(self._cwd):
+            with io.open(path, 'r', encoding="utf-8") as f:
+                return f.read()
 
-    @classmethod
-    def write(cls, buf, path):
-        dirname = os.path.dirname(path)
-        if dirname and not os.path.exists(dirname):
-            raise FileNotFoundError("output folder {} doesn't exist.".format(dirname))
-        with io.open(path, 'w', encoding="utf-8") as f:
-            f.write(buf)
+    def listdir(self, path):
+        with chdir(self._cwd):
+            return [os.path.join(path, fn) for fn in os.listdir(path)]
 
-    @classmethod
-    def pretty_path(cls, path):
+    def write(self, buf, path):
+        with chdir(self._cwd):
+            dirname = os.path.dirname(path)
+            if dirname and not os.path.exists(dirname):
+                raise FileNotFoundError("output folder {} doesn't exist.".format(dirname))
+            with io.open(path, 'w', encoding="utf-8") as f:
+                f.write(buf)
+
+    def pretty_path(self, path):
         return path
+
+    def cwd(self, new_path):
+        '''Sets the cwd during reads and writes'''
+        old_cwd = self._cwd
+        self._cwd = new_path
+        return old_cwd
 
 
 class S3Handler(object):
@@ -214,7 +224,7 @@ class ABSHandler(object):
 
 # Instantiate a PapermillIO instance and register Handlers.
 papermill_io = PapermillIO()
-papermill_io.register("local", LocalHandler)
+papermill_io.register("local", LocalHandler())
 papermill_io.register("s3://", S3Handler)
 papermill_io.register("adl://", ADLHandler)
 papermill_io.register("abs://", ABSHandler)
@@ -272,3 +282,21 @@ def list_notebook_files(path):
 
 def get_pretty_path(path):
     return papermill_io.pretty_path(path)
+
+
+@contextmanager
+def local_file_io_cwd(path=None):
+    try:
+        local_handler = papermill_io.get_handler("local")
+    except PapermillException:
+        logger.warning("No local file handler detected")
+    else:
+        try:
+            old_cwd = local_handler.cwd(path or os.getcwd())
+        except AttributeError:
+            logger.warning("Local file handler does not support cwd assignment")
+        else:
+            try:
+                yield
+            finally:
+                local_handler.cwd(old_cwd)

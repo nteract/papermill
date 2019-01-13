@@ -4,10 +4,10 @@ import json
 import unittest
 import os
 import io
-import tempfile
 import pytest
 from requests.exceptions import ConnectionError
 
+from tempfile import TemporaryDirectory
 try:
     from unittest.mock import Mock, patch
 except ImportError:
@@ -19,7 +19,15 @@ except NameError:
     FileNotFoundError = IOError
 
 from .. import iorw
-from ..iorw import HttpHandler, LocalHandler, ADLHandler, PapermillIO, read_yaml_file
+from ..iorw import (
+    HttpHandler,
+    LocalHandler,
+    ADLHandler,
+    PapermillIO,
+    read_yaml_file,
+    papermill_io,
+    local_file_io_cwd
+)
 from ..exceptions import PapermillException
 
 FIXTURE_PATH = os.path.join(os.path.dirname(__file__), 'fixtures')
@@ -154,22 +162,55 @@ class TestLocalHandler(unittest.TestCase):
     """
 
     def test_read_utf8(self):
-        self.assertEqual(LocalHandler.read(os.path.join(FIXTURE_PATH, 'rock.txt')).strip(), u'✄')
+        self.assertEqual(LocalHandler().read(os.path.join(FIXTURE_PATH, 'rock.txt')).strip(), u'✄')
 
     def test_write_utf8(self):
-        path = os.path.join(tempfile.mkdtemp(), 'paper.txt')
-        LocalHandler.write(u'✄', path)
-        with io.open(path, 'r', encoding='utf-8') as f:
-            self.assertEqual(f.read().strip(), u'✄')
+        with TemporaryDirectory() as temp_dir:
+            path = os.path.join(temp_dir, 'paper.txt')
+            LocalHandler().write(u'✄', path)
+            with io.open(path, 'r', encoding='utf-8') as f:
+                self.assertEqual(f.read().strip(), u'✄')
 
     def test_write_no_directory_exists(self):
         with self.assertRaises(FileNotFoundError):
-            LocalHandler.write("buffer", "fake/path/fakenb.ipynb")
+            LocalHandler().write("buffer", "fake/path/fakenb.ipynb")
 
     def test_write_local_directory(self):
         with patch.object(io, 'open'):
             # Shouldn't raise with missing directory
-            LocalHandler.write("buffer", "local.ipynb")
+            LocalHandler().write("buffer", "local.ipynb")
+
+    def test_write_passed_cwd(self):
+        with TemporaryDirectory() as temp_dir:
+            handler = LocalHandler()
+
+            handler.cwd(temp_dir)
+            handler.write(u'✄', 'paper.txt')
+
+            path = os.path.join(temp_dir, 'paper.txt')
+            with io.open(path, 'r', encoding='utf-8') as f:
+                self.assertEqual(f.read().strip(), u'✄')
+
+    def test_local_file_io_cwd(self):
+        with TemporaryDirectory() as temp_dir:
+            # Some internal model fixing to avoid side-effecting anything else that
+            # reads from the module global defaults
+            handlers = papermill_io._handlers
+            try:
+                local_handler = LocalHandler()
+                papermill_io.reset()
+                papermill_io.register("local", local_handler)
+
+                with local_file_io_cwd(temp_dir):
+                    local_handler.write(u'✄', 'paper.txt')
+                    self.assertEqual(local_handler.read('paper.txt'), u'✄')
+
+                # Double check it used the tmpdir
+                path = os.path.join(temp_dir, 'paper.txt')
+                with io.open(path, 'r', encoding='utf-8') as f:
+                    self.assertEqual(f.read().strip(), u'✄')
+            finally:
+                papermill_io.handlers = handlers
 
 
 class TestADLHandler(unittest.TestCase):
