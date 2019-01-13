@@ -2,10 +2,10 @@ codecov
 coverage
 notebook
 mock
-pytest>=3.3
-pytest-cov
-pytest-mock
-pytest-env
+pytest>=4.1
+pytest-cov>=2.6.1
+pytest-mock>=1.10
+pytest-env>=0.6.2
 moto
 check-manifest
 black; python_version >= '3.6'

@@ -85,7 +85,7 @@ class ABSTest(unittest.TestCase):
             container_name="sascontainer", blob_name="sasblob.txt", text="hello world"
         )
 
-    def test__block_blob_service(self):
+    def test_block_blob_service(self):
         abs = AzureBlobStore()
         blob = abs._block_blob_service(account_name="myaccount", sas_token="sastoken")
         self.assertEqual(blob.account_name, "myaccount")
