@@ -10,7 +10,6 @@ matrix:
       env: TOXENV=py36
     - python: 3.7
       dist: xenial    # required for Python 3.7 (travis-ci/travis-ci#9069)
-      # Try removing the google-compute-engine when this doesn't require sudo
       sudo: required  # required for Python 3.7 (travis-ci/travis-ci#9069)
       env: TOXENV=py37
     - python: 3.6

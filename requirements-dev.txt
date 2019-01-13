@@ -16,3 +16,4 @@ botocore
 ipywidgets
 flake8
 tox
+google_compute_engine # Need this because boto has issues with dynamic package loading during tests if other google components are there
