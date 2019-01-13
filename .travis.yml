@@ -22,8 +22,6 @@ install:
   - pip install tox
 script:
   - tox -e $TOXENV
-  - touch .coverage
-  - mv .coverage $TRAVIS_BUILD_DIR/.coverage
 after_success:
   - coverage xml -i
   - codecov
