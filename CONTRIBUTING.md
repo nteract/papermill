@@ -54,7 +54,7 @@ For a full test suite of all envs and linting checks simply run tox without any 
 ```
 tox
 ```
-This will require python2.7, python3.6, and python3.7 to be installed. **Note** that python 3.7 has problems with the alpha build which is the available package version on many linux distros. Local build failures with 3.7 can happen as a result (you'll see a seg fault or exist code -11).
+This will require python2.7, python3.5, python3.6, and python3.7 to be installed. **Note** that python 3.7 has problems with the alpha build which is the available package version on many linux distros. Local build failures with 3.7 can happen as a result (you'll see a seg fault or exist code -11).
 
 Alternavitely pytest can be used if you have an environment already setup which works or has custom packages not present in the tox build.
 ```
