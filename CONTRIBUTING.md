@@ -43,6 +43,20 @@ _Note: When you are finished you can use `source deactivate` to go back to your 
 ### Running Tests Locally
 
 We need to install the development package before we can run the tests. If anything is confusing below, always resort to the relevant documentation.
+
+For the most basic test runs against python 3.6 use this tox subset (callable after `pip install tox`):
+```
+tox -e py36
+```
+This will just execute the unittests against python 3.6 in a new virtual env. The first run will take longer to setup the virtualenv, but will be fast after that point.
+
+For a full test suite of all envs and linting checks simply run tox without any arguments
+```
+tox
+```
+This will require python2.7, python3.6, and python3.7 to be installed. **Note** that python 3.7 has problems with the alpha build which is the available package version on many linux distros. Local build failures with 3.7 can happen as a result (you'll see a seg fault or exist code -11).
+
+Alternavitely pytest can be used if you have an environment already setup which works or has custom packages not present in the tox build.
 ```
 pytest --pyargs papermill
 ```
