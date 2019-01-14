@@ -2,7 +2,11 @@ import os
 import six
 import pytest
 
-from tempfile import TemporaryDirectory
+try:
+    from tempfile import TemporaryDirectory
+except ImportError:
+    # python 2
+    from backports.tempfile import TemporaryDirectory
 from ..utils import retry, chdir
 
 if six.PY3:

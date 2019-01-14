@@ -7,7 +7,12 @@ import io
 import pytest
 from requests.exceptions import ConnectionError
 
-from tempfile import TemporaryDirectory
+try:
+    from tempfile import TemporaryDirectory
+except ImportError:
+    # python 2
+    from backports.tempfile import TemporaryDirectory
+
 try:
     from unittest.mock import Mock, patch
 except ImportError:

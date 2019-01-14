@@ -227,7 +227,7 @@ class TestCWD(unittest.TestCase):
         shutil.copyfile(get_notebook_path(self.check_notebook_name), self.check_notebook_path)
         with io.open(os.path.join(self.test_dir, 'check.txt'), 'w', encoding='utf-8') as f:
             # Needed for read_check to pass
-            f.write('exists')
+            f.write(u'exists')
 
         self.simple_notebook_name = 'simple_execute.ipynb'
         self.simple_notebook_path = os.path.join(self.base_test_dir, 'simple_execute.ipynb')
