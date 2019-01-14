@@ -1,39 +1,27 @@
 language: python
 sudo: false
-python:
-  - 2.7
-  - 3.5
-  - 3.6
 matrix:
   include:
+    - python: 2.7
+      env: TOXENV=py27
+    - python: 3.5
+      env: TOXENV=py35
+    - python: 3.6
+      env: TOXENV=py36
     - python: 3.7
       dist: xenial    # required for Python 3.7 (travis-ci/travis-ci#9069)
-      # Try removing the google-compute-engine when this doesn't require sudo
       sudo: required  # required for Python 3.7 (travis-ci/travis-ci#9069)
-# For some reason the pytest.ini isn't being respected
-env:
-  global:
-    - AWS_ACCESS_KEY_ID=foobar_key
-    - AWS_SECRET_ACCESS_KEY=foobar_secret
+      env: TOXENV=py37
+    - python: 3.6
+      env: TOXENV=flake8
+    - python: 3.6
+      env: TOXENV=dist
+    - python: 3.6
+      env: TOXENV=manifest
 install:
-  - pip install setuptools pip --upgrade
-  - pip install -e .[test]
-  - pip install check-manifest flake8
-  # Needed for python 3.7 on travis to import boto because there's a partial package in the root site packages
-  - pip install google-compute-engine
-  - python -m ipykernel install --user
-before_script:
-  - flake8 . --count --ignore=E203,E731,F811,W503 --max-complexity=23 --max-line-length=104 --show-source --statistics
+  - pip install tox
 script:
-  # cd so we test the install, not the repo
-  - check-manifest
-  - cd `mktemp -d`
-  - pytest -v --maxfail=2 --cov=papermill --pyargs papermill -W always
-  - mv .coverage $TRAVIS_BUILD_DIR/.coverage
-  - cd $TRAVIS_BUILD_DIR
-  - python setup.py sdist bdist_wheel
-  - python -m pip install -U --force-reinstall dist/papermill*.whl
-  - python -m pip install -U --force-reinstall --no-deps dist/papermill*.tar.gz
+  - tox -e $TOXENV
 after_success:
   - coverage xml -i
   - codecov
