@@ -1,4 +1,3 @@
-import sys
 import copy
 import datetime
 import dateutil
@@ -14,12 +13,11 @@ from .iorw import write_ipynb
 # tqdm creates 2 globals lock which raise OSException if the execution
 # environment does not have shared memory for processes, e.g. AWS Lambda
 try:
-    from tqdm import tqdm, tqdm_notebook
+    from tqdm.auto import tqdm
 
     no_tqdm = False
 except OSError:
     no_tqdm = True
-using_ipykernel = 'ipykernel' in sys.modules
 
 
 class PapermillEngines(object):
@@ -83,7 +81,6 @@ class NotebookExecutionManager(object):
     engines to facilitate metadata and persistence actions in a shared manner.
     """
 
-    DEFAULT_BAR_FORMAT = "{l_bar}{bar}{r_bar}"
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
@@ -98,23 +95,7 @@ class NotebookExecutionManager(object):
         self.end_time = None
         self.pbar = None
         if progress_bar and not no_tqdm:
-            self.set_pbar()
-
-    def set_pbar(self):
-        """
-        Initializes the progress bar object for this notebook run.
-
-        This is called automatically when constructed.
-        """
-        if using_ipykernel:
-            # Load the notebook version if we're being called from a notebook
-            self.pbar = tqdm_notebook(total=len(self.nb.cells))
-        else:
-            bar_format = self.DEFAULT_BAR_FORMAT
-            if self.log_output:
-                # We want to inject newlines if we're printing content between enumerations
-                bar_format += "\n"
-            self.pbar = tqdm(total=len(self.nb.cells), bar_format=bar_format)
+            self.pbar = tqdm(total=len(self.nb.cells))
 
     def now(self):
         return datetime.datetime.utcnow()
