@@ -95,20 +95,7 @@ class NotebookExecutionManager(object):
         self.end_time = None
         self.pbar = None
         if progress_bar and not no_tqdm:
-            self.set_pbar()
-
-    def set_pbar(self):
-        """
-        Initializes the progress bar object for this notebook run.
-
-        This is called automatically when constructed.
-        """
-        if self.log_output:
-            # We want to inject newlines if we're printing content between enumerations
-            bar_format = "{l_bar}{bar}{r_bar}\n"
-        else:
-            bar_format = None
-        self.pbar = tqdm(total=len(self.nb.cells), bar_format=bar_format)
+            self.pbar = tqdm(total=len(self.nb.cells))
 
     def now(self):
         return datetime.datetime.utcnow()
