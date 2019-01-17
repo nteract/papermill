@@ -1,5 +1,25 @@
 # Change Log
 
+## 0.17.0
+
+### Features
+- Log level can now be set with `--log-level`
+- The working directory of papermill can be set with the `--cwd` option. This will set the executing context of the kernel but not impact input/output paths. `papermill --cwd foo bar/input_nb.ipynb bar/output_nb.ipynb` would make the notebook able to reference files in the `foo` directoy without `../foo` but still save the output notebook in the `bar` directory.
+- Tox has been added for testing papermill. This makes it easier to catch linting and manifest issues without waiting for a failed Travis build.
+
+### Fixes
+- Fixed warnings for reading non-ipynb files
+- Fixed `--report-mode` with parameters (and made it more compatible with JupyterLab)
+- Papermill execution progress bars now render within a notebook correctly after importing seaborn
+- The `--prepare-only` option no longer requires that kernels be installed locally (you can parameterize a notebook without knowing how to execute it)
+- Azure IO adapter now correctly prefixes paths with the `adl://` scheme
+- Tests on OSX should pass again
+
+### Docs
+- Install doc improvements
+- Guide links are updated in the README
+- Test docs updated for tox usage
+
 ## 0.16.2
 
 - Injected parameter cells now respect `--report-mode`
