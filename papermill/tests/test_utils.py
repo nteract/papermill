@@ -1,8 +1,12 @@
 import os
-
-import pytest
 import six
+import pytest
 
+try:
+    from tempfile import TemporaryDirectory
+except ImportError:
+    # python 2
+    from backports.tempfile import TemporaryDirectory
 from ..utils import retry, chdir
 
 if six.PY3:
@@ -21,9 +25,9 @@ def test_retry():
 
 def test_chdir():
     old_cwd = os.getcwd()
-
-    with chdir('/tmp'):
-        assert os.getcwd() != old_cwd
-        assert os.getcwd() == '/tmp'
+    with TemporaryDirectory() as temp_dir:
+        with chdir(temp_dir):
+            assert os.getcwd() != old_cwd
+            assert os.getcwd() == os.path.realpath(temp_dir)
 
     assert os.getcwd() == old_cwd
