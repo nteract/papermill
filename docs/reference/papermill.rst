@@ -43,14 +43,6 @@ papermill.cli module
     :undoc-members:
     :show-inheritance:
 
-papermill.conf module
----------------------
-
-.. automodule:: papermill.conf
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 papermill.engines module
 --------------------
 
