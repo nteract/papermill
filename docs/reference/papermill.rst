@@ -11,6 +11,22 @@ Subpackages
 Submodules
 ----------
 
+papermill.abs module
+--------------------
+
+.. automodule:: papermill.abs
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+papermill.adl module
+--------------------
+
+.. automodule:: papermill.adl
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 papermill.api module
 --------------------
 
@@ -31,6 +47,14 @@ papermill.conf module
 ---------------------
 
 .. automodule:: papermill.conf
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+papermill.engines module
+--------------------
+
+.. automodule:: papermill.engines
     :members:
     :undoc-members:
     :show-inheritance:
@@ -59,6 +83,14 @@ papermill.iorw module
     :undoc-members:
     :show-inheritance:
 
+papermill.log module
+--------------------
+
+.. automodule:: papermill.log
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 papermill.preprocess module
 ---------------------------
 
@@ -79,6 +111,14 @@ papermill.translators module
 ----------------------------
 
 .. automodule:: papermill.translators
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+papermill.utils module
+--------------------
+
+.. automodule:: papermill.utils
     :members:
     :undoc-members:
     :show-inheritance:
