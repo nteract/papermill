@@ -393,6 +393,7 @@ class S3(object):
         it = self._list(bucket=self._bucket_name(name), prefix=self._key_name(name), **kwargs)
         return iter(it) if iterator else list(it)
 
+
     def listdir(self, name, **kwargs):
         """
         Returns a list of the files under the specified path.

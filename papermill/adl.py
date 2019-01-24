@@ -1,8 +1,24 @@
+"""Utilities for working with Azure data lake storage"""
+import logging
 import re
+
 from azure.datalake.store import core, lib
 
 
+logger = logging.getLogger('papermill.s3')
+
+
 class ADL(object):
+    """
+    Represents an Azure Data Lake
+
+    Methods
+    -------
+    The following are wrapped utilities for Azure storage:
+    - read
+    - listdir
+    - write
+    """
     def __init__(self):
         self.token = None
 
@@ -23,6 +39,7 @@ class ADL(object):
         return core.AzureDLFileSystem(self._get_token(), store_name=store_name)
 
     def listdir(self, url):
+        """Returns a list of the files under the specified path"""
         (store_name, path) = self._split_url(url)
         adapter = self._create_adapter(store_name)
         return [
@@ -33,6 +50,7 @@ class ADL(object):
         ]
 
     def read(self, url):
+        """Read storage at a given url"""
         (store_name, path) = self._split_url(url)
         adapter = self._create_adapter(store_name)
         lines = []
@@ -42,6 +60,7 @@ class ADL(object):
         return lines
 
     def write(self, buf, url):
+        """Write buffer to storage at a given url"""
         (store_name, path) = self._split_url(url)
         adapter = self._create_adapter(store_name)
         with adapter.open(path, 'wb') as f:
