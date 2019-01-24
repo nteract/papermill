@@ -44,7 +44,7 @@ papermill.cli module
     :show-inheritance:
 
 papermill.engines module
---------------------
+------------------------
 
 .. automodule:: papermill.engines
     :members:
@@ -108,7 +108,7 @@ papermill.translators module
     :show-inheritance:
 
 papermill.utils module
---------------------
+----------------------
 
 .. automodule:: papermill.utils
     :members:
