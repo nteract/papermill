@@ -64,7 +64,7 @@ def catch_nb_assignment(func):
     the wrapped function.
 
     Used for callback methods when the caller may optionally have a new copy
-    of the originally wrapped `nb`object.
+    of the originally wrapped `nb` object.
     """
 
     @wraps(func)
