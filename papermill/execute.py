@@ -48,7 +48,7 @@ def execute_notebook(
     log_output : bool, optional
         Flag for whether or not to write notebook output_path to `stderr`
     start_timeout : int, optional
-        Duration to wait for kernel start-up
+        Duration in seconds to wait for kernel start-up
     report_mode : bool, optional
         Flag for whether or not to hide input.
     cwd : str, optional
