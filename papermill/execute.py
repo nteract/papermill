@@ -28,20 +28,36 @@ def execute_notebook(
     cwd=None,
 ):
     """Executes a single notebook locally.
-    Args:
-        input_path (str): Path to input notebook.
-        output_path (str): Path to save executed notebook.
-        parameters (dict): Arbitrary keyword arguments to pass to the notebook parameters.
-        prepare_only (bool): Flag to determine if execution should occur or not.
-        kernel_name (str): Name of kernel to execute the notebook against.
-        progress_bar (bool): Flag for whether or not to show the progress bar.
-        log_output (bool): Flag for whether or not to write notebook output_path to stderr.
-        start_timeout (int): Duration to wait for kernel start-up.
-        report_mode (bool): Flag for whether or not to hide input.
-        cwd (str): Working directory to use when executing the notebook.
 
-    Returns:
-         nb (NotebookNode): Executed notebook object
+    Parameters
+    ----------
+    input_path : str
+        Path to input notebook
+    output_path : str
+        Path to save executed notebook
+    parameters : dict, optional
+        Arbitrary keyword arguments to pass to the notebook parameters
+    engine_name : str, optional
+        Name of execution engine to use
+    prepare_only : bool, optional
+        Flag to determine if execution should occur or not
+    kernel_name : str, optional
+        Name of kernel to execute the notebook against
+    progress_bar : bool, optional
+        Flag for whether or not to show the progress bar.
+    log_output : bool, optional
+        Flag for whether or not to write notebook output_path to `stderr`
+    start_timeout : int, optional
+        Duration to wait for kernel start-up
+    report_mode : bool, optional
+        Flag for whether or not to hide input.
+    cwd : str, optional
+        Working directory to use when executing the notebook
+
+    Returns
+    -------
+    nb : NotebookNode
+       Executed notebook object
     """
     logger.info("Input Notebook:  %s" % get_pretty_path(input_path))
     logger.info("Output Notebook: %s" % get_pretty_path(output_path))
@@ -84,6 +100,19 @@ def execute_notebook(
 
 
 def prepare_notebook_metadata(nb, input_path, output_path, report_mode=False):
+    """Prepare metadata associated with a notebook and its cells
+
+    Parameters
+    ----------
+    nb : NotebookNode
+       Executable notebook object
+    input_path : str
+        Path to input notebook
+    output_path : str
+       Path to write executed notebook
+    report_mode : bool, optional
+       Flag to set report mode
+    """
     # Copy the nb object to avoid polluting the input
     nb = copy.deepcopy(nb)
 
@@ -102,11 +131,16 @@ def prepare_notebook_metadata(nb, input_path, output_path, report_mode=False):
 
 
 def parameterize_notebook(nb, parameters, report_mode=False):
-    """Assigned parameters into the appropiate place in the input notebook
-    Args:
-        nb (NotebookNode): Executable notebook object
-        kernel_name (str): Name of kernel to execute the notebook against.
-        parameters (dict): Arbitrary keyword arguments to pass to the notebook parameters.
+    """Assigned parameters into the appropriate place in the input notebook
+
+    Parameters
+    ----------
+    nb : NotebookNode
+       Executable notebook object
+    parameters : dict
+       Arbitrary keyword arguments to pass as notebook parameters
+    report_mode : bool, optional
+       Flag to set report mode
     """
     # Load from a file if 'parameters' is a string.
     if isinstance(parameters, six.string_types):
@@ -167,6 +201,15 @@ ERROR_MESSAGE_TEMPLATE = (
 
 
 def raise_for_execution_errors(nb, output_path):
+    """Assigned parameters into the appropriate place in the input notebook
+
+    Parameters
+    ----------
+    nb : NotebookNode
+       Executable notebook object
+    output_path : str
+       Path to write executed notebook
+    """
     error = None
     for cell in nb.cells:
         if cell.get("outputs") is None:
