@@ -1,11 +1,27 @@
 API
 ===
 
+.. currentmodule:: papermill.api
 
-papermill.api
--------------
+Notebook
+--------
 
-.. automodule:: papermill.api
+.. autoclass:: papermill.api.Notebook
     :members:
-    :undoc-members:
-    :show-inheritance:
+
+Notebook Collection
+-------------------
+
+.. autoclass:: papermill.api.NotebookCollection
+    :members:
+
+Functions
+---------
+
+.. autofunction:: display
+
+.. autofunction:: read_notebook
+
+.. autofunction:: read_notebooks
+
+.. autofunction:: record
