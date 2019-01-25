@@ -3,7 +3,11 @@ Parameterize
 
 .. seealso::
 
-    `papermill API reference <reference/papermill-api>`
+    :doc:`API reference <./reference/papermill-api>`
+
+    :doc:`Workflow reference <./reference/papermill-workflow>`
+
+
 
 Gernerally,the first workflow step when using papermill is to parameterize the notebook.
 
