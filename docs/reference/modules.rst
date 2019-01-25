@@ -1,7 +1,11 @@
-papermill
-=========
+Reference and API
+=================
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 1
 
    papermill
+   papermill-workflow
+   papermill-storage
+   papermill-utilities
+   papermill.tests
