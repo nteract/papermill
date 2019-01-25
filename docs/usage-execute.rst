@@ -1,5 +1,5 @@
-Executing a Notebook
-====================
+Execute
+=======
 
 The two ways to execute the notebook with parameters are: (1) through the
 Python API and (2) through the command line interface.

@@ -1,5 +1,5 @@
-Task: Analyzing a Collection of Notebooks
-=========================================
+Notebook Collections
+====================
 
 .. seealso::
 
@@ -13,8 +13,10 @@ of notebooks.
 Read a collection of notebooks
 ------------------------------
 
+In this example, a collection of notebooks is created from the
+notebooks found in a directory at a given path.
+
 .. code-block:: python
-    :highlight: 4
 
    """summary.ipynb"""
    import papermill as pm
@@ -26,7 +28,7 @@ Display output for a collection
 -------------------------------
 
 .. code-block:: python
-    :highlight: 6
+
 
    """summary.ipynb"""
    import papermill as pm
@@ -42,6 +44,13 @@ Display output for a collection
 
 Use a dataframe of the collection
 ---------------------------------
+
+A dataframe can be created from the notebooks in a collection.
+
+In this example, the ``dataframe`` contains information about
+the notebook collection ``nbs``. Common dataframe operations, such
+as used in pandas, can be done on the collection dataframe. Here
+we are displaying the top 10 rows of the dataframe.
 
 .. code-block:: python
 

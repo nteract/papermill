@@ -36,7 +36,7 @@ Documentation
 These pages guide you through the installation and usage of papermill.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    installation
    usage-workflow
@@ -44,6 +44,7 @@ These pages guide you through the installation and usage of papermill.
    usage-execute
    usage-recording
    usage-display
+   usage-store
    usage-collection
 
 API Reference
@@ -53,9 +54,10 @@ If you are looking for information about a specific function, class, or method,
 this documentation section will help you.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
    reference/index.rst
+   reference/papermill.tests.rst
 
 Indices and tables
 ------------------

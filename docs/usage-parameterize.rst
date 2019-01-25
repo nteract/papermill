@@ -1,5 +1,5 @@
-Parameterize a Notebook
-=======================
+Parameterize
+============
 
 .. seealso::
 
