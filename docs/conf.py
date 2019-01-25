@@ -26,9 +26,9 @@ import recommonmark
 from recommonmark.parser import CommonMarkParser
 
 # symlink CHANGELOG.md from repo root to the project dir.
-basedir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+basedir = os.path.dirname(os.path.abspath('docs'))
 filename = "CHANGELOG.md"
-target = os.path.join(basedir, "docs", "project", filename)
+target = os.path.join(basedir, "project", filename)
 if not os.path.islink(target):
     os.symlink(os.path.join(basedir, filename), target)
 
