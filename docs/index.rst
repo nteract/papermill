@@ -39,7 +39,12 @@ These pages guide you through the installation and usage of papermill.
    :maxdepth: 2
 
    installation
-   usage
+   usage-workflow
+   usage-parameterize
+   usage-execute
+   usage-recording
+   usage-display
+   usage-collection
 
 API Reference
 -------------
