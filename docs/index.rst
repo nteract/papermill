@@ -46,6 +46,7 @@ These pages guide you through the installation and usage of papermill.
    usage-display
    usage-store
    usage-collection
+   usage-cli
 
 API Reference
 -------------

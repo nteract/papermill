@@ -1,17 +1,8 @@
-CLI
-===
+Command Line Interface
+======================
 
-
-papermill.cli
--------------
-
-.. automodule:: papermill.cli
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-Command Line options
---------------------
+papermill may be executed from the terminal. The following are the command
+options:
 
 .. code-block:: bash
 
