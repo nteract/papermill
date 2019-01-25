@@ -1,10 +1,28 @@
 Display
 =======
 
-Displaying Plots and Images Saved by Other Notebooks
-----------------------------------------------------
+papermill offers flexibility to display content, such
+as plots and images, which is found in other notebooks.
 
-Display a matplotlib histogram with the key name ``matplotlib_hist``.
+.. seealso::
+
+    :ref:`display <display>`
+
+    ``papermill.api.Notebook.display_output`` in :doc:`API reference <./reference/papermill-api>`
+
+
+Displaying Content from Another Notebook
+----------------------------------------
+
+Let's look at an example with two notebooks, ``notebook.ipynb`` and
+``summary.ipynb``.
+
+Save content in one notebook
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In this example, let's create the ``notebook.ipynb`` which will
+:ref:`display <display>` a matplotlib histogram (object f) with
+the key name ``matplotlib_hist``.
 
 .. code-block:: python
 
@@ -22,7 +40,15 @@ Display a matplotlib histogram with the key name ``matplotlib_hist``.
 
 .. image:: img/matplotlib_hist.png
 
-Read in that above notebook and display the plot saved at ``matplotlib_hist``.
+Use content in a second notebook
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Now, let's work in a new notebook ``summary.ipynb``. We would like to use
+the figure which we saved and displayed in the first notebook ``notebook.ipynb``.
+
+To do so, use ``read_notebook`` to read in the above notebook. Use
+papermill's ``display_output`` to display the plot saved with the
+keyword ``matplotlib_hist``.
 
 .. code-block:: python
 

@@ -18,6 +18,8 @@ Notebook Collection
 Functions
 ---------
 
+.. _display:
+
 .. autofunction:: display
 
 .. autofunction:: read_notebook
