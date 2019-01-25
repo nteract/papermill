@@ -1,25 +1,9 @@
-papermill workflow modules
-==========================
+Workflow
+========
 
 
-papermill.api module
---------------------
-
-.. automodule:: papermill.api
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-papermill.cli module
---------------------
-
-.. automodule:: papermill.cli
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-papermill.engines module
-------------------------
+papermill.engines
+-----------------
 
 .. automodule:: papermill.engines
     :members:
@@ -27,16 +11,16 @@ papermill.engines module
     :show-inheritance:
 
 
-papermill.execute module
-------------------------
+papermill.execute
+-----------------
 
 .. automodule:: papermill.execute
     :members:
     :undoc-members:
     :show-inheritance:
 
-papermill.iorw module
----------------------
+papermill.iorw
+--------------
 
 .. automodule:: papermill.iorw
     :members:
@@ -44,16 +28,16 @@ papermill.iorw module
     :show-inheritance:
 
 
-papermill.preprocess module
----------------------------
+papermill.preprocess
+--------------------
 
 .. automodule:: papermill.preprocess
     :members:
     :undoc-members:
     :show-inheritance:
 
-papermill.translators module
-----------------------------
+papermill.translators
+---------------------
 
 .. automodule:: papermill.translators
     :members:

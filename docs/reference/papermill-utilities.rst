@@ -1,26 +1,27 @@
-papermill Utilities
-===================
+Utilities
+=========
 
-papermill.exceptions module
----------------------------
+
+papermill.utils
+---------------
+
+.. automodule:: papermill.utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+papermill.exceptions
+--------------------
 
 .. automodule:: papermill.exceptions
     :members:
     :undoc-members:
     :show-inheritance:
 
-papermill.log module
---------------------
+papermill.log
+-------------
 
 .. automodule:: papermill.log
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-papermill.utils module
-----------------------
-
-.. automodule:: papermill.utils
     :members:
     :undoc-members:
     :show-inheritance:

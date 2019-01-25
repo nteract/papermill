@@ -1,8 +1,11 @@
-papermill Storage
-=================
+Storage
+=======
 
 Azure
 -----
+
+These modules outline how to interact with Azure data stores, specifically
+Azure Blob Storage and Azure Data Lakes.
 
 papermill.abs module
 ~~~~~~~~~~~~~~~~~~~~
@@ -22,6 +25,8 @@ papermill.adl module
 
 AWS
 ---
+
+This module shows how to interact with AWS S3 data stores.
 
 papermill.s3 module
 ~~~~~~~~~~~~~~~~~~~
