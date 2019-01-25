@@ -3,7 +3,7 @@ Notebook Collections
 
 .. seealso::
 
-    reference/papermill-api.rst
+    :doc:`API reference <./reference/papermill-api>`
 
 
 Papermill can read in a directory of notebooks. It provides the
