@@ -131,11 +131,6 @@ class Notebook(object):
         a notebook object
     path : str, optional
         the path to the notebook
-
-    Method
-    ------
-    display_output
-
     """
 
     def __init__(self, node=None, path=None):

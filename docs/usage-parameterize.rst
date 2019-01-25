@@ -9,7 +9,7 @@ Parameterize
 
 
 
-Gernerally,the first workflow step when using papermill is to parameterize the notebook.
+Generally,the first workflow step when using papermill is to parameterize the notebook.
 
 To do this, you will tag notebook cells with ``parameters``. These
 ``parameters`` are later used when the notebook is executed or run.
