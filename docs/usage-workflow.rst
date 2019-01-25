@@ -14,7 +14,7 @@ Using papermill
 
 The general workflow when using papermill is **parameterizing** a notebook,
 **executing** it, as well as **recording**, **displaying**, or **storing** the results.
-In addition to operating on a single notebook, papermill do work on
+In addition to operating on a single notebook, papermill also works on
 a collection of notebooks.
 
 .. toctree::
