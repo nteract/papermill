@@ -25,13 +25,6 @@ sys.path.insert(0, os.path.abspath('..'))
 import recommonmark
 from recommonmark.parser import CommonMarkParser
 
-# symlink CHANGELOG.md from repo root to the project dir.
-basedir = os.path.dirname(os.path.abspath('docs'))
-filename = "CHANGELOG.md"
-target = os.path.join(basedir, "project", filename)
-if not os.path.islink(target):
-    os.symlink(os.path.join(basedir, filename), target)
-
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.

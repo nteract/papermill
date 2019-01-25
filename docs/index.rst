@@ -60,16 +60,6 @@ this documentation section will help you.
    reference/index.rst
    reference/papermill.tests.rst
 
-Project
--------
-
-These miscellaneous documents provide more information about the papermill
-project.
-
-.. toctree::
-   :maxdepth: 1
-
-   project/CHANGELOG.md
 
 Indices and tables
 ------------------
