@@ -16,3 +16,4 @@ requests
 azure-datalake-store >= 0.0.30
 azure-storage-blob
 entrypoints
+gcsfs
