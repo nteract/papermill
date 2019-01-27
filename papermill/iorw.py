@@ -11,6 +11,7 @@ import nbformat
 import requests
 import warnings
 import entrypoints
+import gcsfs
 
 from contextlib import contextmanager
 
@@ -222,6 +223,34 @@ class ABSHandler(object):
         return path
 
 
+class GCSHandler(object):
+    _client = None
+
+    @classmethod
+    def _get_client(cls):
+        if cls._client is None:
+            cls._client = gcsfs.GCSFileSystem()
+        return cls._client
+
+    @classmethod
+    def read(cls, path):
+        with cls._get_client().open(path) as f:
+            return f.read()
+
+    @classmethod
+    def listdir(cls, path):
+        return cls._get_client().ls(path)
+
+    @classmethod
+    def write(cls, buf, path):
+        with cls._get_client().open(path, 'w') as f:
+            return f.write(buf)
+
+    @classmethod
+    def pretty_path(cls, path):
+        return path
+
+
 # Instantiate a PapermillIO instance and register Handlers.
 papermill_io = PapermillIO()
 papermill_io.register("local", LocalHandler())
@@ -230,6 +259,8 @@ papermill_io.register("adl://", ADLHandler)
 papermill_io.register("abs://", ABSHandler)
 papermill_io.register("http://", HttpHandler)
 papermill_io.register("https://", HttpHandler)
+papermill_io.register("gcs://", GCSHandler)
+papermill_io.register("gs://", GCSHandler)
 papermill_io.register_entry_points()
 
 
