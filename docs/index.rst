@@ -30,16 +30,39 @@ This opens up new opportunities for how notebooks can be used. For example:
   Now you can choose which plots to programmatically display a **summary**
   **collection** in a notebook to share with others.
 
+Documentation
+-------------
+
+These pages guide you through the installation and usage of papermill.
+
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 1
 
    installation
-   usage
-   reference/modules.rst
+   usage-workflow
+   usage-parameterize
+   usage-execute
+   usage-recording
+   usage-display
+   usage-store
+   usage-collection
+   usage-cli
+
+API Reference
+-------------
+
+If you are looking for information about a specific function, class, or method,
+this documentation section will help you.
+
+.. toctree::
+   :maxdepth: 3
+
+   reference/index.rst
+   reference/papermill.tests.rst
+
 
 Indices and tables
-==================
+------------------
 
 * :ref:`genindex`
 * :ref:`modindex`

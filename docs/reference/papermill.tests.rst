@@ -1,8 +1,10 @@
-papermill.tests package
-=======================
+Tests
+=====
 
-Submodules
-----------
+papermill.tests
+---------------
+
+This reference documents the tests used in the development of papermill.
 
 papermill.tests.test\_api module
 --------------------------------

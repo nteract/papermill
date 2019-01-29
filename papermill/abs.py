@@ -1,10 +1,23 @@
+"""Utilities for working with Azure blob storage"""
 import re
 import io
+
 from six.moves import urllib
+
 from azure.storage.blob import BlockBlobService
 
 
 class AzureBlobStore(object):
+    """
+    Represents a Blob of storage on Azure
+
+    Methods
+    -------
+    The following are wrapped utilities for Azure storage:
+        - read
+        - listdir
+        - write
+    """
     def __init__(self):
         pass
 
@@ -32,6 +45,7 @@ class AzureBlobStore(object):
             return params
 
     def read(self, url):
+        """Read storage at a given url"""
         params = self._split_url(url)
         output_stream = io.BytesIO()
         block_blob_service = self._block_blob_service(
@@ -50,6 +64,7 @@ class AzureBlobStore(object):
         ]
 
     def listdir(self, url):
+        """Returns a list of the files under the specified path"""
         params = self._split_url(url)
 
         block_blob_service = self._block_blob_service(
@@ -59,6 +74,7 @@ class AzureBlobStore(object):
         return blobs
 
     def write(self, buf, url):
+        """Write buffer to storage at a given url"""
         params = self._split_url(url)
 
         block_blob_service = self._block_blob_service(
