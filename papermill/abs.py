@@ -1,14 +1,10 @@
 """Utilities for working with Azure blob storage"""
 import re
 import io
-import logging
 
 from six.moves import urllib
 
 from azure.storage.blob import BlockBlobService
-
-
-logger = logging.getLogger('papermill.abs')
 
 
 class AzureBlobStore(object):
