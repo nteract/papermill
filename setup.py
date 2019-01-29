@@ -37,7 +37,7 @@ def version():
         for line in ver.readlines():
             if line.startswith('version ='):
                 return line.split(' = ')[-1].strip()[1:-1]
-    raise ValueError('No version found in scrapbook/version.py')
+    raise ValueError('No version found in papermill/version.py')
 
 python_2 = sys.version_info[0] == 2
 
@@ -54,31 +54,33 @@ test_req_path = os.path.join(here, 'requirements-dev.txt')
 test_required = [req.strip() for req in read(test_req_path).splitlines() if req.strip()]
 extras_require = {"test": test_required, "dev": test_required}
 
-pip_too_old = False
-pip_message = ''
 
-try:
-    import pip
+# Tox has a weird issue where it can't import pip from it's virtualenv when skipping normal installs
+if not bool(int(os.environ.get('SKIP_PIP_CHECK', 0))):
+    pip_too_old = False
+    pip_message = ''
+    try:
+        import pip
 
-    pip_version = tuple([int(x) for x in pip.__version__.split('.')[:3]])
-    pip_too_old = pip_version < (9, 0, 1)
-    if pip_too_old:
-        # pip is too old to handle IPython deps gracefully
+        pip_version = tuple([int(x) for x in pip.__version__.split('.')[:3]])
+        pip_too_old = pip_version < (9, 0, 1)
+        if pip_too_old:
+            # pip is too old to handle IPython deps gracefully
+            pip_message = (
+                'Your pip version is out of date. Papermill requires pip >= 9.0.1. \n'
+                'pip {} detected. Please install pip >= 9.0.1.'.format(pip.__version__)
+            )
+    except ImportError:
         pip_message = (
-            'Your pip version is out of date. Papermill requires pip >= 9.0.1. \n'
-            'pip {} detected. Please install pip >= 9.0.1.'.format(pip.__version__)
+            'No pip detected; we were unable to import pip. \n'
+            'To use papermill, please install pip >= 9.0.1.'
         )
-except ImportError:
-    pip_message = (
-        'No pip detected; we were unable to import pip. \n'
-        'To use papermill, please install pip >= 9.0.1.'
-    )
-except Exception:
-    pass
+    except Exception:
+        pass
 
-if pip_message:
-    print(pip_message, file=sys.stderr)
-    sys.exit(1)
+    if pip_message:
+        print(pip_message, file=sys.stderr)
+        sys.exit(1)
 
 
 # Get the long description from the README file
