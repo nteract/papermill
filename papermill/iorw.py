@@ -224,30 +224,26 @@ class ABSHandler(object):
 
 
 class GCSHandler(object):
-    _client = None
+    def __init__(self):
+        self._client = None
 
-    @classmethod
-    def _get_client(cls):
-        if cls._client is None:
-            cls._client = gcsfs.GCSFileSystem()
-        return cls._client
+    def _get_client(self):
+        if self._client is None:
+            self._client = gcsfs.GCSFileSystem()
+        return self._client
 
-    @classmethod
-    def read(cls, path):
-        with cls._get_client().open(path) as f:
+    def read(self, path):
+        with self._get_client().open(path) as f:
             return f.read()
 
-    @classmethod
-    def listdir(cls, path):
-        return cls._get_client().ls(path)
+    def listdir(self, path):
+        return self._get_client().ls(path)
 
-    @classmethod
-    def write(cls, buf, path):
-        with cls._get_client().open(path, 'w') as f:
+    def write(self, buf, path):
+        with self._get_client().open(path, 'w') as f:
             return f.write(buf)
 
-    @classmethod
-    def pretty_path(cls, path):
+    def pretty_path(self, path):
         return path
 
 
@@ -259,8 +255,9 @@ papermill_io.register("adl://", ADLHandler)
 papermill_io.register("abs://", ABSHandler)
 papermill_io.register("http://", HttpHandler)
 papermill_io.register("https://", HttpHandler)
-papermill_io.register("gcs://", GCSHandler)
-papermill_io.register("gs://", GCSHandler)
+gcs_handler = GCSHandler()
+papermill_io.register("gcs://", gcs_handler)
+papermill_io.register("gs://", gcs_handler)
 papermill_io.register_entry_points()
 
 
