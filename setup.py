@@ -25,7 +25,19 @@ from setuptools import setup
 # Python 3 only projects can skip this import
 from io import open
 
-import versioneer
+local_path = os.path.dirname(__file__)
+# Fix for tox which manipulates execution pathing
+if not local_path:
+    local_path = '.'
+here = path.abspath(local_path)
+
+
+def version():
+    with open(here + '/papermill/version.py', 'r') as ver:
+        for line in ver.readlines():
+            if line.startswith('version ='):
+                return line.split(' = ')[-1].strip()[1:-1]
+    raise ValueError('No version found in scrapbook/version.py')
 
 python_2 = sys.version_info[0] == 2
 
@@ -35,10 +47,10 @@ def read(fname):
         return fhandle.read()
 
 
-req_path = os.path.join(os.path.dirname(__file__), 'requirements.txt')
+req_path = os.path.join(here, 'requirements.txt')
 required = [req.strip() for req in read(req_path).splitlines() if req.strip()]
 
-test_req_path = os.path.join(os.path.dirname(__file__), 'requirements-dev.txt')
+test_req_path = os.path.join(here, 'requirements-dev.txt')
 test_required = [req.strip() for req in read(test_req_path).splitlines() if req.strip()]
 extras_require = {"test": test_required, "dev": test_required}
 
@@ -70,14 +82,12 @@ if pip_message:
 
 
 # Get the long description from the README file
-here = path.abspath(path.dirname(__file__))
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
     name='papermill',
-    version=versioneer.get_version(),
-    cmdclass=versioneer.get_cmdclass(),
+    version=version(),
     description='Parametrize and run Jupyter and nteract Notebooks',
     author='nteract contributors',
     author_email='nteract@googlegroups.com',
