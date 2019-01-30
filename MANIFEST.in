@@ -19,6 +19,7 @@ include *.toml
 include versioneer.py
 include papermill/_version.py
 include .coveragerc
+include .bumpversion.cfg
 
 # Documentation
 graft docs
