@@ -8,7 +8,7 @@
 ## Push to github
 
 ```
-bumpversion patch setup.py
+bumpversion patch papermill/version.py
 git push && git push --tags
 ```
 
