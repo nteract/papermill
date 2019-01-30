@@ -7,8 +7,10 @@
 
 ## Push to github
 
+Change from patch to minor or major for appropriate version updates.
+
 ```
-bumpversion patch papermill/version.py
+bumpversion patch
 git push && git push --tags
 ```
 
