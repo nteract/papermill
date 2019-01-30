@@ -10,7 +10,7 @@ Welcome to papermill
 .. image:: https://tinyurl.com/ybwovtw2
    :target: https://mybinder.org/v2/gh/nteract/papermill/master?filepath=binder%2Fprocess_highlight_dates.ipynb
 .. image:: https://tinyurl.com/y7uz2eh9
-   :target: https://mybinder.org/v2/gh/nteract/papermill/master?filepath=binder%2Fcli%2Fcli_example.ipynb
+   :target: https://mybinder.org/v2/gh/nteract/papermill/master?filepath=binder%2Fcli-simple%2Fcli_example.ipynb
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
    :target: https://github.com/ambv/black
 
