@@ -50,6 +50,11 @@ class Translator(object):
         return cls.translate_escaped_str(val)
 
     @classmethod
+    def translate_none(cls, val):
+        """Default behavior for translation"""
+        return cls.translate_raw_str(val)
+
+    @classmethod
     def translate_int(cls, val):
         """Default behavior for translation"""
         return cls.translate_raw_str(val)
@@ -75,7 +80,9 @@ class Translator(object):
     @classmethod
     def translate(cls, val):
         """Translate each of the standard json/yaml types to appropiate objects."""
-        if isinstance(val, string_types):
+        if val is None:
+            return cls.translate_none(val)
+        elif isinstance(val, string_types):
             return cls.translate_str(val)
         # Needs to be before integer checks
         elif isinstance(val, bool):
@@ -131,6 +138,10 @@ class PythonTranslator(Translator):
 
 class RTranslator(Translator):
     @classmethod
+    def translate_none(cls, val):
+        return 'NULL'
+
+    @classmethod
     def translate_bool(cls, val):
         return 'TRUE' if val else 'FALSE'
 
@@ -181,6 +192,10 @@ class ScalaTranslator(Translator):
 
 
 class JuliaTranslator(Translator):
+    @classmethod
+    def translate_none(cls, val):
+        return 'nothing'
+
     @classmethod
     def translate_dict(cls, val):
         escaped = ', '.join(

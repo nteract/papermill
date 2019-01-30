@@ -31,6 +31,7 @@ else:
         (-5432.1, '-5432.1'),
         (True, 'True'),
         (False, 'False'),
+        (None, 'None'),
     ],
 )
 def test_translate_type_python(test_input, expected):
@@ -83,6 +84,7 @@ def test_translate_comment_python(test_input, expected):
         (-5432.1, '-5432.1'),
         (True, 'TRUE'),
         (False, 'FALSE'),
+        (None, 'NULL'),
     ],
 )
 def test_translate_type_r(test_input, expected):
@@ -137,6 +139,7 @@ def test_translate_codify_r(parameters, expected):
         (-2147483649, '-2147483649L'),
         (True, 'true'),
         (False, 'false'),
+        (None, 'None'),
     ],
 )
 def test_translate_type_scala(test_input, expected):
@@ -202,6 +205,7 @@ def test_translate_codify_scala(parameters, expected):
         (-5432.1, '-5432.1'),
         (True, 'true'),
         (False, 'false'),
+        (None, 'nothing'),
     ],
 )
 def test_translate_type_julia(test_input, expected):
