@@ -140,6 +140,20 @@ linear_function:
     intercept: 1.0"
 ```
 
+#### Supported Name Handlers
+
+Papermill supports the following name handlers for input and output paths during execution: 
+
+ * Local file system: `local`
+
+ * HTTP, HTTPS protocol:  `http://, https://`
+
+ * Amazon Web Services: [AWS S3](https://aws.amazon.com/s3/) `s3://`
+
+ * Azure: [Azure DataLake Store](https://docs.microsoft.com/en-us/azure/data-lake-store/data-lake-store-overview), [Azure Blob Store](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blobs-overview) `adl://, abs://`
+    
+ * Google Cloud: [Google Cloud Storage](https://cloud.google.com/storage/) `gs://`
+
 Python In-notebook Bindings
 ---------------------------
 
