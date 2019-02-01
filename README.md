@@ -152,7 +152,7 @@ Papermill supports the following name handlers for input and output paths during
 
  * Azure: [Azure DataLake Store](https://docs.microsoft.com/en-us/azure/data-lake-store/data-lake-store-overview), [Azure Blob Store](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blobs-overview) `adl://, abs://`
     
- * Google Cloud: [Google Cloud Storage](https://cloud.google.com/storage/) `gcs://, gs://`
+ * Google Cloud: [Google Cloud Storage](https://cloud.google.com/storage/) `gs://`
 
 Python In-notebook Bindings
 ---------------------------

@@ -255,7 +255,6 @@ papermill_io.register("adl://", ADLHandler)
 papermill_io.register("abs://", ABSHandler)
 papermill_io.register("http://", HttpHandler)
 papermill_io.register("https://", HttpHandler)
-papermill_io.register("gcs://", GCSHandler())
 papermill_io.register("gs://", GCSHandler())
 papermill_io.register_entry_points()
 
