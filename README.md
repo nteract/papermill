@@ -9,7 +9,7 @@
 [![badge](https://tinyurl.com/y7uz2eh9)](https://mybinder.org/v2/gh/nteract/papermill/master?filepath=binder%2Fcli-simple%2Fcli_example.ipynb)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
-**Papermill** is a tool for parameterizing, executing, and analyzing
+**papermill** is a tool for parameterizing, executing, and analyzing
 Jupyter Notebooks.
 
 Papermill lets you:
