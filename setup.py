@@ -46,14 +46,23 @@ def read(fname):
     with open(fname, 'rU' if python_2 else 'r') as fhandle:
         return fhandle.read()
 
+def read_reqs(fname):
+    req_path = os.path.join(here, fname)
+    return [req.strip() for req in read(req_path).splitlines() if req.strip()]
 
-req_path = os.path.join(here, 'requirements.txt')
-required = [req.strip() for req in read(req_path).splitlines() if req.strip()]
-
-test_req_path = os.path.join(here, 'requirements-dev.txt')
-test_required = [req.strip() for req in read(test_req_path).splitlines() if req.strip()]
-extras_require = {"test": test_required, "dev": test_required}
-
+s3_reqs = read_reqs('requirements-s3.txt')
+azure_reqs = read_reqs('requirements-azure.txt')
+gcs_reqs = read_reqs('requirements-gcs.txt')
+all_reqs = s3_reqs + azure_reqs + gcs_reqs
+dev_reqs = read_reqs('requirements-dev.txt') + all_reqs
+extras_require = {
+    "test": dev_reqs,
+    "dev": dev_reqs,
+    "all": all_reqs,
+    "s3": s3_reqs,
+    "azure": azure_reqs,
+    "gcs": gcs_reqs,
+}
 
 # Tox has a weird issue where it can't import pip from it's virtualenv when skipping normal installs
 if not bool(int(os.environ.get('SKIP_PIP_CHECK', 0))):
@@ -70,12 +79,8 @@ if not bool(int(os.environ.get('SKIP_PIP_CHECK', 0))):
                 'Your pip version is out of date. Papermill requires pip >= 9.0.1. \n'
                 'pip {} detected. Please install pip >= 9.0.1.'.format(pip.__version__)
             )
-    except ImportError:
-        pip_message = (
-            'No pip detected; we were unable to import pip. \n'
-            'To use papermill, please install pip >= 9.0.1.'
-        )
     except Exception:
+        # We only want to optimistically report old versions
         pass
 
     if pip_message:
@@ -100,7 +105,7 @@ setup(
     long_description_content_type='text/markdown',
     url='https://github.com/nteract/papermill',
     packages=['papermill'],
-    install_requires=required,
+    install_requires=read_reqs('requirements.txt'),
     extras_require=extras_require,
     entry_points={'console_scripts': ['papermill = papermill.cli:papermill']},
     project_urls={

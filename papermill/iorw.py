@@ -11,17 +11,32 @@ import nbformat
 import requests
 import warnings
 import entrypoints
-import gcsfs
 
 from contextlib import contextmanager
 
 from . import __version__
-from .s3 import S3
+
 from .log import logger
-from .adl import ADL
-from .abs import AzureBlobStore
+
 from .utils import chdir
-from .exceptions import PapermillException
+from .exceptions import PapermillException, missing_dependency_generator
+
+try:
+    from .s3 import S3
+except ImportError:
+    S3 = missing_dependency_generator("boto3", "s3")
+try:
+    from .adl import ADL
+except ImportError:
+    ADL = missing_dependency_generator("azure.datalake.store", "azure")
+try:
+    from .abs import AzureBlobStore
+except ImportError:
+    AzureBlobStore = missing_dependency_generator("azure.storage.blob", "azure")
+try:
+    from gcsfs import GCSFileSystem
+except ImportError:
+    GCSFileSystem = missing_dependency_generator("gcsfs", "gcs")
 
 try:
     FileNotFoundError
@@ -170,56 +185,48 @@ class S3Handler(object):
 
 
 class ADLHandler(object):
-    _client = None
+    def __init__(self):
+        self._client = None
 
-    @classmethod
-    def _get_client(cls):
-        if cls._client is None:
-            cls._client = ADL()
-        return cls._client
+    def _get_client(self):
+        if self._client is None:
+            self._client = ADL()
+        return self._client
 
-    @classmethod
-    def read(cls, path):
-        lines = cls._get_client().read(path)
+    def read(self, path):
+        lines = self._get_client().read(path)
         return "\n".join(lines)
 
-    @classmethod
-    def listdir(cls, path):
-        return cls._get_client().listdir(path)
+    def listdir(self, path):
+        return self._get_client().listdir(path)
 
-    @classmethod
-    def write(cls, buf, path):
-        return cls._get_client().write(buf, path)
+    def write(self, buf, path):
+        return self._get_client().write(buf, path)
 
-    @classmethod
-    def pretty_path(cls, path):
+    def pretty_path(self, path):
         return path
 
 
 class ABSHandler(object):
-    _client = None
+    def __init__(self):
+        self._client = None
 
-    @classmethod
-    def _get_client(cls):
-        if cls._client is None:
-            cls._client = AzureBlobStore()
-        return cls._client
+    def _get_client(self):
+        if self._client is None:
+            self._client = AzureBlobStore()
+        return self._client
 
-    @classmethod
-    def read(cls, path):
-        lines = cls._get_client().read(path)
+    def read(self, path):
+        lines = self._get_client().read(path)
         return "\n".join(lines)
 
-    @classmethod
-    def listdir(cls, path):
-        return cls._get_client().listdir(path)
+    def listdir(self, path):
+        return self._get_client().listdir(path)
 
-    @classmethod
-    def write(cls, buf, path):
-        return cls._get_client().write(buf, path)
+    def write(self, buf, path):
+        return self._get_client().write(buf, path)
 
-    @classmethod
-    def pretty_path(cls, path):
+    def pretty_path(self, path):
         return path
 
 
@@ -229,7 +236,7 @@ class GCSHandler(object):
 
     def _get_client(self):
         if self._client is None:
-            self._client = gcsfs.GCSFileSystem()
+            self._client = GCSFileSystem()
         return self._client
 
     def read(self, path):
@@ -252,7 +259,7 @@ papermill_io = PapermillIO()
 papermill_io.register("local", LocalHandler())
 papermill_io.register("s3://", S3Handler)
 papermill_io.register("adl://", ADLHandler)
-papermill_io.register("abs://", ABSHandler)
+papermill_io.register("abs://", ABSHandler())
 papermill_io.register("http://", HttpHandler)
 papermill_io.register("https://", HttpHandler)
 papermill_io.register("gs://", GCSHandler())

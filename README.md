@@ -43,6 +43,13 @@ From the command line:
 pip install papermill
 ```
 
+For all optional io dependencies, you can specify individual bundles
+like `s3`, or `azure` -- or use `all`
+
+``` {.sourceCode .bash}
+pip install papermill[all]
+```
+
 Installing In-Notebook bindings
 -------------------------------
 

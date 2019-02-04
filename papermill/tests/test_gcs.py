@@ -1,4 +1,4 @@
-from papermill.iorw import GCSHandler
+from ..iorw import GCSHandler
 
 
 class MockGCSFileSystem(object):
@@ -28,7 +28,7 @@ class MockGCSFile(object):
 
 
 def test_gcs_read(mocker):
-    mocker.patch('gcsfs.GCSFileSystem', MockGCSFileSystem)
+    mocker.patch('papermill.iorw.GCSFileSystem', MockGCSFileSystem)
     gcs_handler = GCSHandler()
     client = gcs_handler._get_client()
     assert gcs_handler.read('gs://bucket/test.ipynb') == 'default value'
@@ -38,7 +38,7 @@ def test_gcs_read(mocker):
 
 
 def test_gcs_write(mocker):
-    mocker.patch('gcsfs.GCSFileSystem', MockGCSFileSystem)
+    mocker.patch('papermill.iorw.GCSFileSystem', MockGCSFileSystem)
     gcs_handler = GCSHandler()
     client = gcs_handler._get_client()
     gcs_handler.write('new value', 'gs://bucket/test.ipynb')
@@ -48,7 +48,7 @@ def test_gcs_write(mocker):
 
 
 def test_gcs_listdir(mocker):
-    mocker.patch('gcsfs.GCSFileSystem', MockGCSFileSystem)
+    mocker.patch('papermill.iorw.GCSFileSystem', MockGCSFileSystem)
     gcs_handler = GCSHandler()
     client = gcs_handler._get_client()
     gcs_handler.listdir('testdir')
