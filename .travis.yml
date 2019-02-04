@@ -25,5 +25,9 @@ install:
 script:
   - tox -e $TOXENV
 after_success:
-  - coverage xml -i
-  - codecov
+  - test $TRAVIS_BRANCH = "master" &&
+    test $TOXENV = "py36" &&
+    coverage xml -i
+  - test $TRAVIS_BRANCH = "master" &&
+    test $TOXENV = "py36" &&
+    codecov
