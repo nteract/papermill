@@ -1,5 +1,29 @@
 # Change Log
 
+## 0.18.0
+
+**INSTALL CHANGE** The iorw extensions now use optional dependencies.
+This means that installation for s3, azure, and gcs connectors are added via:
+```
+pip install papermill[s3,azure,gcs]
+```
+or for all dependencies
+```
+pip install papermill[all]
+```
+
+### Features
+- Optional IO extensions are now separated into different dependencies.
+- Added gs:// optional dependency for google cloud storage support.
+- null json fields in parmaeters now translate correctly to equivilent fields in each supported language
+
+### Fixes
+- tqdm dependencies are pinned to fetch a minimum version for auto tqdm
+
+### Dev Improvements
+- Releases and versioning patterns were made easier
+- Tox is now used to capture all test and build requirements
+
 ## 0.17.0
 
 ### Features
