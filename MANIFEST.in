@@ -6,8 +6,7 @@ recursive-include papermill *.keep
 recursive-include papermill *.txt
 
 include setup.py
-include requirements.txt
-include requirements-dev.txt
+include requirements*.txt
 include tox.ini
 include pytest.ini
 include README.rst
@@ -27,3 +26,5 @@ prune docs/_build
 prune binder
 # Scripts
 graft scripts
+# Test env
+prune .tox

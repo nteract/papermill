@@ -224,26 +224,22 @@ class TestADLHandler(unittest.TestCase):
     """
 
     def setUp(self):
-        self.old_client = ADLHandler._client
-        self.mock_client = Mock(
+        self.handler = ADLHandler()
+        self.handler._client = Mock(
             read=Mock(return_value=["foo", "bar", "baz"]),
             listdir=Mock(return_value=["foo", "bar", "baz"]),
             write=Mock(),
         )
-        ADLHandler._client = self.mock_client
-
-    def tearDown(self):
-        ADLHandler._client = self.old_client
 
     def test_read(self):
-        self.assertEqual(ADLHandler.read("some_path"), "foo\nbar\nbaz")
+        self.assertEqual(self.handler.read("some_path"), "foo\nbar\nbaz")
 
     def test_listdir(self):
-        self.assertEqual(ADLHandler.listdir("some_path"), ["foo", "bar", "baz"])
+        self.assertEqual(self.handler.listdir("some_path"), ["foo", "bar", "baz"])
 
     def test_write(self):
-        ADLHandler.write("foo", "bar")
-        self.mock_client.write.assert_called_once_with("foo", "bar")
+        self.handler.write("foo", "bar")
+        self.handler._client.write.assert_called_once_with("foo", "bar")
 
 
 class TestHttpHandler(unittest.TestCase):

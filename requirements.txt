@@ -1,5 +1,4 @@
 ansiwrap
-boto3
 click
 future
 futures ; python_version < "3.0"
@@ -13,7 +12,5 @@ tqdm >= 4.29.1
 jupyter_client
 pandas
 requests
-azure-datalake-store >= 0.0.30
-azure-storage-blob
 entrypoints
-gcsfs
+
