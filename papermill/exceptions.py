@@ -34,14 +34,14 @@ class PapermillExecutionError(PapermillException):
         super(PapermillExecutionError, self).__init__(message)
 
 
-class PapermillOptionalDepedencyException(PapermillException):
+class PapermillOptionalDependencyException(PapermillException):
     """Raised when an exception is encountered when an optional plugin is missing."""
 
 
 def missing_dependency_generator(package, dep):
     def missing_dep():
-        raise PapermillOptionalDepedencyException(
-            "The {package} optional depedency is missing. "
+        raise PapermillOptionalDependencyException(
+            "The {package} optional dependency is missing. "
             "Please run pip install papermill[{dep}] to install this dependency"
             .format(package=package, dep=dep)
         )
