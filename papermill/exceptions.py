@@ -46,3 +46,14 @@ def missing_dependency_generator(package, dep):
             .format(package=package, dep=dep)
         )
     return missing_dep
+
+
+def missing_environment_variable_generator(package, env_key):
+    def missing_dep():
+        raise PapermillOptionalDependencyException(
+            "The {package} optional dependency is present, but the environment "
+            "variable {env_key} is not set. Please set this variable as "
+            "required by {package} on your platform."
+            .format(package=package, env_key=env_key)
+        )
+    return missing_dep

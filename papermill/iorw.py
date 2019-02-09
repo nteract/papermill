@@ -19,7 +19,11 @@ from . import __version__
 from .log import logger
 
 from .utils import chdir
-from .exceptions import PapermillException, missing_dependency_generator
+from .exceptions import (
+    PapermillException,
+    missing_dependency_generator,
+    missing_environment_variable_generator,
+)
 
 try:
     from .s3 import S3
@@ -29,6 +33,11 @@ try:
     from .adl import ADL
 except ImportError:
     ADL = missing_dependency_generator("azure.datalake.store", "azure")
+except KeyError as exc:
+    if exc.args[0] == "APPDATA":
+        ADL = missing_environment_variable_generator("azure.datalake.store", "APPDATA")
+    else:
+        raise
 try:
     from .abs import AzureBlobStore
 except ImportError:
