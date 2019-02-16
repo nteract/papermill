@@ -261,7 +261,7 @@ class GCSHandler(object):
     def listdir(self, path):
         return self._get_client().ls(path)
 
-    @retry.retry(RateLimitException, delay=1, backoff=2, max_delay=4)
+    @retry.retry(RateLimitException, tries=3, delay=1, backoff=2, max_delay=4)
     def write(self, buf, path):
         with self._get_client().open(path, 'w') as f:
             return f.write(buf)

@@ -1,6 +1,10 @@
 from ..iorw import GCSHandler
 
 
+class RetryableError(Exception):
+    pass
+
+
 class MockGCSFileSystem(object):
     def __init__(self):
         self._file = MockGCSFile()
@@ -23,8 +27,9 @@ class MockGCSFile(object):
     def read(self):
         return self._value
 
-    def write(self, data):
-        pass
+    def write(self, buf):
+        if not buf:
+            raise RetryableError
 
 
 def test_gcs_read(mocker):
@@ -42,7 +47,20 @@ def test_gcs_write(mocker):
     gcs_handler = GCSHandler()
     client = gcs_handler._get_client()
     gcs_handler.write('new value', 'gs://bucket/test.ipynb')
+    # Check that client is only generated once
+    assert client is gcs_handler._get_client()
 
+
+def test_gcs_write_retry(mocker):
+    mocker.patch('papermill.iorw.GCSFileSystem', MockGCSFileSystem)
+    counter = 0
+    try:
+        gcs_handler = GCSHandler()
+        client = gcs_handler._get_client()
+        gcs_handler.write('', 'gs://bucket/test.ipynb')
+    except RetryableError:
+        counter += 1
+    assert counter == 1
     # Check that client is only generated once
     assert client is gcs_handler._get_client()
 
