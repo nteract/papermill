@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.18.1
+
+### Fixes
+- azure missing environment variable now has a better error message and only fails lazily
+- gcs connector now has a backoff to respect service rate limits
+
 ## 0.18.0
 
 **INSTALL CHANGE** The iorw extensions now use optional dependencies.
