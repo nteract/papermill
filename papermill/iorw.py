@@ -11,6 +11,7 @@ import nbformat
 import requests
 import warnings
 import entrypoints
+import retry
 
 from contextlib import contextmanager
 
@@ -46,6 +47,11 @@ try:
     from gcsfs import GCSFileSystem
 except ImportError:
     GCSFileSystem = missing_dependency_generator("gcsfs", "gcs")
+
+try:
+    from gcsfs.utils import HtmlError as RateLimitException
+except ImportError:
+    RateLimitException = Exception
 
 try:
     FileNotFoundError
@@ -255,6 +261,7 @@ class GCSHandler(object):
     def listdir(self, path):
         return self._get_client().ls(path)
 
+    @retry.retry(RateLimitException, tries=3, delay=1, backoff=2, max_delay=4)
     def write(self, buf, path):
         with self._get_client().open(path, 'w') as f:
             return f.write(buf)
