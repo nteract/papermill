@@ -5,9 +5,6 @@ import re
 from azure.datalake.store import core, lib
 
 
-logger = logging.getLogger('papermill.s3')
-
-
 class ADL(object):
     """
     Represents an Azure Data Lake
