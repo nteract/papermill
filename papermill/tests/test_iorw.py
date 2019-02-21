@@ -48,6 +48,10 @@ class TestPapermillIO(unittest.TestCase):
             self.ver = ver
 
         def read(self, path):
+            if path == 'fake/path_bytes':
+                metadata = b'contents from {} for version {}'
+                if isinstance(metadata, (bytes, bytearray)):
+                    return metadata.decode('utf-8').format(path, self.ver)
             return "contents from {} for version {}".format(path, self.ver)
 
         def listdir(self, path):
@@ -114,7 +118,12 @@ class TestPapermillIO(unittest.TestCase):
 
     def test_read(self):
         self.assertEqual(
-            self.papermill_io.read("fake/path"), "contents from fake/path for version 1"
+            self.papermill_io.read("fake/path"),
+            "contents from fake/path for version 1"
+        )
+        self.assertEqual(
+            self.papermill_io.read("fake/path_bytes"),
+            "contents from fake/path_bytes for version 1"
         )
 
     def test_read_with_no_file_extension(self):

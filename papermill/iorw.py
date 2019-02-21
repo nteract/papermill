@@ -80,7 +80,11 @@ class PapermillIO(object):
             warnings.warn(
                 "The specified input file ({}) does not end in one of {}".format(path, extensions)
             )
-        return self.get_handler(path).read(path)
+        # Handle https://github.com/nteract/papermill/issues/317
+        notebook_metadata = self.get_handler(path).read(path)
+        if isinstance(notebook_metadata, (bytes, bytearray)):
+            return notebook_metadata.decode('utf-8')
+        return notebook_metadata
 
     def write(self, buf, path, extensions=['.ipynb', '.json']):
         # Usually no return object here
