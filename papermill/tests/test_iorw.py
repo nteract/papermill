@@ -48,11 +48,26 @@ class TestPapermillIO(unittest.TestCase):
             self.ver = ver
 
         def read(self, path):
-            if path == 'fake/path_bytes':
-                metadata = b'contents from {} for version {}'
-                if isinstance(metadata, (bytes, bytearray)):
-                    return metadata.decode('utf-8').format(path, self.ver)
             return "contents from {} for version {}".format(path, self.ver)
+
+        def listdir(self, path):
+            return ["fake", "contents"]
+
+        def write(self, buf, path):
+            return "wrote {}".format(buf)
+
+        def pretty_path(self, path):
+            return "{}/pretty/{}".format(path, self.ver)
+
+    class FakeByteHandler(object):
+        def __init__(self, ver):
+            self.ver = ver
+
+        def read(self, path):
+            local_dir = os.path.dirname(os.path.abspath(__file__))
+            with open(os.path.join(local_dir, path)) as f:
+                test_nb_content = f.read()
+                return test_nb_content
 
         def listdir(self, path):
             return ["fake", "contents"]
@@ -65,9 +80,12 @@ class TestPapermillIO(unittest.TestCase):
 
     def setUp(self):
         self.papermill_io = PapermillIO()
+        self.papermill_io_bytes = PapermillIO()
         self.fake1 = self.FakeHandler(1)
         self.fake2 = self.FakeHandler(2)
+        self.fake_byte1 = self.FakeByteHandler(1)
         self.papermill_io.register("fake", self.fake1)
+        self.papermill_io_bytes.register("notebooks", self.fake_byte1)
 
         self.old_papermill_io = iorw.papermill_io
         iorw.papermill_io = self.papermill_io
@@ -121,10 +139,10 @@ class TestPapermillIO(unittest.TestCase):
             self.papermill_io.read("fake/path"),
             "contents from fake/path for version 1"
         )
-        self.assertEqual(
-            self.papermill_io.read("fake/path_bytes"),
-            "contents from fake/path_bytes for version 1"
-        )
+
+    def test_read_bytes(self):
+        self.assertIsInstance(self.papermill_io_bytes.read(
+            "notebooks/gcs/gcs_in/gcs-simple_notebook.ipynb"), str)
 
     def test_read_with_no_file_extension(self):
         with pytest.warns(UserWarning):
