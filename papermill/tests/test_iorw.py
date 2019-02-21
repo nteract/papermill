@@ -5,7 +5,6 @@ import unittest
 import os
 import io
 import pytest
-import sys
 from requests.exceptions import ConnectionError
 
 try:
@@ -67,7 +66,7 @@ class TestPapermillIO(unittest.TestCase):
         def read(self, path):
 
             local_dir = os.path.dirname(os.path.abspath(__file__))
-            with open(os.path.join(local_dir, path), encoding='utf-8') as f:
+            with open(os.path.join(local_dir, path)) as f:
                 return f.read()
 
         def listdir(self, path):
