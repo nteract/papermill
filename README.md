@@ -66,6 +66,8 @@ Usage
 
 To parameterize your notebook designate a cell with the tag ``parameters``.
 
+![enable parameters in Jupyter](docs/img/enable_parameters.gif)
+
 Papermill looks for the ``parameters`` cell and treats this cell as defaults for the parameters passed in at execution time. Papermill will add a new cell tagged with ``injected-parameters`` with input parameters in order to overwrite the values in ``parameters``. If no cell is tagged with ``parameters`` the injected cell will be inserted at the top of the notebook.
 
 Additionally, if you rerun notebooks through papermill and it will reuse the ``injected-parameters`` cell from the prior run. In this case Papermill will replace the old ``injected-parameters`` cell with the new run's inputs.
