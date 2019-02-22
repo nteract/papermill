@@ -1,5 +1,4 @@
 """Utilities for working with Azure data lake storage"""
-import logging
 import re
 
 from azure.datalake.store import core, lib
