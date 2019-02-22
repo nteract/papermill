@@ -64,7 +64,6 @@ class TestPapermillIO(unittest.TestCase):
             self.ver = ver
 
         def read(self, path):
-
             local_dir = os.path.dirname(os.path.abspath(__file__))
             with open(os.path.join(local_dir, path)) as f:
                 return f.read()
