@@ -59,11 +59,32 @@ class TestPapermillIO(unittest.TestCase):
         def pretty_path(self, path):
             return "{}/pretty/{}".format(path, self.ver)
 
+    class FakeByteHandler(object):
+        def __init__(self, ver):
+            self.ver = ver
+
+        def read(self, path):
+            local_dir = os.path.dirname(os.path.abspath(__file__))
+            with open(os.path.join(local_dir, path)) as f:
+                return f.read()
+
+        def listdir(self, path):
+            return ["fake", "contents"]
+
+        def write(self, buf, path):
+            return "wrote {}".format(buf)
+
+        def pretty_path(self, path):
+            return "{}/pretty/{}".format(path, self.ver)
+
     def setUp(self):
         self.papermill_io = PapermillIO()
+        self.papermill_io_bytes = PapermillIO()
         self.fake1 = self.FakeHandler(1)
         self.fake2 = self.FakeHandler(2)
+        self.fake_byte1 = self.FakeByteHandler(1)
         self.papermill_io.register("fake", self.fake1)
+        self.papermill_io_bytes.register("notebooks", self.fake_byte1)
 
         self.old_papermill_io = iorw.papermill_io
         iorw.papermill_io = self.papermill_io
@@ -114,8 +135,13 @@ class TestPapermillIO(unittest.TestCase):
 
     def test_read(self):
         self.assertEqual(
-            self.papermill_io.read("fake/path"), "contents from fake/path for version 1"
+            self.papermill_io.read("fake/path"),
+            "contents from fake/path for version 1"
         )
+
+    def test_read_bytes(self):
+        self.assertIsNotNone(self.papermill_io_bytes.read(
+            "notebooks/gcs/gcs_in/gcs-simple_notebook.ipynb"))
 
     def test_read_with_no_file_extension(self):
         with pytest.warns(UserWarning):
