@@ -1,5 +1,10 @@
 # Change Log
 
+## 0.18.2
+
+### Fixes
+- Addressed an issue with reading encoded notebook .ipynb files in python 3.5
+
 ## 0.18.1
 
 ### Fixes
