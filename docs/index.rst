@@ -14,14 +14,18 @@ Welcome to papermill
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
    :target: https://github.com/ambv/black
 
-**Papermill** is a tool for parameterizing, executing, and analyzing Jupyter
-Notebooks.
+**Papermill** is a tool for parameterizing and executing Jupyter Notebooks.
 
 Papermill lets you:
 
-* **parameterize** notebooks
-* **execute** and **collect** metrics across the notebooks
-* **summarize collections** of notebooks
+*   **parameterize** notebooks
+*   **execute** notebooks
+
+**DEPRECATED** This functionality will be removed entirely in papermill 1.0,
+the features are moved to [scrapbook](https://nteract-scrapbook.readthedocs.io/en/latest/):
+
+*   **collect** metrics across the notebooks
+*   **summarize collections** of notebooks
 
 This opens up new opportunities for how notebooks can be used. For example:
 
@@ -32,9 +36,6 @@ This opens up new opportunities for how notebooks can be used. For example:
   choose a particular notebook to run next? You can now programmatically
   **execute a workflow** without having to copy and paste from notebook to
   notebook manually.
-- Do you have plots and visualizations spread across 10 or more notebooks?
-  Now you can choose which plots to programmatically display a **summary**
-  **collection** in a notebook to share with others.
 
 Documentation
 -------------

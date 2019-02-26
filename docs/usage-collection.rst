@@ -1,6 +1,9 @@
 Notebook Collections
 ====================
 
+**DEPRECATED** This functionality will be removed entirely in papermill 1.0.
+See scrapbook's `Scrapbook <https://nteract-scrapbook.readthedocs.io/en/latest/usage-read-notebooks.html>`_.
+
 .. seealso::
 
     :doc:`API reference <./reference/papermill-api>`
