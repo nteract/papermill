@@ -13,6 +13,7 @@ from IPython.display import display as ip_display, Markdown
 import pandas as pd
 from six import string_types
 
+from nbconvert.exporters import PDFExporter
 from .exceptions import PapermillException
 from .iorw import load_notebook_node, list_notebook_files
 
@@ -119,6 +120,22 @@ def read_notebooks(path):
         fn = os.path.basename(notebook_path)
         nb_collection[fn] = read_notebook(notebook_path)
     return nb_collection
+
+def to_pdf(path, out_path):
+    """
+    Exports an existing notebook at `path` to pdf at `out_path`.
+
+    Parameters
+    ----------
+    path : str
+        Path to a notebook `.ipynb` file.
+    path : str
+        Path where exported pdf should be written to.
+    """
+    nb = read_notebook(path)
+    (pdf_data, resources) = PDFExporter().from_notebook_node(nb.node)
+    with open(out_path, 'w+') as f:
+        f.write(pdf_data)
 
 
 class Notebook(object):
