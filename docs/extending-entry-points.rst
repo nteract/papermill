@@ -33,7 +33,7 @@ handlers allow papermill to write files to S3 or otherwise.
 Creating a new handler
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Writing your own I/O handler simply requires writing a class that has four
+Writing your own I/O handler requires writing a class that has four
 methods. All I/O handlers should implement the following class methods:
 
 * ``CustomIO.read(file_path)``, returning the file content
@@ -91,7 +91,7 @@ Our project structure will look like this::
 
 
 We can define the I/O handler in ``src/papermill_sftp/__init__.py``. To do so,
-we simply create a class that does the relevant actions.
+we have to create a class that does the relevant actions.
 
 For reading, we will download the file to a temporary path and read it in from
 there. For writing, we will write to a temporary path and upload it from there.
