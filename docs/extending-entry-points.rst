@@ -280,7 +280,9 @@ file, you should specify:
 This allows users to specify the engine from ``papermill_timing`` by passing the
 command line argument ``--engine timer_engine``.
 
-As you can see, this adds our "injected" output to each code cell:
+In the image below, the notebook on the left was executed with the new custom
+engine, while the one on the left was executed with the standard papermill
+engine. As you can see, this adds our "injected" output to each code cell
 
 .. image:: img/custom_execution_engine.png
 
