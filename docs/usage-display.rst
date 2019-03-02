@@ -1,6 +1,9 @@
 Display
 =======
 
+**DEPRECATED** This functionality will be removed entirely in papermill 1.0.
+See scrapbook's `Notebook <https://nteract-scrapbook.readthedocs.io/en/latest/models.html#notebook>`_.
+
 papermill offers flexibility to display content, such
 as plots and images, which is found in other notebooks.
 

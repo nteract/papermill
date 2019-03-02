@@ -1,4 +1,5 @@
-../papermill
+-e .
+nteract-scrapbook
 matplotlib
 ipywidgets
 ipykernel

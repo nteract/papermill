@@ -1,6 +1,9 @@
 Record
 ======
 
+**DEPRECATED** This functionality will be removed entirely in papermill 1.0.
+See scrapbook's `glue <https://nteract-scrapbook.readthedocs.io/en/latest/usage-glue.html>`_.
+
 Recording Values to the Notebook
 --------------------------------
 

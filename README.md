@@ -15,7 +15,11 @@ Jupyter Notebooks.
 Papermill lets you:
 
 -   **parameterize** notebooks
--   **execute** and **collect** metrics across the notebooks
+-   **execute** notebooks
+
+**DEPRECATED** This functionality will be removed entirely in papermill 1.0,
+the features are moved to [scrapbook](https://nteract-scrapbook.readthedocs.io/en/latest/):
+-   **collect** metrics across the notebooks
 -   **summarize collections** of notebooks
 
 This opens up new opportunities for how notebooks can be used. For
@@ -29,10 +33,6 @@ example:
     particular notebook to run next? You can now programmatically
     **execute a workflow** without having to copy and paste from
     notebook to notebook manually.
--   Do you have plots and visualizations spread across 10 or more
-    notebooks? Now you can choose which plots to programmatically
-    display a **summary** **collection** in a notebook to share with
-    others.
 
 Installation
 ------------
@@ -49,15 +49,6 @@ like `s3`, or `azure` -- or use `all`
 ``` {.sourceCode .bash}
 pip install papermill[all]
 ```
-
-Installing In-Notebook bindings
--------------------------------
-
--   [Python](https://github.com/nteract/papermill#python-in-notebook-bindings) (included in this repo)
--   [R](https://github.com/nteract/papermillr) (**experimentally** available in the
-    **papermillr** project)
-
-Other language bindings welcome if someone would like to maintain parallel implementations!
 
 Usage
 -----
@@ -168,6 +159,11 @@ Python In-notebook Bindings
 
 ### Recording Values to the Notebook
 
+**DEPRECATED** This functionality will be removed entirely in papermill 1.0
+
+See scrapbook's [glue](https://nteract-scrapbook.readthedocs.io/en/latest/usage-glue.html)
+for an equivilent API for this capability.
+
 Users can save values to the notebook document to be consumed by other
 notebooks.
 
@@ -197,6 +193,11 @@ nb.dataframe
 ![image](docs/img/nb_dataframe.png)
 
 ### Displaying Plots and Images Saved by Other Notebooks
+
+**DEPRECATED** This functionality will be removed entirely in papermill 1.0
+
+See scrapbook's [reglue](https://nteract-scrapbook.readthedocs.io/en/latest/usage-read-notebook.html#reglue)
+for an equivilent API for this capability.
 
 Display a matplotlib histogram with the key name `matplotlib_hist`.
 
@@ -230,6 +231,11 @@ nb.display_output('matplotlib_hist')
 ![image](docs/img/matplotlib_hist.png)
 
 ### Analyzing a Collection of Notebooks
+
+**DEPRECATED** This functionality will be removed entirely in papermill 1.0
+
+See scrapbook's [scrapbook](https://nteract-scrapbook.readthedocs.io/en/latest/usage-read-notebooks.html)
+model for an equivilent API for this capability.
 
 Papermill can read in a directory of notebooks and provides the
 `NotebookCollection` interface for operating on them.
