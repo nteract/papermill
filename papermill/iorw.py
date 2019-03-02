@@ -49,18 +49,21 @@ try:
 except ImportError:
     GCSFileSystem = missing_dependency_generator("gcsfs", "gcs")
 
+# Handle newer and older gcsfs versions
 try:
-    # Handle newer and older gcsfs versions
     try:
-        from gcsfs.utils import RateLimitException as GCSRateLimitException
+        from gcsfs.utils import HttpError as GCSHttpError
     except ImportError:
-        try:
-            from gcsfs.utils import HttpError as GCSRateLimitException
-        except ImportError:
-            from gcsfs.utils import HtmlError as GCSRateLimitException
+        from gcsfs.utils import HtmlError as GCSHttpError
 except ImportError:
     # Fall back to a sane import if gcsfs is missing
-    GCSRateLimitException = Exception
+    GCSHttpError = Exception
+
+try:
+    from gcsfs.utils import RateLimitException as GCSRateLimitException
+except ImportError:
+    # Fall back to GCSHttpError when using older library
+    GCSRateLimitException = GCSHttpError
 
 try:
     FileNotFoundError
@@ -288,13 +291,17 @@ class GCSHandler(object):
             try:
                 with self._get_client().open(path, 'w') as f:
                     return f.write(buf)
-            except GCSRateLimitException as e:
+            except (GCSHttpError, GCSRateLimitException) as e:
                 try:
                     # If code is assigned but unknown, optimistically retry
                     if e.code is None or e.code == 429:
                         raise PapermillRateLimitException(e.message)
                 except AttributeError:
-                    raise PapermillRateLimitException(e.message)
+                    try:
+                        message = e.message
+                    except AttributeError:
+                        message = "Generic exception {} raised, retrying".format(type(e))
+                    raise PapermillRateLimitException(message)
                 # Reraise the original exception without retries
                 raise
 

@@ -2,7 +2,7 @@ import six
 import unittest
 
 from ..exceptions import PapermillRateLimitException
-from ..iorw import GCSHandler, GCSRateLimitException
+from ..iorw import GCSHandler, GCSHttpError, GCSRateLimitException
 
 if six.PY3:
     from unittest.mock import patch
@@ -97,6 +97,20 @@ class GCSTest(unittest.TestCase):
         ),
     )
     def test_gcs_retry(self, mock_gcs_filesystem):
+        with patch.object(GCSHandler, 'RETRY_DELAY', 0):
+            with patch.object(GCSHandler, 'RETRY_BACKOFF', 0):
+                with patch.object(GCSHandler, 'RETRY_MAX_DELAY', 0):
+                    self.assertEqual(self.gcs_handler.write(
+                        'raise_limit_exception', 'gs://bucket/test.ipynb'
+                    ), 2)
+
+    @patch(
+        'papermill.iorw.GCSFileSystem',
+        side_effect=mock_gcs_fs_wrapper(
+            GCSHttpError({"message": "test", "code": 429}), 1
+        ),
+    )
+    def test_gcs_retry_older_exception(self, mock_gcs_filesystem):
         with patch.object(GCSHandler, 'RETRY_DELAY', 0):
             with patch.object(GCSHandler, 'RETRY_BACKOFF', 0):
                 with patch.object(GCSHandler, 'RETRY_MAX_DELAY', 0):
