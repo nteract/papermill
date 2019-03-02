@@ -34,8 +34,7 @@ example:
     **execute a workflow** without having to copy and paste from
     notebook to notebook manually.
 
-Installation
-------------
+## Installation
 
 From the command line:
 
@@ -50,8 +49,11 @@ like `s3`, or `azure` -- or use `all`
 pip install papermill[all]
 ```
 
-Usage
------
+## Python Version Support
+
+This library will support python 2.7 and 3.5+ until end-of-life for python 2 in 2020. After which python 2 support will halt and only 3.x version will be maintained.
+
+## Usage
 
 ### Parameterizing a Notebook
 
