@@ -1,5 +1,12 @@
 # Change Log
 
+## 0.19.0
+**DEPRECATION CHANGE** The record, read_notebook, and read_notebooks functions
+are now officially deprecated and will be removed in papermill 1.0.
+
+- scrapbook functionality is now deprecated
+- gcsfs support is expanded to cover recent releases
+
 ## 0.18.2
 
 ### Fixes
