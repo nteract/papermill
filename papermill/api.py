@@ -21,7 +21,7 @@ RECORD_OUTPUT_TYPE = 'application/papermill.record+json'
 DISPLAY_OUTPUT_TYPE = 'application/papermill.display+json'
 
 
-@deprecated('1.0.0')
+@deprecated('1.0.0', '`scrapbook.glue` (nteract-scrapbook)')
 def record(name, value):
     """
     Record a value in the output notebook when a cell is executed.
@@ -59,7 +59,7 @@ def record(name, value):
     ip_display(data, raw=True)
 
 
-@deprecated('1.0.0')
+@deprecated('1.0.0', '`scrapbook.glue` (nteract-scrapbook)')
 def display(name, obj):
     """
     Display an object with the reference `name`.
@@ -77,7 +77,7 @@ def display(name, obj):
     ip_display(data, metadata=metadata, raw=True)
 
 
-@deprecated('1.0.0')
+@deprecated('1.0.0', '`scrapbook.read_notebook` (nteract-scrapbook)')
 def read_notebook(path):
     """
     Returns a Notebook object loaded from the location specified at `path`.
@@ -102,7 +102,7 @@ def read_notebook(path):
     return nb
 
 
-@deprecated('1.0.0')
+@deprecated('1.0.0', '`scrapbook.read_notebooks` (nteract-scrapbook)')
 def read_notebooks(path):
     """
     Returns a NotebookCollection including the notebooks read from the
