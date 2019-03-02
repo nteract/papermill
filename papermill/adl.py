@@ -15,6 +15,7 @@ class ADL(object):
     - listdir
     - write
     """
+
     def __init__(self):
         self.token = None
 

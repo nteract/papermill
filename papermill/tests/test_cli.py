@@ -208,10 +208,7 @@ class TestCLI(unittest.TestCase):
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_inject_input_path(self, execute_patch):
-        self.runner.invoke(
-            papermill,
-            self.default_args + ['--inject-input-path']
-        )
+        self.runner.invoke(papermill, self.default_args + ['--inject-input-path'])
         execute_patch.assert_called_with(
             'input.ipynb',
             'output.ipynb',
@@ -229,10 +226,7 @@ class TestCLI(unittest.TestCase):
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_inject_output_path(self, execute_patch):
-        self.runner.invoke(
-            papermill,
-            self.default_args + ['--inject-output-path']
-        )
+        self.runner.invoke(papermill, self.default_args + ['--inject-output-path'])
         execute_patch.assert_called_with(
             'input.ipynb',
             'output.ipynb',
@@ -250,18 +244,12 @@ class TestCLI(unittest.TestCase):
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_inject_paths(self, execute_patch):
-        self.runner.invoke(
-            papermill,
-            self.default_args + ['--inject-paths']
-        )
+        self.runner.invoke(papermill, self.default_args + ['--inject-paths'])
         execute_patch.assert_called_with(
             'input.ipynb',
             'output.ipynb',
             # Last input wins dict update
-            {
-                'PAPERMILL_INPUT_PATH': 'input.ipynb',
-                'PAPERMILL_OUTPUT_PATH': 'output.ipynb'
-            },
+            {'PAPERMILL_INPUT_PATH': 'input.ipynb', 'PAPERMILL_OUTPUT_PATH': 'output.ipynb'},
             engine_name=None,
             prepare_only=False,
             kernel_name=None,
@@ -325,8 +313,7 @@ class TestCLI(unittest.TestCase):
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_set_cwd(self, execute_patch):
-        self.runner.invoke(papermill,
-                           self.default_args + ['--cwd', 'a/path/here'])
+        self.runner.invoke(papermill, self.default_args + ['--cwd', 'a/path/here'])
         execute_patch.assert_called_with(
             'input.ipynb',
             'output.ipynb',

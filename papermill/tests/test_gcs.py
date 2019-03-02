@@ -92,51 +92,43 @@ class GCSTest(unittest.TestCase):
 
     @patch(
         'papermill.iorw.GCSFileSystem',
-        side_effect=mock_gcs_fs_wrapper(
-            GCSRateLimitException({"message": "test", "code": 429}), 1
-        ),
+        side_effect=mock_gcs_fs_wrapper(GCSRateLimitException({"message": "test", "code": 429}), 1),
     )
     def test_gcs_retry(self, mock_gcs_filesystem):
         with patch.object(GCSHandler, 'RETRY_DELAY', 0):
             with patch.object(GCSHandler, 'RETRY_BACKOFF', 0):
                 with patch.object(GCSHandler, 'RETRY_MAX_DELAY', 0):
-                    self.assertEqual(self.gcs_handler.write(
-                        'raise_limit_exception', 'gs://bucket/test.ipynb'
-                    ), 2)
+                    self.assertEqual(
+                        self.gcs_handler.write('raise_limit_exception', 'gs://bucket/test.ipynb'), 2
+                    )
 
     @patch(
         'papermill.iorw.GCSFileSystem',
-        side_effect=mock_gcs_fs_wrapper(
-            GCSHttpError({"message": "test", "code": 429}), 1
-        ),
+        side_effect=mock_gcs_fs_wrapper(GCSHttpError({"message": "test", "code": 429}), 1),
     )
     def test_gcs_retry_older_exception(self, mock_gcs_filesystem):
         with patch.object(GCSHandler, 'RETRY_DELAY', 0):
             with patch.object(GCSHandler, 'RETRY_BACKOFF', 0):
                 with patch.object(GCSHandler, 'RETRY_MAX_DELAY', 0):
-                    self.assertEqual(self.gcs_handler.write(
-                        'raise_limit_exception', 'gs://bucket/test.ipynb'
-                    ), 2)
+                    self.assertEqual(
+                        self.gcs_handler.write('raise_limit_exception', 'gs://bucket/test.ipynb'), 2
+                    )
 
     @patch(
         'papermill.iorw.GCSFileSystem',
-        side_effect=mock_gcs_fs_wrapper(
-            GCSRateLimitException({"message": "test"}), 1
-        ),
+        side_effect=mock_gcs_fs_wrapper(GCSRateLimitException({"message": "test"}), 1),
     )
     def test_gcs_retry_unknown_failure_code(self, mock_gcs_filesystem):
         with patch.object(GCSHandler, 'RETRY_DELAY', 0):
             with patch.object(GCSHandler, 'RETRY_BACKOFF', 0):
                 with patch.object(GCSHandler, 'RETRY_MAX_DELAY', 0):
-                    self.assertEqual(self.gcs_handler.write(
-                        'raise_limit_exception', 'gs://bucket/test.ipynb'
-                    ), 2)
+                    self.assertEqual(
+                        self.gcs_handler.write('raise_limit_exception', 'gs://bucket/test.ipynb'), 2
+                    )
 
     @patch(
         'papermill.iorw.GCSFileSystem',
-        side_effect=mock_gcs_fs_wrapper(
-            GCSRateLimitException({"message": "test", "code": 500}), 1
-        ),
+        side_effect=mock_gcs_fs_wrapper(GCSRateLimitException({"message": "test", "code": 500}), 1),
     )
     def test_gcs_invalid_code(self, mock_gcs_filesystem):
         with self.assertRaises(GCSRateLimitException):
@@ -144,9 +136,7 @@ class GCSTest(unittest.TestCase):
 
     @patch(
         'papermill.iorw.GCSFileSystem',
-        side_effect=mock_gcs_fs_wrapper(
-            ValueError("not-a-retry"), 1
-        ),
+        side_effect=mock_gcs_fs_wrapper(ValueError("not-a-retry"), 1),
     )
     def test_gcs_unretryable(self, mock_gcs_filesystem):
         with self.assertRaises(ValueError):

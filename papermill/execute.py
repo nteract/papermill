@@ -8,7 +8,13 @@ import nbformat
 
 from .log import logger
 from .exceptions import PapermillExecutionError
-from .iorw import load_notebook_node, write_ipynb, read_yaml_file, get_pretty_path, local_file_io_cwd
+from .iorw import (
+    load_notebook_node,
+    write_ipynb,
+    read_yaml_file,
+    get_pretty_path,
+    local_file_io_cwd,
+)
 from .translators import translate_parameters
 from .engines import papermill_engines
 from .utils import chdir

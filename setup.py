@@ -39,6 +39,7 @@ def version():
                 return line.split(' = ')[-1].strip()[1:-1]
     raise ValueError('No version found in papermill/version.py')
 
+
 python_2 = sys.version_info[0] == 2
 
 
@@ -46,9 +47,11 @@ def read(fname):
     with open(fname, 'rU' if python_2 else 'r') as fhandle:
         return fhandle.read()
 
+
 def read_reqs(fname):
     req_path = os.path.join(here, fname)
     return [req.strip() for req in read(req_path).splitlines() if req.strip()]
+
 
 s3_reqs = read_reqs('requirements-s3.txt')
 azure_reqs = read_reqs('requirements-azure.txt')

@@ -246,8 +246,9 @@ class TestCWD(unittest.TestCase):
             execute_notebook(
                 self.simple_notebook_name, self.nb_test_executed_fname, cwd=self.test_dir
             )
-        self.assertTrue(os.path.isfile(os.path.join(
-            self.base_test_dir, self.nb_test_executed_fname)))
+        self.assertTrue(
+            os.path.isfile(os.path.join(self.base_test_dir, self.nb_test_executed_fname))
+        )
 
     def test_execution_respects_cwd_assignment(self):
         with chdir(self.base_test_dir):
@@ -255,5 +256,6 @@ class TestCWD(unittest.TestCase):
             execute_notebook(
                 self.check_notebook_name, self.nb_test_executed_fname, cwd=self.test_dir
             )
-        self.assertTrue(os.path.isfile(os.path.join(
-            self.base_test_dir, self.nb_test_executed_fname)))
+        self.assertTrue(
+            os.path.isfile(os.path.join(self.base_test_dir, self.nb_test_executed_fname))
+        )

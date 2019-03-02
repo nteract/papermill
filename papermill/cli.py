@@ -87,7 +87,7 @@ def print_papermill_version(ctx, param, value):
     '--log-level',
     type=click.Choice(['NOTSET', 'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']),
     default='INFO',
-    help='Set log level'
+    help='Set log level',
 )
 @click.option(
     '--start_timeout', type=int, default=60, help="Time in seconds to wait for kernel to start."

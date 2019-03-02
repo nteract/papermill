@@ -18,6 +18,7 @@ class AzureBlobStore(object):
         - listdir
         - write
     """
+
     def __init__(self):
         pass
 
@@ -53,15 +54,11 @@ class AzureBlobStore(object):
         )
 
         block_blob_service.get_blob_to_stream(
-            container_name=params["container"],
-            blob_name=params["blob"],
-            stream=output_stream,
+            container_name=params["container"], blob_name=params["blob"], stream=output_stream
         )
 
         output_stream.seek(0)
-        return [
-            line.decode("utf-8") for line in output_stream
-        ]
+        return [line.decode("utf-8") for line in output_stream]
 
     def listdir(self, url):
         """Returns a list of the files under the specified path"""

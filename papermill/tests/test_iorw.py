@@ -31,7 +31,7 @@ from ..iorw import (
     PapermillIO,
     read_yaml_file,
     papermill_io,
-    local_file_io_cwd
+    local_file_io_cwd,
 )
 from ..exceptions import PapermillException
 
@@ -135,13 +135,13 @@ class TestPapermillIO(unittest.TestCase):
 
     def test_read(self):
         self.assertEqual(
-            self.papermill_io.read("fake/path"),
-            "contents from fake/path for version 1"
+            self.papermill_io.read("fake/path"), "contents from fake/path for version 1"
         )
 
     def test_read_bytes(self):
-        self.assertIsNotNone(self.papermill_io_bytes.read(
-            "notebooks/gcs/gcs_in/gcs-simple_notebook.ipynb"))
+        self.assertIsNotNone(
+            self.papermill_io_bytes.read("notebooks/gcs/gcs_in/gcs-simple_notebook.ipynb")
+        )
 
     def test_read_with_no_file_extension(self):
         with pytest.warns(UserWarning):
