@@ -22,6 +22,7 @@ from .log import logger
 from .utils import chdir
 from .exceptions import (
     PapermillException,
+    PapermillRateLimitException,
     missing_dependency_generator,
     missing_environment_variable_generator,
 )
@@ -49,9 +50,17 @@ except ImportError:
     GCSFileSystem = missing_dependency_generator("gcsfs", "gcs")
 
 try:
-    from gcsfs.utils import HtmlError as RateLimitException
+    # Handle newer and older gcsfs versions
+    try:
+        from gcsfs.utils import RateLimitException as GCSRateLimitException
+    except ImportError:
+        try:
+            from gcsfs.utils import HttpError as GCSRateLimitException
+        except ImportError:
+            from gcsfs.utils import HtmlError as GCSRateLimitException
 except ImportError:
-    RateLimitException = Exception
+    # Fall back to a sane import if gcsfs is missing
+    GCSRateLimitException = Exception
 
 try:
     FileNotFoundError
@@ -74,9 +83,7 @@ class PapermillIO(object):
             warnings.warn(
                 "the file is not specified with any extension : " + os.path.basename(path)
             )
-        elif not any(
-            fnmatch.fnmatch(os.path.basename(path), '*' + ext) for ext in extensions
-        ):
+        elif not any(fnmatch.fnmatch(os.path.basename(path), '*' + ext) for ext in extensions):
             warnings.warn(
                 "The specified input file ({}) does not end in one of {}".format(path, extensions)
             )
@@ -92,9 +99,7 @@ class PapermillIO(object):
             warnings.warn(
                 "the file is not specified with any extension : " + os.path.basename(path)
             )
-        elif not any(
-            fnmatch.fnmatch(os.path.basename(path), '*' + ext) for ext in extensions
-        ):
+        elif not any(fnmatch.fnmatch(os.path.basename(path), '*' + ext) for ext in extensions):
             warnings.warn(
                 "The specified input file ({}) does not end in one of {}".format(path, extensions)
             )
@@ -250,6 +255,11 @@ class ABSHandler(object):
 
 
 class GCSHandler(object):
+    RATE_LIMIT_RETRIES = 3
+    RETRY_DELAY = 1
+    RETRY_BACKOFF = 2
+    RETRY_MAX_DELAY = 4
+
     def __init__(self):
         self._client = None
 
@@ -265,10 +275,30 @@ class GCSHandler(object):
     def listdir(self, path):
         return self._get_client().ls(path)
 
-    @retry.retry(RateLimitException, tries=3, delay=1, backoff=2, max_delay=4)
     def write(self, buf, path):
-        with self._get_client().open(path, 'w') as f:
-            return f.write(buf)
+        # Wrapped so we can mock retry options during testing
+        @retry.retry(
+            PapermillRateLimitException,
+            tries=self.RATE_LIMIT_RETRIES,
+            delay=self.RETRY_DELAY,
+            backoff=self.RETRY_BACKOFF,
+            max_delay=self.RETRY_MAX_DELAY,
+        )
+        def retry_write():
+            try:
+                with self._get_client().open(path, 'w') as f:
+                    return f.write(buf)
+            except GCSRateLimitException as e:
+                try:
+                    # If code is assigned but unknown, optimistically retry
+                    if e.code is None or e.code == 429:
+                        raise PapermillRateLimitException(e.message)
+                except AttributeError:
+                    raise PapermillRateLimitException(e.message)
+                # Reraise the original exception without retries
+                raise
+
+        return retry_write()
 
     def pretty_path(self, path):
         return path
