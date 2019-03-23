@@ -180,6 +180,7 @@ def parameterize_notebook(nb, parameters, report_mode=False):
         after = nb.cells[param_cell_index + 1 :]
     else:
         # Inject to the top of the notebook
+        logger.warning("Input notebook does not contain a cell with tag 'parameters'")
         before = []
         after = nb.cells
 
