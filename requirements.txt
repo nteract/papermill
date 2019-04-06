@@ -6,7 +6,7 @@ backports.tempfile ; python_version < "3.0"
 ipython >= 5.0
 pyyaml
 nbformat
-nbconvert >= 5.4
+nbconvert >= 5.5
 six
 tqdm >= 4.29.1
 jupyter_client

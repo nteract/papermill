@@ -27,6 +27,7 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
             nb, resources = self.papermill_process(nb_man, resources)
             info_msg = self._wait_for_reply(self.kc.kernel_info())
             nb.metadata['language_info'] = info_msg['content']['language_info']
+            self.set_widgets_metadata()
 
         return nb, resources
 
@@ -141,6 +142,7 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
                         cell_map[cell_index] = []
                 continue
             elif msg_type.startswith('comm'):
+                self.handle_comm_msg(outs, msg, cell_index)
                 continue
 
             display_id = None
