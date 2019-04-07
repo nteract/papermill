@@ -11,14 +11,13 @@ import nbformat
 import requests
 import warnings
 import entrypoints
-import retry
 
 from contextlib import contextmanager
 
+from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
+
 from . import __version__
-
 from .log import logger
-
 from .utils import chdir
 from .exceptions import (
     PapermillException,
@@ -260,7 +259,7 @@ class ABSHandler(object):
 class GCSHandler(object):
     RATE_LIMIT_RETRIES = 3
     RETRY_DELAY = 1
-    RETRY_BACKOFF = 2
+    RETRY_MULTIPLIER = 1
     RETRY_MAX_DELAY = 4
 
     def __init__(self):
@@ -280,12 +279,13 @@ class GCSHandler(object):
 
     def write(self, buf, path):
         # Wrapped so we can mock retry options during testing
-        @retry.retry(
-            PapermillRateLimitException,
-            tries=self.RATE_LIMIT_RETRIES,
-            delay=self.RETRY_DELAY,
-            backoff=self.RETRY_BACKOFF,
-            max_delay=self.RETRY_MAX_DELAY,
+        @retry(
+            retry=retry_if_exception_type(PapermillRateLimitException),
+            stop=stop_after_attempt(self.RATE_LIMIT_RETRIES),
+            wait=wait_exponential(
+                multiplier=self.RETRY_MULTIPLIER, min=self.RETRY_DELAY, max=self.RETRY_MAX_DELAY
+            ),
+            reraise=True,
         )
         def retry_write():
             try:
