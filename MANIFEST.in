@@ -9,13 +9,12 @@ include setup.py
 include requirements*.txt
 include tox.ini
 include pytest.ini
-include README.rst
+include README.md
 include LICENSE
 include MANIFEST.in
 include *.md
 include *.toml
 
-include .coveragerc
 include .bumpversion.cfg
 
 # Documentation
