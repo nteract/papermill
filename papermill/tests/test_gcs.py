@@ -85,7 +85,7 @@ class GCSTest(unittest.TestCase):
     )
     def test_gcs_handle_exception(self, mock_gcs_filesystem):
         with patch.object(GCSHandler, 'RETRY_DELAY', 0):
-            with patch.object(GCSHandler, 'RETRY_BACKOFF', 0):
+            with patch.object(GCSHandler, 'RETRY_MULTIPLIER', 0):
                 with patch.object(GCSHandler, 'RETRY_MAX_DELAY', 0):
                     with self.assertRaises(PapermillRateLimitException):
                         self.gcs_handler.write('raise_limit_exception', 'gs://bucket/test.ipynb')
@@ -96,7 +96,7 @@ class GCSTest(unittest.TestCase):
     )
     def test_gcs_retry(self, mock_gcs_filesystem):
         with patch.object(GCSHandler, 'RETRY_DELAY', 0):
-            with patch.object(GCSHandler, 'RETRY_BACKOFF', 0):
+            with patch.object(GCSHandler, 'RETRY_MULTIPLIER', 0):
                 with patch.object(GCSHandler, 'RETRY_MAX_DELAY', 0):
                     self.assertEqual(
                         self.gcs_handler.write('raise_limit_exception', 'gs://bucket/test.ipynb'), 2
@@ -108,7 +108,7 @@ class GCSTest(unittest.TestCase):
     )
     def test_gcs_retry_older_exception(self, mock_gcs_filesystem):
         with patch.object(GCSHandler, 'RETRY_DELAY', 0):
-            with patch.object(GCSHandler, 'RETRY_BACKOFF', 0):
+            with patch.object(GCSHandler, 'RETRY_MULTIPLIER', 0):
                 with patch.object(GCSHandler, 'RETRY_MAX_DELAY', 0):
                     self.assertEqual(
                         self.gcs_handler.write('raise_limit_exception', 'gs://bucket/test.ipynb'), 2
@@ -120,7 +120,7 @@ class GCSTest(unittest.TestCase):
     )
     def test_gcs_retry_unknown_failure_code(self, mock_gcs_filesystem):
         with patch.object(GCSHandler, 'RETRY_DELAY', 0):
-            with patch.object(GCSHandler, 'RETRY_BACKOFF', 0):
+            with patch.object(GCSHandler, 'RETRY_MULTIPLIER', 0):
                 with patch.object(GCSHandler, 'RETRY_MAX_DELAY', 0):
                     self.assertEqual(
                         self.gcs_handler.write('raise_limit_exception', 'gs://bucket/test.ipynb'), 2
