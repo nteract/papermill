@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.19.1
+- Added a warning when no `parameter` tag is present but parameters are being passed
+- Replaced `retry` with `tenacity` to help with conda builds and to use a non-abandoned library
+
 ## 0.19.0
 **DEPRECATION CHANGE** The record, read_notebook, and read_notebooks functions
 are now officially deprecated and will be removed in papermill 1.0.
