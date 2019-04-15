@@ -167,7 +167,7 @@ class TestPapermillIO(unittest.TestCase):
     def test_read_yaml_with_valid_file_extension(self):
         with pytest.warns(None) as warns:
             read_yaml_file("fake/path/fakeinputpath.yaml")
-        self.assertEqual(len(warns), 1)
+        self.assertEqual(len(warns), 0)
 
     def test_listdir(self):
         self.assertEqual(self.papermill_io.listdir("fake/path"), ["fake", "contents"])
