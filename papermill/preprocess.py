@@ -169,6 +169,12 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
             # Log check added to original implementation
             if self.log_output:
                 self.log_output_message(out)
+
+            # Valohai print to stdout
+            if out.output_type == "stream":
+                if out.name == "stdout":
+                    print(out.text)
+
             outs.append(out)
 
         exec_reply = self._wait_for_reply(msg_id, cell)
