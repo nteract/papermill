@@ -162,31 +162,27 @@ def parameterize_notebook(nb, parameters, report_mode=False):
     param_content = translate_parameters(kernel_name, language, parameters)
 
     newcell = nbformat.v4.new_code_cell(source=param_content)
-    newcell.metadata['tags'] = ['injected-parameters']
+    newcell.metadata['tags'] = ['parameters']
 
     if report_mode:
         newcell.metadata['jupyter'] = newcell.get('jupyter', {})
         newcell.metadata['jupyter']['source_hidden'] = True
 
     param_cell_index = _find_first_tagged_cell_index(nb, 'parameters')
-    injected_cell_index = _find_first_tagged_cell_index(nb, 'injected-parameters')
-    if injected_cell_index >= 0:
-        # Replace the injected cell with a new version
-        before = nb.cells[:injected_cell_index]
-        after = nb.cells[injected_cell_index + 1 :]
-    elif param_cell_index >= 0:
+    if param_cell_index >= 0:
         # Add an injected cell after the parameter cell
-        before = nb.cells[: param_cell_index + 1]
-        after = nb.cells[param_cell_index + 1 :]
+        before = nb.cells[: param_cell_index]
+        after = nb.cells[param_cell_index + 1:]
     else:
         # Inject to the top of the notebook
         logger.warning("Input notebook does not contain a cell with tag 'parameters'")
         before = []
         after = nb.cells
 
+    print(nb.cells)
     nb.cells = before + [newcell] + after
     nb.metadata.papermill['parameters'] = parameters
-
+    print(nb.cells)
     return nb
 
 
