@@ -179,10 +179,8 @@ def parameterize_notebook(nb, parameters, report_mode=False):
         before = []
         after = nb.cells
 
-    print(nb.cells)
     nb.cells = before + [newcell] + after
     nb.metadata.papermill['parameters'] = parameters
-    print(nb.cells)
     return nb
 
 
