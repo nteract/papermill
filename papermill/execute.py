@@ -18,6 +18,8 @@ from .iorw import (
 from .translators import translate_parameters
 from .engines import papermill_engines
 from .utils import chdir
+from string import Formatter as StringFormatter
+from collections import OrderedDict
 
 
 def execute_notebook(
@@ -65,6 +67,9 @@ def execute_notebook(
     nb : NotebookNode
        Executed notebook object
     """
+    input_path = parameterize_path(input_path, parameters)
+    output_path = parameterize_path(output_path, parameters)
+
     logger.info("Input Notebook:  %s" % get_pretty_path(input_path))
     logger.info("Output Notebook: %s" % get_pretty_path(output_path))
     with local_file_io_cwd():
@@ -134,6 +139,33 @@ def prepare_notebook_metadata(nb, input_path, output_path, report_mode=False):
     nb.metadata.papermill['output_path'] = output_path
 
     return nb
+
+
+def parameterize_path(path, parameters):
+    """Format a path with a provided dictionary of parameters
+
+    Parameters
+    ----------
+    path : string
+       Path with optional parameters, as a python format string
+    parameters : dict
+       Arbitrary keyword arguments to fill in the path
+    """
+    if parameters is None:
+        parameters = {}
+
+    try:
+        return path.format(**parameters)
+    except KeyError:
+        # OrderedDict removes duplicates while maintaining order
+        missing_parameters = OrderedDict.fromkeys(
+            [
+                required_parameter
+                for (_, required_parameter, _, _) in StringFormatter().parse(path)
+                if (required_parameter is not None) and (required_parameter not in parameters)
+            ]
+        ).keys()
+        raise Exception("Missing parameters: {}".format(", ".join(missing_parameters)))
 
 
 def parameterize_notebook(nb, parameters, report_mode=False):
