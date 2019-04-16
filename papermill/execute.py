@@ -20,6 +20,8 @@ from .engines import papermill_engines
 from .utils import chdir
 from string import Formatter as StringFormatter
 from collections import OrderedDict
+from uuid import uuid4
+from datetime import datetime
 
 
 def execute_notebook(
@@ -67,8 +69,9 @@ def execute_notebook(
     nb : NotebookNode
        Executed notebook object
     """
-    input_path = parameterize_path(input_path, parameters)
-    output_path = parameterize_path(output_path, parameters)
+    path_parameters = add_builtin_parameters(parameters)
+    input_path = parameterize_path(input_path, path_parameters)
+    output_path = parameterize_path(output_path, path_parameters)
 
     logger.info("Input Notebook:  %s" % get_pretty_path(input_path))
     logger.info("Output Notebook: %s" % get_pretty_path(output_path))
@@ -139,6 +142,28 @@ def prepare_notebook_metadata(nb, input_path, output_path, report_mode=False):
     nb.metadata.papermill['output_path'] = output_path
 
     return nb
+
+
+def add_builtin_parameters(parameters):
+    """Add built-in parameters to a dictionary of parameters
+
+    Parameters
+    ----------
+    parameters : dict
+       Dictionary of parameters provided by the user
+    """
+    with_builtin_parameters = {
+        "pm": {
+            "run_uuid": uuid4(),
+            "current_datetime_local": datetime.now(),
+            "current_datetime_utc": datetime.utcnow(),
+        }
+    }
+
+    if parameters is not None:
+        with_builtin_parameters.update(parameters)
+
+    return with_builtin_parameters
 
 
 def parameterize_path(path, parameters):

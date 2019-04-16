@@ -1,8 +1,10 @@
 import unittest
 
 from ..api import read_notebook
-from ..execute import parameterize_notebook, parameterize_path
+from ..execute import parameterize_notebook, parameterize_path, add_builtin_parameters
 from . import get_notebook_path
+from uuid import UUID
+from datetime import datetime
 
 
 class TestNotebookParametrizing(unittest.TestCase):
@@ -72,6 +74,36 @@ class TestNotebookParametrizing(unittest.TestCase):
 
         test_nb = parameterize_notebook(test_nb, {'msg': 'Hello'})
         self.assertEqual(self.count_nb_injected_parameter_cells(test_nb), 1)
+
+
+class TestBuiltinParameters(unittest.TestCase):
+    def test_add_builtin_parameters_keeps_provided_parameters(self):
+        with_builtin_parameters = add_builtin_parameters({"foo": "bar"})
+        self.assertEqual(with_builtin_parameters["foo"], "bar")
+
+    def test_add_builtin_parameters_adds_dict_of_builtins(self):
+        with_builtin_parameters = add_builtin_parameters({"foo": "bar"})
+        self.assertIn("pm", with_builtin_parameters)
+        self.assertIsInstance(with_builtin_parameters["pm"], type({}))
+
+    def test_add_builtin_parameters_allows_to_override_builtin(self):
+        with_builtin_parameters = add_builtin_parameters({"pm": "foo"})
+        self.assertEqual(with_builtin_parameters["pm"], "foo")
+
+    def test_builtin_parameters_include_run_uuid(self):
+        with_builtin_parameters = add_builtin_parameters({"foo": "bar"})
+        self.assertIn("run_uuid", with_builtin_parameters["pm"])
+        self.assertIsInstance(with_builtin_parameters["pm"]["run_uuid"], UUID)
+
+    def test_builtin_parameters_include_current_datetime_local(self):
+        with_builtin_parameters = add_builtin_parameters({"foo": "bar"})
+        self.assertIn("current_datetime_local", with_builtin_parameters["pm"])
+        self.assertIsInstance(with_builtin_parameters["pm"]["current_datetime_local"], datetime)
+
+    def test_builtin_parameters_include_current_datetime_utc(self):
+        with_builtin_parameters = add_builtin_parameters({"foo": "bar"})
+        self.assertIn("current_datetime_utc", with_builtin_parameters["pm"])
+        self.assertIsInstance(with_builtin_parameters["pm"]["current_datetime_utc"], datetime)
 
 
 class TestPathParameterizing(unittest.TestCase):
