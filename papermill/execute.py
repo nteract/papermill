@@ -2,22 +2,15 @@
 
 from __future__ import unicode_literals, print_function
 
-import six
 import copy
 import nbformat
 
 from .log import logger
 from .exceptions import PapermillExecutionError
-from .iorw import (
-    load_notebook_node,
-    write_ipynb,
-    read_yaml_file,
-    get_pretty_path,
-    local_file_io_cwd,
-)
-from .translators import translate_parameters
+from .iorw import load_notebook_node, write_ipynb, get_pretty_path, local_file_io_cwd
 from .engines import papermill_engines
 from .utils import chdir
+from .parameterize import parameterize_notebook, parameterize_path, add_builtin_parameters
 
 
 def execute_notebook(
@@ -65,6 +58,10 @@ def execute_notebook(
     nb : NotebookNode
        Executed notebook object
     """
+    path_parameters = add_builtin_parameters(parameters)
+    input_path = parameterize_path(input_path, path_parameters)
+    output_path = parameterize_path(output_path, path_parameters)
+
     logger.info("Input Notebook:  %s" % get_pretty_path(input_path))
     logger.info("Output Notebook: %s" % get_pretty_path(output_path))
     with local_file_io_cwd():
@@ -134,70 +131,6 @@ def prepare_notebook_metadata(nb, input_path, output_path, report_mode=False):
     nb.metadata.papermill['output_path'] = output_path
 
     return nb
-
-
-def parameterize_notebook(nb, parameters, report_mode=False):
-    """Assigned parameters into the appropriate place in the input notebook
-
-    Parameters
-    ----------
-    nb : NotebookNode
-       Executable notebook object
-    parameters : dict
-       Arbitrary keyword arguments to pass as notebook parameters
-    report_mode : bool, optional
-       Flag to set report mode
-    """
-    # Load from a file if 'parameters' is a string.
-    if isinstance(parameters, six.string_types):
-        parameters = read_yaml_file(parameters)
-
-    # Copy the nb object to avoid polluting the input
-    nb = copy.deepcopy(nb)
-
-    kernel_name = nb.metadata.kernelspec.name
-    language = nb.metadata.kernelspec.language
-
-    # Generate parameter content based on the kernel_name
-    param_content = translate_parameters(kernel_name, language, parameters)
-
-    newcell = nbformat.v4.new_code_cell(source=param_content)
-    newcell.metadata['tags'] = ['injected-parameters']
-
-    if report_mode:
-        newcell.metadata['jupyter'] = newcell.get('jupyter', {})
-        newcell.metadata['jupyter']['source_hidden'] = True
-
-    param_cell_index = _find_first_tagged_cell_index(nb, 'parameters')
-    injected_cell_index = _find_first_tagged_cell_index(nb, 'injected-parameters')
-    if injected_cell_index >= 0:
-        # Replace the injected cell with a new version
-        before = nb.cells[:injected_cell_index]
-        after = nb.cells[injected_cell_index + 1 :]
-    elif param_cell_index >= 0:
-        # Add an injected cell after the parameter cell
-        before = nb.cells[: param_cell_index + 1]
-        after = nb.cells[param_cell_index + 1 :]
-    else:
-        # Inject to the top of the notebook
-        logger.warning("Input notebook does not contain a cell with tag 'parameters'")
-        before = []
-        after = nb.cells
-
-    nb.cells = before + [newcell] + after
-    nb.metadata.papermill['parameters'] = parameters
-
-    return nb
-
-
-def _find_first_tagged_cell_index(nb, tag):
-    parameters_indices = []
-    for idx, cell in enumerate(nb.cells):
-        if tag in cell.metadata.tags:
-            parameters_indices.append(idx)
-    if not parameters_indices:
-        return -1
-    return parameters_indices[0]
 
 
 ERROR_MESSAGE_TEMPLATE = (
