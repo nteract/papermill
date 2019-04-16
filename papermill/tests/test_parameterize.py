@@ -3,7 +3,6 @@ import unittest
 from ..api import read_notebook
 from ..execute import parameterize_notebook, parameterize_path, add_builtin_parameters
 from . import get_notebook_path
-from uuid import UUID
 from datetime import datetime
 
 
@@ -93,7 +92,6 @@ class TestBuiltinParameters(unittest.TestCase):
     def test_builtin_parameters_include_run_uuid(self):
         with_builtin_parameters = add_builtin_parameters({"foo": "bar"})
         self.assertIn("run_uuid", with_builtin_parameters["pm"])
-        self.assertIsInstance(with_builtin_parameters["pm"]["run_uuid"], UUID)
 
     def test_builtin_parameters_include_current_datetime_local(self):
         with_builtin_parameters = add_builtin_parameters({"foo": "bar"})

@@ -154,7 +154,7 @@ def add_builtin_parameters(parameters):
     """
     with_builtin_parameters = {
         "pm": {
-            "run_uuid": uuid4(),
+            "run_uuid": str(uuid4()),
             "current_datetime_local": datetime.now(),
             "current_datetime_utc": datetime.utcnow(),
         }
