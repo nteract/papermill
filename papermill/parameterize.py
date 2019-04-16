@@ -7,8 +7,6 @@ from .log import logger
 from .exceptions import PapermillMissingParameterException
 from .iorw import read_yaml_file
 
-from string import Formatter as StringFormatter
-from collections import OrderedDict
 from uuid import uuid4
 from datetime import datetime
 
@@ -50,18 +48,8 @@ def parameterize_path(path, parameters):
 
     try:
         return path.format(**parameters)
-    except KeyError:
-        # OrderedDict removes duplicates while maintaining order
-        missing_parameters = OrderedDict.fromkeys(
-            [
-                required_parameter
-                for (_, required_parameter, _, _) in StringFormatter().parse(path)
-                if (required_parameter is not None) and (required_parameter not in parameters)
-            ]
-        ).keys()
-        raise PapermillMissingParameterException(
-            "Missing parameters: {}".format(", ".join(missing_parameters))
-        )
+    except KeyError as key_error:
+        raise PapermillMissingParameterException("Missing parameter {}".format(key_error))
 
 
 def parameterize_notebook(nb, parameters, report_mode=False):

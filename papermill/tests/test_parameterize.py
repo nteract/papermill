@@ -1,6 +1,7 @@
 import unittest
 
 from ..api import read_notebook
+from ..exceptions import PapermillMissingParameterException
 from ..parameterize import parameterize_notebook, parameterize_path, add_builtin_parameters
 from . import get_notebook_path
 from datetime import datetime
@@ -147,16 +148,11 @@ class TestPathParameterizing(unittest.TestCase):
         )
 
     def test_parameterized_path_with_undefined_parameter(self):
-        with self.assertRaises(Exception) as context:
+        with self.assertRaises(PapermillMissingParameterException) as context:
             parameterize_path("{foo}", {})
-        self.assertEqual(str(context.exception), "Missing parameters: foo")
-
-    def test_parameterized_path_with_undefined_parameters(self):
-        with self.assertRaises(Exception) as context:
-            parameterize_path("{foo} {bar} {foo}", {})
-        self.assertEqual(str(context.exception), "Missing parameters: foo, bar")
+        self.assertEqual(str(context.exception), "Missing parameter 'foo'")
 
     def test_parameterized_path_with_none_parameters(self):
-        with self.assertRaises(Exception) as context:
-            parameterize_path("{foo} {bar} {foo}", None)
-        self.assertEqual(str(context.exception), "Missing parameters: foo, bar")
+        with self.assertRaises(PapermillMissingParameterException) as context:
+            parameterize_path("{foo}", None)
+        self.assertEqual(str(context.exception), "Missing parameter 'foo'")
