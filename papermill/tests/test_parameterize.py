@@ -90,6 +90,15 @@ class TestPathParameterizing(unittest.TestCase):
     def test_path_with_boolean_parameter(self):
         self.assertEqual(parameterize_path("foo/bar/{baz}", {"baz": False}), "foo/bar/False")
 
+    def test_path_with_dict_parameter(self):
+        self.assertEqual(
+            parameterize_path("foo/{bar[baz]}/", {"bar": {"baz": "quux"}}), "foo/quux/"
+        )
+
+    def test_path_with_list_parameter(self):
+        self.assertEqual(parameterize_path("foo/{bar[0]}/", {"bar": [1, 2, 3]}), "foo/1/")
+        self.assertEqual(parameterize_path("foo/{bar[2]}/", {"bar": [1, 2, 3]}), "foo/3/")
+
     def test_path_with_none_parameter(self):
         self.assertEqual(parameterize_path("foo/bar/{baz}", {"baz": None}), "foo/bar/None")
 
