@@ -17,6 +17,10 @@ class PapermillException(Exception):
     """Raised when an exception is encountered when operating on a notebook."""
 
 
+class PapermillMissingParameterException(PapermillException):
+    """Raised when a parameter without a value is required to operate on a notebook."""
+
+
 class PapermillExecutionError(PapermillException):
     """Raised when an exception is encountered in a notebook."""
 

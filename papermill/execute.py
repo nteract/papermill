@@ -7,7 +7,7 @@ import copy
 import nbformat
 
 from .log import logger
-from .exceptions import PapermillExecutionError
+from .exceptions import PapermillExecutionError, PapermillMissingParameterException
 from .iorw import (
     load_notebook_node,
     write_ipynb,
@@ -165,7 +165,9 @@ def parameterize_path(path, parameters):
                 if (required_parameter is not None) and (required_parameter not in parameters)
             ]
         ).keys()
-        raise Exception("Missing parameters: {}".format(", ".join(missing_parameters)))
+        raise PapermillMissingParameterException(
+            "Missing parameters: {}".format(", ".join(missing_parameters))
+        )
 
 
 def parameterize_notebook(nb, parameters, report_mode=False):
