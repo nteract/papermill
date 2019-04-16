@@ -1,7 +1,7 @@
 import unittest
 
 from ..api import read_notebook
-from ..execute import parameterize_notebook, parameterize_path, add_builtin_parameters
+from ..parameterize import parameterize_notebook, parameterize_path, add_builtin_parameters
 from . import get_notebook_path
 from datetime import datetime
 
