@@ -1,4 +1,5 @@
 """Engines to perform different roles"""
+import sys
 import copy
 import datetime
 import dateutil
@@ -174,13 +175,17 @@ class NotebookExecutionManager(object):
         self.save()
 
     @catch_nb_assignment
-    def cell_start(self, cell, **kwargs):
+    def cell_start(self, cell, cell_index=None, **kwargs):
         """
         Set and save a cell's start state.
 
         Optionally called by engines during execution to initialize the
         metadata for a cell and save the notebook to the output path.
         """
+        if self.log_output:
+            ceel_num = cell_index + 1 if cell_index is not None else ''
+            logger.info('Executing Cell {:-<40}'.format(ceel_num))
+
         cell.metadata.papermill['start_time'] = self.now().isoformat()
         cell.metadata.papermill["status"] = self.RUNNING
         cell.metadata.papermill['exception'] = False
@@ -188,7 +193,7 @@ class NotebookExecutionManager(object):
         self.save()
 
     @catch_nb_assignment
-    def cell_exception(self, cell, **kwargs):
+    def cell_exception(self, cell, cell_index=None, **kwargs):
         """
         Set metadata when an exception is raised.
 
@@ -201,7 +206,7 @@ class NotebookExecutionManager(object):
         self.nb.metadata.papermill['exception'] = True
 
     @catch_nb_assignment
-    def cell_complete(self, cell, **kwargs):
+    def cell_complete(self, cell, cell_index=None, **kwargs):
         """
         Finalize metadata for a cell and save notebook.
 
@@ -209,6 +214,14 @@ class NotebookExecutionManager(object):
         metadata for a cell and save the notebook to the output path.
         """
         end_time = self.now()
+
+        if self.log_output:
+            ceel_num = cell_index + 1 if cell_index is not None else ''
+            logger.info('Ending Cell {:-<43}'.format(ceel_num))
+            # Ensure our last cell messages are not buffered by python
+            sys.stdout.flush()
+            sys.stderr.flush()
+
         cell.metadata.papermill['end_time'] = end_time.isoformat()
         if cell.metadata.papermill.get('start_time'):
             start_time = dateutil.parser.parse(cell.metadata.papermill['start_time'])

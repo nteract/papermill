@@ -23,23 +23,13 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
         """
         with self.setup_preprocessor(nb_man.nb, resources, km=km):
             if self.log_output:
-                self.log.info("Executing notebook with kernel: %s" % self.kernel_name)
+                self.log.info("Executing notebook with kernel: {}".format(self.kernel_name))
             nb, resources = self.papermill_process(nb_man, resources)
             info_msg = self._wait_for_reply(self.kc.kernel_info())
             nb.metadata['language_info'] = info_msg['content']['language_info']
             self.set_widgets_metadata()
 
         return nb, resources
-
-    def start_new_kernel(self, **kwargs):
-        """
-        Wraps the parent class process call slightly
-        """
-        km, kc = super(PapermillExecutePreprocessor, self).start_new_kernel(**kwargs)
-        # Note sure if we need this anymore?
-        kc.allow_stdin = False
-
-        return km, kc
 
     def papermill_process(self, nb_man, resources):
         """
@@ -71,15 +61,15 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
         nb = nb_man.nb
         for index, cell in enumerate(nb.cells):
             try:
-                nb_man.cell_start(cell)
+                nb_man.cell_start(cell, index)
                 if not cell.source:
                     continue
                 nb.cells[index], resources = self.preprocess_cell(cell, resources, index)
             except CellExecutionError as ex:
-                nb_man.cell_exception(nb.cells[index], exception=ex)
+                nb_man.cell_exception(nb.cells[index], cell_index=index, exception=ex)
                 break
             finally:
-                nb_man.cell_complete(nb.cells[index])
+                nb_man.cell_complete(nb.cells[index], cell_index=index)
         return nb, resources
 
     def log_output_message(self, output):
@@ -95,86 +85,8 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
         sys.stdout.flush()
         sys.stderr.flush()
 
-    # TODO: Update nbconvert to allow for msg yielding so we can log as messages arrive
-    def run_cell(self, cell, cell_index=0):
-        msg_id = self.kc.execute(cell.source)
-        # Log check added to original implementation
-        if self.log_output:
-            self.log.info('Executing Cell {:-<40}'.format(cell_index + 1))
-        self.log.debug("Executing cell contents:\n%s", cell.source)
-        outs = cell.outputs = []
-
-        while True:
-            try:
-                # We are not waiting for execute_reply, so all output
-                # will not be waiting for us. This may produce currently unknown issues.
-                msg = self.kc.iopub_channel.get_msg(timeout=None)
-            except Empty:
-                self.log.warning("Timeout waiting for IOPub output")
-                if self.raise_on_iopub_timeout:
-                    raise RuntimeError("Timeout waiting for IOPub output")
-                else:
-                    break
-            if msg['parent_header'].get('msg_id') != msg_id:
-                # not an output from our execution
-                continue
-
-            msg_type = msg['msg_type']
-            self.log.debug("output: %s", msg_type)
-            content = msg['content']
-
-            # set the prompt number for the input and the output
-            if 'execution_count' in content:
-                cell['execution_count'] = content['execution_count']
-
-            if msg_type == 'status':
-                if content['execution_state'] == 'idle':
-                    break
-                else:
-                    continue
-            elif msg_type == 'execute_input':
-                continue
-            elif msg_type == 'clear_output':
-                outs[:] = []
-                # clear display_id mapping for this cell
-                for display_id, cell_map in self._display_id_map.items():
-                    if cell_index in cell_map:
-                        cell_map[cell_index] = []
-                continue
-            elif msg_type.startswith('comm'):
-                self.handle_comm_msg(outs, msg, cell_index)
-                continue
-
-            display_id = None
-            if msg_type in {'execute_result', 'display_data', 'update_display_data'}:
-                display_id = msg['content'].get('transient', {}).get('display_id', None)
-                if display_id:
-                    self._update_display_id(display_id, msg)
-                if msg_type == 'update_display_data':
-                    # update_display_data doesn't get recorded
-                    continue
-
-            try:
-                out = output_from_msg(msg)
-            except ValueError:
-                self.log.error("unhandled iopub msg: " + msg_type)
-                continue
-            if display_id:
-                cell_map = self._display_id_map.setdefault(display_id, {})
-                output_idx_list = cell_map.setdefault(cell_index, [])
-                output_idx_list.append(len(outs))
-
-            # Log check added to original implementation
-            if self.log_output:
-                self.log_output_message(out)
-            outs.append(out)
-
-        exec_reply = self._wait_for_reply(msg_id, cell)
-        # Log check added to original implementation
-        if self.log_output:
-            self.log.info('Ending Cell {:-<43}'.format(cell_index + 1))
-            # Ensure our last cell messages are not buffered by python
-            sys.stdout.flush()
-            sys.stderr.flush()
-
-        return exec_reply, outs
+    def process_message(self, *arg, **kwargs):
+        output = super(PapermillExecutePreprocessor, self).process_message(*arg, **kwargs)
+        if self.log_output and output:
+            self.log_output_message(output)
+        return output
