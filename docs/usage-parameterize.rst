@@ -3,8 +3,6 @@ Parameterize
 
 .. seealso::
 
-    :doc:`API reference <./reference/papermill-api>`
-
     :doc:`Workflow reference <./reference/papermill-workflow>`
 
 

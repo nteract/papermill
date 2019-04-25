@@ -1,6 +1,6 @@
 import unittest
 
-from ..api import read_notebook
+from ..iorw import load_notebook_node
 from ..exceptions import PapermillMissingParameterException
 from ..parameterize import parameterize_notebook, parameterize_path, add_builtin_parameters
 from . import get_notebook_path
@@ -15,7 +15,7 @@ class TestNotebookParametrizing(unittest.TestCase):
 
     def test_no_tag_copying(self):
         # Test that injected cell does not copy other tags
-        test_nb = read_notebook(get_notebook_path("simple_execute.ipynb")).node
+        test_nb = load_notebook_node(get_notebook_path("simple_execute.ipynb"))
         test_nb.cells[0]['metadata']['tags'].append('some tag')
 
         test_nb = parameterize_notebook(test_nb, {'msg': 'Hello'})
@@ -31,7 +31,7 @@ class TestNotebookParametrizing(unittest.TestCase):
         self.assertEqual(self.count_nb_injected_parameter_cells(test_nb), 1)
 
     def test_injected_parameters_tag(self):
-        test_nb = read_notebook(get_notebook_path("simple_execute.ipynb")).node
+        test_nb = load_notebook_node(get_notebook_path("simple_execute.ipynb"))
 
         test_nb = parameterize_notebook(test_nb, {'msg': 'Hello'})
 
@@ -44,7 +44,7 @@ class TestNotebookParametrizing(unittest.TestCase):
         self.assertEqual(self.count_nb_injected_parameter_cells(test_nb), 1)
 
     def test_repeated_run_injected_parameters_tag(self):
-        test_nb = read_notebook(get_notebook_path("simple_execute.ipynb")).node
+        test_nb = load_notebook_node(get_notebook_path("simple_execute.ipynb"))
         self.assertEqual(self.count_nb_injected_parameter_cells(test_nb), 0)
 
         test_nb = parameterize_notebook(test_nb, {'msg': 'Hello'})
@@ -54,7 +54,7 @@ class TestNotebookParametrizing(unittest.TestCase):
         self.assertEqual(self.count_nb_injected_parameter_cells(test_nb), 1)
 
     def test_no_parameter_tag(self):
-        test_nb = read_notebook(get_notebook_path("simple_execute.ipynb")).node
+        test_nb = load_notebook_node(get_notebook_path("simple_execute.ipynb"))
         test_nb.cells[0]['metadata']['tags'] = []
 
         test_nb = parameterize_notebook(test_nb, {'msg': 'Hello'})
@@ -65,7 +65,7 @@ class TestNotebookParametrizing(unittest.TestCase):
         self.assertEqual(self.count_nb_injected_parameter_cells(test_nb), 1)
 
     def test_repeated_run_no_parameters_tag(self):
-        test_nb = read_notebook(get_notebook_path("simple_execute.ipynb")).node
+        test_nb = load_notebook_node(get_notebook_path("simple_execute.ipynb"))
         test_nb.cells[0]['metadata']['tags'] = []
         self.assertEqual(self.count_nb_injected_parameter_cells(test_nb), 0)
 

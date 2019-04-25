@@ -16,7 +16,7 @@ from nbconvert import HTMLExporter
 
 from .. import engines
 from ..log import logger
-from ..api import read_notebook
+from ..iorw import load_notebook_node
 from ..utils import chdir
 from ..execute import execute_notebook
 from ..exceptions import PapermillExecutionError
@@ -58,59 +58,58 @@ class TestNotebookHelpers(unittest.TestCase):
 
     def test_cell_insertion(self):
         execute_notebook(self.notebook_path, self.nb_test_executed_fname, {'msg': 'Hello'})
-        test_nb = read_notebook(self.nb_test_executed_fname)
+        test_nb = load_notebook_node(self.nb_test_executed_fname)
         self.assertListEqual(
-            test_nb.node.cells[1].get('source').split('\n'), ['# Parameters', 'msg = "Hello"', '']
+            test_nb.cells[1].get('source').split('\n'), ['# Parameters', 'msg = "Hello"', '']
         )
-        self.assertEqual(test_nb.parameters, {'msg': 'Hello'})
+        self.assertEqual(test_nb.metadata.papermill.parameters, {'msg': 'Hello'})
 
     def test_no_tags(self):
         notebook_name = 'no_parameters.ipynb'
         nb_test_executed_fname = os.path.join(self.test_dir, 'output_{}'.format(notebook_name))
         execute_notebook(get_notebook_path(notebook_name), nb_test_executed_fname, {'msg': 'Hello'})
-        test_nb = read_notebook(nb_test_executed_fname)
+        test_nb = load_notebook_node(nb_test_executed_fname)
         self.assertListEqual(
-            test_nb.node.cells[0].get('source').split('\n'), ['# Parameters', 'msg = "Hello"', '']
+            test_nb.cells[0].get('source').split('\n'), ['# Parameters', 'msg = "Hello"', '']
         )
-        self.assertEqual(test_nb.parameters, {'msg': 'Hello'})
+        self.assertEqual(test_nb.metadata.papermill.parameters, {'msg': 'Hello'})
 
     def test_quoted_params(self):
         execute_notebook(self.notebook_path, self.nb_test_executed_fname, {'msg': '"Hello"'})
-        test_nb = read_notebook(self.nb_test_executed_fname)
+        test_nb = load_notebook_node(self.nb_test_executed_fname)
         self.assertListEqual(
-            test_nb.node.cells[1].get('source').split('\n'),
-            ['# Parameters', r'msg = "\"Hello\""', ''],
+            test_nb.cells[1].get('source').split('\n'), ['# Parameters', r'msg = "\"Hello\""', '']
         )
-        self.assertEqual(test_nb.parameters, {'msg': '"Hello"'})
+        self.assertEqual(test_nb.metadata.papermill.parameters, {'msg': '"Hello"'})
 
     def test_backslash_params(self):
         execute_notebook(
             self.notebook_path, self.nb_test_executed_fname, {'foo': r'do\ not\ crash'}
         )
-        test_nb = read_notebook(self.nb_test_executed_fname)
+        test_nb = load_notebook_node(self.nb_test_executed_fname)
         self.assertListEqual(
-            test_nb.node.cells[1].get('source').split('\n'),
+            test_nb.cells[1].get('source').split('\n'),
             ['# Parameters', r'foo = "do\\ not\\ crash"', ''],
         )
-        self.assertEqual(test_nb.parameters, {'foo': r'do\ not\ crash'})
+        self.assertEqual(test_nb.metadata.papermill.parameters, {'foo': r'do\ not\ crash'})
 
     def test_backslash_quote_params(self):
         execute_notebook(self.notebook_path, self.nb_test_executed_fname, {'foo': r'bar=\"baz\"'})
-        test_nb = read_notebook(self.nb_test_executed_fname)
+        test_nb = load_notebook_node(self.nb_test_executed_fname)
         self.assertListEqual(
-            test_nb.node.cells[1].get('source').split('\n'),
+            test_nb.cells[1].get('source').split('\n'),
             ['# Parameters', r'foo = "bar=\\\"baz\\\""', ''],
         )
-        self.assertEqual(test_nb.parameters, {'foo': r'bar=\"baz\"'})
+        self.assertEqual(test_nb.metadata.papermill.parameters, {'foo': r'bar=\"baz\"'})
 
     def test_double_backslash_quote_params(self):
         execute_notebook(self.notebook_path, self.nb_test_executed_fname, {'foo': r'\\"bar\\"'})
-        test_nb = read_notebook(self.nb_test_executed_fname)
+        test_nb = load_notebook_node(self.nb_test_executed_fname)
         self.assertListEqual(
-            test_nb.node.cells[1].get('source').split('\n'),
+            test_nb.cells[1].get('source').split('\n'),
             ['# Parameters', r'foo = "\\\\\"bar\\\\\""', ''],
         )
-        self.assertEqual(test_nb.parameters, {'foo': r'\\"bar\\"'})
+        self.assertEqual(test_nb.metadata.papermill.parameters, {'foo': r'\\"bar\\"'})
 
     def test_prepare_only(self):
         for example in ['broken1.ipynb', 'keyboard_interrupt.ipynb']:
@@ -118,10 +117,10 @@ class TestNotebookHelpers(unittest.TestCase):
             result_path = os.path.join(self.test_dir, example)
             # Should not raise as we don't execute the notebook at all
             execute_notebook(path, result_path, {'foo': r'do\ not\ crash'}, prepare_only=True)
-            nb = read_notebook(result_path)
-            self.assertEqual(nb.node.cells[0].cell_type, "code")
+            nb = load_notebook_node(result_path)
+            self.assertEqual(nb.cells[0].cell_type, "code")
             self.assertEqual(
-                nb.node.cells[0].get('source').split('\n'),
+                nb.cells[0].get('source').split('\n'),
                 ['# Parameters', r'foo = "do\\ not\\ crash"', ''],
             )
 
@@ -138,13 +137,13 @@ class TestBrokenNotebook1(unittest.TestCase):
         result_path = os.path.join(self.test_dir, 'broken1.ipynb')
         with self.assertRaises(PapermillExecutionError):
             execute_notebook(path, result_path)
-        nb = read_notebook(result_path)
-        self.assertEqual(nb.node.cells[0].cell_type, "code")
-        self.assertEqual(nb.node.cells[0].outputs[0].output_type, "display_data")
-        self.assertEqual(nb.node.cells[1].execution_count, 1)
-        self.assertEqual(nb.node.cells[2].execution_count, 2)
-        self.assertEqual(nb.node.cells[2].outputs[0].output_type, 'error')
-        self.assertEqual(nb.node.cells[3].execution_count, None)
+        nb = load_notebook_node(result_path)
+        self.assertEqual(nb.cells[0].cell_type, "code")
+        self.assertEqual(nb.cells[0].outputs[0].output_type, "display_data")
+        self.assertEqual(nb.cells[1].execution_count, 1)
+        self.assertEqual(nb.cells[2].execution_count, 2)
+        self.assertEqual(nb.cells[2].outputs[0].output_type, 'error')
+        self.assertEqual(nb.cells[3].execution_count, None)
 
 
 class TestBrokenNotebook2(unittest.TestCase):
@@ -159,14 +158,14 @@ class TestBrokenNotebook2(unittest.TestCase):
         result_path = os.path.join(self.test_dir, 'broken2.ipynb')
         with self.assertRaises(PapermillExecutionError):
             execute_notebook(path, result_path)
-        nb = read_notebook(result_path)
-        self.assertEqual(nb.node.cells[0].cell_type, "code")
-        self.assertEqual(nb.node.cells[0].outputs[0].output_type, "display_data")
-        self.assertEqual(nb.node.cells[1].execution_count, 1)
-        self.assertEqual(nb.node.cells[2].execution_count, 2)
-        self.assertEqual(nb.node.cells[2].outputs[0].output_type, 'display_data')
-        self.assertEqual(nb.node.cells[2].outputs[1].output_type, 'error')
-        self.assertEqual(nb.node.cells[3].execution_count, None)
+        nb = load_notebook_node(result_path)
+        self.assertEqual(nb.cells[0].cell_type, "code")
+        self.assertEqual(nb.cells[0].outputs[0].output_type, "display_data")
+        self.assertEqual(nb.cells[1].execution_count, 1)
+        self.assertEqual(nb.cells[2].execution_count, 2)
+        self.assertEqual(nb.cells[2].outputs[0].output_type, 'display_data')
+        self.assertEqual(nb.cells[2].outputs[1].output_type, 'error')
+        self.assertEqual(nb.cells[3].execution_count, None)
 
 
 class TestNBConvertCalls(unittest.TestCase):
@@ -188,10 +187,10 @@ class TestNBConvertCalls(unittest.TestCase):
             {'msg': 'Hello'},
             engine_name='nbconvert',
         )
-        test_nb = read_notebook(self.nb_test_executed_fname)
+        test_nb = load_notebook_node(self.nb_test_executed_fname)
 
         # Ensure the notebook builds valid html without crashing
-        (body, resources) = self.html_exporter.from_notebook_node(test_nb.node)
+        (body, resources) = self.html_exporter.from_notebook_node(test_nb)
         self.assertTrue(body.startswith("\n<div"))
 
 

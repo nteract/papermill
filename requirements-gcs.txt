@@ -1,1 +1,1 @@
-gcsfs
+gcsfs>=0.2.0

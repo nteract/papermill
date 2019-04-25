@@ -162,11 +162,6 @@ class TestPapermillIO(unittest.TestCase):
         with pytest.warns(UserWarning):
             read_yaml_file("fake/path/fakeinputpath.ipynb")
 
-    def test_read_yaml_with_valid_file_extension(self):
-        with pytest.warns(None) as warns:
-            read_yaml_file("fake/path/fakeinputpath.yaml")
-        self.assertEqual(len(warns), 1)
-
     def test_listdir(self):
         self.assertEqual(self.papermill_io.listdir("fake/path"), ["fake", "contents"])
 

@@ -21,12 +21,6 @@ Papermill lets you:
 *   **parameterize** notebooks
 *   **execute** notebooks
 
-**DEPRECATED** This functionality will be removed entirely in papermill 1.0,
-the features are moved to [scrapbook](https://nteract-scrapbook.readthedocs.io/en/latest/):
-
-*   **collect** metrics across the notebooks
-*   **summarize collections** of notebooks
-
 This opens up new opportunities for how notebooks can be used. For example:
 
 - Perhaps you have a financial report that you wish to run with different
@@ -56,10 +50,7 @@ These pages guide you through the installation and usage of papermill.
    usage-workflow
    usage-parameterize
    usage-execute
-   usage-recording
-   usage-display
    usage-store
-   usage-collection
    usage-cli
    extending-overview
 

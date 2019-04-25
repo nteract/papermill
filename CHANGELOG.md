@@ -1,5 +1,13 @@
 # Change Log
 
+## 1.0.0
+We made it to our [1.0 milestone goals](https://github.com/nteract/papermill/milestone/1?closed=1)! The largest change here is removal of `record`, `Notebook`, and `NotebookCollection` abstractions which are now living in [scrapbook](https://github.com/nteract/scrapbook) and requirement of nbconvert 5.5 as a dependency.
+
+- Input and output paths can now reference input parameters. `my_nb_{nb_type}.ipynb out_{nb_type}.ipynb -p nb_type test` will substitute values into the paths passed in with python format application patterns.
+- `read_notebook`, `read_notebooks`, `record`, and `display` api functions are now removed.
+- [upstream] ipywidgets are now supported. See [nbconvert docs](https://nbconvert.readthedocs.io/en/latest/execute_api.html#widget-state) for details.
+- [upstream] notebook executions which run out of memory no longer hang indefinitely when the kernel dies.
+
 ## 0.19.1
 - Added a warning when no `parameter` tag is present but parameters are being passed
 - Replaced `retry` with `tenacity` to help with conda builds and to use a non-abandoned library
