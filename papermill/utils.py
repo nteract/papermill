@@ -1,12 +1,8 @@
 import os
 import logging
-import warnings
-import functools
 
 from contextlib import contextmanager
 from functools import wraps
-
-from .version import version as pm_version
 
 logger = logging.getLogger('papermill.utils')
 
