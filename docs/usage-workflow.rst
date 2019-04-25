@@ -13,7 +13,7 @@ Using papermill
 ---------------
 
 The general workflow when using papermill is **parameterizing** a notebook,
-**executing** it, as well as **recording**, **displaying**, or **storing** the results.
+**executing** it, as well as **storing** the results.
 In addition to operating on a single notebook, papermill also works on
 a collection of notebooks.
 
@@ -22,7 +22,4 @@ a collection of notebooks.
 
    usage-parameterize
    usage-execute
-   usage-recording
-   usage-display
    usage-store
-   usage-collection

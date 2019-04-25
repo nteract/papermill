@@ -6,7 +6,6 @@ This part of the documentation lists the full API reference of all public classe
 .. toctree::
    :maxdepth: 2
 
-   papermill-api
    papermill-cli
    papermill-workflow
    papermill-translators
