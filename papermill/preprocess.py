@@ -5,12 +5,6 @@ import sys
 
 from nbconvert.preprocessors import ExecutePreprocessor
 from nbconvert.preprocessors.execute import CellExecutionError
-from nbformat.v4 import output_from_msg
-
-try:
-    from queue import Empty  # Py 3
-except ImportError:
-    from Queue import Empty  # Py 2
 
 
 class PapermillExecutePreprocessor(ExecutePreprocessor):
