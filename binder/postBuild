@@ -1,0 +1,4 @@
+#!/bin/bash
+set -e
+# Work-around until pip stops making this broken in requirement.txt
+pip install -e . --no-use-pep517 --no-cache-dir
