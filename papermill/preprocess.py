@@ -101,9 +101,6 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
         if self.log_output:
             self.log.info('Executing Cell {:-<40}'.format(cell_index + 1))
 
-        # Valohai metadata
-        print('{"notebook_cell_start": %d}' % cell_index)
-
         self.log.debug("Executing cell contents:\n%s", cell.source)
         outs = cell.outputs = []
 
@@ -173,7 +170,7 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
             # Valohai print to stdout
             if out.output_type == "stream":
                 if out.name == "stdout":
-                    print(out.text)
+                    print(out.text.strip())
 
             outs.append(out)
 
@@ -181,9 +178,6 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
         # Log check added to original implementation
         if self.log_output:
             self.log.info('Ending Cell {:-<43}'.format(cell_index + 1))
-
-        # Valohai metadata
-        print('{"notebook_cell_end": %d}' % cell_index)
 
         # Ensure our last cell messages are not buffered by python
         sys.stdout.flush()
