@@ -358,7 +358,7 @@ class NBConvertEngine(Engine):
         # Rearrange arguments. Handle potential duplicates from **kwargs.
         # Prioritize values passed to the function or set in the module.
         preprocessor_handled_args = ['timeout', 'start_timeout', 'kernel_name', 'log']
-        safe_kwargs = {key: kwargs[key] for key in kwargs if key not in preprocessor_handled_args }
+        safe_kwargs = {key: kwargs[key] for key in kwargs if key not in preprocessor_handled_args}
         timeout = execution_timeout if execution_timeout else kwargs.get('timeout')
         preprocessor = PapermillExecutePreprocessor(
             timeout=timeout,
