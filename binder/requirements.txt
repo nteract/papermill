@@ -1,4 +1,5 @@
 nteract-scrapbook
+pandas
 matplotlib
 ipywidgets
 ipykernel

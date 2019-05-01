@@ -10,7 +10,6 @@ nbconvert >= 5.5
 six
 tqdm >= 4.29.1
 jupyter_client
-pandas
 requests
 entrypoints
 tenacity
