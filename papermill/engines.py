@@ -368,7 +368,7 @@ class NBConvertEngine(Engine):
             **safe_kwargs
         )
         preprocessor.log_output = log_output
-        preprocessor.preprocess(nb_man, kwargs)
+        preprocessor.preprocess(nb_man, safe_kwargs)
 
 
 # Instantiate a PapermillEngines instance, register Handlers and entrypoints
