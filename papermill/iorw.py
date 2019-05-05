@@ -176,7 +176,7 @@ class LocalHandler(object):
                 # string
                 json.loads(path)
                 return path
-            except json.JSONDecodeError:
+            except ValueError:
                 # Propagate the IOError
                 raise e
 
