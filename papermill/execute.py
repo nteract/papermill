@@ -25,6 +25,7 @@ def execute_notebook(
     start_timeout=60,
     report_mode=False,
     cwd=None,
+    **kwargs
 ):
     """Executes a single notebook locally.
 
@@ -52,6 +53,8 @@ def execute_notebook(
         Flag for whether or not to hide input.
     cwd : str, optional
         Working directory to use when executing the notebook
+    **kwargs
+        Arbitrary keyword arguments to pass to the notebook engine
 
     Returns
     -------
@@ -91,6 +94,7 @@ def execute_notebook(
                     progress_bar=progress_bar,
                     log_output=log_output,
                     start_timeout=start_timeout,
+                    **kwargs
                 )
 
             # Check for errors first (it saves on error before raising)

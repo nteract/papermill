@@ -355,14 +355,20 @@ class NBConvertEngine(Engine):
         by `nbconvert`, and it is somewhat misleading here. The preprocesser
         represents a notebook processor, not a preparation object.
         """
+        # Rearrange arguments. Handle potential duplicates from **kwargs.
+        # Prioritize values passed to the function or set in the module.
+        preprocessor_handled_args = ['timeout', 'startup_timeout', 'kernel_name', 'log']
+        safe_kwargs = {key: kwargs[key] for key in kwargs if key not in preprocessor_handled_args}
+        timeout = execution_timeout if execution_timeout else kwargs.get('timeout')
         preprocessor = PapermillExecutePreprocessor(
-            timeout=execution_timeout,
+            timeout=timeout,
             startup_timeout=start_timeout,
             kernel_name=kernel_name,
             log=logger,
+            **safe_kwargs
         )
         preprocessor.log_output = log_output
-        preprocessor.preprocess(nb_man, kwargs)
+        preprocessor.preprocess(nb_man, safe_kwargs)
 
 
 # Instantiate a PapermillEngines instance, register Handlers and entrypoints

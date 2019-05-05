@@ -409,9 +409,14 @@ class TestNBConvertEngine(unittest.TestCase):
                 self.assertNotEqual(self.nb, nb)
 
                 pep_mock.assert_called_once()
-                pep_mock.assert_called_once_with(
-                    timeout=1000, startup_timeout=30, kernel_name='python', log=logger
-                )
+
+                args, kwargs = pep_mock.call_args
+                expected = [('timeout', 1000), ('startup_timeout', 30),
+                            ('kernel_name', 'python'), ('log', logger)]
+                actual = set([(key, kwargs[key]) for key in kwargs])
+                msg = 'Expected arguments {} are not a subset of actual {}'.format(expected, actual)
+                self.assertTrue(set(expected).issubset(actual), msg=msg)
+
                 log_out_mock.assert_called_once_with(True)
                 pep_mock.return_value.preprocess.assert_called_once_with(
                     AnyMock(NotebookExecutionManager), {'bar': 'baz'}

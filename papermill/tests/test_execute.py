@@ -45,16 +45,24 @@ class TestNotebookHelpers(unittest.TestCase):
     @patch(engines.__name__ + '.PapermillExecutePreprocessor')
     def test_start_timeout(self, preproc_mock):
         execute_notebook(self.notebook_path, self.nb_test_executed_fname, start_timeout=123)
-        preproc_mock.assert_called_once_with(
-            timeout=None, startup_timeout=123, kernel_name=kernel_name, log=logger
-        )
+        args, kwargs = preproc_mock.call_args
+        expected = [('timeout', None), ('startup_timeout', 123),
+                    ('kernel_name', kernel_name), ('log', logger)]
+        actual = set([(key, kwargs[key]) for key in kwargs])
+        self.assertTrue(set(expected).issubset(actual),
+                        msg='Expected arguments {} are not a subset of actual {}'.format(expected,
+                                                                                         actual))
 
     @patch(engines.__name__ + '.PapermillExecutePreprocessor')
     def test_default_start_timeout(self, preproc_mock):
         execute_notebook(self.notebook_path, self.nb_test_executed_fname)
-        preproc_mock.assert_called_once_with(
-            timeout=None, startup_timeout=60, kernel_name=kernel_name, log=logger
-        )
+        args, kwargs = preproc_mock.call_args
+        expected = [('timeout', None), ('startup_timeout', 60),
+                    ('kernel_name', kernel_name), ('log', logger)]
+        actual = set([(key, kwargs[key]) for key in kwargs])
+        self.assertTrue(set(expected).issubset(actual),
+                        msg='Expected arguments {} are not a subset of actual {}'.format(expected,
+                                                                                         actual))
 
     def test_cell_insertion(self):
         execute_notebook(self.notebook_path, self.nb_test_executed_fname, {'msg': 'Hello'})
