@@ -180,7 +180,6 @@ class LocalHandler(object):
                 # Propagate the IOError
                 raise e
 
-
     def listdir(self, path):
         with chdir(self._cwd):
             return [os.path.join(path, fn) for fn in os.listdir(path)]
