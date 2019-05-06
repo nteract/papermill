@@ -127,7 +127,7 @@ class TestCLI(unittest.TestCase):
             'input.ipynb',
             'output.ipynb',
             # Last input wins dict update
-            {'foo': 54321, 'bar': 'value', 'baz': {'k2': 'v2', 'k1': 'v1'}},
+            {'foo': 54321, 'bar': 'value', 'baz': {'k2': 'v2', 'k1': 'v1'}, 'a_date': '2019-01-01'},
             engine_name=None,
             prepare_only=False,
             kernel_name=None,
@@ -148,6 +148,26 @@ class TestCLI(unittest.TestCase):
             'input.ipynb',
             'output.ipynb',
             {'foo': 'bar', 'foo2': ['baz']},
+            engine_name=None,
+            prepare_only=False,
+            kernel_name=None,
+            log_output=False,
+            progress_bar=True,
+            start_timeout=60,
+            report_mode=False,
+            cwd=None,
+        )
+
+    @patch(cli.__name__ + '.execute_notebook')
+    def test_parameters_yaml_date(self, execute_patch):
+        self.runner.invoke(
+            papermill,
+            self.default_args + ['-y', 'a_date: 2019-01-01'],
+        )
+        execute_patch.assert_called_with(
+            'input.ipynb',
+            'output.ipynb',
+            {'a_date': '2019-01-01'},
             engine_name=None,
             prepare_only=False,
             kernel_name=None,
@@ -196,6 +216,30 @@ class TestCLI(unittest.TestCase):
             'output.ipynb',
             # Last input wins dict update
             {'foo': 1, 'bar': 2},
+            engine_name=None,
+            prepare_only=False,
+            kernel_name=None,
+            log_output=False,
+            progress_bar=True,
+            start_timeout=60,
+            report_mode=False,
+            cwd=None,
+        )
+
+    @patch(cli.__name__ + '.execute_notebook')
+    def test_parameters_base64_date(self, execute_patch):
+        self.runner.invoke(
+            papermill,
+            self.default_args
+            + [
+                '--parameters_base64',
+                'YV9kYXRlOiAyMDE5LTAxLTAx',
+            ],
+        )
+        execute_patch.assert_called_with(
+            'input.ipynb',
+            'output.ipynb',
+            {'a_date': '2019-01-01'},
             engine_name=None,
             prepare_only=False,
             kernel_name=None,
@@ -525,6 +569,7 @@ class TestCLI(unittest.TestCase):
                 'baz': 'replace',
                 'yaml_foo': {'yaml_bar': 'yaml_baz'},
                 "base64_foo": "base64_bar",
+                'a_date': '2019-01-01',
             },
             engine_name='engine-that-could',
             prepare_only=True,

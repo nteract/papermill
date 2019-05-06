@@ -11,7 +11,7 @@ import yaml
 import platform
 
 from .execute import execute_notebook
-from .iorw import read_yaml_file
+from .iorw import read_yaml_file, NoDatesSafeLoader
 from . import __version__ as papermill_version
 
 click.disable_unicode_literals_warning = True
@@ -141,11 +141,11 @@ def papermill(
     if inject_output_path or inject_paths:
         parameters_final['PAPERMILL_OUTPUT_PATH'] = output_path
     for params in parameters_base64 or []:
-        parameters_final.update(yaml.load(base64.b64decode(params)))
+        parameters_final.update(yaml.load(base64.b64decode(params), Loader=NoDatesSafeLoader))
     for files in parameters_file or []:
         parameters_final.update(read_yaml_file(files))
     for params in parameters_yaml or []:
-        parameters_final.update(yaml.load(params))
+        parameters_final.update(yaml.load(params, Loader=NoDatesSafeLoader))
     for name, value in parameters or []:
         parameters_final[name] = _resolve_type(value)
     for name, value in parameters_raw or []:
