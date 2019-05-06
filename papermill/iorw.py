@@ -166,9 +166,19 @@ class LocalHandler(object):
         self._cwd = None
 
     def read(self, path):
-        with chdir(self._cwd):
-            with io.open(path, 'r', encoding="utf-8") as f:
-                return f.read()
+        try:
+            with chdir(self._cwd):
+                with io.open(path, 'r', encoding="utf-8") as f:
+                    return f.read()
+        except IOError as e:
+            try:
+                # Check if path could be a notebook passed in as a
+                # string
+                json.loads(path)
+                return path
+            except ValueError:
+                # Propagate the IOError
+                raise e
 
     def listdir(self, path):
         with chdir(self._cwd):

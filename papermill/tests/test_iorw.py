@@ -4,6 +4,7 @@ import json
 import unittest
 import os
 import io
+import nbformat
 import pytest
 from requests.exceptions import ConnectionError
 
@@ -235,6 +236,17 @@ class TestLocalHandler(unittest.TestCase):
                     self.assertEqual(f.read().strip(), u'✄')
             finally:
                 papermill_io.handlers = handlers
+
+    def test_read_from_string(self):
+        nbnode_as_string = nbformat.writes(nbformat.v4.new_notebook())
+        # the stringified notebook is passed straight through
+        self.assertEqual(LocalHandler().read(nbnode_as_string), nbnode_as_string)
+
+    def test_invalid_string(self):
+        # a string from which we can't extract a notebook is assumed to
+        # be a file and an IOError will be raised
+        with self.assertRaises(IOError):
+            LocalHandler().read("a random string")
 
 
 class TestADLHandler(unittest.TestCase):
