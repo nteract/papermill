@@ -311,6 +311,15 @@ class GCSHandler(object):
         return path
 
 
+# Hack to make YAML loader not auto-convert datetimes
+# https://stackoverflow.com/a/52312810
+NoDatesSafeLoader = yaml.SafeLoader
+NoDatesSafeLoader.yaml_implicit_resolvers = {
+    k: [r for r in v if r[0] != 'tag:yaml.org,2002:timestamp'] for
+    k, v in NoDatesSafeLoader.yaml_implicit_resolvers.items()
+}
+
+
 # Instantiate a PapermillIO instance and register Handlers.
 papermill_io = PapermillIO()
 papermill_io.register("local", LocalHandler())
@@ -325,7 +334,7 @@ papermill_io.register_entry_points()
 
 def read_yaml_file(path):
     """Reads a YAML file from the location specified at 'path'."""
-    return yaml.load(papermill_io.read(path, ['.json', '.yaml', '.yml']))
+    return yaml.load(papermill_io.read(path, ['.json', '.yaml', '.yml']), Loader=NoDatesSafeLoader)
 
 
 def write_ipynb(nb, path):
