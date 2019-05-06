@@ -38,6 +38,11 @@ Install Papermill using:
 pip install -e '.[dev]'
 ```
 
+If you're using pip 19 or above, you should run
+```bash
+pip install -e '.[dev]' --no-use-pep517
+```
+
 _Note: When you are finished you can use `source deactivate` to go back to your base environment._
 
 ### Running Tests Locally
