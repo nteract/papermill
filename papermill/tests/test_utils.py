@@ -19,14 +19,14 @@ else:
 
 def test_merge_kwargs():
     with warnings.catch_warnings(record=True) as wrn:
-        assert merge_kwargs({"a":1, "b":2}, a=3) == {"a":3, "b":2}
+        assert merge_kwargs({"a": 1, "b": 2}, a=3) == {"a": 3, "b": 2}
         assert len(wrn) == 1
         assert issubclass(wrn[0].category, PapermillParameterOverwriteWarning)
         assert wrn[0].message.__str__() == "Callee will overwrite caller's argument(s): a=3"
 
 
 def test_remove_args():
-    assert remove_args(["a"], a=1, b=2, c=3) == {"c":3, "b":2}
+    assert remove_args(["a"], a=1, b=2, c=3) == {"c": 3, "b": 2}
 
 
 def test_retry():
