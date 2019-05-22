@@ -5,6 +5,8 @@ import warnings
 from contextlib import contextmanager
 from functools import wraps
 
+from .exceptions import PapermillParameterOverwriteWarning
+
 logger = logging.getLogger('papermill.utils')
 
 
@@ -32,7 +34,7 @@ def merge_kwargs(caller_args, **callee_args):
         args = format('; '.join(['{}={}'.format(key, value)
                                  for key, value in callee_args.items()]))
         msg = "Callee will overwrite caller's argument(s): {}".format(args)
-        warnings.warn(msg)
+        warnings.warn(msg, PapermillParameterOverwriteWarning)
     return dict(caller_args, **callee_args)
 
 

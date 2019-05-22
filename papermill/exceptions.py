@@ -46,6 +46,14 @@ class PapermillOptionalDependencyException(PapermillException):
     """Raised when an exception is encountered when an optional plugin is missing."""
 
 
+class PapermillWarning(Warning):
+    """Base warning for papermill."""
+
+
+class PapermillParameterOverwriteWarning(PapermillWarning):
+    """Callee overwrites caller argument to pass down the stream."""
+
+
 def missing_dependency_generator(package, dep):
     def missing_dep():
         raise PapermillOptionalDependencyException(
