@@ -363,7 +363,7 @@ class NBConvertEngine(Engine):
         # Nicely handle preprocessor arguments prioritizing values set by engine
         preprocessor = PapermillExecutePreprocessor(
             **merge_kwargs(safe_kwargs,
-                           timeout = execution_timeout if execution_timeout else kwargs.get('timeout'),
+                           timeout=execution_timeout if execution_timeout else kwargs.get('timeout'),
                            startup_timeout=start_timeout,
                            kernel_name=kernel_name,
                            log=logger))

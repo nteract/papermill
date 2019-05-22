@@ -7,6 +7,7 @@ from functools import wraps
 
 logger = logging.getLogger('papermill.utils')
 
+
 def merge_kwargs(caller_args, **callee_args):
     """Merge named argument.
 
