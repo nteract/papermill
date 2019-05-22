@@ -53,6 +53,7 @@ These pages guide you through the installation and usage of papermill.
    usage-store
    usage-cli
    extending-overview
+   troubleshooting
 
 API Reference
 -------------
@@ -65,7 +66,6 @@ this documentation section will help you.
 
    reference/index.rst
    reference/papermill.tests.rst
-
 
 Indices and tables
 ------------------
