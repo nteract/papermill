@@ -7,24 +7,52 @@ from functools import wraps
 
 logger = logging.getLogger('papermill.utils')
 
-WARN_ON_ARGS_OVERWRITE = True
+def merge_kwargs(caller_args, **callee_args):
+    """Merge named argument.
 
-def safe_kwargs(caller_args, **callee_args):
-    if WARN_ON_ARGS_OVERWRITE:
-        conflicts = set(caller_args) & set(callee_args)
-        if conflicts:
-            args = format('; '.join(['{}={}'.format(key, value)
-                                     for key, value in callee_args.items()]))
-            msg = 'Callee will overwrite caller''s argument(s): {}'.format(args)
-            warnings.warn(msg)
+    Function takes a dictionary of caller arguments and callee arguments as keyword arguments
+    Returns a dictionary with merged arguments. If same argument is in both caller and callee
+    arguments the last one will be taken and warning will be raised.
+
+    Parameters
+    ----------
+    caller_args : dict
+        Caller arguments
+    **callee_args
+        Keyword callee arguments
+
+    Returns
+    -------
+    args : dict
+       Merged arguments
+    """
+    conflicts = set(caller_args) & set(callee_args)
+    if conflicts:
+        args = format('; '.join(['{}={}'.format(key, value)
+                                 for key, value in callee_args.items()]))
+        msg = "Callee will overwrite caller's argument(s): {}".format(args)
+        warnings.warn(msg)
     return dict(caller_args, **callee_args)
 
 
-def remove_args(args=None, kwargs=None):
-    kwargs = kwargs if kwargs else {}
+def remove_args(args=None, **kwargs):
+    """Remove arguments from kwargs.
+
+    Parameters
+    ----------
+    args : list
+        Argument names to remove from kwargs
+    **kwargs
+        Arbitrary keyword arguments
+
+    Returns
+    -------
+    kwargs : dict
+       New dictionary of arguments
+    """
     if not args:
         return kwargs
-    return dict([(key, kwargs.get(key)) for key in kwargs if key not in args])
+    return {k: v for k, v in kwargs.items() if k not in args}
 
 
 # retry decorator
