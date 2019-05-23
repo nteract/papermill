@@ -11,6 +11,7 @@ from .log import logger
 from .exceptions import PapermillException
 from .preprocess import PapermillExecutePreprocessor
 from .iorw import write_ipynb
+from .utils import merge_kwargs, remove_args
 
 # tqdm creates 2 globals lock which raise OSException if the execution
 # environment does not have shared memory for processes, e.g. AWS Lambda
@@ -355,18 +356,18 @@ class NBConvertEngine(Engine):
         by `nbconvert`, and it is somewhat misleading here. The preprocesser
         represents a notebook processor, not a preparation object.
         """
-        # Rearrange arguments. Handle potential duplicates from **kwargs.
-        # Prioritize values passed to the function or set in the module.
-        preprocessor_handled_args = ['timeout', 'startup_timeout', 'kernel_name', 'log']
-        safe_kwargs = {key: kwargs[key] for key in kwargs if key not in preprocessor_handled_args}
-        timeout = execution_timeout if execution_timeout else kwargs.get('timeout')
+
+        # Exclude parameters that named differently downstream
+        safe_kwargs = remove_args(['timeout', 'startup_timeout'], **kwargs)
+
+        # Nicely handle preprocessor arguments prioritizing values set by engine
         preprocessor = PapermillExecutePreprocessor(
-            timeout=timeout,
-            startup_timeout=start_timeout,
-            kernel_name=kernel_name,
-            log=logger,
-            **safe_kwargs
-        )
+            **merge_kwargs(safe_kwargs,
+                           timeout=execution_timeout if execution_timeout else kwargs.get('timeout'),
+                           startup_timeout=start_timeout,
+                           kernel_name=kernel_name,
+                           log=logger))
+
         preprocessor.log_output = log_output
         preprocessor.preprocess(nb_man, safe_kwargs)
 
