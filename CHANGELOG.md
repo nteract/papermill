@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.0.1
+- Cleaned up some dependency and build issues around pip 19 and pandas
+- `execute_notebook` can now take notebook as strings instead of only as a path
+- `kwargs` are now passed through the default engine to nbconvert's wrapper class
+- Passing dates through yaml as parameters will no longer raise an exception (i.e. `-y "a_date: 2019-01-01"` without having to quote ala `-y "a_date: '2019-01-01'"`)
+
 ## 1.0.0
 We made it to our [1.0 milestone goals](https://github.com/nteract/papermill/milestone/1?closed=1)! The largest change here is removal of `record`, `Notebook`, and `NotebookCollection` abstractions which are now living in [scrapbook](https://github.com/nteract/scrapbook) and requirement of nbconvert 5.5 as a dependency.
 
