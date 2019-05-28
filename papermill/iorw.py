@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 
 import io
 import os
+import sys
 import json
 import yaml
 import fnmatch
@@ -81,6 +82,9 @@ class PapermillIO(object):
         self.reset()
 
     def read(self, path, extensions=['.ipynb', '.json']):
+        if path == '-':
+            return sys.stdin.read()
+
         if not fnmatch.fnmatch(os.path.basename(path), '*.*'):
             warnings.warn(
                 "the file is not specified with any extension : " + os.path.basename(path)
@@ -96,6 +100,9 @@ class PapermillIO(object):
         return notebook_metadata
 
     def write(self, buf, path, extensions=['.ipynb', '.json']):
+        if path == '-':
+            return sys.stdout.write(buf)
+
         # Usually no return object here
         if not fnmatch.fnmatch(os.path.basename(path), '*.*'):
             warnings.warn(

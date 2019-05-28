@@ -6,6 +6,7 @@ import os
 import io
 import nbformat
 import pytest
+import mock
 from requests.exceptions import ConnectionError
 
 try:
@@ -163,6 +164,13 @@ class TestPapermillIO(unittest.TestCase):
         with pytest.warns(UserWarning):
             read_yaml_file("fake/path/fakeinputpath.ipynb")
 
+    def test_read_stdin(self):
+        file_content = u'Τὴ γλῶσσα μοῦ ἔδωσαν ἑλληνικὴ'
+        with mock.patch('sys.stdin', io.StringIO(file_content)):
+            self.assertEqual(
+                self.papermill_io.read("-"), file_content
+            )
+
     def test_listdir(self):
         self.assertEqual(self.papermill_io.listdir("fake/path"), ["fake", "contents"])
 
@@ -176,6 +184,13 @@ class TestPapermillIO(unittest.TestCase):
     def test_write_with_invalid_file_extension(self):
         with pytest.warns(UserWarning):
             self.papermill_io.write("buffer", "fake/path/fakeoutputpath.ipynb1")
+
+    def test_write_stdout(self):
+        file_content = u'Τὴ γλῶσσα μοῦ ἔδωσαν ἑλληνικὴ'
+        out = io.StringIO()
+        with mock.patch('sys.stdout', out):
+            self.papermill_io.write(file_content, "-")
+            self.assertEqual(out.getvalue(), file_content)
 
     def test_pretty_path(self):
         self.assertEqual(self.papermill_io.pretty_path("fake/path"), "fake/path/pretty/1")
