@@ -2,6 +2,10 @@
 """Main `papermill` interface."""
 from __future__ import unicode_literals
 
+import os
+import sys
+from stat import S_ISFIFO
+
 import base64
 import logging
 
@@ -29,8 +33,8 @@ def print_papermill_version(ctx, param, value):
 
 
 @click.command(context_settings=dict(help_option_names=['-h', '--help']))
-@click.argument('notebook_path')
-@click.argument('output_path')
+@click.argument('notebook_path', required=False)
+@click.argument('output_path', required=False)
 @click.option(
     '--parameters', '-p', nargs=2, multiple=True, help='Parameters to pass to the parameters cell.'
 )
@@ -129,6 +133,22 @@ def papermill(
     output in the destination notebook.
 
     """
+    # Check if input is being piped
+    if (not notebook_path) or (not output_path) and S_ISFIFO(os.fstat(0).st_mode):
+        # if present, move first argument to second position
+        if notebook_path:
+            output_path = notebook_path
+
+        notebook_path = '-'
+
+    # Check if output it being piped
+    if not output_path and not sys.stdout.isatty():
+        output_path = '-'
+
+    # Reduce default log level if we pipe to stdout
+    if output_path == '-' and log_level == 'INFO':
+        log_level = 'ERROR'
+
     logging.basicConfig(level=log_level, format="%(message)s")
 
     if progress_bar is None:
