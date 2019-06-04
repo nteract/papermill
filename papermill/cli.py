@@ -20,6 +20,9 @@ from . import __version__ as papermill_version
 
 click.disable_unicode_literals_warning = True
 
+INPUT_PIPED = S_ISFIFO(os.fstat(0).st_mode)
+OUTPUT_PIPED = sys.stdout.isatty()
+
 
 def print_papermill_version(ctx, param, value):
     if not value:
@@ -33,8 +36,8 @@ def print_papermill_version(ctx, param, value):
 
 
 @click.command(context_settings=dict(help_option_names=['-h', '--help']))
-@click.argument('notebook_path', required=False)
-@click.argument('output_path', required=False)
+@click.argument('notebook_path', required=not INPUT_PIPED)
+@click.argument('output_path', required=not (INPUT_PIPED or OUTPUT_PIPED))
 @click.option(
     '--parameters', '-p', nargs=2, multiple=True, help='Parameters to pass to the parameters cell.'
 )
@@ -133,17 +136,12 @@ def papermill(
     output in the destination notebook.
 
     """
-    # Check if input is being piped
-    if (not notebook_path) or (not output_path) and S_ISFIFO(os.fstat(0).st_mode):
-        # if present, move first argument to second position
-        if notebook_path:
-            output_path = notebook_path
-
+    if INPUT_PIPED and notebook_path and not output_path:
+        output_path = notebook_path
         notebook_path = '-'
-
-    # Check if output it being piped
-    if not output_path and not sys.stdout.isatty():
-        output_path = '-'
+    else:
+        notebook_path = notebook_path or '-'
+        output_path = output_path or '-'
 
     # Reduce default log level if we pipe to stdout
     if output_path == '-' and log_level == 'INFO':
