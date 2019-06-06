@@ -75,6 +75,8 @@ def print_papermill_version(ctx, param, value):
     ),
 )
 @click.option('--engine', help='The execution engine name to use in evaluating the notebook.')
+@click.option('--request-save-on-cell-execute', default=True,
+              help='Request save notebook after each cell execution')
 @click.option(
     '--prepare-only/--prepare-execute',
     default=False,
@@ -120,6 +122,7 @@ def papermill(
     inject_output_path,
     inject_paths,
     engine,
+    request_save_on_cell_execute,
     prepare_only,
     kernel,
     cwd,
@@ -143,14 +146,18 @@ def papermill(
         notebook_path = notebook_path or '-'
         output_path = output_path or '-'
 
-    # Reduce default log level if we pipe to stdout
-    if output_path == '-' and log_level == 'INFO':
-        log_level = 'ERROR'
+    if output_path == '-':
+        # Save notebook to stdout just once
+        request_save_on_cell_execute = False
+
+        # Reduce default log level if we pipe to stdout
+        if log_level == 'INFO':
+            log_level = 'ERROR'
+
+    elif progress_bar is None:
+        progress_bar = not log_output
 
     logging.basicConfig(level=log_level, format="%(message)s")
-
-    if progress_bar is None:
-        progress_bar = not log_output
 
     # Read in Parameters
     parameters_final = {}
@@ -174,6 +181,7 @@ def papermill(
         output_path,
         parameters_final,
         engine_name=engine,
+        request_save_on_cell_execute=request_save_on_cell_execute,
         prepare_only=prepare_only,
         kernel_name=kernel,
         progress_bar=progress_bar,
