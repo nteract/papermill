@@ -21,7 +21,7 @@ from . import __version__ as papermill_version
 click.disable_unicode_literals_warning = True
 
 INPUT_PIPED = S_ISFIFO(os.fstat(0).st_mode)
-OUTPUT_PIPED = sys.stdout.isatty()
+OUTPUT_PIPED = not sys.stdout.isatty()
 
 
 def print_papermill_version(ctx, param, value):

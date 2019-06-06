@@ -686,7 +686,6 @@ require_papermill_installed = pytest.mark.skipif(
 
 
 @require_papermill_installed
-@pytest.mark.skipif(os.name == 'nt', reason='detection of out pipe fails on windows')
 def test_pipe_in_out_auto(notebook):
     process = papermill_cli(stdout=subprocess.PIPE, stdin=subprocess.PIPE)
     text = nbformat.writes(notebook)
@@ -713,7 +712,6 @@ def test_pipe_in_out_explicit(notebook):
 
 
 @require_papermill_installed
-@pytest.mark.skipif(os.name == 'nt', reason='detection of out pipe fails on windows')
 def test_pipe_out_auto(tmpdir, notebook):
     nb_file = tmpdir.join('notebook.ipynb')
     nb_file.write(nbformat.writes(notebook))
