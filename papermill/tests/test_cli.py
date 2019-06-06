@@ -3,6 +3,10 @@
 """ Test the command line interface """
 
 import os
+import sys
+import subprocess
+import nbformat
+from jupyter_client import kernelspec
 import unittest
 
 import pytest
@@ -641,3 +645,131 @@ def test_papermill_log():
     assert result.exit_code == 0
     assert 'Log output mode is on' in result.output
     assert 'Logging' in result.output
+
+
+def papermill_cli(papermill_args=None, **kwargs):
+    cmd = [sys.executable, '-m', 'papermill.cli']
+    if papermill_args:
+        cmd.extend(papermill_args)
+    return subprocess.Popen(cmd, **kwargs)
+
+
+def papermill_version():
+    try:
+        proc = papermill_cli(['--version'], stdout=subprocess.PIPE)
+        out, _ = proc.communicate()
+        if proc.returncode:
+            return None
+        return out.decode('utf-8')
+    except (OSError, SystemExit):  # pragma: no cover
+        return None
+
+
+@pytest.fixture()
+def notebook():
+    for name in kernelspec.find_kernel_specs():
+        ks = kernelspec.get_kernel_spec(name)
+        metadata = {'kernelspec': {'name': name,
+                                   'language': ks.language,
+                                   'display_name': ks.display_name}}
+        return nbformat.v4.new_notebook(
+            metadata=metadata,
+            cells=[nbformat.v4.new_markdown_cell(
+                'This is a notebook with kernel: ' + ks.display_name)])
+
+    raise EnvironmentError('No kernel found')
+
+
+require_papermill_installed = pytest.mark.skipif(
+    not papermill_version(),
+    reason='papermill is not installed')
+
+
+@require_papermill_installed
+@pytest.mark.skipif(os.name == 'nt', reason='detection of out pipe fails on windows')
+def test_pipe_in_out_auto(notebook):
+    process = papermill_cli(stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+    text = nbformat.writes(notebook)
+    out, err = process.communicate(input=text.encode('utf-8'))
+
+    # Test no message on std error
+    assert not err
+
+    # Test that output is a valid notebook
+    nbformat.reads(out.decode('utf-8'), as_version=4)
+
+
+@require_papermill_installed
+def test_pipe_in_out_explicit(notebook):
+    process = papermill_cli(['-', '-'], stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+    text = nbformat.writes(notebook)
+    out, err = process.communicate(input=text.encode('utf-8'))
+
+    # Test no message on std error
+    assert not err
+
+    # Test that output is a valid notebook
+    nbformat.reads(out.decode('utf-8'), as_version=4)
+
+
+@require_papermill_installed
+@pytest.mark.skipif(os.name == 'nt', reason='detection of out pipe fails on windows')
+def test_pipe_out_auto(tmpdir, notebook):
+    nb_file = tmpdir.join('notebook.ipynb')
+    nb_file.write(nbformat.writes(notebook))
+
+    process = papermill_cli([str(nb_file)], stdout=subprocess.PIPE)
+    out, err = process.communicate()
+
+    # Test no message on std error
+    assert not err
+
+    # Test that output is a valid notebook
+    nbformat.reads(out.decode('utf-8'), as_version=4)
+
+
+@require_papermill_installed
+def test_pipe_out_explicit(tmpdir, notebook):
+    nb_file = tmpdir.join('notebook.ipynb')
+    nb_file.write(nbformat.writes(notebook))
+
+    process = papermill_cli([str(nb_file), '-'], stdout=subprocess.PIPE)
+    out, err = process.communicate()
+
+    # Test no message on std error
+    assert not err
+
+    # Test that output is a valid notebook
+    nbformat.reads(out.decode('utf-8'), as_version=4)
+
+
+@require_papermill_installed
+def test_pipe_in_auto(tmpdir, notebook):
+    nb_file = tmpdir.join('notebook.ipynb')
+
+    process = papermill_cli([str(nb_file)], stdin=subprocess.PIPE)
+    text = nbformat.writes(notebook)
+    out, _ = process.communicate(input=text.encode('utf-8'))
+
+    # Nothing on stdout
+    assert not out
+
+    # Test that output is a valid notebook
+    with open(str(nb_file)) as fp:
+        nbformat.reads(fp.read(), as_version=4)
+
+
+@require_papermill_installed
+def test_pipe_in_explicit(tmpdir, notebook):
+    nb_file = tmpdir.join('notebook.ipynb')
+
+    process = papermill_cli(['-', str(nb_file)], stdin=subprocess.PIPE)
+    text = nbformat.writes(notebook)
+    out, _ = process.communicate(input=text.encode('utf-8'))
+
+    # Nothing on stdout
+    assert not out
+
+    # Test that output is a valid notebook
+    with open(str(nb_file)) as fp:
+        nbformat.reads(fp.read(), as_version=4)
