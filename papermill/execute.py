@@ -18,6 +18,7 @@ def execute_notebook(
     output_path,
     parameters=None,
     engine_name=None,
+    request_save_on_cell_execute=True,
     prepare_only=False,
     kernel_name=None,
     progress_bar=True,
@@ -39,6 +40,8 @@ def execute_notebook(
         Arbitrary keyword arguments to pass to the notebook parameters
     engine_name : str, optional
         Name of execution engine to use
+    request_save_on_cell_execute : bool, optional
+        Request save notebook after each cell execution
     prepare_only : bool, optional
         Flag to determine if execution should occur or not
     kernel_name : str, optional
@@ -89,7 +92,7 @@ def execute_notebook(
                     engine_name,
                     nb,
                     input_path=input_path,
-                    output_path=output_path,
+                    output_path=output_path if request_save_on_cell_execute else None,
                     kernel_name=kernel_name,
                     progress_bar=progress_bar,
                     log_output=log_output,

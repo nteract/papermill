@@ -2,6 +2,10 @@
 """Main `papermill` interface."""
 from __future__ import unicode_literals
 
+import os
+import sys
+from stat import S_ISFIFO
+
 import base64
 import logging
 
@@ -16,6 +20,9 @@ from . import __version__ as papermill_version
 
 click.disable_unicode_literals_warning = True
 
+INPUT_PIPED = S_ISFIFO(os.fstat(0).st_mode)
+OUTPUT_PIPED = not sys.stdout.isatty()
+
 
 def print_papermill_version(ctx, param, value):
     if not value:
@@ -29,8 +36,8 @@ def print_papermill_version(ctx, param, value):
 
 
 @click.command(context_settings=dict(help_option_names=['-h', '--help']))
-@click.argument('notebook_path')
-@click.argument('output_path')
+@click.argument('notebook_path', required=not INPUT_PIPED)
+@click.argument('output_path', required=not (INPUT_PIPED or OUTPUT_PIPED))
 @click.option(
     '--parameters', '-p', nargs=2, multiple=True, help='Parameters to pass to the parameters cell.'
 )
@@ -68,6 +75,8 @@ def print_papermill_version(ctx, param, value):
     ),
 )
 @click.option('--engine', help='The execution engine name to use in evaluating the notebook.')
+@click.option('--request-save-on-cell-execute', default=True,
+              help='Request save notebook after each cell execution')
 @click.option(
     '--prepare-only/--prepare-execute',
     default=False,
@@ -113,6 +122,7 @@ def papermill(
     inject_output_path,
     inject_paths,
     engine,
+    request_save_on_cell_execute,
     prepare_only,
     kernel,
     cwd,
@@ -129,10 +139,25 @@ def papermill(
     output in the destination notebook.
 
     """
-    logging.basicConfig(level=log_level, format="%(message)s")
+    if INPUT_PIPED and notebook_path and not output_path:
+        output_path = notebook_path
+        notebook_path = '-'
+    else:
+        notebook_path = notebook_path or '-'
+        output_path = output_path or '-'
 
-    if progress_bar is None:
+    if output_path == '-':
+        # Save notebook to stdout just once
+        request_save_on_cell_execute = False
+
+        # Reduce default log level if we pipe to stdout
+        if log_level == 'INFO':
+            log_level = 'ERROR'
+
+    elif progress_bar is None:
         progress_bar = not log_output
+
+    logging.basicConfig(level=log_level, format="%(message)s")
 
     # Read in Parameters
     parameters_final = {}
@@ -156,6 +181,7 @@ def papermill(
         output_path,
         parameters_final,
         engine_name=engine,
+        request_save_on_cell_execute=request_save_on_cell_execute,
         prepare_only=prepare_only,
         kernel_name=kernel,
         progress_bar=progress_bar,
