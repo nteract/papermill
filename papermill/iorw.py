@@ -341,7 +341,7 @@ NoDatesSafeLoader.yaml_implicit_resolvers = {
 papermill_io = PapermillIO()
 papermill_io.register("local", LocalHandler())
 papermill_io.register("s3://", S3Handler)
-papermill_io.register("adl://", ADLHandler)
+papermill_io.register("adl://", ADLHandler())
 papermill_io.register("abs://", ABSHandler())
 papermill_io.register("http://", HttpHandler)
 papermill_io.register("https://", HttpHandler)
