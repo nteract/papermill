@@ -13,15 +13,6 @@ from .preprocess import PapermillExecutePreprocessor
 from .iorw import write_ipynb
 from .utils import merge_kwargs, remove_args
 
-# tqdm creates 2 globals lock which raise OSException if the execution
-# environment does not have shared memory for processes, e.g. AWS Lambda
-try:
-    from tqdm.auto import tqdm
-
-    no_tqdm = False
-except OSError:
-    no_tqdm = True
-
 
 class PapermillEngines(object):
     """
@@ -105,8 +96,15 @@ class NotebookExecutionManager(object):
         self.start_time = None
         self.end_time = None
         self.pbar = None
-        if progress_bar and not no_tqdm:
-            self.pbar = tqdm(total=len(self.nb.cells))
+        if progress_bar:
+            # tqdm creates 2 globals lock which raise OSException if the execution
+            # environment does not have shared memory for processes, e.g. AWS Lambda
+            try:
+                # Layz import this as it import ipython which can be expensive
+                from tqdm.auto import tqdm
+                self.pbar = tqdm(total=len(self.nb.cells))
+            except OSError:
+                pass
 
     def now(self):
         """Helper to return current UTC time"""
