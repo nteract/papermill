@@ -97,14 +97,10 @@ class NotebookExecutionManager(object):
         self.end_time = None
         self.pbar = None
         if progress_bar:
-            # tqdm creates 2 globals lock which raise OSException if the execution
-            # environment does not have shared memory for processes, e.g. AWS Lambda
-            try:
-                # Layz import this as it import ipython which can be expensive
-                from tqdm.auto import tqdm
-                self.pbar = tqdm(total=len(self.nb.cells))
-            except OSError:
-                pass
+            # lazy import due to implict slow ipython import
+            from tqdm.auto import tqdm
+            self.pbar = tqdm(total=len(self.nb.cells), unit="cell",
+                             desc="Executing")
 
     def now(self):
         """Helper to return current UTC time"""
