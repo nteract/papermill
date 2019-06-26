@@ -22,3 +22,5 @@ wheel>=0.31.0
 setuptools>=38.6.0
 twine>=1.11.0
 google_compute_engine # Need this because boto has issues with dynamic package loading during tests if other google components are there
+ipython >= 5.0
+
