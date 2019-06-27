@@ -73,7 +73,7 @@ Now there should be a working and editable installation of Papermill to start ma
 
 ### Running Documentation Tests
 
-The documentation is build using the [Sphinx](http://www.sphinx-doc.org/en/master/) engine. To contribute, you can edit the `.rst` files (learn more about restructured text [here](https://en.wikipedia.org/wiki/ReStructuredText)).
+The documentation is built using the [Sphinx](http://www.sphinx-doc.org/en/master/) engine. To contribute, edit the [RestructuredText (`.rst`)](https://en.wikipedia.org/wiki/ReStructuredText) files to make changes and additions.
 
 Once you are done editing, to generate the documentation, just run the documentation specific tests.
 
