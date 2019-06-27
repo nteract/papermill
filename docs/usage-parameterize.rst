@@ -43,13 +43,15 @@ For easier management, consider using an extension such as
 How parameters work
 -------------------
 
-``parameters`` cells are assumed to specify default values which may be
+The ``parameters`` cell is assumed to specify default values which may be
 overridden by values specified at execution time.
 
-If papermill finds a ``parameters`` tagged cell, a new cell is inserted
-immediately after the tagged cell. If no cell is tagged ``parameters``, a cell
-will be inserted at the top of the notebook.
-Papermill's inserted cell contains only the overridden parameters.
+- papermill inserts a new cell tagged ``injected-parameters`` immediately after
+  the ``parameters`` cell
+- ``injected-parameters`` contains only the overridden parameters
+- subsequent cells are treated as normal cells, even if also tagged ``parameters``
+- if no cell is tagged ``parameters``, the ``injected-parameters`` cell
+  is inserted at the top of the notebook
 
 One caveat is that a ``parameters`` cell may not behave intuitively with
 inter-dependent parameters. Consider a notebook ``note.ipynb`` with two cells:
