@@ -71,7 +71,7 @@ The `pyargs` option allows `pytest` to interpret arguments as python package nam
 
 Now there should be a working and editable installation of Papermill to start making your own contributions.
 
-### Running Documentation Tests
+### Building Documentation
 
 The documentation is built using the [Sphinx](http://www.sphinx-doc.org/en/master/) engine. To contribute, edit the [RestructuredText (`.rst`)](https://en.wikipedia.org/wiki/ReStructuredText) files to make changes and additions.
 
