@@ -28,7 +28,7 @@ notebook to *analysis_1*, the notebook gets metadata similar to the following:
    }
   }
 
-Papermill cannot (currently) use this metadata to determine that it should use
+Papermill cannot use this metadata to determine that it should use
 *analysis_1* to execute this notebook. Running papermill (from *analysis_1* or
 another environment) will raise the following error:
 
