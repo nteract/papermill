@@ -47,6 +47,8 @@ _Note: When you are finished you can use `source deactivate` to go back to your 
 
 ### Running Tests Locally
 
+If you are contributing with documentation please jump to [building documentation.](#Building-Documentation)
+
 We need to install the development package before we can run the tests. If anything is confusing below, always resort to the relevant documentation.
 
 For the most basic test runs against python 3.6 use this tox subset (callable after `pip install tox`):
@@ -68,6 +70,18 @@ pytest --pyargs papermill
 The `pyargs` option allows `pytest` to interpret arguments as python package names. An advantage is that `pytest` will run in any directory, and this approach follows the `pytest` [best practices](https://docs.pytest.org/en/latest/goodpractices.html#tests-as-part-of-application-code).
 
 Now there should be a working and editable installation of Papermill to start making your own contributions.
+
+### Building Documentation
+
+The documentation is built using the [Sphinx](http://www.sphinx-doc.org/en/master/) engine. To contribute, edit the [RestructuredText (`.rst`)](https://en.wikipedia.org/wiki/ReStructuredText) files in the docs directory to make changes and additions.
+
+Once you are done editing, to generate the documentation, use tox and the following command from the root directory of the repository:
+
+```bash
+tox -e docs
+```
+
+This will generate `.html` files in the `/.tox/docs_out/` directory. Once you are satisfied, feel free to jump to the next section.
 
 ## So You're Ready to Pull Request
 
