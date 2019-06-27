@@ -75,7 +75,7 @@ Now there should be a working and editable installation of Papermill to start ma
 
 The documentation is built using the [Sphinx](http://www.sphinx-doc.org/en/master/) engine. To contribute, edit the [RestructuredText (`.rst`)](https://en.wikipedia.org/wiki/ReStructuredText) files in the docs directory to make changes and additions.
 
-Once you are done editing, to generate the documentation, just run the documentation specific tests.
+Once you are done editing, to generate the documentation, use tox and the following command from the root directory of the repository:
 
 ```bash
 tox -e docs
