@@ -23,3 +23,5 @@ a collection of notebooks.
    usage-parameterize
    usage-execute
    usage-store
+   extending-overview
+   troubleshooting
