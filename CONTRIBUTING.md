@@ -47,7 +47,7 @@ _Note: When you are finished you can use `source deactivate` to go back to your 
 
 ### Running Tests Locally
 
-If you are contributing with documentation please jump to the [next section.](#Running-Documentation-Tests)
+If you are contributing with documentation please jump to [building documentation.](#Building-Documentation)
 
 We need to install the development package before we can run the tests. If anything is confusing below, always resort to the relevant documentation.
 
