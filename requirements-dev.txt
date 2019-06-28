@@ -6,6 +6,7 @@ pytest>=4.1
 pytest-cov>=2.6.1
 pytest-mock>=1.10
 pytest-env>=0.6.2
+ipython>=5.0
 moto
 check-manifest
 black; python_version >= '3.6'
@@ -17,6 +18,7 @@ ipywidgets
 flake8
 tox
 bumpversion
+recommonmark
 pip>=18.1
 wheel>=0.31.0
 setuptools>=38.6.0

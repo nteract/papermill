@@ -3,10 +3,6 @@
 """"
 setup.py
 
-Note: Do a version check for IPython.
-    IPython v6+ no longer supports Python 2.
-    If Python 2, install ipython 5.x.
-
 See:
 https://packaging.python.org/tutorials/packaging-projects/
 https://packaging.python.org/en/latest/distributing.html
@@ -66,30 +62,6 @@ extras_require = {
     "azure": azure_reqs,
     "gcs": gcs_reqs,
 }
-
-# Tox has a weird issue where it can't import pip from it's virtualenv when skipping normal installs
-if not bool(int(os.environ.get('SKIP_PIP_CHECK', 0))):
-    pip_too_old = False
-    pip_message = ''
-    try:
-        import pip
-
-        pip_version = tuple([int(x) for x in pip.__version__.split('.')[:3]])
-        pip_too_old = pip_version < (9, 0, 1)
-        if pip_too_old:
-            # pip is too old to handle IPython deps gracefully
-            pip_message = (
-                'Your pip version is out of date. Papermill requires pip >= 9.0.1. \n'
-                'pip {} detected. Please install pip >= 9.0.1.'.format(pip.__version__)
-            )
-    except Exception:
-        # We only want to optimistically report old versions
-        pass
-
-    if pip_message:
-        print(pip_message, file=sys.stderr)
-        sys.exit(1)
-
 
 # Get the long description from the README file
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
