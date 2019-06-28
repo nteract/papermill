@@ -224,8 +224,8 @@ class MatlabTranslator(Translator):
             str_val = str_val.replace('"', '""')
         return '"{}"'.format(str_val)
 
-    @classmethod
-    def translate_char_array(cls, str_val):
+    @staticmethod
+    def __translate_char_array(str_val):
         """Translates a string to a Matlab char array"""
         if isinstance(str_val, string_types):
             str_val = str_val.encode('unicode_escape')
@@ -236,13 +236,12 @@ class MatlabTranslator(Translator):
 
     @classmethod
     def translate_none(cls, val):
-        # The empty array [] is the closest Matlab has to a None equivalent
         return '[]'
 
     @classmethod
     def translate_dict(cls, val):
         keys = ', '.join(
-            ["{}".format(cls.translate_char_array(k)) for k, v in val.items()]
+            ["{}".format(cls.__translate_char_array(k)) for k, v in val.items()]
         )
         vals = ', '.join(
             ["{}".format(cls.translate(v)) for k, v in val.items()]
