@@ -109,3 +109,17 @@ When using YAML to pass arguments, through ``-y``, ``-b`` or ``-f``, parameter v
     linear_function:
         slope: 3.0
         intercept: 1.0"
+
+Note about using with multiple account credentials
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If you use multiple AWS accounts and are accessing S3 files, you can
+[configure your AWS  credentials](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/configuration.html),
+to specify which account to use by setting the `AWS_PROFILE` environment
+variable at the command-line. For example:
+
+.. code-block:: bash
+
+    $ AWS_PROFILE=dev_account papermill local/input.ipynb s3://bkt/output.ipynb -p alpha 0.6 -p l1_ratio 0.1
+
+A similar pattern may be needed for other types of remote storage accounts.
