@@ -23,3 +23,12 @@ a collection of notebooks.
    usage-parameterize
    usage-execute
    usage-store
+
+See also:
+
+.. toctree::
+  :maxdepth: 1
+
+  usage-cli
+  extending-overview
+  troubleshooting
