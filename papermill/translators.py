@@ -1,6 +1,5 @@
 import sys
 from six import string_types, integer_types
-from jupyter_client.kernelspec import get_kernel_spec
 from .exceptions import PapermillException
 
 
@@ -17,15 +16,14 @@ class PapermillTranslators(object):
     def register(self, language, translator):
         self._translators[language] = translator
 
-    def kernel_translator(self, kernel_name):
-        kernelspec = get_kernel_spec(kernel_name)
+    def find_translator(self, kernel_name, language):
         if kernel_name in self._translators:
             return self._translators[kernel_name]
-        elif kernelspec.language in self._translators:
-            return self._translators[kernelspec.language]
+        elif language in self._translators:
+            return self._translators[language]
         raise PapermillException(
             "No parameter translator functions specified for kernel '{}' or language '{}'".format(
-                kernel_name, kernelspec.language
+                kernel_name, language
             )
         )
 
@@ -50,6 +48,11 @@ class Translator(object):
     def translate_str(cls, val):
         """Default behavior for translation"""
         return cls.translate_escaped_str(val)
+
+    @classmethod
+    def translate_none(cls, val):
+        """Default behavior for translation"""
+        return cls.translate_raw_str(val)
 
     @classmethod
     def translate_int(cls, val):
@@ -77,7 +80,9 @@ class Translator(object):
     @classmethod
     def translate(cls, val):
         """Translate each of the standard json/yaml types to appropiate objects."""
-        if isinstance(val, string_types):
+        if val is None:
+            return cls.translate_none(val)
+        elif isinstance(val, string_types):
             return cls.translate_str(val)
         # Needs to be before integer checks
         elif isinstance(val, bool):
@@ -133,6 +138,10 @@ class PythonTranslator(Translator):
 
 class RTranslator(Translator):
     @classmethod
+    def translate_none(cls, val):
+        return 'NULL'
+
+    @classmethod
     def translate_bool(cls, val):
         return 'TRUE' if val else 'FALSE'
 
@@ -184,6 +193,10 @@ class ScalaTranslator(Translator):
 
 class JuliaTranslator(Translator):
     @classmethod
+    def translate_none(cls, val):
+        return 'nothing'
+
+    @classmethod
     def translate_dict(cls, val):
         escaped = ', '.join(
             ["{} => {}".format(cls.translate_str(k), cls.translate(v)) for k, v in val.items()]
@@ -208,5 +221,5 @@ papermill_translators.register("scala", ScalaTranslator)
 papermill_translators.register("julia", JuliaTranslator)
 
 
-def translate_parameters(kernel_name, parameters):
-    return papermill_translators.kernel_translator(kernel_name).codify(parameters)
+def translate_parameters(kernel_name, language, parameters):
+    return papermill_translators.find_translator(kernel_name, language).codify(parameters)

@@ -1,4 +1,3 @@
-import sys
 import abc
 import copy
 import dateutil
@@ -9,7 +8,7 @@ from nbformat.notebooknode import NotebookNode
 
 from . import get_notebook_path
 
-from .. import engines
+from .. import engines, exceptions
 from ..log import logger
 from ..iorw import load_notebook_node
 from ..engines import NotebookExecutionManager, Engine, NBConvertEngine
@@ -54,25 +53,6 @@ class TestNotebookExecutionManager(unittest.TestCase):
 
         self.assertEqual(nb_man.pbar.total, len(self.nb.cells))
         self.assertEqual(nb_man.pbar.gui, False)
-        self.assertEqual(nb_man.pbar.bar_format, NotebookExecutionManager.DEFAULT_BAR_FORMAT)
-
-    def test_logging_pbar(self):
-        nb_man = NotebookExecutionManager(self.nb, log_output=True)
-
-        self.assertEqual(nb_man.pbar.total, len(self.nb.cells))
-        self.assertEqual(nb_man.pbar.gui, False)
-        self.assertEqual(nb_man.pbar.bar_format, NotebookExecutionManager.DEFAULT_BAR_FORMAT + '\n')
-
-    def test_notebook_pbar(self):
-        # Need this or the tqdm notebook status printer fails
-        with patch('ipywidgets.HBox'):
-            with patch('ipywidgets.IntProgress'):
-                with patch.dict(sys.modules, {'ipykernel': True}):
-                    nb_man = NotebookExecutionManager(self.nb)
-
-            self.assertEqual(nb_man.pbar.total, len(self.nb.cells))
-            self.assertEqual(nb_man.pbar.gui, True)
-            self.assertEqual(nb_man.pbar.bar_format, '{n}/|/{l_bar}{r_bar}')
 
     def test_no_pbar(self):
         nb_man = NotebookExecutionManager(self.nb, progress_bar=False)
@@ -429,9 +409,14 @@ class TestNBConvertEngine(unittest.TestCase):
                 self.assertNotEqual(self.nb, nb)
 
                 pep_mock.assert_called_once()
-                pep_mock.assert_called_once_with(
-                    timeout=1000, startup_timeout=30, kernel_name='python', log=logger
-                )
+
+                args, kwargs = pep_mock.call_args
+                expected = [('timeout', 1000), ('startup_timeout', 30),
+                            ('kernel_name', 'python'), ('log', logger)]
+                actual = set([(key, kwargs[key]) for key in kwargs])
+                msg = 'Expected arguments {} are not a subset of actual {}'.format(expected, actual)
+                self.assertTrue(set(expected).issubset(actual), msg=msg)
+
                 log_out_mock.assert_called_once_with(True)
                 pep_mock.return_value.preprocess.assert_called_once_with(
                     AnyMock(NotebookExecutionManager), {'bar': 'baz'}
@@ -497,3 +482,39 @@ class TestNBConvertEngine(unittest.TestCase):
                     )
                     info_mock.is_not_called()
                     warning_mock.is_not_called()
+
+
+class TestEngineRegistration(unittest.TestCase):
+    def setUp(self):
+        self.papermill_engines = engines.PapermillEngines()
+
+    def test_registration(self):
+        mock_engine = Mock()
+        self.papermill_engines.register("mock_engine", mock_engine)
+        self.assertIn("mock_engine", self.papermill_engines._engines)
+        self.assertIs(mock_engine, self.papermill_engines._engines["mock_engine"])
+
+    def test_getting(self):
+        mock_engine = Mock()
+        self.papermill_engines.register("mock_engine", mock_engine)
+        # test retrieving an engine works
+        retrieved_engine = self.papermill_engines.get_engine("mock_engine")
+        self.assertIs(mock_engine, retrieved_engine)
+        # test you can't retrieve a non-registered engine
+        self.assertRaises(
+            exceptions.PapermillException, self.papermill_engines.get_engine, "non-existent"
+        )
+
+    def test_registering_entry_points(self):
+        fake_entrypoint = Mock(load=Mock())
+        fake_entrypoint.name = "fake-engine"
+
+        with patch(
+            "entrypoints.get_group_all", return_value=[fake_entrypoint]
+        ) as mock_get_group_all:
+
+            self.papermill_engines.register_entry_points()
+            mock_get_group_all.assert_called_once_with("papermill.engine")
+            self.assertEqual(
+                self.papermill_engines.get_engine("fake-engine"), fake_entrypoint.load.return_value
+            )

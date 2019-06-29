@@ -6,9 +6,9 @@ from ..exceptions import PapermillException
 import six
 
 if six.PY3:
-    from unittest.mock import Mock, patch
+    from unittest.mock import Mock
 else:
-    from mock import Mock, patch
+    from mock import Mock
 
 
 @pytest.mark.parametrize(
@@ -31,6 +31,7 @@ else:
         (-5432.1, '-5432.1'),
         (True, 'True'),
         (False, 'False'),
+        (None, 'None'),
     ],
 )
 def test_translate_type_python(test_input, expected):
@@ -83,6 +84,7 @@ def test_translate_comment_python(test_input, expected):
         (-5432.1, '-5432.1'),
         (True, 'TRUE'),
         (False, 'FALSE'),
+        (None, 'NULL'),
     ],
 )
 def test_translate_type_r(test_input, expected):
@@ -137,6 +139,7 @@ def test_translate_codify_r(parameters, expected):
         (-2147483649, '-2147483649L'),
         (True, 'true'),
         (False, 'false'),
+        (None, 'None'),
     ],
 )
 def test_translate_type_scala(test_input, expected):
@@ -202,6 +205,7 @@ def test_translate_codify_scala(parameters, expected):
         (-5432.1, '-5432.1'),
         (True, 'true'),
         (False, 'false'),
+        (None, 'nothing'),
     ],
 )
 def test_translate_type_julia(test_input, expected):
@@ -234,24 +238,31 @@ def test_translate_comment_julia(test_input, expected):
     assert translators.JuliaTranslator.comment(test_input) == expected
 
 
-def test_kernel_translator_with_exact_kernel_name():
-    with patch.object(
-        translators, "get_kernel_spec", return_value=Mock(language="unregistered_language")
-    ):
-        my_new_kernel_translator = Mock()
-        translators.papermill_translators.register("my_new_kernel", my_new_kernel_translator)
-        assert (
-            translators.papermill_translators.kernel_translator("my_new_kernel")
-            is my_new_kernel_translator
+def test_find_translator_with_exact_kernel_name():
+    my_new_kernel_translator = Mock()
+    my_new_language_translator = Mock()
+    translators.papermill_translators.register("my_new_kernel", my_new_kernel_translator)
+    translators.papermill_translators.register("my_new_language", my_new_language_translator)
+    assert (
+        translators.papermill_translators.find_translator("my_new_kernel", "my_new_language")
+        is my_new_kernel_translator
+    )
+
+
+def test_find_translator_with_exact_language():
+    my_new_language_translator = Mock()
+    translators.papermill_translators.register("my_new_language", my_new_language_translator)
+    assert (
+        translators.papermill_translators.find_translator("unregistered_kernel", "my_new_language")
+        is my_new_language_translator
+    )
+
+
+def test_find_translator_with_no_such_kernel_or_language():
+    with pytest.raises(PapermillException):
+        translators.papermill_translators.find_translator(
+            "unregistered_kernel", "unregistered_language"
         )
-
-
-def test_kernel_translator_with_no_such_kernel():
-    with patch.object(
-        translators, "get_kernel_spec", return_value=Mock(language="unregistered_language")
-    ):
-        with pytest.raises(PapermillException):
-            translators.papermill_translators.kernel_translator("unregistered_kernel")
 
 
 def test_translate_uses_str_representation_of_unknown_types():

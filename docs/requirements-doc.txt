@@ -1,8 +1,6 @@
--r ../requirements.txt
+../papermill[dev]
 Sphinx>=1.7
 sphinx_rtd_theme
 recommonmark==0.4.0
-nbsphinx
-pytest
 mock
 moto

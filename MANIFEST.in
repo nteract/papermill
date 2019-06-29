@@ -6,23 +6,24 @@ recursive-include papermill *.keep
 recursive-include papermill *.txt
 
 include setup.py
-include requirements.txt
-include requirements-dev.txt
-include README.rst
+include requirements*.txt
+include tox.ini
+include pytest.ini
+include README.md
 include LICENSE
 include MANIFEST.in
 include *.md
 include *.toml
 
-include versioneer.py
-include papermill/_version.py
-include .coveragerc
+include .bumpversion.cfg
 
 # Documentation
 graft docs
 # exclude build files
 prune docs/_build
 # exclude sample notebooks for binder
-prune binder/
+prune binder
 # Scripts
 graft scripts
+# Test env
+prune .tox

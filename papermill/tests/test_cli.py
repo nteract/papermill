@@ -3,6 +3,10 @@
 """ Test the command line interface """
 
 import os
+import sys
+import subprocess
+import nbformat
+from jupyter_client import kernelspec
 import unittest
 
 import pytest
@@ -88,12 +92,14 @@ class TestCLI(unittest.TestCase):
             'output.ipynb',
             {'foo': 'bar', 'baz': 42},
             engine_name=None,
+            request_save_on_cell_execute=True,
             prepare_only=False,
             kernel_name=None,
             log_output=False,
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
+            cwd=None,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -106,12 +112,14 @@ class TestCLI(unittest.TestCase):
             'output.ipynb',
             {'foo': 'bar', 'baz': '42'},
             engine_name=None,
+            request_save_on_cell_execute=True,
             prepare_only=False,
             kernel_name=None,
             log_output=False,
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
+            cwd=None,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -125,14 +133,16 @@ class TestCLI(unittest.TestCase):
             'input.ipynb',
             'output.ipynb',
             # Last input wins dict update
-            {'foo': 54321, 'bar': 'value', 'baz': {'k2': 'v2', 'k1': 'v1'}},
+            {'foo': 54321, 'bar': 'value', 'baz': {'k2': 'v2', 'k1': 'v1'}, 'a_date': '2019-01-01'},
             engine_name=None,
+            request_save_on_cell_execute=True,
             prepare_only=False,
             kernel_name=None,
             log_output=False,
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
+            cwd=None,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -146,12 +156,35 @@ class TestCLI(unittest.TestCase):
             'output.ipynb',
             {'foo': 'bar', 'foo2': ['baz']},
             engine_name=None,
+            request_save_on_cell_execute=True,
             prepare_only=False,
             kernel_name=None,
             log_output=False,
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
+            cwd=None,
+        )
+
+    @patch(cli.__name__ + '.execute_notebook')
+    def test_parameters_yaml_date(self, execute_patch):
+        self.runner.invoke(
+            papermill,
+            self.default_args + ['-y', 'a_date: 2019-01-01'],
+        )
+        execute_patch.assert_called_with(
+            'input.ipynb',
+            'output.ipynb',
+            {'a_date': '2019-01-01'},
+            engine_name=None,
+            request_save_on_cell_execute=True,
+            prepare_only=False,
+            kernel_name=None,
+            log_output=False,
+            progress_bar=True,
+            start_timeout=60,
+            report_mode=False,
+            cwd=None,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -166,12 +199,14 @@ class TestCLI(unittest.TestCase):
             # Last input wins dict update
             {'foo': ['baz']},
             engine_name=None,
+            request_save_on_cell_execute=True,
             prepare_only=False,
             kernel_name=None,
             log_output=False,
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
+            cwd=None,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -192,12 +227,96 @@ class TestCLI(unittest.TestCase):
             # Last input wins dict update
             {'foo': 1, 'bar': 2},
             engine_name=None,
+            request_save_on_cell_execute=True,
             prepare_only=False,
             kernel_name=None,
             log_output=False,
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
+            cwd=None,
+        )
+
+    @patch(cli.__name__ + '.execute_notebook')
+    def test_parameters_base64_date(self, execute_patch):
+        self.runner.invoke(
+            papermill,
+            self.default_args
+            + [
+                '--parameters_base64',
+                'YV9kYXRlOiAyMDE5LTAxLTAx',
+            ],
+        )
+        execute_patch.assert_called_with(
+            'input.ipynb',
+            'output.ipynb',
+            {'a_date': '2019-01-01'},
+            engine_name=None,
+            request_save_on_cell_execute=True,
+            prepare_only=False,
+            kernel_name=None,
+            log_output=False,
+            progress_bar=True,
+            start_timeout=60,
+            report_mode=False,
+            cwd=None,
+        )
+
+    @patch(cli.__name__ + '.execute_notebook')
+    def test_inject_input_path(self, execute_patch):
+        self.runner.invoke(papermill, self.default_args + ['--inject-input-path'])
+        execute_patch.assert_called_with(
+            'input.ipynb',
+            'output.ipynb',
+            # Last input wins dict update
+            {'PAPERMILL_INPUT_PATH': 'input.ipynb'},
+            engine_name=None,
+            request_save_on_cell_execute=True,
+            prepare_only=False,
+            kernel_name=None,
+            log_output=False,
+            progress_bar=True,
+            start_timeout=60,
+            report_mode=False,
+            cwd=None,
+        )
+
+    @patch(cli.__name__ + '.execute_notebook')
+    def test_inject_output_path(self, execute_patch):
+        self.runner.invoke(papermill, self.default_args + ['--inject-output-path'])
+        execute_patch.assert_called_with(
+            'input.ipynb',
+            'output.ipynb',
+            # Last input wins dict update
+            {'PAPERMILL_OUTPUT_PATH': 'output.ipynb'},
+            engine_name=None,
+            request_save_on_cell_execute=True,
+            prepare_only=False,
+            kernel_name=None,
+            log_output=False,
+            progress_bar=True,
+            start_timeout=60,
+            report_mode=False,
+            cwd=None,
+        )
+
+    @patch(cli.__name__ + '.execute_notebook')
+    def test_inject_paths(self, execute_patch):
+        self.runner.invoke(papermill, self.default_args + ['--inject-paths'])
+        execute_patch.assert_called_with(
+            'input.ipynb',
+            'output.ipynb',
+            # Last input wins dict update
+            {'PAPERMILL_INPUT_PATH': 'input.ipynb', 'PAPERMILL_OUTPUT_PATH': 'output.ipynb'},
+            engine_name=None,
+            request_save_on_cell_execute=True,
+            prepare_only=False,
+            kernel_name=None,
+            log_output=False,
+            progress_bar=True,
+            start_timeout=60,
+            report_mode=False,
+            cwd=None,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -208,12 +327,14 @@ class TestCLI(unittest.TestCase):
             'output.ipynb',
             {},
             engine_name='engine-that-could',
+            request_save_on_cell_execute=True,
             prepare_only=False,
             kernel_name=None,
             log_output=False,
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
+            cwd=None,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -224,28 +345,14 @@ class TestCLI(unittest.TestCase):
             'output.ipynb',
             {},
             engine_name=None,
+            request_save_on_cell_execute=True,
             prepare_only=True,
             kernel_name=None,
             log_output=False,
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
-        )
-
-    @patch(cli.__name__ + '.execute_notebook')
-    def test_prepare_only(self, execute_patch):
-        self.runner.invoke(papermill, self.default_args + ['--prepare-only'])
-        execute_patch.assert_called_with(
-            'input.ipynb',
-            'output.ipynb',
-            {},
-            engine_name=None,
-            prepare_only=True,
-            kernel_name=None,
-            log_output=False,
-            progress_bar=True,
-            start_timeout=60,
-            report_mode=False,
+            cwd=None,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -256,12 +363,32 @@ class TestCLI(unittest.TestCase):
             'output.ipynb',
             {},
             engine_name=None,
+            request_save_on_cell_execute=True,
             prepare_only=False,
             kernel_name='python3',
             log_output=False,
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
+            cwd=None,
+        )
+
+    @patch(cli.__name__ + '.execute_notebook')
+    def test_set_cwd(self, execute_patch):
+        self.runner.invoke(papermill, self.default_args + ['--cwd', 'a/path/here'])
+        execute_patch.assert_called_with(
+            'input.ipynb',
+            'output.ipynb',
+            {},
+            engine_name=None,
+            request_save_on_cell_execute=True,
+            prepare_only=False,
+            kernel_name=None,
+            log_output=False,
+            progress_bar=True,
+            start_timeout=60,
+            report_mode=False,
+            cwd='a/path/here',
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -272,12 +399,14 @@ class TestCLI(unittest.TestCase):
             'output.ipynb',
             {},
             engine_name=None,
+            request_save_on_cell_execute=True,
             prepare_only=False,
             kernel_name=None,
             log_output=False,
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
+            cwd=None,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -288,12 +417,14 @@ class TestCLI(unittest.TestCase):
             'output.ipynb',
             {},
             engine_name=None,
+            request_save_on_cell_execute=True,
             prepare_only=False,
             kernel_name=None,
             log_output=False,
             progress_bar=False,
             start_timeout=60,
             report_mode=False,
+            cwd=None,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -304,12 +435,14 @@ class TestCLI(unittest.TestCase):
             'output.ipynb',
             {},
             engine_name=None,
+            request_save_on_cell_execute=True,
             prepare_only=False,
             kernel_name=None,
             log_output=True,
             progress_bar=False,
             start_timeout=60,
             report_mode=False,
+            cwd=None,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -320,12 +453,14 @@ class TestCLI(unittest.TestCase):
             'output.ipynb',
             {},
             engine_name=None,
+            request_save_on_cell_execute=True,
             prepare_only=False,
             kernel_name=None,
             log_output=True,
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
+            cwd=None,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -336,12 +471,32 @@ class TestCLI(unittest.TestCase):
             'output.ipynb',
             {},
             engine_name=None,
+            request_save_on_cell_execute=True,
             prepare_only=False,
             kernel_name=None,
             log_output=False,
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
+            cwd=None,
+        )
+
+    @patch(cli.__name__ + '.execute_notebook')
+    def test_log_level(self, execute_patch):
+        self.runner.invoke(papermill, self.default_args + ['--log-level', 'WARNING'])
+        execute_patch.assert_called_with(
+            'input.ipynb',
+            'output.ipynb',
+            {},
+            engine_name=None,
+            request_save_on_cell_execute=True,
+            prepare_only=False,
+            kernel_name=None,
+            log_output=False,
+            progress_bar=True,
+            start_timeout=60,
+            report_mode=False,
+            cwd=None,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -352,12 +507,14 @@ class TestCLI(unittest.TestCase):
             'output.ipynb',
             {},
             engine_name=None,
+            request_save_on_cell_execute=True,
             prepare_only=False,
             kernel_name=None,
             log_output=False,
             progress_bar=True,
             start_timeout=123,
             report_mode=False,
+            cwd=None,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -368,28 +525,14 @@ class TestCLI(unittest.TestCase):
             'output.ipynb',
             {},
             engine_name=None,
-            prepare_only=False,
-            kernel_name=None,
-            log_output=False,
-            progress_bar=True,
-            start_timeout=123,
-            report_mode=False,
-        )
-
-    @patch(cli.__name__ + '.execute_notebook')
-    def test_report_mode(self, execute_patch):
-        self.runner.invoke(papermill, self.default_args + ['--report-mode'])
-        execute_patch.assert_called_with(
-            'input.ipynb',
-            'output.ipynb',
-            {},
-            engine_name=None,
+            request_save_on_cell_execute=True,
             prepare_only=False,
             kernel_name=None,
             log_output=False,
             progress_bar=True,
             start_timeout=60,
             report_mode=True,
+            cwd=None,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -400,12 +543,14 @@ class TestCLI(unittest.TestCase):
             'output.ipynb',
             {},
             engine_name=None,
+            request_save_on_cell_execute=True,
             prepare_only=False,
             kernel_name=None,
             log_output=False,
             progress_bar=True,
             start_timeout=60,
             report_mode=False,
+            cwd=None,
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -452,14 +597,17 @@ class TestCLI(unittest.TestCase):
                 'baz': 'replace',
                 'yaml_foo': {'yaml_bar': 'yaml_baz'},
                 "base64_foo": "base64_bar",
+                'a_date': '2019-01-01',
             },
             engine_name='engine-that-could',
+            request_save_on_cell_execute=True,
             prepare_only=True,
             kernel_name='R',
             log_output=True,
             progress_bar=False,
             start_timeout=321,
             report_mode=True,
+            cwd=None,
         )
 
 
@@ -497,3 +645,129 @@ def test_papermill_log():
     assert result.exit_code == 0
     assert 'Log output mode is on' in result.output
     assert 'Logging' in result.output
+
+
+def papermill_cli(papermill_args=None, **kwargs):
+    cmd = [sys.executable, '-m', 'papermill.cli']
+    if papermill_args:
+        cmd.extend(papermill_args)
+    return subprocess.Popen(cmd, **kwargs)
+
+
+def papermill_version():
+    try:
+        proc = papermill_cli(['--version'], stdout=subprocess.PIPE)
+        out, _ = proc.communicate()
+        if proc.returncode:
+            return None
+        return out.decode('utf-8')
+    except (OSError, SystemExit):  # pragma: no cover
+        return None
+
+
+@pytest.fixture()
+def notebook():
+    for name in kernelspec.find_kernel_specs():
+        ks = kernelspec.get_kernel_spec(name)
+        metadata = {'kernelspec': {'name': name,
+                                   'language': ks.language,
+                                   'display_name': ks.display_name}}
+        return nbformat.v4.new_notebook(
+            metadata=metadata,
+            cells=[nbformat.v4.new_markdown_cell(
+                'This is a notebook with kernel: ' + ks.display_name)])
+
+    raise EnvironmentError('No kernel found')
+
+
+require_papermill_installed = pytest.mark.skipif(
+    not papermill_version(),
+    reason='papermill is not installed')
+
+
+@require_papermill_installed
+def test_pipe_in_out_auto(notebook):
+    process = papermill_cli(stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+    text = nbformat.writes(notebook)
+    out, err = process.communicate(input=text.encode('utf-8'))
+
+    # Test no message on std error
+    assert not err
+
+    # Test that output is a valid notebook
+    nbformat.reads(out.decode('utf-8'), as_version=4)
+
+
+@require_papermill_installed
+def test_pipe_in_out_explicit(notebook):
+    process = papermill_cli(['-', '-'], stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+    text = nbformat.writes(notebook)
+    out, err = process.communicate(input=text.encode('utf-8'))
+
+    # Test no message on std error
+    assert not err
+
+    # Test that output is a valid notebook
+    nbformat.reads(out.decode('utf-8'), as_version=4)
+
+
+@require_papermill_installed
+def test_pipe_out_auto(tmpdir, notebook):
+    nb_file = tmpdir.join('notebook.ipynb')
+    nb_file.write(nbformat.writes(notebook))
+
+    process = papermill_cli([str(nb_file)], stdout=subprocess.PIPE)
+    out, err = process.communicate()
+
+    # Test no message on std error
+    assert not err
+
+    # Test that output is a valid notebook
+    nbformat.reads(out.decode('utf-8'), as_version=4)
+
+
+@require_papermill_installed
+def test_pipe_out_explicit(tmpdir, notebook):
+    nb_file = tmpdir.join('notebook.ipynb')
+    nb_file.write(nbformat.writes(notebook))
+
+    process = papermill_cli([str(nb_file), '-'], stdout=subprocess.PIPE)
+    out, err = process.communicate()
+
+    # Test no message on std error
+    assert not err
+
+    # Test that output is a valid notebook
+    nbformat.reads(out.decode('utf-8'), as_version=4)
+
+
+@require_papermill_installed
+def test_pipe_in_auto(tmpdir, notebook):
+    nb_file = tmpdir.join('notebook.ipynb')
+
+    process = papermill_cli([str(nb_file)], stdin=subprocess.PIPE)
+    text = nbformat.writes(notebook)
+    out, _ = process.communicate(input=text.encode('utf-8'))
+
+    # Nothing on stdout
+    assert not out
+
+    # Test that output is a valid notebook
+    with open(str(nb_file)) as fp:
+        nbformat.reads(fp.read(), as_version=4)
+
+
+@require_papermill_installed
+def test_pipe_in_explicit(tmpdir, notebook):
+    nb_file = tmpdir.join('notebook.ipynb')
+
+    process = papermill_cli(['-', str(nb_file)], stdin=subprocess.PIPE)
+    text = nbformat.writes(notebook)
+    out, _ = process.communicate(input=text.encode('utf-8'))
+
+    # Nothing on stdout
+    assert not out
+
+    # Test that output is a valid notebook
+    with open(str(nb_file)) as fp:
+        nbformat.reads(fp.read(), as_version=4)

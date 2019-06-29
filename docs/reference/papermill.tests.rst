@@ -4,10 +4,18 @@ papermill.tests package
 Submodules
 ----------
 
-papermill.tests.test\_api module
+papermill.tests.test\_abs module
 --------------------------------
 
-.. automodule:: papermill.tests.test_api
+.. automodule:: papermill.tests.test_abs
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+papermill.tests.test\_adl module
+--------------------------------
+
+.. automodule:: papermill.tests.test_adl
     :members:
     :undoc-members:
     :show-inheritance:
@@ -28,6 +36,14 @@ papermill.tests.test\_conf module
     :undoc-members:
     :show-inheritance:
 
+papermill.tests.test\_engines module
+------------------------------------
+
+.. automodule:: papermill.tests.test_engines
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 papermill.tests.test\_exceptions module
 ---------------------------------------
 
@@ -40,6 +56,14 @@ papermill.tests.test\_execute module
 ------------------------------------
 
 .. automodule:: papermill.tests.test_execute
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+papermill.tests.test\_gcs module
+--------------------------------
+
+.. automodule:: papermill.tests.test_gcs
     :members:
     :undoc-members:
     :show-inheritance:
@@ -60,6 +84,14 @@ papermill.tests.test\_parameterize module
     :undoc-members:
     :show-inheritance:
 
+papermill.tests.test\_preprocessor module
+-----------------------------------------
+
+.. automodule:: papermill.tests.test_preprocessor
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 papermill.tests.test\_s3 module
 -------------------------------
 
@@ -72,6 +104,14 @@ papermill.tests.test\_translators module
 ----------------------------------------
 
 .. automodule:: papermill.tests.test_translators
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+papermill.tests.test\_utils module
+----------------------------------
+
+.. automodule:: papermill.tests.test_utils
     :members:
     :undoc-members:
     :show-inheritance:

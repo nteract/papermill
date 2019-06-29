@@ -103,8 +103,20 @@ ENV/
 # pyCharm
 .idea
 
+# VSCode
+.vscode/
+
+# Visual Studio
+.vs/
+
 # pytest
 .pytest_cache
 
+# scissor fixture
+papermill/tests/fixtures/scissor.txt
+
 # Binder example
 binder/*run*.ipynb
+
+# pip generated wheel metadata
+pip-wheel-metadata

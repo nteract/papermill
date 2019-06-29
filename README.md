@@ -1,20 +1,21 @@
 <a href="https://github.com/nteract/papermill"><img src="https://media.githubusercontent.com/media/nteract/logos/master/nteract_papermill/exports/images/png/papermill_logo_wide.png" height="48px" /></a>
 =======================================================================================================================================================================
 
+<!---(binder links generated at https://mybinder.readthedocs.io/en/latest/howto/badges.html and compressed at https://tinyurl.com) -->
 [![Build Status](https://travis-ci.org/nteract/papermill.svg?branch=master)](https://travis-ci.org/nteract/papermill)
 [![image](https://codecov.io/github/nteract/papermill/coverage.svg?branch=master)](https://codecov.io/github/nteract/papermill?branch=master)
 [![Documentation Status](https://readthedocs.org/projects/papermill/badge/?version=latest)](http://papermill.readthedocs.io/en/latest/?badge=latest)
-[![image](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/nteract/papermill/master?filepath=binder%2Fprocess_highlight_dates.ipynb)
+[![badge](https://tinyurl.com/ybwovtw2)](https://mybinder.org/v2/gh/nteract/papermill/master?filepath=binder%2Fprocess_highlight_dates.ipynb)
+[![badge](https://tinyurl.com/y7uz2eh9)](https://mybinder.org/v2/gh/nteract/papermill/master?filepath=binder%2Fcli-simple%2Fcli_example.ipynb)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
-**Papermill** is a tool for parameterizing, executing, and analyzing
+**papermill** is a tool for parameterizing, executing, and analyzing
 Jupyter Notebooks.
 
 Papermill lets you:
 
 -   **parameterize** notebooks
--   **execute** and **collect** metrics across the notebooks
--   **summarize collections** of notebooks
+-   **execute** notebooks
 
 This opens up new opportunities for how notebooks can be used. For
 example:
@@ -27,13 +28,8 @@ example:
     particular notebook to run next? You can now programmatically
     **execute a workflow** without having to copy and paste from
     notebook to notebook manually.
--   Do you have plots and visualizations spread across 10 or more
-    notebooks? Now you can choose which plots to programmatically
-    display a **summary** **collection** in a notebook to share with
-    others.
 
-Installation
-------------
+## Installation
 
 From the command line:
 
@@ -41,21 +37,24 @@ From the command line:
 pip install papermill
 ```
 
-Installing In-Notebook bindings
--------------------------------
+For all optional io dependencies, you can specify individual bundles
+like `s3`, or `azure` -- or use `all`
 
--   [Python](https://github.com/nteract/papermill#python-in-notebook-bindings) (included in this repo)
--   [R](https://github.com/nteract/papermillr) (**experimentally** available in the
-    **papermillr** project)
+``` {.sourceCode .bash}
+pip install papermill[all]
+```
 
-Other language bindings welcome if someone would like to maintain parallel implementations!
+## Python Version Support
 
-Usage
------
+This library will support python 2.7 and 3.5+ until end-of-life for python 2 in 2020. After which python 2 support will halt and only 3.x version will be maintained.
+
+## Usage
 
 ### Parameterizing a Notebook
 
 To parameterize your notebook designate a cell with the tag ``parameters``.
+
+![enable parameters in Jupyter](docs/img/enable_parameters.gif)
 
 Papermill looks for the ``parameters`` cell and treats this cell as defaults for the parameters passed in at execution time. Papermill will add a new cell tagged with ``injected-parameters`` with input parameters in order to overwrite the values in ``parameters``. If no cell is tagged with ``parameters`` the injected cell will be inserted at the top of the notebook.
 
@@ -87,6 +86,13 @@ Amazon S3 account:
 
 ``` {.sourceCode .bash}
 $ papermill local/input.ipynb s3://bkt/output.ipynb -p alpha 0.6 -p l1_ratio 0.1
+```
+
+**NOTE:**
+If you use multiple AWS accounts, and you have [properly configured your AWS  credentials](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/configuration.html), then you can specify which account to use by setting the `AWS_PROFILE` environment variable at the command-line. For example:
+
+``` {.sourceCode .bash}
+$ AWS_PROFILE=dev_account papermill local/input.ipynb s3://bkt/output.ipynb -p alpha 0.6 -p l1_ratio 0.1
 ```
 
 In the above example, two parameters are set: ``alpha`` and ``l1_ratio`` using ``-p`` (``--parameters`` also works). Parameter values that look like booleans or numbers will be interpreted as such. Here are the different ways users may set parameters:
@@ -131,103 +137,26 @@ linear_function:
     intercept: 1.0"
 ```
 
-Python In-notebook Bindings
----------------------------
+#### Supported Name Handlers
 
-### Recording Values to the Notebook
+Papermill supports the following name handlers for input and output paths during execution: 
 
-Users can save values to the notebook document to be consumed by other
-notebooks.
+ * Local file system: `local`
 
-Recording values to be saved with the notebook.
+ * HTTP, HTTPS protocol:  `http://, https://`
 
-``` {.sourceCode .python}
-"""notebook.ipynb"""
-import papermill as pm
+ * Amazon Web Services: [AWS S3](https://aws.amazon.com/s3/) `s3://`
 
-pm.record("hello", "world")
-pm.record("number", 123)
-pm.record("some_list", [1, 3, 5])
-pm.record("some_dict", {"a": 1, "b": 2})
-```
-
-Users can recover those values as a Pandas dataframe via the
-`read_notebook` function.
-
-``` {.sourceCode .python}
-"""summary.ipynb"""
-import papermill as pm
-
-nb = pm.read_notebook('notebook.ipynb')
-nb.dataframe
-```
-
-![image](docs/img/nb_dataframe.png)
-
-### Displaying Plots and Images Saved by Other Notebooks
-
-Display a matplotlib histogram with the key name `matplotlib_hist`.
-
-``` {.sourceCode .python}
-"""notebook.ipynb"""
-import papermill as pm
-from ggplot import mpg
-import matplotlib.pyplot as plt
-
-# turn off interactive plotting to avoid double plotting
-plt.ioff()
-
-f = plt.figure()
-plt.hist('cty', bins=12, data=mpg)
-pm.display('matplotlib_hist', f)
-```
-
-![image](docs/img/matplotlib_hist.png)
-
-Read in that above notebook and display the plot saved at
-`matplotlib_hist`.
-
-``` {.sourceCode .python}
-"""summary.ipynb"""
-import papermill as pm
-
-nb = pm.read_notebook('notebook.ipynb')
-nb.display_output('matplotlib_hist')
-```
-
-![image](docs/img/matplotlib_hist.png)
-
-### Analyzing a Collection of Notebooks
-
-Papermill can read in a directory of notebooks and provides the
-`NotebookCollection` interface for operating on them.
-
-``` {.sourceCode .python}
-"""summary.ipynb"""
-import papermill as pm
-
-nbs = pm.read_notebooks('/path/to/results/')
-
-# Show named plot from 'notebook1.ipynb'
-# Accept a key or list of keys to plot in order.
-nbs.display_output('train_1.ipynb', 'matplotlib_hist')
-```
-
-![image](docs/img/matplotlib_hist.png)
-
-``` {.sourceCode .python}
-# Dataframe for all notebooks in collection
-nbs.dataframe.head(10)
-```
-
-![image](docs/img/nbs_dataframe.png)
+ * Azure: [Azure DataLake Store](https://docs.microsoft.com/en-us/azure/data-lake-store/data-lake-store-overview), [Azure Blob Store](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blobs-overview) `adl://, abs://`
+    
+ * Google Cloud: [Google Cloud Storage](https://cloud.google.com/storage/) `gs://`
 
 Development Guide
 -----------------
 
-Read CONTRIBUTING.md for guidelines on how to setup a local development environment and make code changes back to Papermill.
+Read [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on how to setup a local development environment and make code changes back to Papermill.
 
-For development guidelines look in the DEVELOPMENT_GUIDE.md file. This should inform you on how to make particular additions to the code base.
+For development guidelines look in the [DEVELOPMENT_GUIDE.md](./DEVELOPMENT_GUIDE.md) file. This should inform you on how to make particular additions to the code base.
 
 Documentation
 -------------

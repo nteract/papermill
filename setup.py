@@ -3,10 +3,6 @@
 """"
 setup.py
 
-Note: Do a version check for IPython.
-    IPython v6+ no longer supports Python 2.
-    If Python 2, intall ipython 5.x.
-
 See:
 https://packaging.python.org/tutorials/packaging-projects/
 https://packaging.python.org/en/latest/distributing.html
@@ -25,7 +21,20 @@ from setuptools import setup
 # Python 3 only projects can skip this import
 from io import open
 
-import versioneer
+local_path = os.path.dirname(__file__)
+# Fix for tox which manipulates execution pathing
+if not local_path:
+    local_path = '.'
+here = path.abspath(local_path)
+
+
+def version():
+    with open(here + '/papermill/version.py', 'r') as ver:
+        for line in ver.readlines():
+            if line.startswith('version ='):
+                return line.split(' = ')[-1].strip()[1:-1]
+    raise ValueError('No version found in papermill/version.py')
+
 
 python_2 = sys.version_info[0] == 2
 
@@ -35,49 +44,32 @@ def read(fname):
         return fhandle.read()
 
 
-req_path = os.path.join(os.path.dirname('__file__'), 'requirements.txt')
-required = [req.strip() for req in read(req_path).splitlines() if req.strip()]
+def read_reqs(fname):
+    req_path = os.path.join(here, fname)
+    return [req.strip() for req in read(req_path).splitlines() if req.strip()]
 
-test_req_path = os.path.join(os.path.dirname('__file__'), 'requirements-dev.txt')
-test_required = [req.strip() for req in read(test_req_path).splitlines() if req.strip()]
-extras_require = {"test": test_required, "dev": test_required}
 
-pip_too_old = False
-pip_message = ''
-
-try:
-    import pip
-
-    pip_version = tuple([int(x) for x in pip.__version__.split('.')[:3]])
-    pip_too_old = pip_version < (9, 0, 1)
-    if pip_too_old:
-        # pip is too old to handle IPython deps gracefully
-        pip_message = (
-            'Your pip version is out of date. Papermill requires pip >= 9.0.1. \n'
-            'pip {} detected. Please install pip >= 9.0.1.'.format(pip.__version__)
-        )
-except ImportError:
-    pip_message = (
-        'No pip detected; we were unable to import pip. \n'
-        'To use papermill, please install pip >= 9.0.1.'
-    )
-except Exception:
-    pass
-
-if pip_message:
-    print(pip_message, file=sys.stderr)
-    sys.exit(1)
-
+s3_reqs = read_reqs('requirements-s3.txt')
+azure_reqs = read_reqs('requirements-azure.txt')
+gcs_reqs = read_reqs('requirements-gcs.txt')
+all_reqs = s3_reqs + azure_reqs + gcs_reqs
+dev_reqs = read_reqs('requirements-dev.txt') + all_reqs
+extras_require = {
+    "test": dev_reqs,
+    "dev": dev_reqs,
+    "all": all_reqs,
+    "s3": s3_reqs,
+    "azure": azure_reqs,
+    "gcs": gcs_reqs,
+}
 
 # Get the long description from the README file
-here = path.abspath(path.dirname(__file__))
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
     name='papermill',
-    version=versioneer.get_version(),
-    cmdclass=versioneer.get_cmdclass(),
+    version=version(),
     description='Parametrize and run Jupyter and nteract Notebooks',
     author='nteract contributors',
     author_email='nteract@googlegroups.com',
@@ -88,7 +80,7 @@ setup(
     long_description_content_type='text/markdown',
     url='https://github.com/nteract/papermill',
     packages=['papermill'],
-    install_requires=required,
+    install_requires=read_reqs('requirements.txt'),
     extras_require=extras_require,
     entry_points={'console_scripts': ['papermill = papermill.cli:papermill']},
     project_urls={

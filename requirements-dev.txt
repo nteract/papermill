@@ -2,15 +2,25 @@ codecov
 coverage
 notebook
 mock
-pytest>=3.3
-pytest-cov
-pytest-mock
-moto>=1.2.0
+pytest>=4.1
+pytest-cov>=2.6.1
+pytest-mock>=1.10
+pytest-env>=0.6.2
+ipython>=5.0
+moto
 check-manifest
 black; python_version >= '3.6'
 attrs>=17.4.0
 pre-commit
-# Until https://github.com/spulec/moto/issues/1793 is resolved
-boto3 < 1.8.0
-botocore < 1.11.0
+boto3
+botocore
 ipywidgets
+flake8
+tox
+bumpversion
+recommonmark
+pip>=18.1
+wheel>=0.31.0
+setuptools>=38.6.0
+twine>=1.11.0
+google_compute_engine # Need this because boto has issues with dynamic package loading during tests if other google components are there

@@ -38,6 +38,8 @@ The `NotebookExecutionManager` class tracks the notebook object in progress, whi
 
 These functions can be optionally called to better render and populate notebooks with appropriate metadata attributes to reflect their execution. Manually saving the notebook object is unnecessary as the base class wrapper will save the notebook on notebook start and completion on your behalf. If you wish to disable saving, overwrite the `wrap_and_execute_notebook` and prevent the `output_path` from propagating to the base method call.
 
+`papermill.execute_notebook` allows to pass arbitrary arguments down to the engine. Make sure that engine handles keyword arguments properly. Use utility `merge_kwargs` and `remove_args` to merge and clean arguments
+
 To update tests you'll need to add a new test class in `test_engines.py`. Copying the `TestNBConvertEngine` class and modifying it is recommended.
 
 ## CLI / Execute

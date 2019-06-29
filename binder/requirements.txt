@@ -1,3 +1,5 @@
--r ../requirements.txt
+nteract-scrapbook
+pandas
 matplotlib
--e git://github.com/nteract/papermill.git#egg=master
+ipywidgets
+ipykernel
