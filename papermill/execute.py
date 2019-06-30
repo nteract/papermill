@@ -26,6 +26,7 @@ def execute_notebook(
     start_timeout=60,
     report_mode=False,
     cwd=None,
+    parametrize_input_path=True,
     **engine_kwargs
 ):
     """Executes a single notebook locally.
@@ -56,6 +57,8 @@ def execute_notebook(
         Flag for whether or not to hide input.
     cwd : str, optional
         Working directory to use when executing the notebook
+    parametrize_input_path : bool, optional
+        Flag for whether or not to parametrize input path
     **kwargs
         Arbitrary keyword arguments to pass to the notebook engine
 
@@ -65,7 +68,8 @@ def execute_notebook(
        Executed notebook object
     """
     path_parameters = add_builtin_parameters(parameters)
-    input_path = parameterize_path(input_path, path_parameters)
+    if parametrize_input_path:
+        input_path = parameterize_path(input_path, path_parameters)
     output_path = parameterize_path(output_path, path_parameters)
 
     logger.info("Input Notebook:  %s" % get_pretty_path(input_path))
