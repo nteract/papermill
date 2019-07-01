@@ -7,7 +7,7 @@ pyyaml
 nbformat
 nbconvert >= 5.5
 six
-tqdm >= 4.29.1
+tqdm >= 4.32.2
 jupyter_client
 requests
 entrypoints
