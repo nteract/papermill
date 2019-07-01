@@ -248,7 +248,7 @@ def test_translate_comment_julia(test_input, expected):
         ({"foo": ["bar"]}, 'containers.Map({\'foo\'}, {{"bar"}})'),
         ({"foo": {"bar": "baz"}}, 'containers.Map({\'foo\'}, {containers.Map({\'bar\'}, {"baz"})})'),
         (
-            {"foo": {"bar": '"baz"'}}, 
+            {"foo": {"bar": '"baz"'}},
             'containers.Map({\'foo\'}, {containers.Map({\'bar\'}, {"""baz"""})})'
         ),
         (["foo"], '{"foo"}'),
