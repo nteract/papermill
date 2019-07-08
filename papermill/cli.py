@@ -110,6 +110,11 @@ def print_papermill_version(ctx, param, value):
     is_eager=True,
     help='Flag for displaying the version.',
 )
+@click.option(
+    '--parametrize-input-path/--not-parametrize-input-path',
+    default=True,
+    help="Flag for whether or not parametrize input path.",
+)
 def papermill(
     notebook_path,
     output_path,
@@ -131,6 +136,7 @@ def papermill(
     log_level,
     start_timeout,
     report_mode,
+    parametrize_input_path
 ):
     """This utility executes a single notebook on a container.
 
@@ -189,6 +195,7 @@ def papermill(
         start_timeout=start_timeout,
         report_mode=report_mode,
         cwd=cwd,
+        parametrize_input_path=parametrize_input_path,
     )
 
 

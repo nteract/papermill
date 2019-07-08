@@ -32,6 +32,9 @@ options:
                                       as notebook parameters.
       --engine TEXT                   The execution engine name to use in
                                       evaluating the notebook.
+      ---parametrize-input-path / --not-parametrize-input-path
+                                      Flag for whether or not parametrize input
+                                      path.
       --prepare-only / --prepare-execute
                                       Flag for outputting the notebook without
                                       execution, but with parameters applied.
