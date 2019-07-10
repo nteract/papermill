@@ -236,7 +236,7 @@ class MatlabTranslator(Translator):
 
     @classmethod
     def translate_none(cls, val):
-        return '[]'
+        return 'NaN'
 
     @classmethod
     def translate_dict(cls, val):

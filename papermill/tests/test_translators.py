@@ -265,7 +265,7 @@ def test_translate_comment_julia(test_input, expected):
         (-5432.1, '-5432.1'),
         (True, 'true'),
         (False, 'false'),
-        (None, '[]'),
+        (None, 'NaN'),
     ],
 )
 def test_translate_type_matlab(test_input, expected):
