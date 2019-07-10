@@ -243,6 +243,10 @@ def test_translate_comment_julia(test_input, expected):
     [
         ("foo", '"foo"'),
         ('{"foo": "bar"}', '"{""foo"": ""bar""}"'),
+        ({1: "foo"}, 'containers.Map({\'1\'}, {"foo"})'),
+        ({1.0: "foo"}, 'containers.Map({\'1.0\'}, {"foo"})'),
+        ({None: "foo"}, 'containers.Map({\'None\'}, {"foo"})'),
+        ({True: "foo"}, 'containers.Map({\'True\'}, {"foo"})'),
         ({"foo": "bar"}, 'containers.Map({\'foo\'}, {"bar"})'),
         ({"foo": '"bar"'}, 'containers.Map({\'foo\'}, {"""bar"""})'),
         ({"foo": ["bar"]}, 'containers.Map({\'foo\'}, {{"bar"}})'),
