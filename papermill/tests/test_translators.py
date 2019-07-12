@@ -238,6 +238,66 @@ def test_translate_comment_julia(test_input, expected):
     assert translators.JuliaTranslator.comment(test_input) == expected
 
 
+@pytest.mark.parametrize(
+    "test_input,expected",
+    [
+        ("foo", '"foo"'),
+        ('{"foo": "bar"}', '"{""foo"": ""bar""}"'),
+        ({1: "foo"}, 'containers.Map({\'1\'}, {"foo"})'),
+        ({1.0: "foo"}, 'containers.Map({\'1.0\'}, {"foo"})'),
+        ({None: "foo"}, 'containers.Map({\'None\'}, {"foo"})'),
+        ({True: "foo"}, 'containers.Map({\'True\'}, {"foo"})'),
+        ({"foo": "bar"}, 'containers.Map({\'foo\'}, {"bar"})'),
+        ({"foo": '"bar"'}, 'containers.Map({\'foo\'}, {"""bar"""})'),
+        ({"foo": ["bar"]}, 'containers.Map({\'foo\'}, {{"bar"}})'),
+        ({"foo": {"bar": "baz"}}, 'containers.Map({\'foo\'}, {containers.Map({\'bar\'}, {"baz"})})'),
+        (
+            {"foo": {"bar": '"baz"'}},
+            'containers.Map({\'foo\'}, {containers.Map({\'bar\'}, {"""baz"""})})'
+        ),
+        (["foo"], '{"foo"}'),
+        (["foo", '"bar"'], '{"foo", """bar"""}'),
+        ([{"foo": "bar"}], '{containers.Map({\'foo\'}, {"bar"})}'),
+        ([{"foo": '"bar"'}], '{containers.Map({\'foo\'}, {"""bar"""})}'),
+        (12345, '12345'),
+        (-54321, '-54321'),
+        (1.2345, '1.2345'),
+        (-5432.1, '-5432.1'),
+        (True, 'true'),
+        (False, 'false'),
+        (None, 'NaN'),
+    ],
+)
+def test_translate_type_matlab(test_input, expected):
+    assert translators.MatlabTranslator.translate(test_input) == expected
+
+
+@pytest.mark.parametrize(
+    "parameters,expected",
+    [
+        ({"foo": "bar"}, '% Parameters\nfoo = "bar";\n'),
+        ({"foo": True}, '% Parameters\nfoo = true;\n'),
+        ({"foo": 5}, '% Parameters\nfoo = 5;\n'),
+        ({"foo": 1.1}, '% Parameters\nfoo = 1.1;\n'),
+        ({"foo": ['bar', 'baz']}, '% Parameters\nfoo = {"bar", "baz"};\n'),
+        ({"foo": {'bar': 'baz'}}, '% Parameters\nfoo = containers.Map({\'bar\'}, {"baz"});\n'),
+        (
+            OrderedDict([['foo', 'bar'], ['baz', ['buz']]]),
+            '% Parameters\nfoo = "bar";\nbaz = {"buz"};\n',
+        ),
+    ],
+)
+def test_translate_codify_matlab(parameters, expected):
+    assert translators.MatlabTranslator.codify(parameters) == expected
+
+
+@pytest.mark.parametrize(
+    "test_input,expected", [("", '%'), ("foo", '% foo'), ("['best effort']", "% ['best effort']")]
+)
+def test_translate_comment_matlab(test_input, expected):
+    assert translators.MatlabTranslator.comment(test_input) == expected
+
+
 def test_find_translator_with_exact_kernel_name():
     my_new_kernel_translator = Mock()
     my_new_language_translator = Mock()

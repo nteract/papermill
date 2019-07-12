@@ -213,12 +213,65 @@ class JuliaTranslator(Translator):
         return '# {}'.format(cmt_str).strip()
 
 
+class MatlabTranslator(Translator):
+    @classmethod
+    def translate_escaped_str(cls, str_val):
+        """Translate a string to an escaped Matlab string"""
+        if isinstance(str_val, string_types):
+            str_val = str_val.encode('unicode_escape')
+            if sys.version_info >= (3, 0):
+                str_val = str_val.decode('utf-8')
+            str_val = str_val.replace('"', '""')
+        return '"{}"'.format(str_val)
+
+    @staticmethod
+    def __translate_char_array(str_val):
+        """Translates a string to a Matlab char array"""
+        if isinstance(str_val, string_types):
+            str_val = str_val.encode('unicode_escape')
+            if sys.version_info >= (3, 0):
+                str_val = str_val.decode('utf-8')
+            str_val = str_val.replace('\'', '\'\'')
+        return '\'{}\''.format(str_val)
+
+    @classmethod
+    def translate_none(cls, val):
+        return 'NaN'
+
+    @classmethod
+    def translate_dict(cls, val):
+        keys = ', '.join(
+            ["{}".format(cls.__translate_char_array(k)) for k, v in val.items()]
+        )
+        vals = ', '.join(
+            ["{}".format(cls.translate(v)) for k, v in val.items()]
+        )
+        return 'containers.Map({{{}}}, {{{}}})'.format(keys, vals)
+
+    @classmethod
+    def translate_list(cls, val):
+        escaped = ', '.join([cls.translate(v) for v in val])
+        return '{{{}}}'.format(escaped)
+
+    @classmethod
+    def comment(cls, cmt_str):
+        return '% {}'.format(cmt_str).strip()
+
+    @classmethod
+    def codify(cls, parameters):
+        content = '{}\n'.format(cls.comment('Parameters'))
+        for name, val in parameters.items():
+            content += '{};\n'.format(cls.assign(name, cls.translate(val)))
+        return content
+
+
 # Instantiate a PapermillIO instance and register Handlers.
 papermill_translators = PapermillTranslators()
 papermill_translators.register("python", PythonTranslator)
 papermill_translators.register("R", RTranslator)
 papermill_translators.register("scala", ScalaTranslator)
 papermill_translators.register("julia", JuliaTranslator)
+papermill_translators.register("matlab", MatlabTranslator)
 
 
 def translate_parameters(kernel_name, language, parameters):
