@@ -27,3 +27,6 @@ prune binder
 graft scripts
 # Test env
 prune .tox
+# Build files
+prune .tavis.yml
+prune azure-pipelines.yml
