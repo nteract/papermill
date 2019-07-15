@@ -14,8 +14,6 @@ pr:
 
 jobs:
   - job: 'Test'
-    pool:
-      vmImage: $(imageName)
     strategy:
       matrix:
         py27-linux:
