@@ -1,17 +1,14 @@
 trigger:
-- master
-
-variables:
-- group: codecov 
+  - master
 
 jobs:
   - job: 'Test'
 
     pool:
-      vmImage: 'ubuntu-16.04' 
+      vmImage: 'ubuntu-16.04'
     strategy:
       matrix:
-        py27: 
+        py27:
           python.version: '2.7'
           tox.env: py27
         py35:
@@ -23,33 +20,16 @@ jobs:
         py37:
           python.version: '3.7'
           tox.env: py37
-    
+
     steps:
     - task: UsePythonVersion@0
       displayName: 'Use Python $(python.version) for tests'
       inputs:
         versionSpec: '$(python.version)'
         architecture: 'x64'
-    
+
     - script: pip install tox
       displayName: 'Install tox'
 
     - script: tox -e $(tox.env)
       displayName: 'Run tox -e $(tox.env)'
-
-    - script: |        
-        # run for py36 
-        if [ "$(python.version)" = "3.6" ]; then
-          pip install coverage codecov
-          coverage xml -i
-          codecov
-        fi
-
-      env:
-        CODECOV_TOKEN: $(CODECOV_TOKEN)
-        
-      displayName: 'Report coverage'
-      condition: succeeded()
-
-      
-
