@@ -2,7 +2,8 @@
 =======================================================================================================================================================================
 
 <!---(binder links generated at https://mybinder.readthedocs.io/en/latest/howto/badges.html and compressed at https://tinyurl.com) -->
-[![Build Status](https://travis-ci.org/nteract/papermill.svg?branch=master)](https://travis-ci.org/nteract/papermill)
+[![Travis Build Status](https://travis-ci.org/nteract/papermill.svg?branch=master)](https://travis-ci.org/nteract/papermill)
+[![Azure Build Status](https://dev.azure.com/nteract/nteract/_apis/build/status/nteract.papermill?branchName=master)](https://dev.azure.com/nteract/nteract/_build/latest?definitionId=5&branchName=master)
 [![image](https://codecov.io/github/nteract/papermill/coverage.svg?branch=master)](https://codecov.io/github/nteract/papermill?branch=master)
 [![Documentation Status](https://readthedocs.org/projects/papermill/badge/?version=latest)](http://papermill.readthedocs.io/en/latest/?badge=latest)
 [![badge](https://tinyurl.com/ybwovtw2)](https://mybinder.org/v2/gh/nteract/papermill/master?filepath=binder%2Fprocess_highlight_dates.ipynb)
@@ -139,7 +140,7 @@ linear_function:
 
 #### Supported Name Handlers
 
-Papermill supports the following name handlers for input and output paths during execution: 
+Papermill supports the following name handlers for input and output paths during execution:
 
  * Local file system: `local`
 
@@ -148,7 +149,7 @@ Papermill supports the following name handlers for input and output paths during
  * Amazon Web Services: [AWS S3](https://aws.amazon.com/s3/) `s3://`
 
  * Azure: [Azure DataLake Store](https://docs.microsoft.com/en-us/azure/data-lake-store/data-lake-store-overview), [Azure Blob Store](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blobs-overview) `adl://, abs://`
-    
+
  * Google Cloud: [Google Cloud Storage](https://cloud.google.com/storage/) `gs://`
 
 Development Guide
