@@ -45,6 +45,9 @@ jobs:
         versionSpec: '$(python.version)'
         architecture: 'x64'
 
+    - script: pip install -U pip
+      displayName: 'Upgrade pip'
+
     - script: pip install tox
       displayName: 'Install tox'
 
