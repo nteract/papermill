@@ -1,6 +1,11 @@
 trigger:
   - master
 
+pr:
+  branches:
+    include:
+      - '*'
+
 jobs:
   - job: 'Test'
 
@@ -22,16 +27,16 @@ jobs:
           tox.env: py37
         flake8:
           python.version: '3.6'
-          tox.env: TOXENV=flake8
+          tox.env: flake8
         dist:
           python.version: '3.6'
-          tox.env: TOXENV=dist
+          tox.env: dist
         docs:
           python.version: '3.6'
-          tox.env: TOXENV=docs
+          tox.env: docs
         manifest:
           python.version: '3.6'
-          tox.env: TOXENV=manifest
+          tox.env: manifest
 
     steps:
     - task: UsePythonVersion@0
