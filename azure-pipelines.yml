@@ -20,6 +20,18 @@ jobs:
         py37:
           python.version: '3.7'
           tox.env: py37
+        flake8:
+          python.version: '3.6'
+          tox.env: TOXENV=flake8
+        dist:
+          python.version: '3.6'
+          tox.env: TOXENV=dist
+        docs:
+          python.version: '3.6'
+          tox.env: TOXENV=docs
+        manifest:
+          python.version: '3.6'
+          tox.env: TOXENV=manifest
 
     steps:
     - task: UsePythonVersion@0
