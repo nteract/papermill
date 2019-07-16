@@ -279,6 +279,50 @@ class TestCLI(unittest.TestCase):
         )
 
     @patch(cli.__name__ + '.execute_notebook')
+    def test_tag_include_regex(self, execute_patch):
+        self.runner.invoke(
+            papermill, self.default_args + ['--tag-include-regex', 'test'],
+        )
+        execute_patch.assert_called_with(
+            'input.ipynb',
+            'output.ipynb',
+            {},
+            engine_name=None,
+            request_save_on_cell_execute=True,
+            tag_include_regex='test',
+            tag_exclude_regex=None,
+            prepare_only=False,
+            kernel_name=None,
+            log_output=False,
+            progress_bar=True,
+            start_timeout=60,
+            report_mode=False,
+            cwd=None,
+        )
+
+    @patch(cli.__name__ + '.execute_notebook')
+    def test_tag_exclude_regex(self, execute_patch):
+        self.runner.invoke(
+            papermill, self.default_args + ['--tag-exclude-regex', 'debug|wip'],
+        )
+        execute_patch.assert_called_with(
+            'input.ipynb',
+            'output.ipynb',
+            {},
+            engine_name=None,
+            request_save_on_cell_execute=True,
+            tag_include_regex=None,
+            tag_exclude_regex='debug|wip',
+            prepare_only=False,
+            kernel_name=None,
+            log_output=False,
+            progress_bar=True,
+            start_timeout=60,
+            report_mode=False,
+            cwd=None,
+        )
+
+    @patch(cli.__name__ + '.execute_notebook')
     def test_inject_input_path(self, execute_patch):
         self.runner.invoke(papermill, self.default_args + ['--inject-input-path'])
         execute_patch.assert_called_with(
