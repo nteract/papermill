@@ -54,10 +54,16 @@ def print_papermill_version(ctx, param, value):
     '--parameters_base64', '-b', multiple=True, help='Base64 encoded YAML string as parameters.'
 )
 @click.option(
-    '--tag-include-regex', '-t', help='Python regex for tags of cells to run. If specified, will skip untagged cells.'
+    '--tag-include-regex', '-t', help=(
+        "Python regex for tags of cells to run."
+        " If specified, will skip untagged cells."
+    ),
 )
 @click.option(
-    '--tag-exclude-regex', '-T', help='Python regex for tags of cells to skip. Takes precedence if in conflict with `--tag-include-regex`.'
+    '--tag-exclude-regex', '-T', help=(
+        "Python regex for tags of cells to skip."
+        " Takes precedence if in conflict with `--tag-include-regex`."
+    ),
 )
 @click.option(
     '--inject-input-path',
