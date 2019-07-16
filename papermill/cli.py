@@ -55,13 +55,13 @@ def print_papermill_version(ctx, param, value):
 )
 @click.option(
     '--tag-include-regex', '-t', help=(
-        "Python regex for tags of cells to run."
+        "Regular expression for tags of code cells to include."
         " If specified, will skip untagged cells."
     ),
 )
 @click.option(
     '--tag-exclude-regex', '-T', help=(
-        "Python regex for tags of cells to skip."
+        "Regular expression for tags of code cells to remove."
         " Takes precedence if in conflict with `--tag-include-regex`."
     ),
 )
