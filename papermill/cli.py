@@ -54,6 +54,12 @@ def print_papermill_version(ctx, param, value):
     '--parameters_base64', '-b', multiple=True, help='Base64 encoded YAML string as parameters.'
 )
 @click.option(
+    '--tag-include-regex', '-t', help='Python regex for tags of cells to run. If specified, will skip untagged cells.'
+)
+@click.option(
+    '--tag-exclude-regex', '-T', help='Python regex for tags of cells to skip. Takes precedence if in conflict with `--tag-include-regex`.'
+)
+@click.option(
     '--inject-input-path',
     is_flag=True,
     default=False,
@@ -118,6 +124,8 @@ def papermill(
     parameters_file,
     parameters_yaml,
     parameters_base64,
+    tag_include_regex,
+    tag_exclude_regex,
     inject_input_path,
     inject_output_path,
     inject_paths,
@@ -183,6 +191,8 @@ def papermill(
         engine_name=engine,
         request_save_on_cell_execute=request_save_on_cell_execute,
         prepare_only=prepare_only,
+        tag_include_regex=tag_include_regex,
+        tag_exclude_regex=tag_exclude_regex,
         kernel_name=kernel,
         progress_bar=progress_bar,
         log_output=log_output,

@@ -4,6 +4,7 @@ from __future__ import unicode_literals, print_function
 
 import copy
 import nbformat
+import re
 
 from .log import logger
 from .exceptions import PapermillExecutionError
@@ -20,6 +21,8 @@ def execute_notebook(
     engine_name=None,
     request_save_on_cell_execute=True,
     prepare_only=False,
+    tag_include_regex=None,
+    tag_exclude_regex=None,
     kernel_name=None,
     progress_bar=True,
     log_output=False,
@@ -44,6 +47,12 @@ def execute_notebook(
         Request save notebook after each cell execution
     prepare_only : bool, optional
         Flag to determine if execution should occur or not
+    tag_include_regex : str, optional
+        Regular expression for tags of cells to execute.
+        If specified, will skip untagged cells.
+    tag_exclude_regex : str, optional
+        Regular expression for tags of cells to exclude.
+        Takes precedence if in conflict with `tag_include_regex`.
     kernel_name : str, optional
         Name of kernel to execute the notebook against
     progress_bar : bool, optional
@@ -81,6 +90,7 @@ def execute_notebook(
             nb = parameterize_notebook(nb, parameters, report_mode)
 
         nb = prepare_notebook_metadata(nb, input_path, output_path, report_mode)
+        nb = strip_notebook_cells(nb, tag_include_regex, tag_exclude_regex)
 
         if not prepare_only:
             # Fetch the kernel name if it's not supplied
@@ -136,6 +146,59 @@ def prepare_notebook_metadata(nb, input_path, output_path, report_mode=False):
     # Record specified environment variable values.
     nb.metadata.papermill['input_path'] = input_path
     nb.metadata.papermill['output_path'] = output_path
+
+    return nb
+
+
+def strip_notebook_cells(nb, tag_include_regex=None, tag_exclude_regex=None):
+    """Remove cells from a notebook based on their tags
+
+    Parameters
+    ----------
+    nb : NotebookNode
+       Executable notebook object
+    tag_include_regex : str, optional
+        Regular expression for tags of cells to keep.
+        If specified, will remove untagged cells.
+    tag_exclude_regex : str, optional
+        Regular expression for tags of cells to remove.
+        Takes precedence if in conflict with `tag_include_regex`.
+    """
+    # Copy the nb object to avoid polluting the input
+    nb = copy.deepcopy(nb)
+
+    # compile regex
+    if tag_include_regex is not None:
+        tag_include_regex = re.compile(tag_include_regex)
+    if tag_exclude_regex is not None:
+        tag_exclude_regex = re.compile(tag_exclude_regex)
+
+    cells = []
+    for cell in nb.cells:
+        if cell.cell_type == 'code':
+            if tag_include_regex is None:
+                # no whitelist
+                if tag_exclude_regex is None:
+                    # no blacklist
+                    cells.append(cell)
+                elif not any(map(tag_exclude_regex.search,
+                                 cell.metadata['tags'])):
+                    # blacklist failed
+                    cells.append(cell)
+            else:
+                # whitelist
+                if any(map(tag_include_regex.search, cell.metadata['tags'])):
+                    # whitelist passed
+                    if tag_exclude_regex is None:
+                        # no blacklist
+                        cells.append(cell)
+                    elif not any(map(tag_exclude_regex.search,
+                                     cell.metadata['tags'])):
+                        # blacklist failed
+                        cells.append(cell)
+        else:
+            cells.append(cell)
+    nb.cells = cells
 
     return nb
 
