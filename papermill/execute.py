@@ -187,7 +187,9 @@ def strip_notebook_cells(nb, tag_include_regex=None, tag_exclude_regex=None):
                     cells.append(cell)
             else:
                 # whitelist
-                if any(map(tag_include_regex.search, cell.metadata['tags'])):
+                if any(map(tag_include_regex.search, cell.metadata['tags'])) \
+                        or 'parameters' in cell.metadata['tags'] \
+                        or 'injected-parameters' in cell.metadata['tags']:
                     # whitelist passed
                     if tag_exclude_regex is None:
                         # no blacklist
