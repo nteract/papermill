@@ -70,10 +70,11 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
         nb = nb_man.nb
         for index, cell in enumerate(nb.cells):
             try:
-                nb_man.cell_start(cell)
-                if not cell.source:
-                    continue
-                nb.cells[index], resources = self.preprocess_cell(cell, resources, index)
+                if 'disable' not in cell['metadata']['tags']:
+                    nb_man.cell_start(cell)
+                    if not cell.source:
+                        continue
+                    nb.cells[index], resources = self.preprocess_cell(cell, resources, index)
             except CellExecutionError as ex:
                 nb_man.cell_exception(nb.cells[index], exception=ex)
                 break
