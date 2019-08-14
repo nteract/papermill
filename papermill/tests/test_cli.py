@@ -103,6 +103,26 @@ class TestCLI(unittest.TestCase):
         )
 
     @patch(cli.__name__ + '.execute_notebook')
+    def test_parameters_list_args(self, execute_patch):
+        self.runner.invoke(
+            papermill, self.default_args + ['-p', 'foo', 'bar', 'baz', '--parameters', 'baz', '42']
+        )
+        execute_patch.assert_called_with(
+            'input.ipynb',
+            'output.ipynb',
+            {'foo': ['bar', 'baz'], 'baz': 42},
+            engine_name=None,
+            request_save_on_cell_execute=True,
+            prepare_only=False,
+            kernel_name=None,
+            log_output=False,
+            progress_bar=True,
+            start_timeout=60,
+            report_mode=False,
+            cwd=None,
+        )
+
+    @patch(cli.__name__ + '.execute_notebook')
     def test_parameters_raw(self, execute_patch):
         self.runner.invoke(
             papermill, self.default_args + ['-r', 'foo', 'bar', '--parameters_raw', 'baz', '42']
