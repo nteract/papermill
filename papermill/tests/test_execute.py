@@ -199,7 +199,7 @@ class TestNBConvertCalls(unittest.TestCase):
 
         # Ensure the notebook builds valid html without crashing
         (body, resources) = self.html_exporter.from_notebook_node(test_nb)
-        self.assertTrue(body.startswith("\n<div"))
+        self.assertTrue(body.startswith("<div"))
 
 
 class TestReportMode(unittest.TestCase):
