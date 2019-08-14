@@ -39,7 +39,7 @@ def print_papermill_version(ctx, param, value):
 @click.argument('notebook_path', required=not INPUT_PIPED)
 @click.argument('output_path', required=not (INPUT_PIPED or OUTPUT_PIPED))
 @click.option(
-    '--parameters', '-p', nargs=2, multiple=True, help='Parameters to pass to the parameters cell.'
+    '--parameters', '-p', nargs=-1, multiple=True, help='Parameters to pass to the parameters cell.'
 )
 @click.option(
     '--parameters_raw', '-r', nargs=2, multiple=True, help='Parameters to be read as raw string.'
@@ -171,8 +171,13 @@ def papermill(
         parameters_final.update(read_yaml_file(files))
     for params in parameters_yaml or []:
         parameters_final.update(yaml.load(params, Loader=NoDatesSafeLoader))
-    for name, value in parameters or []:
-        parameters_final[name] = _resolve_type(value)
+    for name, *values in parameters or []:
+        if not values:
+            raise ValueError
+        elif len(values) == 1:
+            parameters_final[name] = _resolve_type(values[0])
+        else:
+            parameters_final[name] = [_resolve_type(v) for v in values]
     for name, value in parameters_raw or []:
         parameters_final[name] = value
 
