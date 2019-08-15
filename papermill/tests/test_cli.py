@@ -103,6 +103,28 @@ class TestCLI(unittest.TestCase):
         )
 
     @patch(cli.__name__ + '.execute_notebook')
+    def test_parameters_list_args(self, execute_patch):
+        self.runner.invoke(
+            papermill, self.default_args + ['-p', 'foo', 'bar', 'baz', '0',
+                                            '-p', 'one', 'two',
+                                            '--parameters', 'qux', '42']
+        )
+        execute_patch.assert_called_with(
+            'input.ipynb',
+            'output.ipynb',
+            {'foo': ['bar', 'baz', 0], 'one': 'two', 'qux': 42},
+            engine_name=None,
+            request_save_on_cell_execute=True,
+            prepare_only=False,
+            kernel_name=None,
+            log_output=False,
+            progress_bar=True,
+            start_timeout=60,
+            report_mode=False,
+            cwd=None,
+        )
+
+    @patch(cli.__name__ + '.execute_notebook')
     def test_parameters_raw(self, execute_patch):
         self.runner.invoke(
             papermill, self.default_args + ['-r', 'foo', 'bar', '--parameters_raw', 'baz', '42']
@@ -111,6 +133,28 @@ class TestCLI(unittest.TestCase):
             'input.ipynb',
             'output.ipynb',
             {'foo': 'bar', 'baz': '42'},
+            engine_name=None,
+            request_save_on_cell_execute=True,
+            prepare_only=False,
+            kernel_name=None,
+            log_output=False,
+            progress_bar=True,
+            start_timeout=60,
+            report_mode=False,
+            cwd=None,
+        )
+
+    @patch(cli.__name__ + '.execute_notebook')
+    def test_parameters_raw_list_args(self, execute_patch):
+        self.runner.invoke(
+            papermill, self.default_args + ['-r', 'foo', 'bar', 'baz', '0',
+                                            '-r', 'one', 'two',
+                                            '--parameters_raw', 'qux', '42']
+        )
+        execute_patch.assert_called_with(
+            'input.ipynb',
+            'output.ipynb',
+            {'foo': ['bar', 'baz', '0'], 'one': 'two', 'qux': '42'},
             engine_name=None,
             request_save_on_cell_execute=True,
             prepare_only=False,
