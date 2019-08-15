@@ -232,7 +232,7 @@ def papermill(
         if len(values) == 1:
             parameters_final[name] = values[0]
         else:
-            parameters_final[name] = values
+            parameters_final[name] = list(values)
 
     execute_notebook(
         notebook_path,
