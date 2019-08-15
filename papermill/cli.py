@@ -87,7 +87,8 @@ class OptionEatAll(click.Option):
     cls=OptionEatAll,
 )
 @click.option(
-    '--parameters_raw', '-r', nargs=2, multiple=True, help='Parameters to be read as raw string.'
+    '--parameters_raw', '-r', multiple=True, help='Parameters to be read as raw string.',
+    cls=OptionEatAll,
 )
 @click.option(
     '--parameters_file', '-f', multiple=True, help='Path to YAML file containing parameters.'
@@ -218,13 +219,18 @@ def papermill(
         parameters_final.update(yaml.load(params, Loader=NoDatesSafeLoader))
     for name, *values in parameters or []:
         if not values:
-            raise ValueError
+            raise ValueError(f"There must be at least one value for key '{name}'")
         elif len(values) == 1:
             parameters_final[name] = _resolve_type(values[0])
         else:
             parameters_final[name] = [_resolve_type(v) for v in values]
-    for name, value in parameters_raw or []:
-        parameters_final[name] = value
+    for name, *values in parameters_raw or []:
+        if not values:
+            raise ValueError(f"There must be at least one value for key '{name}'")
+        elif len(values) == 1:
+            parameters_final[name] = values[0]
+        else:
+            parameters_final[name] = values
 
     execute_notebook(
         notebook_path,
