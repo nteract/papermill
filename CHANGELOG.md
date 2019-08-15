@@ -1,5 +1,12 @@
 # Change Log
 
+## 1.1.0
+- Read content from stdin/to stdout when path is '-' or a pipe. This allows for `<generate input>... | papermill | ...<process output>`, with `papermill - -` being implied by the pipes.
+- The built-in ADLHandler for azure pipelines should now work properly again.
+- Many documentation improvements
+- IPython is now lazily imported, and only when progress bars are needed
+- Matlab translator is now available for parameters being passed to matlab notebooks
+
 ## 1.0.1
 - Cleaned up some dependency and build issues around pip 19 and pandas
 - `execute_notebook` can now take notebook as strings instead of only as a path
