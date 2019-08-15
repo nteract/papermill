@@ -217,16 +217,18 @@ def papermill(
         parameters_final.update(read_yaml_file(files))
     for params in parameters_yaml or []:
         parameters_final.update(yaml.load(params, Loader=NoDatesSafeLoader))
-    for name, *values in parameters or []:
+    for name_values in parameters or []:
+        name, values = name_values.pop(0), name_values
         if not values:
-            raise ValueError(f"There must be at least one value for key '{name}'")
+            raise ValueError("There must be at least one value for key '{}'".format(name))
         elif len(values) == 1:
             parameters_final[name] = _resolve_type(values[0])
         else:
             parameters_final[name] = [_resolve_type(v) for v in values]
-    for name, *values in parameters_raw or []:
+    for name_values in parameters_raw or []:
+        name, values = name_values.pop(0), name_values
         if not values:
-            raise ValueError(f"There must be at least one value for key '{name}'")
+            raise ValueError("There must be at least one value for key '{}'".format(name))
         elif len(values) == 1:
             parameters_final[name] = values[0]
         else:
