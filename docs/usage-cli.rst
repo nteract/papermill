@@ -15,7 +15,7 @@ options:
       output in the destination notebook.
 
       The NOTEBOOK_PATH and OUTPUT_PATH can now be replaced by `-` representing
-      stdout and stderr, or by the pressence of pipe inputs / outputs. Meaning
+      stdout and stderr, or by the presence of pipe inputs / outputs. Meaning
       that
 
       `<generate input>... | papermill | ...<process output>`
