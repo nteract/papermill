@@ -154,7 +154,7 @@ class S3(object):
                 endpoint_url = os.environ.get('BOTO3_ENDPOINT_URL', None)
                 if endpoint_url:
                     session_params['endpoint_url'] = endpoint_url
-                
+
                 s3 = session.resource('s3', **session_params)
                 S3.s3_session = (session, client, s3)
 
