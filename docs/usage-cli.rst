@@ -8,11 +8,20 @@ options:
 
     Usage: papermill [OPTIONS] NOTEBOOK_PATH OUTPUT_PATH
 
-      This utility executes a single notebook on a container.
+      This utility executes a single notebook in a subprocess.
 
       Papermill takes a source notebook, applies parameters to the source
       notebook, executes the notebook with the specified kernel, and saves the
       output in the destination notebook.
+
+      The NOTEBOOK_PATH and OUTPUT_PATH can now be replaced by `-` representing
+      stdout and stderr, or by the presence of pipe inputs / outputs. Meaning
+      that
+
+      `<generate input>... | papermill | ...<process output>`
+
+      with `papermill - -` being implied by the pipes will read a notebook from
+      stdin and write it out to stdout.
 
     Options:
       -p, --parameters TEXT...        Parameters to pass to the parameters cell.
@@ -32,6 +41,9 @@ options:
                                       as notebook parameters.
       --engine TEXT                   The execution engine name to use in
                                       evaluating the notebook.
+      --request-save-on-cell-execute TEXT
+                                      Request save notebook after each cell
+                                      execution
       --prepare-only / --prepare-execute
                                       Flag for outputting the notebook without
                                       execution, but with parameters applied.

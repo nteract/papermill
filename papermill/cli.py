@@ -178,11 +178,20 @@ def papermill(
     start_timeout,
     report_mode,
 ):
-    """This utility executes a single notebook on a container.
+    """This utility executes a single notebook in a subprocess.
 
     Papermill takes a source notebook, applies parameters to the source
     notebook, executes the notebook with the specified kernel, and saves the
     output in the destination notebook.
+
+    The NOTEBOOK_PATH and OUTPUT_PATH can now be replaced by `-` representing
+    stdout and stderr, or by the presence of pipe inputs / outputs.
+    Meaning that
+
+    `<generate input>... | papermill | ...<process output>`
+
+    with `papermill - -` being implied by the pipes will read a notebook
+    from stdin and write it out to stdout.
 
     """
     if INPUT_PIPED and notebook_path and not output_path:
