@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Utilities for working with S3."""
 from __future__ import unicode_literals
+import os
 
 import logging
 import threading
@@ -148,7 +149,13 @@ class S3(object):
             if not all(S3.s3_session):
                 session = Session()
                 client = session.client('s3')
-                s3 = session.resource('s3')
+
+                session_params = {}
+                endpoint_url = os.environ.get('BOTO3_ENDPOINT_URL', None)
+                if endpoint_url:
+                    session_params['endpoint_url'] = endpoint_url
+
+                s3 = session.resource('s3', **session_params)
                 S3.s3_session = (session, client, s3)
 
         (self.session, self.client, self.s3) = S3.s3_session
