@@ -22,10 +22,8 @@ class PapermillTranslators(object):
         elif language in self._translators:
             return self._translators[language]
         raise PapermillException(
-            "No parameter translator functions specified for kernel '{}' or language '{}'".format(
-                kernel_name, language
-            )
-        )
+            "No parameter translator functions specified for kernel '{}' or language '{}'"
+            .format(kernel_name, language))
 
 
 class Translator(object):
@@ -71,11 +69,13 @@ class Translator(object):
 
     @classmethod
     def translate_dict(cls, val):
-        raise NotImplementedError('dict type translation not implemented for {}'.format(cls))
+        raise NotImplementedError(
+            'dict type translation not implemented for {}'.format(cls))
 
     @classmethod
     def translate_list(cls, val):
-        raise NotImplementedError('list type translation not implemented for {}'.format(cls))
+        raise NotImplementedError(
+            'list type translation not implemented for {}'.format(cls))
 
     @classmethod
     def translate(cls, val):
@@ -100,7 +100,8 @@ class Translator(object):
 
     @classmethod
     def comment(cls, cmt_str):
-        raise NotImplementedError('comment translation not implemented for {}'.format(cls))
+        raise NotImplementedError(
+            'comment translation not implemented for {}'.format(cls))
 
     @classmethod
     def assign(cls, name, str_val):
@@ -121,9 +122,10 @@ class PythonTranslator(Translator):
 
     @classmethod
     def translate_dict(cls, val):
-        escaped = ', '.join(
-            ["{}: {}".format(cls.translate_str(k), cls.translate(v)) for k, v in val.items()]
-        )
+        escaped = ', '.join([
+            "{}: {}".format(cls.translate_str(k), cls.translate(v))
+            for k, v in val.items()
+        ])
         return '{{{}}}'.format(escaped)
 
     @classmethod
@@ -147,9 +149,10 @@ class RTranslator(Translator):
 
     @classmethod
     def translate_dict(cls, val):
-        escaped = ', '.join(
-            ['{} = {}'.format(cls.translate_str(k), cls.translate(v)) for k, v in val.items()]
-        )
+        escaped = ', '.join([
+            '{} = {}'.format(cls.translate_str(k), cls.translate(v))
+            for k, v in val.items()
+        ])
         return 'list({})'.format(escaped)
 
     @classmethod
@@ -166,14 +169,16 @@ class ScalaTranslator(Translator):
     @classmethod
     def translate_int(cls, val):
         strval = cls.translate_raw_str(val)
-        return strval + "L" if (val > 2147483647 or val < -2147483648) else strval
+        return strval + "L" if (val > 2147483647
+                                or val < -2147483648) else strval
 
     @classmethod
     def translate_dict(cls, val):
         """Translate dicts to scala Maps"""
-        escaped = ', '.join(
-            ["{} -> {}".format(cls.translate_str(k), cls.translate(v)) for k, v in val.items()]
-        )
+        escaped = ', '.join([
+            "{} -> {}".format(cls.translate_str(k), cls.translate(v))
+            for k, v in val.items()
+        ])
         return 'Map({})'.format(escaped)
 
     @classmethod
@@ -198,9 +203,10 @@ class JuliaTranslator(Translator):
 
     @classmethod
     def translate_dict(cls, val):
-        escaped = ', '.join(
-            ["{} => {}".format(cls.translate_str(k), cls.translate(v)) for k, v in val.items()]
-        )
+        escaped = ', '.join([
+            "{} => {}".format(cls.translate_str(k), cls.translate(v))
+            for k, v in val.items()
+        ])
         return 'Dict({})'.format(escaped)
 
     @classmethod
@@ -240,12 +246,11 @@ class MatlabTranslator(Translator):
 
     @classmethod
     def translate_dict(cls, val):
-        keys = ', '.join(
-            ["{}".format(cls.__translate_char_array(k)) for k, v in val.items()]
-        )
+        keys = ', '.join([
+            "{}".format(cls.__translate_char_array(k)) for k, v in val.items()
+        ])
         vals = ', '.join(
-            ["{}".format(cls.translate(v)) for k, v in val.items()]
-        )
+            ["{}".format(cls.translate(v)) for k, v in val.items()])
         return 'containers.Map({{{}}}, {{{}}})'.format(keys, vals)
 
     @classmethod
@@ -272,7 +277,9 @@ papermill_translators.register("R", RTranslator)
 papermill_translators.register("scala", ScalaTranslator)
 papermill_translators.register("julia", JuliaTranslator)
 papermill_translators.register("matlab", MatlabTranslator)
+papermill_translators.register("pysparkkernel", PythonTranslator)
 
 
 def translate_parameters(kernel_name, language, parameters):
-    return papermill_translators.find_translator(kernel_name, language).codify(parameters)
+    return papermill_translators.find_translator(kernel_name,
+                                                 language).codify(parameters)
