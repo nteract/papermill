@@ -1,7 +1,4 @@
 from __future__ import unicode_literals, print_function
-from future.utils import raise_from  # noqa: F401
-
-import sys
 
 from nbconvert.preprocessors import ExecutePreprocessor
 from nbconvert.preprocessors.execute import CellExecutionError
@@ -78,9 +75,6 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
                 self.log.warning("".join(output.text))
         elif "data" in output and "text/plain" in output.data:
             self.log.info("".join(output.data['text/plain']))
-        # Force a flush to avoid long python buffering for messages
-        sys.stdout.flush()
-        sys.stderr.flush()
 
     def process_message(self, *arg, **kwargs):
         output = super(PapermillExecutePreprocessor, self).process_message(*arg, **kwargs)
