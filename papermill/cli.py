@@ -240,9 +240,9 @@ def papermill(
         parameters_final[name] = values[0] if len(values) == 1 else values
 
     execute_notebook(
-        notebook_path,
-        output_path,
-        parameters_final,
+        input_path=notebook_path,
+        output_path=output_path,
+        parameters=parameters_final,
         engine_name=engine,
         request_save_on_cell_execute=request_save_on_cell_execute,
         prepare_only=prepare_only,
