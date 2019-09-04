@@ -12,7 +12,7 @@ from ..preprocess import PapermillExecutePreprocessor
 class TestPapermillExecutePreprocessor(unittest.TestCase):
     def setUp(self):
         self.nb = nbformat.read(get_notebook_path('test_logging.ipynb'), as_version=4)
-        self.preprocessor = PapermillExecutePreprocessor(log=logger)
+        self.preprocessor = PapermillExecutePreprocessor(log=logger, log_output=True)
         self.preprocessor.nb = self.nb
 
     def test_logging_stderr_msg(self):

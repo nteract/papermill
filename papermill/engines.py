@@ -331,6 +331,8 @@ class NBConvertEngine(Engine):
         nb_man,
         kernel_name,
         log_output=False,
+        stdout_file=None,
+        stderr_file=None,
         start_timeout=60,
         execution_timeout=None,
         **kwargs
@@ -363,6 +365,8 @@ class NBConvertEngine(Engine):
             kernel_name=kernel_name,
             log=logger,
             log_output=log_output,
+            stdout_file=stdout_file,
+            stderr_file=stderr_file,
         )
         preprocessor = PapermillExecutePreprocessor(**final_kwargs)
         preprocessor.preprocess(nb_man, safe_kwargs)

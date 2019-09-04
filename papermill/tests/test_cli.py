@@ -5,6 +5,8 @@
 import os
 import sys
 import subprocess
+import uuid
+
 import nbformat
 from jupyter_client import kernelspec
 import unittest
@@ -15,6 +17,7 @@ from click.testing import CliRunner
 
 from mock import patch
 
+from . import get_notebook_path, kernel_name
 from .. import cli
 from ..cli import papermill, _is_int, _is_float, _resolve_type
 
@@ -85,6 +88,8 @@ class TestCLI(unittest.TestCase):
         start_timeout=60,
         report_mode=False,
         cwd=None,
+        stdout_file=None,
+        stderr_file=None,
     )
 
     def setUp(self):
@@ -542,3 +547,25 @@ def test_pipe_in_explicit(tmpdir, notebook):
     # Test that output is a valid notebook
     with open(str(nb_file)) as fp:
         nbformat.reads(fp.read(), as_version=4)
+
+
+@require_papermill_installed
+def test_stdout_file(tmpdir):
+    nb_file = tmpdir.join('notebook.ipynb')
+    stdout_file = tmpdir.join('notebook.stdout')
+    secret = str(uuid.uuid4())
+
+    process = papermill_cli([
+        get_notebook_path('simple_execute.ipynb'),
+        str(nb_file),
+        '-k', kernel_name,
+        '-p', 'msg', secret,
+        '--stdout-file', str(stdout_file),
+    ])
+    out, err = process.communicate()
+
+    assert not out
+    assert not err
+
+    with open(str(stdout_file)) as fp:
+        assert fp.read() == secret + '\n'

@@ -139,6 +139,16 @@ class OptionEatAll(click.Option):
     help="Flag for writing notebook output to the configured logger.",
 )
 @click.option(
+    '--stdout-file',
+    type=click.File(mode='w', encoding='utf-8'),
+    help="File to write notebook stdout output to.",
+)
+@click.option(
+    '--stderr-file',
+    type=click.File(mode='w', encoding='utf-8'),
+    help="File to write notebook stderr output to.",
+)
+@click.option(
     '--log-level',
     type=click.Choice(['NOTSET', 'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']),
     default='INFO',
@@ -177,6 +187,8 @@ def papermill(
     log_level,
     start_timeout,
     report_mode,
+    stdout_file,
+    stderr_file,
 ):
     """This utility executes a single notebook in a subprocess.
 
@@ -249,6 +261,8 @@ def papermill(
         kernel_name=kernel,
         progress_bar=progress_bar,
         log_output=log_output,
+        stdout_file=stdout_file,
+        stderr_file=stderr_file,
         start_timeout=start_timeout,
         report_mode=report_mode,
         cwd=cwd,

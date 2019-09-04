@@ -23,6 +23,8 @@ def execute_notebook(
     kernel_name=None,
     progress_bar=True,
     log_output=False,
+    stdout_file=None,
+    stderr_file=None,
     start_timeout=60,
     report_mode=False,
     cwd=None,
@@ -97,6 +99,8 @@ def execute_notebook(
                     progress_bar=progress_bar,
                     log_output=log_output,
                     start_timeout=start_timeout,
+                    stdout_file=stdout_file,
+                    stderr_file=stderr_file,
                     **engine_kwargs
                 )
 
