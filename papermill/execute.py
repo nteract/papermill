@@ -49,7 +49,7 @@ def execute_notebook(
     progress_bar : bool, optional
         Flag for whether or not to show the progress bar.
     log_output : bool, optional
-        Flag for whether or not to write notebook output_path to `stderr`
+        Flag for whether or not to write notebook output to the configured logger
     start_timeout : int, optional
         Duration in seconds to wait for kernel start-up
     report_mode : bool, optional

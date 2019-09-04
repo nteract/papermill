@@ -136,7 +136,7 @@ class OptionEatAll(click.Option):
 @click.option(
     '--log-output/--no-log-output',
     default=False,
-    help="Flag for writing notebook output to stderr.",
+    help="Flag for writing notebook output to the configured logger.",
 )
 @click.option(
     '--log-level',

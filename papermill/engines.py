@@ -341,7 +341,8 @@ class NBConvertEngine(Engine):
         Args:
             nb (NotebookNode): Executable notebook object.
             kernel_name (str): Name of kernel to execute the notebook against.
-            log_output (bool): Flag for whether or not to write notebook output to stderr.
+            log_output (bool): Flag for whether or not to write notebook output to the
+                               configured logger.
             start_timeout (int): Duration to wait for kernel start-up.
             execution_timeout (int): Duration to wait before failing execution (default: never).
 
