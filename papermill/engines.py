@@ -356,14 +356,15 @@ class NBConvertEngine(Engine):
         safe_kwargs = remove_args(['timeout', 'startup_timeout'], **kwargs)
 
         # Nicely handle preprocessor arguments prioritizing values set by engine
-        preprocessor = PapermillExecutePreprocessor(
-            **merge_kwargs(safe_kwargs,
-                           timeout=execution_timeout if execution_timeout else kwargs.get('timeout'),
-                           startup_timeout=start_timeout,
-                           kernel_name=kernel_name,
-                           log=logger))
-
-        preprocessor.log_output = log_output
+        final_kwargs = merge_kwargs(
+            safe_kwargs,
+            timeout=execution_timeout if execution_timeout else kwargs.get('timeout'),
+            startup_timeout=start_timeout,
+            kernel_name=kernel_name,
+            log=logger,
+            log_output=log_output,
+        )
+        preprocessor = PapermillExecutePreprocessor(**final_kwargs)
         preprocessor.preprocess(nb_man, safe_kwargs)
 
 

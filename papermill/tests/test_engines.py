@@ -3,7 +3,7 @@ import copy
 import dateutil
 import unittest
 
-from mock import Mock, PropertyMock, patch, call
+from mock import Mock, patch, call
 from nbformat.notebooknode import NotebookNode
 
 from . import get_notebook_path
@@ -389,10 +389,6 @@ class TestNBConvertEngine(unittest.TestCase):
 
     def test_nb_convert_engine(self):
         with patch.object(engines, 'PapermillExecutePreprocessor') as pep_mock:
-            # Mock log_output calls
-            log_out_mock = PropertyMock()
-            type(pep_mock.return_value).log_output = log_out_mock
-
             with patch.object(NotebookExecutionManager, 'save') as save_mock:
                 nb = NBConvertEngine.execute_notebook(
                     self.nb,
@@ -411,13 +407,17 @@ class TestNBConvertEngine(unittest.TestCase):
                 pep_mock.assert_called_once()
 
                 args, kwargs = pep_mock.call_args
-                expected = [('timeout', 1000), ('startup_timeout', 30),
-                            ('kernel_name', 'python'), ('log', logger)]
+                expected = [
+                    ('timeout', 1000),
+                    ('startup_timeout', 30),
+                    ('kernel_name', 'python'),
+                    ('log', logger),
+                    ('log_output', True),
+                ]
                 actual = set([(key, kwargs[key]) for key in kwargs])
                 msg = 'Expected arguments {} are not a subset of actual {}'.format(expected, actual)
                 self.assertTrue(set(expected).issubset(actual), msg=msg)
 
-                log_out_mock.assert_called_once_with(True)
                 pep_mock.return_value.preprocess.assert_called_once_with(
                     AnyMock(NotebookExecutionManager), {'bar': 'baz'}
                 )

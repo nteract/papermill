@@ -5,11 +5,14 @@ import sys
 
 from nbconvert.preprocessors import ExecutePreprocessor
 from nbconvert.preprocessors.execute import CellExecutionError
+from traitlets import Bool
 
 
 class PapermillExecutePreprocessor(ExecutePreprocessor):
     """Module containing a preprocessor that executes the code cells
     and updates outputs"""
+
+    log_output = Bool(False).tag(config=True)
 
     def preprocess(self, nb_man, resources, km=None):
         """
