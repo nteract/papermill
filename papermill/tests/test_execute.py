@@ -1,6 +1,5 @@
 import os
 import io
-import six
 import shutil
 import tempfile
 import unittest
@@ -20,13 +19,8 @@ from ..iorw import load_notebook_node
 from ..utils import chdir
 from ..execute import execute_notebook
 from ..exceptions import PapermillExecutionError
-from . import get_notebook_path
+from . import get_notebook_path, kernel_name
 
-
-if six.PY2:
-    kernel_name = 'python2'
-else:
-    kernel_name = 'python3'
 execute_notebook = partial(execute_notebook, kernel_name=kernel_name)
 
 
