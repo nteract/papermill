@@ -23,6 +23,8 @@ def execute_notebook(
     kernel_name=None,
     progress_bar=True,
     log_output=False,
+    stdout_file=None,
+    stderr_file=None,
     start_timeout=60,
     report_mode=False,
     cwd=None,
@@ -49,7 +51,7 @@ def execute_notebook(
     progress_bar : bool, optional
         Flag for whether or not to show the progress bar.
     log_output : bool, optional
-        Flag for whether or not to write notebook output_path to `stderr`
+        Flag for whether or not to write notebook output to the configured logger
     start_timeout : int, optional
         Duration in seconds to wait for kernel start-up
     report_mode : bool, optional
@@ -97,6 +99,8 @@ def execute_notebook(
                     progress_bar=progress_bar,
                     log_output=log_output,
                     start_timeout=start_timeout,
+                    stdout_file=stdout_file,
+                    stderr_file=stderr_file,
                     **engine_kwargs
                 )
 

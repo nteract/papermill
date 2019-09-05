@@ -1,15 +1,17 @@
 from __future__ import unicode_literals, print_function
-from future.utils import raise_from  # noqa: F401
-
-import sys
 
 from nbconvert.preprocessors import ExecutePreprocessor
 from nbconvert.preprocessors.execute import CellExecutionError
+from traitlets import Bool, Instance
 
 
 class PapermillExecutePreprocessor(ExecutePreprocessor):
     """Module containing a preprocessor that executes the code cells
     and updates outputs"""
+
+    log_output = Bool(False).tag(config=True)
+    stdout_file = Instance(object, default_value=None).tag(config=True)
+    stderr_file = Instance(object, default_value=None).tag(config=True)
 
     def preprocess(self, nb_man, resources, km=None):
         """
@@ -67,20 +69,33 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
         return nb, resources
 
     def log_output_message(self, output):
+        """
+        Process a given output. May log it in the configured logger and/or write it into
+        the configured stdout/stderr files.
+
+        :param output: nbformat.notebooknode.NotebookNode
+        :return:
+        """
         if output.output_type == "stream":
+            content = "".join(output.text)
             if output.name == "stdout":
-                self.log.info("".join(output.text))
+                if self.log_output:
+                    self.log.info(content)
+                if self.stdout_file:
+                    self.stdout_file.write(content)
+                    self.stdout_file.flush()
             elif output.name == "stderr":
-                # In case users want to redirect stderr differently, pipe to warning
-                self.log.warning("".join(output.text))
-        elif "data" in output and "text/plain" in output.data:
+                if self.log_output:
+                    # In case users want to redirect stderr differently, pipe to warning
+                    self.log.warning(content)
+                if self.stderr_file:
+                    self.stderr_file.write(content)
+                    self.stderr_file.flush()
+        elif self.log_output and ("data" in output and "text/plain" in output.data):
             self.log.info("".join(output.data['text/plain']))
-        # Force a flush to avoid long python buffering for messages
-        sys.stdout.flush()
-        sys.stderr.flush()
 
     def process_message(self, *arg, **kwargs):
         output = super(PapermillExecutePreprocessor, self).process_message(*arg, **kwargs)
-        if self.log_output and output:
+        if output and (self.log_output or self.stderr_file or self.stdout_file):
             self.log_output_message(output)
         return output

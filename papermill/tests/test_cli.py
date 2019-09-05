@@ -5,6 +5,8 @@
 import os
 import sys
 import subprocess
+import uuid
+
 import nbformat
 from jupyter_client import kernelspec
 import unittest
@@ -15,6 +17,7 @@ from click.testing import CliRunner
 
 from mock import patch
 
+from . import get_notebook_path, kernel_name
 from .. import cli
 from ..cli import papermill, _is_int, _is_float, _resolve_type
 
@@ -72,9 +75,29 @@ def test_is_int(value, expected):
 
 
 class TestCLI(unittest.TestCase):
+    default_execute_kwargs = dict(
+        input_path='input.ipynb',
+        output_path='output.ipynb',
+        parameters={},
+        engine_name=None,
+        request_save_on_cell_execute=True,
+        prepare_only=False,
+        kernel_name=None,
+        log_output=False,
+        progress_bar=True,
+        start_timeout=60,
+        report_mode=False,
+        cwd=None,
+        stdout_file=None,
+        stderr_file=None,
+    )
+
     def setUp(self):
         self.runner = CliRunner()
-        self.default_args = ['input.ipynb', 'output.ipynb']
+        self.default_args = [
+            self.default_execute_kwargs['input_path'],
+            self.default_execute_kwargs['output_path'],
+        ]
         self.sample_yaml_file = os.path.join(
             os.path.dirname(__file__), 'parameters', 'example.yaml'
         )
@@ -82,46 +105,31 @@ class TestCLI(unittest.TestCase):
             os.path.dirname(__file__), 'parameters', 'example.json'
         )
 
+    def augment_execute_kwargs(self, **new_kwargs):
+        kwargs = self.default_execute_kwargs.copy()
+        kwargs.update(new_kwargs)
+        return kwargs
+
     @patch(cli.__name__ + '.execute_notebook')
     def test_parameters(self, execute_patch):
         self.runner.invoke(
             papermill, self.default_args + ['-p', 'foo', 'bar', '--parameters', 'baz', '42']
         )
         execute_patch.assert_called_with(
-            'input.ipynb',
-            'output.ipynb',
-            {'foo': 'bar', 'baz': 42},
-            engine_name=None,
-            request_save_on_cell_execute=True,
-            prepare_only=False,
-            kernel_name=None,
-            log_output=False,
-            progress_bar=True,
-            start_timeout=60,
-            report_mode=False,
-            cwd=None,
+            **self.augment_execute_kwargs(parameters={'foo': 'bar', 'baz': 42})
         )
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_parameters_list_args(self, execute_patch):
         self.runner.invoke(
-            papermill, self.default_args + ['-p', 'foo', 'bar', 'baz', '0',
-                                            '-p', 'one', 'two',
-                                            '--parameters', 'qux', '42']
+            papermill,
+            self.default_args
+            + ['-p', 'foo', 'bar', 'baz', '0', '-p', 'one', 'two', '--parameters', 'qux', '42'],
         )
         execute_patch.assert_called_with(
-            'input.ipynb',
-            'output.ipynb',
-            {'foo': ['bar', 'baz', 0], 'one': 'two', 'qux': 42},
-            engine_name=None,
-            request_save_on_cell_execute=True,
-            prepare_only=False,
-            kernel_name=None,
-            log_output=False,
-            progress_bar=True,
-            start_timeout=60,
-            report_mode=False,
-            cwd=None,
+            **self.augment_execute_kwargs(
+                parameters={'foo': ['bar', 'baz', 0], 'one': 'two', 'qux': 42}
+            )
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -130,40 +138,20 @@ class TestCLI(unittest.TestCase):
             papermill, self.default_args + ['-r', 'foo', 'bar', '--parameters_raw', 'baz', '42']
         )
         execute_patch.assert_called_with(
-            'input.ipynb',
-            'output.ipynb',
-            {'foo': 'bar', 'baz': '42'},
-            engine_name=None,
-            request_save_on_cell_execute=True,
-            prepare_only=False,
-            kernel_name=None,
-            log_output=False,
-            progress_bar=True,
-            start_timeout=60,
-            report_mode=False,
-            cwd=None,
+            **self.augment_execute_kwargs(parameters={'foo': 'bar', 'baz': '42'})
         )
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_parameters_raw_list_args(self, execute_patch):
         self.runner.invoke(
-            papermill, self.default_args + ['-r', 'foo', 'bar', 'baz', '0',
-                                            '-r', 'one', 'two',
-                                            '--parameters_raw', 'qux', '42']
+            papermill,
+            self.default_args
+            + ['-r', 'foo', 'bar', 'baz', '0', '-r', 'one', 'two', '--parameters_raw', 'qux', '42'],
         )
         execute_patch.assert_called_with(
-            'input.ipynb',
-            'output.ipynb',
-            {'foo': ['bar', 'baz', '0'], 'one': 'two', 'qux': '42'},
-            engine_name=None,
-            request_save_on_cell_execute=True,
-            prepare_only=False,
-            kernel_name=None,
-            log_output=False,
-            progress_bar=True,
-            start_timeout=60,
-            report_mode=False,
-            cwd=None,
+            **self.augment_execute_kwargs(
+                parameters={'foo': ['bar', 'baz', '0'], 'one': 'two', 'qux': '42'}
+            )
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -174,19 +162,15 @@ class TestCLI(unittest.TestCase):
             + ['-f', self.sample_yaml_file, '--parameters_file', self.sample_json_file],
         )
         execute_patch.assert_called_with(
-            'input.ipynb',
-            'output.ipynb',
-            # Last input wins dict update
-            {'foo': 54321, 'bar': 'value', 'baz': {'k2': 'v2', 'k1': 'v1'}, 'a_date': '2019-01-01'},
-            engine_name=None,
-            request_save_on_cell_execute=True,
-            prepare_only=False,
-            kernel_name=None,
-            log_output=False,
-            progress_bar=True,
-            start_timeout=60,
-            report_mode=False,
-            cwd=None,
+            **self.augment_execute_kwargs(
+                # Last input wins dict update
+                parameters={
+                    'foo': 54321,
+                    'bar': 'value',
+                    'baz': {'k2': 'v2', 'k1': 'v1'},
+                    'a_date': '2019-01-01',
+                }
+            )
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -196,39 +180,14 @@ class TestCLI(unittest.TestCase):
             self.default_args + ['-y', '{"foo": "bar"}', '--parameters_yaml', '{"foo2": ["baz"]}'],
         )
         execute_patch.assert_called_with(
-            'input.ipynb',
-            'output.ipynb',
-            {'foo': 'bar', 'foo2': ['baz']},
-            engine_name=None,
-            request_save_on_cell_execute=True,
-            prepare_only=False,
-            kernel_name=None,
-            log_output=False,
-            progress_bar=True,
-            start_timeout=60,
-            report_mode=False,
-            cwd=None,
+            **self.augment_execute_kwargs(parameters={'foo': 'bar', 'foo2': ['baz']})
         )
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_parameters_yaml_date(self, execute_patch):
-        self.runner.invoke(
-            papermill,
-            self.default_args + ['-y', 'a_date: 2019-01-01'],
-        )
+        self.runner.invoke(papermill, self.default_args + ['-y', 'a_date: 2019-01-01'])
         execute_patch.assert_called_with(
-            'input.ipynb',
-            'output.ipynb',
-            {'a_date': '2019-01-01'},
-            engine_name=None,
-            request_save_on_cell_execute=True,
-            prepare_only=False,
-            kernel_name=None,
-            log_output=False,
-            progress_bar=True,
-            start_timeout=60,
-            report_mode=False,
-            cwd=None,
+            **self.augment_execute_kwargs(parameters={'a_date': '2019-01-01'})
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -238,19 +197,10 @@ class TestCLI(unittest.TestCase):
             self.default_args + ['--parameters_yaml', '{"foo": "bar"}', '-y', '{"foo": ["baz"]}'],
         )
         execute_patch.assert_called_with(
-            'input.ipynb',
-            'output.ipynb',
-            # Last input wins dict update
-            {'foo': ['baz']},
-            engine_name=None,
-            request_save_on_cell_execute=True,
-            prepare_only=False,
-            kernel_name=None,
-            log_output=False,
-            progress_bar=True,
-            start_timeout=60,
-            report_mode=False,
-            cwd=None,
+            **self.augment_execute_kwargs(
+                # Last input wins dict update
+                parameters={'foo': ['baz']}
+            )
         )
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -266,336 +216,118 @@ class TestCLI(unittest.TestCase):
             ],
         )
         execute_patch.assert_called_with(
-            'input.ipynb',
-            'output.ipynb',
-            # Last input wins dict update
-            {'foo': 1, 'bar': 2},
-            engine_name=None,
-            request_save_on_cell_execute=True,
-            prepare_only=False,
-            kernel_name=None,
-            log_output=False,
-            progress_bar=True,
-            start_timeout=60,
-            report_mode=False,
-            cwd=None,
+            **self.augment_execute_kwargs(parameters={'foo': 1, 'bar': 2})
         )
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_parameters_base64_date(self, execute_patch):
         self.runner.invoke(
-            papermill,
-            self.default_args
-            + [
-                '--parameters_base64',
-                'YV9kYXRlOiAyMDE5LTAxLTAx',
-            ],
+            papermill, self.default_args + ['--parameters_base64', 'YV9kYXRlOiAyMDE5LTAxLTAx']
         )
         execute_patch.assert_called_with(
-            'input.ipynb',
-            'output.ipynb',
-            {'a_date': '2019-01-01'},
-            engine_name=None,
-            request_save_on_cell_execute=True,
-            prepare_only=False,
-            kernel_name=None,
-            log_output=False,
-            progress_bar=True,
-            start_timeout=60,
-            report_mode=False,
-            cwd=None,
+            **self.augment_execute_kwargs(parameters={'a_date': '2019-01-01'})
         )
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_inject_input_path(self, execute_patch):
         self.runner.invoke(papermill, self.default_args + ['--inject-input-path'])
         execute_patch.assert_called_with(
-            'input.ipynb',
-            'output.ipynb',
-            # Last input wins dict update
-            {'PAPERMILL_INPUT_PATH': 'input.ipynb'},
-            engine_name=None,
-            request_save_on_cell_execute=True,
-            prepare_only=False,
-            kernel_name=None,
-            log_output=False,
-            progress_bar=True,
-            start_timeout=60,
-            report_mode=False,
-            cwd=None,
+            **self.augment_execute_kwargs(parameters={'PAPERMILL_INPUT_PATH': 'input.ipynb'})
         )
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_inject_output_path(self, execute_patch):
         self.runner.invoke(papermill, self.default_args + ['--inject-output-path'])
         execute_patch.assert_called_with(
-            'input.ipynb',
-            'output.ipynb',
-            # Last input wins dict update
-            {'PAPERMILL_OUTPUT_PATH': 'output.ipynb'},
-            engine_name=None,
-            request_save_on_cell_execute=True,
-            prepare_only=False,
-            kernel_name=None,
-            log_output=False,
-            progress_bar=True,
-            start_timeout=60,
-            report_mode=False,
-            cwd=None,
+            **self.augment_execute_kwargs(parameters={'PAPERMILL_OUTPUT_PATH': 'output.ipynb'})
         )
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_inject_paths(self, execute_patch):
         self.runner.invoke(papermill, self.default_args + ['--inject-paths'])
         execute_patch.assert_called_with(
-            'input.ipynb',
-            'output.ipynb',
-            # Last input wins dict update
-            {'PAPERMILL_INPUT_PATH': 'input.ipynb', 'PAPERMILL_OUTPUT_PATH': 'output.ipynb'},
-            engine_name=None,
-            request_save_on_cell_execute=True,
-            prepare_only=False,
-            kernel_name=None,
-            log_output=False,
-            progress_bar=True,
-            start_timeout=60,
-            report_mode=False,
-            cwd=None,
+            **self.augment_execute_kwargs(
+                parameters={
+                    'PAPERMILL_INPUT_PATH': 'input.ipynb',
+                    'PAPERMILL_OUTPUT_PATH': 'output.ipynb',
+                }
+            )
         )
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_engine(self, execute_patch):
         self.runner.invoke(papermill, self.default_args + ['--engine', 'engine-that-could'])
         execute_patch.assert_called_with(
-            'input.ipynb',
-            'output.ipynb',
-            {},
-            engine_name='engine-that-could',
-            request_save_on_cell_execute=True,
-            prepare_only=False,
-            kernel_name=None,
-            log_output=False,
-            progress_bar=True,
-            start_timeout=60,
-            report_mode=False,
-            cwd=None,
+            **self.augment_execute_kwargs(engine_name='engine-that-could')
         )
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_prepare_only(self, execute_patch):
         self.runner.invoke(papermill, self.default_args + ['--prepare-only'])
-        execute_patch.assert_called_with(
-            'input.ipynb',
-            'output.ipynb',
-            {},
-            engine_name=None,
-            request_save_on_cell_execute=True,
-            prepare_only=True,
-            kernel_name=None,
-            log_output=False,
-            progress_bar=True,
-            start_timeout=60,
-            report_mode=False,
-            cwd=None,
-        )
+        execute_patch.assert_called_with(**self.augment_execute_kwargs(prepare_only=True))
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_kernel(self, execute_patch):
         self.runner.invoke(papermill, self.default_args + ['-k', 'python3'])
-        execute_patch.assert_called_with(
-            'input.ipynb',
-            'output.ipynb',
-            {},
-            engine_name=None,
-            request_save_on_cell_execute=True,
-            prepare_only=False,
-            kernel_name='python3',
-            log_output=False,
-            progress_bar=True,
-            start_timeout=60,
-            report_mode=False,
-            cwd=None,
-        )
+        execute_patch.assert_called_with(**self.augment_execute_kwargs(kernel_name='python3'))
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_set_cwd(self, execute_patch):
         self.runner.invoke(papermill, self.default_args + ['--cwd', 'a/path/here'])
-        execute_patch.assert_called_with(
-            'input.ipynb',
-            'output.ipynb',
-            {},
-            engine_name=None,
-            request_save_on_cell_execute=True,
-            prepare_only=False,
-            kernel_name=None,
-            log_output=False,
-            progress_bar=True,
-            start_timeout=60,
-            report_mode=False,
-            cwd='a/path/here',
-        )
+        execute_patch.assert_called_with(**self.augment_execute_kwargs(cwd='a/path/here'))
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_progress_bar(self, execute_patch):
         self.runner.invoke(papermill, self.default_args + ['--progress-bar'])
-        execute_patch.assert_called_with(
-            'input.ipynb',
-            'output.ipynb',
-            {},
-            engine_name=None,
-            request_save_on_cell_execute=True,
-            prepare_only=False,
-            kernel_name=None,
-            log_output=False,
-            progress_bar=True,
-            start_timeout=60,
-            report_mode=False,
-            cwd=None,
-        )
+        execute_patch.assert_called_with(**self.augment_execute_kwargs(progress_bar=True))
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_no_progress_bar(self, execute_patch):
         self.runner.invoke(papermill, self.default_args + ['--no-progress-bar'])
-        execute_patch.assert_called_with(
-            'input.ipynb',
-            'output.ipynb',
-            {},
-            engine_name=None,
-            request_save_on_cell_execute=True,
-            prepare_only=False,
-            kernel_name=None,
-            log_output=False,
-            progress_bar=False,
-            start_timeout=60,
-            report_mode=False,
-            cwd=None,
-        )
+        execute_patch.assert_called_with(**self.augment_execute_kwargs(progress_bar=False))
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_log_output(self, execute_patch):
         self.runner.invoke(papermill, self.default_args + ['--log-output'])
         execute_patch.assert_called_with(
-            'input.ipynb',
-            'output.ipynb',
-            {},
-            engine_name=None,
-            request_save_on_cell_execute=True,
-            prepare_only=False,
-            kernel_name=None,
-            log_output=True,
-            progress_bar=False,
-            start_timeout=60,
-            report_mode=False,
-            cwd=None,
+            **self.augment_execute_kwargs(
+                log_output=True,
+                progress_bar=False,  # Setting log-output should disable progress bar by default
+            )
         )
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_log_output_plus_progress(self, execute_patch):
         self.runner.invoke(papermill, self.default_args + ['--log-output', '--progress-bar'])
         execute_patch.assert_called_with(
-            'input.ipynb',
-            'output.ipynb',
-            {},
-            engine_name=None,
-            request_save_on_cell_execute=True,
-            prepare_only=False,
-            kernel_name=None,
-            log_output=True,
-            progress_bar=True,
-            start_timeout=60,
-            report_mode=False,
-            cwd=None,
+            **self.augment_execute_kwargs(log_output=True, progress_bar=True)
         )
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_no_log_output(self, execute_patch):
         self.runner.invoke(papermill, self.default_args + ['--no-log-output'])
-        execute_patch.assert_called_with(
-            'input.ipynb',
-            'output.ipynb',
-            {},
-            engine_name=None,
-            request_save_on_cell_execute=True,
-            prepare_only=False,
-            kernel_name=None,
-            log_output=False,
-            progress_bar=True,
-            start_timeout=60,
-            report_mode=False,
-            cwd=None,
-        )
+        execute_patch.assert_called_with(**self.augment_execute_kwargs(log_output=False))
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_log_level(self, execute_patch):
         self.runner.invoke(papermill, self.default_args + ['--log-level', 'WARNING'])
-        execute_patch.assert_called_with(
-            'input.ipynb',
-            'output.ipynb',
-            {},
-            engine_name=None,
-            request_save_on_cell_execute=True,
-            prepare_only=False,
-            kernel_name=None,
-            log_output=False,
-            progress_bar=True,
-            start_timeout=60,
-            report_mode=False,
-            cwd=None,
-        )
+        # TODO: this does not actually test log-level being set
+        execute_patch.assert_called_with(**self.augment_execute_kwargs())
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_start_timeout(self, execute_patch):
         self.runner.invoke(papermill, self.default_args + ['--start_timeout', '123'])
-        execute_patch.assert_called_with(
-            'input.ipynb',
-            'output.ipynb',
-            {},
-            engine_name=None,
-            request_save_on_cell_execute=True,
-            prepare_only=False,
-            kernel_name=None,
-            log_output=False,
-            progress_bar=True,
-            start_timeout=123,
-            report_mode=False,
-            cwd=None,
-        )
+        execute_patch.assert_called_with(**self.augment_execute_kwargs(start_timeout=123))
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_report_mode(self, execute_patch):
         self.runner.invoke(papermill, self.default_args + ['--report-mode'])
-        execute_patch.assert_called_with(
-            'input.ipynb',
-            'output.ipynb',
-            {},
-            engine_name=None,
-            request_save_on_cell_execute=True,
-            prepare_only=False,
-            kernel_name=None,
-            log_output=False,
-            progress_bar=True,
-            start_timeout=60,
-            report_mode=True,
-            cwd=None,
-        )
+        execute_patch.assert_called_with(**self.augment_execute_kwargs(report_mode=True))
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_no_report_mode(self, execute_patch):
         self.runner.invoke(papermill, self.default_args + ['--not-report-mode'])
-        execute_patch.assert_called_with(
-            'input.ipynb',
-            'output.ipynb',
-            {},
-            engine_name=None,
-            request_save_on_cell_execute=True,
-            prepare_only=False,
-            kernel_name=None,
-            log_output=False,
-            progress_bar=True,
-            start_timeout=60,
-            report_mode=False,
-            cwd=None,
-        )
+        execute_patch.assert_called_with(**self.augment_execute_kwargs(report_mode=False))
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_version(self, execute_patch):
@@ -633,25 +365,25 @@ class TestCLI(unittest.TestCase):
             ],
         )
         execute_patch.assert_called_with(
-            'input.ipynb',
-            'output.ipynb',
-            {
-                'foo': '54321',
-                'bar': 'value',
-                'baz': 'replace',
-                'yaml_foo': {'yaml_bar': 'yaml_baz'},
-                "base64_foo": "base64_bar",
-                'a_date': '2019-01-01',
-            },
-            engine_name='engine-that-could',
-            request_save_on_cell_execute=True,
-            prepare_only=True,
-            kernel_name='R',
-            log_output=True,
-            progress_bar=False,
-            start_timeout=321,
-            report_mode=True,
-            cwd=None,
+            **self.augment_execute_kwargs(
+                parameters={
+                    'foo': '54321',
+                    'bar': 'value',
+                    'baz': 'replace',
+                    'yaml_foo': {'yaml_bar': 'yaml_baz'},
+                    "base64_foo": "base64_bar",
+                    'a_date': '2019-01-01',
+                },
+                engine_name='engine-that-could',
+                request_save_on_cell_execute=True,
+                prepare_only=True,
+                kernel_name='R',
+                log_output=True,
+                progress_bar=False,
+                start_timeout=321,
+                report_mode=True,
+                cwd=None,
+            )
         )
 
 
@@ -815,3 +547,25 @@ def test_pipe_in_explicit(tmpdir, notebook):
     # Test that output is a valid notebook
     with open(str(nb_file)) as fp:
         nbformat.reads(fp.read(), as_version=4)
+
+
+@require_papermill_installed
+def test_stdout_file(tmpdir):
+    nb_file = tmpdir.join('notebook.ipynb')
+    stdout_file = tmpdir.join('notebook.stdout')
+    secret = str(uuid.uuid4())
+
+    process = papermill_cli([
+        get_notebook_path('simple_execute.ipynb'),
+        str(nb_file),
+        '-k', kernel_name,
+        '-p', 'msg', secret,
+        '--stdout-file', str(stdout_file),
+    ])
+    out, err = process.communicate()
+
+    assert not out
+    assert not err
+
+    with open(str(stdout_file)) as fp:
+        assert fp.read() == secret + '\n'
