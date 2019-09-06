@@ -12,7 +12,6 @@ from jupyter_client import kernelspec
 import unittest
 
 import pytest
-import click
 from click.testing import CliRunner
 
 from mock import patch
@@ -385,42 +384,6 @@ class TestCLI(unittest.TestCase):
                 cwd=None,
             )
         )
-
-
-def test_cli_path():
-    @click.command()
-    @click.argument('notebook_path')
-    @click.argument('output_path')
-    def cli(notebook_path, output_path):
-        click.echo('papermill calling %s and %s!' % notebook_path, output_path)
-
-    runner = CliRunner()
-    result = runner.invoke(
-        cli,
-        [
-            'papermill',
-            'notebooks/s3/s3_in/s3-simple_notebook.ipynb',
-            'notebooks/s3/s3_out/output.ipynb',
-        ],
-    )
-    assert result.output
-
-
-def test_papermill_log():
-    @click.group()
-    @click.option('--log-output/--no-output', default=False)
-    def cli(log_output):
-        click.echo('Log output mode is %s' % ('on' if log_output else 'off'))
-
-    @cli.command()
-    def papermill():
-        click.echo('Logging')
-
-    runner = CliRunner()
-    result = runner.invoke(cli, ['--log-output', 'papermill'])
-    assert result.exit_code == 0
-    assert 'Log output mode is on' in result.output
-    assert 'Logging' in result.output
 
 
 def papermill_cli(papermill_args=None, **kwargs):
