@@ -13,7 +13,8 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
     stdout_file = Instance(object, default_value=None).tag(config=True)
     stderr_file = Instance(object, default_value=None).tag(config=True)
 
-    def preprocess(self, nb_man, resources, km=None):
+
+    def preprocess(self, nb_man, resources=None, km=None):
         """
         Wraps the parent class process call slightly
         """
