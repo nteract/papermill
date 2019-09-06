@@ -149,6 +149,14 @@ class OptionEatAll(click.Option):
     help="File to write notebook stderr output to.",
 )
 @click.option(
+    '--skip-tag',
+    'skip_tags',
+    type=str,
+    default=None,
+    multiple=True,
+    help="Cells with this tag will not be executed. May be passed multiple times.",
+)
+@click.option(
     '--log-level',
     type=click.Choice(['NOTSET', 'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']),
     default='INFO',
@@ -189,6 +197,7 @@ def papermill(
     report_mode,
     stdout_file,
     stderr_file,
+    skip_tags,
 ):
     """This utility executes a single notebook in a subprocess.
 
@@ -266,6 +275,7 @@ def papermill(
         start_timeout=start_timeout,
         report_mode=report_mode,
         cwd=cwd,
+        skip_tags=set(skip_tags or ()),
     )
 
 

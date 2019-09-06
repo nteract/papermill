@@ -2,7 +2,11 @@ from __future__ import unicode_literals, print_function
 
 from nbconvert.preprocessors import ExecutePreprocessor
 from nbconvert.preprocessors.execute import CellExecutionError
-from traitlets import Bool, Instance
+from traitlets import Bool, Instance, Unicode, Set
+
+
+class SetOrFrozenSet(Set):
+    _cast_types = (frozenset,)
 
 
 class PapermillExecutePreprocessor(ExecutePreprocessor):
@@ -12,7 +16,9 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
     log_output = Bool(False).tag(config=True)
     stdout_file = Instance(object, default_value=None).tag(config=True)
     stderr_file = Instance(object, default_value=None).tag(config=True)
-
+    skip_tags = SetOrFrozenSet(Unicode(), help='cell tags that cause skipping of said cell').tag(
+        config=True
+    )
 
     def preprocess(self, nb_man, resources=None, km=None):
         """
@@ -57,6 +63,12 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
         # Execute each cell and update the output in real time.
         nb = nb_man.nb
         for index, cell in enumerate(nb.cells):
+            cell_skip_tags = self.skip_tags & set(cell.metadata['tags'])
+            if cell_skip_tags:
+                # Any skip tag set? Skip the whole thing.
+                nb_man.cell_skipped(cell, cell_index=index, skip_tags=cell_skip_tags)
+                continue
+
             try:
                 nb_man.cell_start(cell, index)
                 if not cell.source:

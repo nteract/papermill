@@ -87,6 +87,7 @@ class NotebookExecutionManager(object):
     RUNNING = "running"
     COMPLETED = "completed"
     FAILED = "failed"
+    SKIPPED = "skipped"
 
     def __init__(self, nb, output_path=None, log_output=False, progress_bar=True):
         # Deep copy the input to isolate the object being executed against
@@ -186,6 +187,28 @@ class NotebookExecutionManager(object):
         cell.metadata.papermill['exception'] = False
 
         self.save()
+
+    @catch_nb_assignment
+    def cell_skipped(self, cell, cell_index=None, skip_tags=None, **kwargs):
+        """
+        Set a cell to have been skipped.
+        """
+        if self.log_output:
+            cell_num = cell_index + 1 if cell_index is not None else ''
+            skip_tags_text = (', '.join(skip_tags or ()))
+            message = 'Skipped Cell {} ({})'.format(cell_num, skip_tags_text)
+            logger.info(message.ljust(55, '-'))
+
+        cell.metadata.papermill['start_time'] = self.now().isoformat()
+        cell.metadata.papermill['end_time'] = self.now().isoformat()
+        cell.metadata.papermill['duration'] = 0
+        cell.metadata.papermill['status'] = self.SKIPPED
+        cell.metadata.papermill['skip_tags'] = list(sorted(skip_tags or ()))
+        cell.metadata.papermill['exception'] = False
+
+        self.save()
+        if self.pbar:
+            self.pbar.update(1)
 
     @catch_nb_assignment
     def cell_exception(self, cell, cell_index=None, **kwargs):
@@ -333,6 +356,7 @@ class NBConvertEngine(Engine):
         log_output=False,
         stdout_file=None,
         stderr_file=None,
+        skip_tags=None,
         start_timeout=60,
         execution_timeout=None,
         **kwargs
@@ -367,6 +391,7 @@ class NBConvertEngine(Engine):
             log_output=log_output,
             stdout_file=stdout_file,
             stderr_file=stderr_file,
+            skip_tags=frozenset(skip_tags or ()),
         )
         preprocessor = PapermillExecutePreprocessor(**final_kwargs)
         preprocessor.preprocess(nb_man, safe_kwargs)

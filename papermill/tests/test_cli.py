@@ -90,6 +90,7 @@ class TestCLI(unittest.TestCase):
         cwd=None,
         stdout_file=None,
         stderr_file=None,
+        skip_tags=set(),
     )
 
     def setUp(self):
@@ -328,6 +329,15 @@ class TestCLI(unittest.TestCase):
     def test_no_report_mode(self, execute_patch):
         self.runner.invoke(papermill, self.default_args + ['--not-report-mode'])
         execute_patch.assert_called_with(**self.augment_execute_kwargs(report_mode=False))
+
+    @patch(cli.__name__ + '.execute_notebook')
+    def test_skip_tags(self, execute_patch):
+        self.runner.invoke(
+            papermill, self.default_args + ['--skip-tag', 'not_this', '--skip-tag', 'this_neither']
+        )
+        execute_patch.assert_called_with(
+            **self.augment_execute_kwargs(skip_tags={'not_this', 'this_neither'})
+        )
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_version(self, execute_patch):
@@ -569,3 +579,27 @@ def test_stdout_file(tmpdir):
 
     with open(str(stdout_file)) as fp:
         assert fp.read() == secret + '\n'
+
+
+def test_skip_tag(tmpdir):
+    """
+    Test passing --skip-tag skips the given tag.
+    """
+    nb_file = tmpdir.join('notebook.ipynb')
+    runner = CliRunner(mix_stderr=False)
+    process = runner.invoke(
+        papermill,
+        [
+            get_notebook_path('simple_execute.ipynb'),
+            str(nb_file),
+            '-k',
+            kernel_name,
+            '--skip-tag',
+            'print',
+        ],
+    )
+    nb = nbformat.reads(nb_file.read(), as_version=4)
+    assert nb.cells[1].metadata.tags == ['print']
+    assert nb.cells[1].metadata.papermill['status'] == 'skipped'
+    assert nb.cells[1].metadata.papermill['skip_tags'] == ['print']
+    assert process.exit_code == 0
