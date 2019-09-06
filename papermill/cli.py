@@ -157,7 +157,7 @@ class OptionEatAll(click.Option):
 @click.option(
     '--start_timeout', type=int, default=60, help="Time in seconds to wait for kernel to start."
 )
-@click.option('--report-mode/--not-report-mode', default=False, help="Flag for hiding input.")
+@click.option('--report-mode/--no-report-mode', default=False, help="Flag for hiding input.")
 @click.option(
     '--version',
     is_flag=True,
