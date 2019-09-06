@@ -326,7 +326,7 @@ class TestCLI(unittest.TestCase):
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_no_report_mode(self, execute_patch):
-        self.runner.invoke(papermill, self.default_args + ['--not-report-mode'])
+        self.runner.invoke(papermill, self.default_args + ['--no-report-mode'])
         execute_patch.assert_called_with(**self.augment_execute_kwargs(report_mode=False))
 
     @patch(cli.__name__ + '.execute_notebook')

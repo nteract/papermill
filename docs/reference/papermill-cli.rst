@@ -64,7 +64,7 @@ Command Line options
       --log-level [NOTSET|DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                       Set log level
       --start_timeout INTEGER         Time in seconds to wait for kernel to start.
-      --report-mode / --not-report-mode
+      --report-mode / --no-report-mode
                                       Flag for hiding input.
       --version                       Flag for displaying the version.
       -h, --help                      Show this message and exit.
