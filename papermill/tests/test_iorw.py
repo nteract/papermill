@@ -187,10 +187,10 @@ class TestPapermillIO(unittest.TestCase):
 
     def test_write_stdout(self):
         file_content = u'Τὴ γλῶσσα μοῦ ἔδωσαν ἑλληνικὴ'
-        out = io.StringIO()
+        out = io.BytesIO()
         with mock.patch('sys.stdout', out):
             self.papermill_io.write(file_content, "-")
-            self.assertEqual(out.getvalue(), file_content)
+            self.assertEqual(out.getvalue(), file_content.encode('utf-8'))
 
     def test_pretty_path(self):
         self.assertEqual(self.papermill_io.pretty_path("fake/path"), "fake/path/pretty/1")

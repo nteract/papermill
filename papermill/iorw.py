@@ -101,7 +101,13 @@ class PapermillIO(object):
 
     def write(self, buf, path, extensions=['.ipynb', '.json']):
         if path == '-':
-            return sys.stdout.write(buf)
+            try:
+                # Python 3
+                return sys.stdout.buffer.write(buf.encode('utf-8'))
+            except AttributeError:
+                # Python 2: add explicit utf-8 encoding
+                # https://github.com/nteract/papermill/issues/420
+                return sys.stdout.write(buf.encode('utf-8'))
 
         # Usually no return object here
         if not fnmatch.fnmatch(os.path.basename(path), '*.*'):
