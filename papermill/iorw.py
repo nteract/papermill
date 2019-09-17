@@ -316,7 +316,13 @@ class GCSHandler(object):
                     return f.write(buf)
             except (GCSHttpError, GCSRateLimitException) as e:
                 try:
+                    # Default to gcsfs library's retry logic
+                    from gcsfs.utils import is_retriable as GCSIsRetriable
                     # If code is assigned but unknown, optimistically retry
+                    if GCSIsRetriable(e):
+                        raise PapermillRateLimitException(e.message)
+                except ImportError:
+                    # If not available, take a best guess
                     if e.code is None or e.code == 429:
                         raise PapermillRateLimitException(e.message)
                 except AttributeError:
