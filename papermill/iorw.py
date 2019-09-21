@@ -49,21 +49,19 @@ try:
 except ImportError:
     GCSFileSystem = missing_dependency_generator("gcsfs", "gcs")
 
-# Handle newer and older gcsfs versions
-try:
+def fallback_gs_is_retriable(e):
     try:
-        from gcsfs.utils import HttpError as GCSHttpError
-    except ImportError:
-        from gcsfs.utils import HtmlError as GCSHttpError
-except ImportError:
-    # Fall back to a sane import if gcsfs is missing
-    GCSHttpError = Exception
+        print(e.code)
+        return e.code is None or e.code == 429
+    except AttributeError:
+        print(e)
+        return False
 
 try:
-    from gcsfs.utils import RateLimitException as GCSRateLimitException
+    # Default to gcsfs library's retry logic
+    from gcsfs.utils import is_retriable as gs_is_retriable
 except ImportError:
-    # Fall back to GCSHttpError when using older library
-    GCSRateLimitException = GCSHttpError
+    gs_is_retriable = fallback_gs_is_retriable
 
 try:
     FileNotFoundError
@@ -314,22 +312,12 @@ class GCSHandler(object):
             try:
                 with self._get_client().open(path, 'w') as f:
                     return f.write(buf)
-            except (GCSHttpError, GCSRateLimitException) as e:
+            except Exception as e:
                 try:
-                    # Default to gcsfs library's retry logic
-                    from gcsfs.utils import is_retriable as GCSIsRetriable
-                    # If code is assigned but unknown, optimistically retry
-                    if GCSIsRetriable(e):
-                        raise PapermillRateLimitException(e.message)
-                except ImportError:
-                    # If not available, take a best guess
-                    if e.code is None or e.code == 429:
-                        raise PapermillRateLimitException(e.message)
+                    message = e.message
                 except AttributeError:
-                    try:
-                        message = e.message
-                    except AttributeError:
-                        message = "Generic exception {} raised, retrying".format(type(e))
+                    message = "Generic exception {} raised".format(type(e))
+                if gs_is_retriable(e):
                     raise PapermillRateLimitException(message)
                 # Reraise the original exception without retries
                 raise
