@@ -49,6 +49,7 @@ try:
 except ImportError:
     GCSFileSystem = missing_dependency_generator("gcsfs", "gcs")
 
+
 def fallback_gs_is_retriable(e):
     try:
         print(e.code)
@@ -56,6 +57,7 @@ def fallback_gs_is_retriable(e):
     except AttributeError:
         print(e)
         return False
+
 
 try:
     # Default to gcsfs library's retry logic
