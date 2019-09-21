@@ -1,6 +1,14 @@
 # Change Log
 
-## 1.1.0
+## 1.2.0
+- Parameters lists passing feature from 1.1.0 was removed due to cli api issues it caused.
+- Piping papermill into nbconvert no longer triggers an encoding error on Python 2
+- Added `BOTO3_ENDPOINT_URL` environment variable to override boto session url
+- stdout / stderr can now be streamed to a file via `--stdout-file /dev/stdout` and `--stderr-file /dev/stderr`.
+- The CLI option `--not-report-mode` is now `--no-report-mode`
+- GCFS connectors should now retry under all conditions that the upstream library defines as retryable. Papermill now uses the is_retryable method from the upstream dependency.
+
+## 1.1.0 (This version should be avoided for several known issues fixed in 1.2.0)
 - Read content from stdin/to stdout when the path is `-` or a pipe. This allows for `<generate input>... | papermill | ...<process output>`, with `papermill - -` being implied by the pipes.
 - The built-in `ADLHandler` for Azure Pipelines should now work properly again.
 - Many documentation improvements
