@@ -332,11 +332,11 @@ class GCSHandler(object):
 
 # Hack to make YAML loader not auto-convert datetimes
 # https://stackoverflow.com/a/52312810
-NoDatesSafeLoader = yaml.SafeLoader
-NoDatesSafeLoader.yaml_implicit_resolvers = {
-    k: [r for r in v if r[0] != 'tag:yaml.org,2002:timestamp'] for
-    k, v in NoDatesSafeLoader.yaml_implicit_resolvers.items()
-}
+class NoDatesSafeLoader(yaml.SafeLoader):
+    yaml_implicit_resolvers = {
+        k: [r for r in v if r[0] != 'tag:yaml.org,2002:timestamp'] for
+        k, v in yaml.SafeLoader.yaml_implicit_resolvers.items()
+    }
 
 
 # Instantiate a PapermillIO instance and register Handlers.
