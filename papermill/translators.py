@@ -161,6 +161,13 @@ class RTranslator(Translator):
     def comment(cls, cmt_str):
         return '# {}'.format(cmt_str).strip()
 
+    @classmethod
+    def assign(cls, name, str_val):
+        # Leading '_' aren't legal R variable names -- so we drop them when injecting
+        while (name.startswith("_")):
+            name = name[1:]
+        return '{} = {}'.format(name, str_val)
+
 
 class ScalaTranslator(Translator):
     @classmethod

@@ -111,6 +111,8 @@ def test_translate_comment_r(test_input, expected):
             OrderedDict([['foo', 'bar'], ['baz', ['buz']]]),
             '# Parameters\nfoo = "bar"\nbaz = list("buz")\n',
         ),
+        # Underscores remove
+        ({"___foo": 5}, '# Parameters\nfoo = 5\n'),
     ],
 )
 def test_translate_codify_r(parameters, expected):
