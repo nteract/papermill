@@ -1,5 +1,10 @@
 # Change Log
 
+## 1.2.1
+- Importing papermill no longer manipulates `yaml.SafeLoader` globally
+- Parameters with leading `_` now have prefix `_` stripped before passing to R kernels
+- A few documentation typos were fixed
+
 ## 1.2.0
 - Parameters lists passing feature from 1.1.0 was removed due to cli api issues it caused.
 - Piping papermill into nbconvert no longer triggers an encoding error on Python 2
