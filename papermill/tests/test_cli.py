@@ -119,6 +119,15 @@ class TestCLI(unittest.TestCase):
         )
 
     @patch(cli.__name__ + '.execute_notebook')
+    def test_parameters(self, execute_patch):
+        self.runner.invoke(
+            papermill, self.default_args + ['-p', 'foo', 'bar,baz', '--parameters', 'buzz', '42']
+        )
+        execute_patch.assert_called_with(
+            **self.augment_execute_kwargs(parameters={'foo': ['bar', 'baz'], 'buzz': 42})
+        )
+
+    @patch(cli.__name__ + '.execute_notebook')
     def test_parameters_raw(self, execute_patch):
         self.runner.invoke(
             papermill, self.default_args + ['-r', 'foo', 'bar', '--parameters_raw', 'baz', '42']

@@ -24,6 +24,18 @@ INPUT_PIPED = S_ISFIFO(os.fstat(0).st_mode)
 OUTPUT_PIPED = not sys.stdout.isatty()
 
 
+class ListOrString(click.types.StringParamType):
+    name = 'list_or_string'
+    sep = ','
+
+    def convert(self, value, param, ctx):
+        val = super().convert(value, param, ctx)
+        split_val = val.split(self.sep)
+        if len(split_val) > 1:
+            return split_val
+        return val
+
+
 def print_papermill_version(ctx, param, value):
     if not value:
         return
@@ -39,7 +51,12 @@ def print_papermill_version(ctx, param, value):
 @click.argument('notebook_path', required=not INPUT_PIPED)
 @click.argument('output_path', required=not (INPUT_PIPED or OUTPUT_PIPED))
 @click.option(
-    '--parameters', '-p', nargs=2, multiple=True, help='Parameters to pass to the parameters cell.'
+    '--parameters',
+    '-p',
+    type=ListOrString(),
+    nargs=2,
+    multiple=True,
+    help='Parameters to pass to the parameters cell.'
 )
 @click.option(
     '--parameters_raw', '-r', nargs=2, multiple=True, help='Parameters to be read as raw string.'
@@ -234,7 +251,7 @@ def _is_int(value):
     """Use casting to check if value can convert to an `int`."""
     try:
         int(value)
-    except ValueError:
+    except (ValueError, TypeError):
         return False
     else:
         return True
@@ -244,7 +261,7 @@ def _is_float(value):
     """Use casting to check if value can convert to a `float`."""
     try:
         float(value)
-    except ValueError:
+    except (ValueError, TypeError):
         return False
     else:
         return True
