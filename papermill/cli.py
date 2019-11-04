@@ -29,7 +29,7 @@ class ListOrString(click.types.StringParamType):
     sep = ','
 
     def convert(self, value, param, ctx):
-        val = super().convert(value, param, ctx)
+        val = super(ListOrString, self).convert(value, param, ctx)
         split_val = val.split(self.sep)
         if len(split_val) > 1:
             return split_val
