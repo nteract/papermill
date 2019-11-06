@@ -69,12 +69,13 @@ def execute_notebook(
     path_parameters = add_builtin_parameters(parameters)
     input_path = parameterize_path(input_path, path_parameters)
     output_path = parameterize_path(output_path, path_parameters)
-
-    logger.info("Input Notebook:  %s" % get_pretty_path(input_path))
-    logger.info("Output Notebook: %s" % get_pretty_path(output_path))
-    with local_file_io_cwd():
-        if cwd is not None:
-            logger.info("Working directory: {}".format(get_pretty_path(cwd)))
+    
+    if(log_output):
+        logger.info("Input Notebook:  %s" % get_pretty_path(input_path))
+        logger.info("Output Notebook: %s" % get_pretty_path(output_path))
+        with local_file_io_cwd():
+            if cwd is not None:
+                logger.info("Working directory: {}".format(get_pretty_path(cwd)))
 
         nb = load_notebook_node(input_path)
 
