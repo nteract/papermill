@@ -271,6 +271,33 @@ class MatlabTranslator(Translator):
             content += '{};\n'.format(cls.assign(name, cls.translate(val)))
         return content
 
+class CSharpTranslator(Translator) : 
+    @classmethod
+    def translate_int(cls, val):
+        strval = cls.translate_raw_str(val)
+        return strval + "L" if (val > 2147483647 or val < -2147483648) else strval
+
+    @classmethod
+    def translate_dict(cls, val):
+        """Translate dicts to NameValueCollection"""
+        escaped = ', '.join(
+            ["{{{} , {}}}".format(cls.translate_str(k), cls.translate(v)) for k, v in val.items()]
+        )
+        return 'new System.Collections.Specialized.NameValueCollection({{{}}})'.format(escaped)
+
+    @classmethod
+    def translate_list(cls, val):
+        """Translate list to array"""
+        escaped = ', '.join([cls.translate(v) for v in val])
+        return '[{}]'.format(escaped)
+
+    @classmethod
+    def comment(cls, cmt_str):
+        return '// {}'.format(cmt_str).strip()
+
+    @classmethod
+    def assign(cls, name, str_val):
+        return 'var {} = {}'.format(name, str_val)
 
 # Instantiate a PapermillIO instance and register Handlers.
 papermill_translators = PapermillTranslators()
@@ -279,6 +306,7 @@ papermill_translators.register("R", RTranslator)
 papermill_translators.register("scala", ScalaTranslator)
 papermill_translators.register("julia", JuliaTranslator)
 papermill_translators.register("matlab", MatlabTranslator)
+papermill_translators.register("c#", CSharpTranslator)
 
 
 def translate_parameters(kernel_name, language, parameters):
