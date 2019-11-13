@@ -229,6 +229,10 @@ def test_translate_type_julia(test_input, expected):
         ),
     ],
 )
+
+def test_translate_codify_csharp(parameters, expected) :
+    assert translators.csharpTranslator.codify(parameters) == expected 
+
 def test_translate_codify_julia(parameters, expected):
     assert translators.JuliaTranslator.codify(parameters) == expected
 
