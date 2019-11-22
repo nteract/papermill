@@ -297,7 +297,7 @@ class CSharpTranslator(Translator) :
 
     @classmethod
     def assign(cls, name, str_val):
-        return 'var {} = {}'.format(name, str_val)
+        return 'var {} = {};'.format(name, str_val)
 
 # Instantiate a PapermillIO instance and register Handlers.
 papermill_translators = PapermillTranslators()
@@ -306,7 +306,8 @@ papermill_translators.register("R", RTranslator)
 papermill_translators.register("scala", ScalaTranslator)
 papermill_translators.register("julia", JuliaTranslator)
 papermill_translators.register("matlab", MatlabTranslator)
-papermill_translators.register("c#", CSharpTranslator)
+papermill_translators.register("C#", CSharpTranslator)
+papermill_translators.register(".net-csharp", CSharpTranslator)
 
 
 def translate_parameters(kernel_name, language, parameters):
