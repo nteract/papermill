@@ -272,6 +272,16 @@ class MatlabTranslator(Translator):
         return content
 
 class CSharpTranslator(Translator) : 
+
+    @classmethod 
+    def translate_none(cls, val) : 
+        # Can't figure out how to do this as nullable
+        raise NotImplementedError("Option type not implemented for C#.")
+
+    @classmethod
+    def translate_bool(cls, val) :  
+        return 'true' if val else 'false'
+
     @classmethod
     def translate_int(cls, val):
         strval = cls.translate_raw_str(val)
@@ -280,14 +290,11 @@ class CSharpTranslator(Translator) :
     @classmethod
     def translate_dict(cls, val):
         """Translate dicts to nontyped dictionary"""
-        escaped = ', '.join(
-            ["{{{} , {}}}".format(cls.translate_str(k), cls.translate(v)) for k, v in val.items()]
-        )
-
+ 
         kvps = ', '.join(
             [f"new KeyValuePair<Object,Object>({cls.translate_str(k)} , {cls.translate(v)})" for k, v in val.items()]
         )
-        return f'new Dictionary<Object,Object?>(new[] {{ {kvps} }})'
+        return f'new Dictionary<Object,Object?>(new [] {{ {kvps} }})'
 
     @classmethod
     def translate_list(cls, val):
