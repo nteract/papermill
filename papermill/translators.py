@@ -279,17 +279,21 @@ class CSharpTranslator(Translator) :
 
     @classmethod
     def translate_dict(cls, val):
-        """Translate dicts to NameValueCollection"""
+        """Translate dicts to nontyped dictionary"""
         escaped = ', '.join(
             ["{{{} , {}}}".format(cls.translate_str(k), cls.translate(v)) for k, v in val.items()]
         )
-        return 'new System.Collections.Specialized.NameValueCollection({{{}}})'.format(escaped)
+
+        kvps = ', '.join(
+            [f"new KeyValuePair<Object,Object>({cls.translate_str(k)} , {cls.translate(v)})" for k, v in val.items()]
+        )
+        return f'new Dictionary<Object,Object?>(new[] {{ {kvps} }})'
 
     @classmethod
     def translate_list(cls, val):
         """Translate list to array"""
         escaped = ', '.join([cls.translate(v) for v in val])
-        return '[{}]'.format(escaped)
+        return 'new [] {{ {} }}'.format(escaped)
 
     @classmethod
     def comment(cls, cmt_str):
@@ -307,7 +311,7 @@ papermill_translators.register("scala", ScalaTranslator)
 papermill_translators.register("julia", JuliaTranslator)
 papermill_translators.register("matlab", MatlabTranslator)
 papermill_translators.register("C#", CSharpTranslator)
-papermill_translators.register(".net-csharp", CSharpTranslator)
+papermill_translators.register(".net-csharp",CSharpTranslator)
 
 
 def translate_parameters(kernel_name, language, parameters):
