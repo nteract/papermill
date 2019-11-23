@@ -271,15 +271,16 @@ class MatlabTranslator(Translator):
             content += '{};\n'.format(cls.assign(name, cls.translate(val)))
         return content
 
-class CSharpTranslator(Translator) : 
 
-    @classmethod 
-    def translate_none(cls, val) : 
+class CSharpTranslator(Translator) :
+
+    @classmethod
+    def translate_none(cls, val) :
         # Can't figure out how to do this as nullable
         raise NotImplementedError("Option type not implemented for C#.")
 
     @classmethod
-    def translate_bool(cls, val) :  
+    def translate_bool(cls, val) :
         return 'true' if val else 'false'
 
     @classmethod
@@ -290,9 +291,10 @@ class CSharpTranslator(Translator) :
     @classmethod
     def translate_dict(cls, val):
         """Translate dicts to nontyped dictionary"""
- 
+
         kvps = ', '.join(
-            [f"new KeyValuePair<Object,Object>({cls.translate_str(k)} , {cls.translate(v)})" for k, v in val.items()]
+            [f"new KeyValuePair<Object,Object>({cls.translate_str(k)} , {cls.translate(v)})"
+             for k, v in val.items()]
         )
         return f'new Dictionary<Object,Object?>(new [] {{ {kvps} }})'
 
@@ -310,6 +312,7 @@ class CSharpTranslator(Translator) :
     def assign(cls, name, str_val):
         return 'var {} = {};'.format(name, str_val)
 
+
 # Instantiate a PapermillIO instance and register Handlers.
 papermill_translators = PapermillTranslators()
 papermill_translators.register("python", PythonTranslator)
@@ -317,8 +320,7 @@ papermill_translators.register("R", RTranslator)
 papermill_translators.register("scala", ScalaTranslator)
 papermill_translators.register("julia", JuliaTranslator)
 papermill_translators.register("matlab", MatlabTranslator)
-papermill_translators.register("C#", CSharpTranslator)
-papermill_translators.register(".net-csharp",CSharpTranslator)
+papermill_translators.register(".net-csharp", CSharpTranslator)
 
 
 def translate_parameters(kernel_name, language, parameters):
