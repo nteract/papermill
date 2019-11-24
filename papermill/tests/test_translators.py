@@ -193,11 +193,17 @@ def test_translate_codify_scala(parameters, expected):
     [
         ("foo", '"foo"'),
         ('{"foo": "bar"}', '"{\\"foo\\": \\"bar\\"}"'),
-        ({"foo": "bar"}, 'new Dictionary<Object,Object?>(new [] { new KeyValuePair<Object,Object>("foo" , "bar") })'),
-        ({"foo": '"bar"'}, 'new Dictionary<Object,Object?>(new [] { new KeyValuePair<Object,Object>("foo" , "\\"bar\\"") })'),
+        ({"foo": "bar"},
+            'new Dictionary<Object,Object?>(new [] '
+            + '{ new KeyValuePair<Object,Object>("foo" , "bar") })'),
+        ({"foo": '"bar"'},
+            'new Dictionary<Object,Object?>(new [] '
+            + '{ new KeyValuePair<Object,Object>("foo" , "\\"bar\\"") })'),
         (["foo"], 'new [] { "foo" }'),
         (["foo", '"bar"'], 'new [] { "foo", "\\"bar\\"" }'),
-        ([{"foo": "bar"}], 'new [] { new Dictionary<Object,Object?>(new [] { new KeyValuePair<Object,Object>("foo" , "bar") }) }'),
+        ([{"foo": "bar"}],
+            'new [] { new Dictionary<Object,Object?>('
+            + 'new [] { new KeyValuePair<Object,Object>("foo" , "bar") }) }'),
         (12345, '12345'),
         (-54321, '-54321'),
         (1.2345, '1.2345'),
@@ -239,7 +245,9 @@ def test_translate_assign_csharp(input_name, input_value, expected):
         ({"foo": 5}, '// Parameters\nvar foo = 5;\n'),
         ({"foo": 1.1}, '// Parameters\nvar foo = 1.1;\n'),
         ({"foo": ['bar', 'baz']}, '// Parameters\nvar foo = new [] { "bar", "baz" };\n'),
-        ({"foo": {'bar': 'baz'}}, '// Parameters\nvar foo = new Dictionary<Object,Object?>(new [] { new KeyValuePair<Object,Object>("bar" , "baz") });\n')
+        ({"foo": {'bar': 'baz'}},
+            '// Parameters\nvar foo = new Dictionary<Object,Object?>(new [] '
+            + '{ new KeyValuePair<Object,Object>("bar" , "baz") });\n')
     ],
 )
 def test_translate_codify_csharp(parameters, expected):
