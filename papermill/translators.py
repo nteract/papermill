@@ -296,7 +296,7 @@ class CSharpTranslator(Translator) :
             ["new KeyValuePair<Object,Object>({} , {})".format(cls.translate_str(k), cls.translate(v))
              for k, v in val.items()]
         )
-        return 'new Dictionary<Object,Object?>(new [] {{ {} }})'.format(kvps)
+        return 'new Dictionary<string,Object?>(new [] {{ {} }})'.format(kvps)
 
     @classmethod
     def translate_list(cls, val):
