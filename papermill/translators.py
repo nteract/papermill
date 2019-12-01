@@ -293,10 +293,10 @@ class CSharpTranslator(Translator) :
         """Translate dicts to nontyped dictionary"""
 
         kvps = ', '.join(
-            ["new KeyValuePair<Object,Object>({} , {})".format(cls.translate_str(k), cls.translate(v))
+            ["new KeyValuePair<string,Object>({} , {})".format(cls.translate_str(k), cls.translate(v))
              for k, v in val.items()]
         )
-        return 'new Dictionary<string,Object?>(new [] {{ {} }})'.format(kvps)
+        return 'new Dictionary<string,Object>(new [] {{ {} }})'.format(kvps)
 
     @classmethod
     def translate_list(cls, val):
