@@ -183,9 +183,9 @@ def test_translate_assign_scala(input_name, input_value, expected):
         ),
     ],
 )
-
 def test_translate_codify_scala(parameters, expected):
     assert translators.ScalaTranslator.codify(parameters) == expected
+
 
 # C# section
 @pytest.mark.parametrize(
@@ -391,7 +391,6 @@ def test_translate_codify_fsharp(parameters, expected):
 )
 def test_translate_type_julia(test_input, expected):
     assert translators.JuliaTranslator.translate(test_input) == expected
-
 
 @pytest.mark.parametrize(
     "parameters,expected",

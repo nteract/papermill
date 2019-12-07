@@ -312,6 +312,7 @@ class CSharpTranslator(Translator) :
     def assign(cls, name, str_val):
         return 'var {} = {};'.format(name, str_val)
 
+
 class FSharpTranslator(Translator) :
 
     @classmethod
@@ -358,6 +359,7 @@ papermill_translators.register("julia", JuliaTranslator)
 papermill_translators.register("matlab", MatlabTranslator)
 papermill_translators.register(".net-csharp", CSharpTranslator)
 papermill_translators.register(".net-fsharp", FSharpTranslator)
+
 
 def translate_parameters(kernel_name, language, parameters):
     return papermill_translators.find_translator(kernel_name, language).codify(parameters)
