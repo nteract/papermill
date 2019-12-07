@@ -330,7 +330,7 @@ class FSharpTranslator(Translator) :
     @classmethod
     def translate_dict(cls, val):
         tuples = '; '.join(
-            ["({}, {})".format(cls.translate_str(k), cls.translate(v))
+            ["({}, {} :> IComparable)".format(cls.translate_str(k), cls.translate(v))
              for k, v in val.items()]
         )
         return '[ {} ] |> Map.ofList'.format(tuples)

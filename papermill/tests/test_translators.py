@@ -314,11 +314,11 @@ def test_translate_codify_csharp(parameters, expected):
     [
         ("foo", '"foo"'),
         ('{"foo": "bar"}', '"{\\"foo\\": \\"bar\\"}"'),
-        ({"foo": "bar"}, '[ ("foo", "bar") ] |> Map.ofList'),
-        ({"foo": '"bar"'}, '[ ("foo", "\\"bar\\"") ] |> Map.ofList'),
+        ({"foo": "bar"}, '[ ("foo", "bar" :> IComparable) ] |> Map.ofList'),
+        ({"foo": '"bar"'}, '[ ("foo", "\\"bar\\"" :> IComparable) ] |> Map.ofList'),
         (["foo"], '[ "foo" ]'),
         (["foo", '"bar"'], '[ "foo"; "\\"bar\\"" ]'),
-        ([{"foo": "bar"}], '[ [ ("foo", "bar") ] |> Map.ofList ]'),
+        ([{"foo": "bar"}], '[ [ ("foo", "bar" :> IComparable) ] |> Map.ofList ]'),
         (12345, '12345'),
         (-54321, '-54321'),
         (1.2345, '1.2345'),
@@ -360,13 +360,11 @@ def test_translate_assign_fsharp(input_name, input_value, expected):
         ({"foo": 5}, '(* Parameters *)\nlet foo = 5\n'),
         ({"foo": 1.1}, '(* Parameters *)\nlet foo = 1.1\n'),
         ({"foo": ['bar', 'baz']}, '(* Parameters *)\nlet foo = [ "bar"; "baz" ]\n'),
-        ({"foo": {'bar': 'baz'}}, '(* Parameters *)\nlet foo = [ ("bar", "baz") ] |> Map.ofList\n')
+        ({"foo": {'bar': 'baz'}}, '(* Parameters *)\nlet foo = [ ("bar", "baz" :> IComparable) ] |> Map.ofList\n')
     ],
 )
 def test_translate_codify_fsharp(parameters, expected):
     assert translators.FSharpTranslator.codify(parameters) == expected
-
-# End F#
 
 @pytest.mark.parametrize(
     "test_input,expected",
