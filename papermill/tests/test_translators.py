@@ -246,6 +246,69 @@ def test_translate_codify_csharp(parameters, expected):
     assert translators.CSharpTranslator.codify(parameters) == expected
 
 
+# C# section
+@pytest.mark.parametrize(
+    "test_input,expected",
+    [
+        ("foo", '"foo"'),
+        ('{"foo": "bar"}', '"{\\"foo\\": \\"bar\\"}"'),
+        ({"foo": "bar"},
+            'new Dictionary<string,Object>{ { "foo" , "bar" } }'),
+        ({"foo": '"bar"'},
+            'new Dictionary<string,Object>{ { "foo" , "\\"bar\\"" } }'),
+        (["foo"], 'new [] { "foo" }'),
+        (["foo", '"bar"'], 'new [] { "foo", "\\"bar\\"" }'),
+        ([{"foo": "bar"}],
+            'new [] { new Dictionary<string,Object>{ { "foo" , "bar" } } }'),
+        (12345, '12345'),
+        (-54321, '-54321'),
+        (1.2345, '1.2345'),
+        (-5432.1, '-5432.1'),
+        (2147483648, '2147483648L'),
+        (-2147483649, '-2147483649L'),
+        (True, 'true'),
+        (False, 'false')
+    ],
+)
+def test_translate_type_csharp(test_input, expected):
+    assert translators.CSharpTranslator.translate(test_input) == expected
+
+
+@pytest.mark.parametrize(
+    "test_input,expected",
+    [("", '//'), ("foo", '// foo'), ("['best effort']", "// ['best effort']")],
+)
+def test_translate_comment_csharp(test_input, expected):
+    assert translators.CSharpTranslator.comment(test_input) == expected
+
+
+@pytest.mark.parametrize(
+    "input_name,input_value,expected",
+    [
+        ("foo", '""', 'var foo = "";'),
+        ("foo", '"bar"', 'var foo = "bar";'),
+    ],
+)
+def test_translate_assign_csharp(input_name, input_value, expected):
+    assert translators.CSharpTranslator.assign(input_name, input_value) == expected
+
+
+@pytest.mark.parametrize(
+    "parameters,expected",
+    [
+        ({"foo": "bar"}, '// Parameters\nvar foo = "bar";\n'),
+        ({"foo": True}, '// Parameters\nvar foo = true;\n'),
+        ({"foo": 5}, '// Parameters\nvar foo = 5;\n'),
+        ({"foo": 1.1}, '// Parameters\nvar foo = 1.1;\n'),
+        ({"foo": ['bar', 'baz']}, '// Parameters\nvar foo = new [] { "bar", "baz" };\n'),
+        ({"foo": {'bar': 'baz'}},
+            '// Parameters\nvar foo = new Dictionary<string,Object>{ { "bar" , "baz" } };\n')
+    ],
+)
+def test_translate_codify_csharp(parameters, expected):
+    assert translators.CSharpTranslator.codify(parameters) == expected
+
+
 @pytest.mark.parametrize(
     "test_input,expected",
     [
