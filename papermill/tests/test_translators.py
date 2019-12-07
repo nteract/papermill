@@ -249,6 +249,7 @@ def test_translate_assign_csharp(input_name, input_value, expected):
 def test_translate_codify_csharp(parameters, expected):
     assert translators.CSharpTranslator.codify(parameters) == expected
 
+
 # F# section
 @pytest.mark.parametrize(
     "test_input,expected",
@@ -301,11 +302,13 @@ def test_translate_assign_fsharp(input_name, input_value, expected):
         ({"foo": 5}, '(* Parameters *)\nlet foo = 5\n'),
         ({"foo": 1.1}, '(* Parameters *)\nlet foo = 1.1\n'),
         ({"foo": ['bar', 'baz']}, '(* Parameters *)\nlet foo = [ "bar"; "baz" ]\n'),
-        ({"foo": {'bar': 'baz'}}, '(* Parameters *)\nlet foo = [ ("bar", "baz" :> IComparable) ] |> Map.ofList\n')
+        ({"foo": {'bar': 'baz'}},
+            '(* Parameters *)\nlet foo = [ ("bar", "baz" :> IComparable) ] |> Map.ofList\n')
     ],
 )
 def test_translate_codify_fsharp(parameters, expected):
     assert translators.FSharpTranslator.codify(parameters) == expected
+
 
 @pytest.mark.parametrize(
     "test_input,expected",
@@ -332,6 +335,7 @@ def test_translate_codify_fsharp(parameters, expected):
 )
 def test_translate_type_julia(test_input, expected):
     assert translators.JuliaTranslator.translate(test_input) == expected
+
 
 @pytest.mark.parametrize(
     "parameters,expected",
