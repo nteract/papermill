@@ -281,7 +281,7 @@ class TestSysExit(unittest.TestCase):
         self.assertEqual(nb.cells[1].outputs[0].ename, 'SystemExit')
         self.assertEqual(nb.cells[1].outputs[0].evalue, '')
         self.assertEqual(nb.cells[2].execution_count, None)
-    
+
     def test_sys_exit0(self):
         notebook_name = 'sysexit0.ipynb'
         result_path = os.path.join(self.test_dir, 'output_{}'.format(notebook_name))
