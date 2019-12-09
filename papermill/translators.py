@@ -272,6 +272,47 @@ class MatlabTranslator(Translator):
         return content
 
 
+class CSharpTranslator(Translator) :
+
+    @classmethod
+    def translate_none(cls, val) :
+        # Can't figure out how to do this as nullable
+        raise NotImplementedError("Option type not implemented for C#.")
+
+    @classmethod
+    def translate_bool(cls, val) :
+        return 'true' if val else 'false'
+
+    @classmethod
+    def translate_int(cls, val):
+        strval = cls.translate_raw_str(val)
+        return strval + "L" if (val > 2147483647 or val < -2147483648) else strval
+
+    @classmethod
+    def translate_dict(cls, val):
+        """Translate dicts to nontyped dictionary"""
+
+        kvps = ', '.join(
+            ["{{ {} , {} }}".format(cls.translate_str(k), cls.translate(v))
+             for k, v in val.items()]
+        )
+        return 'new Dictionary<string,Object>{{ {} }}'.format(kvps)
+
+    @classmethod
+    def translate_list(cls, val):
+        """Translate list to array"""
+        escaped = ', '.join([cls.translate(v) for v in val])
+        return 'new [] {{ {} }}'.format(escaped)
+
+    @classmethod
+    def comment(cls, cmt_str):
+        return '// {}'.format(cmt_str).strip()
+
+    @classmethod
+    def assign(cls, name, str_val):
+        return 'var {} = {};'.format(name, str_val)
+
+
 # Instantiate a PapermillIO instance and register Handlers.
 papermill_translators = PapermillTranslators()
 papermill_translators.register("python", PythonTranslator)
@@ -279,6 +320,7 @@ papermill_translators.register("R", RTranslator)
 papermill_translators.register("scala", ScalaTranslator)
 papermill_translators.register("julia", JuliaTranslator)
 papermill_translators.register("matlab", MatlabTranslator)
+papermill_translators.register(".net-csharp", CSharpTranslator)
 
 
 def translate_parameters(kernel_name, language, parameters):
