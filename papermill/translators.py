@@ -313,6 +313,43 @@ class CSharpTranslator(Translator) :
         return 'var {} = {};'.format(name, str_val)
 
 
+class FSharpTranslator(Translator) :
+
+    @classmethod
+    def translate_none(cls, val) :
+        return 'None'
+
+    @classmethod
+    def translate_bool(cls, val) :
+        return 'true' if val else 'false'
+
+    @classmethod
+    def translate_int(cls, val):
+        strval = cls.translate_raw_str(val)
+        return strval + "L" if (val > 2147483647 or val < -2147483648) else strval
+
+    @classmethod
+    def translate_dict(cls, val):
+        tuples = '; '.join(
+            ["({}, {} :> IComparable)".format(cls.translate_str(k), cls.translate(v))
+             for k, v in val.items()]
+        )
+        return '[ {} ] |> Map.ofList'.format(tuples)
+
+    @classmethod
+    def translate_list(cls, val):
+        escaped = '; '.join([cls.translate(v) for v in val])
+        return '[ {} ]'.format(escaped)
+
+    @classmethod
+    def comment(cls, cmt_str):
+        return '(* {} *)'.format(cmt_str).strip()
+
+    @classmethod
+    def assign(cls, name, str_val):
+        return 'let {} = {}'.format(name, str_val)
+
+
 # Instantiate a PapermillIO instance and register Handlers.
 papermill_translators = PapermillTranslators()
 papermill_translators.register("python", PythonTranslator)
@@ -321,6 +358,7 @@ papermill_translators.register("scala", ScalaTranslator)
 papermill_translators.register("julia", JuliaTranslator)
 papermill_translators.register("matlab", MatlabTranslator)
 papermill_translators.register(".net-csharp", CSharpTranslator)
+papermill_translators.register(".net-fsharp", FSharpTranslator)
 
 
 def translate_parameters(kernel_name, language, parameters):
