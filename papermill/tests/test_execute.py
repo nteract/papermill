@@ -260,3 +260,50 @@ class TestCWD(unittest.TestCase):
         self.assertTrue(
             os.path.isfile(os.path.join(self.base_test_dir, self.nb_test_executed_fname))
         )
+
+
+class TestSysExit(unittest.TestCase):
+    def setUp(self):
+        self.test_dir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        shutil.rmtree(self.test_dir)
+
+    def test_sys_exit(self):
+        notebook_name = 'sysexit.ipynb'
+        result_path = os.path.join(self.test_dir, 'output_{}'.format(notebook_name))
+        execute_notebook(get_notebook_path(notebook_name), result_path)
+        nb = load_notebook_node(result_path)
+        self.assertEqual(nb.cells[0].cell_type, "code")
+        self.assertEqual(nb.cells[0].execution_count, 1)
+        self.assertEqual(nb.cells[1].execution_count, 2)
+        self.assertEqual(nb.cells[1].outputs[0].output_type, 'error')
+        self.assertEqual(nb.cells[1].outputs[0].ename, 'SystemExit')
+        self.assertEqual(nb.cells[1].outputs[0].evalue, '')
+        self.assertEqual(nb.cells[2].execution_count, None)
+
+    def test_sys_exit0(self):
+        notebook_name = 'sysexit0.ipynb'
+        result_path = os.path.join(self.test_dir, 'output_{}'.format(notebook_name))
+        execute_notebook(get_notebook_path(notebook_name), result_path)
+        nb = load_notebook_node(result_path)
+        self.assertEqual(nb.cells[0].cell_type, "code")
+        self.assertEqual(nb.cells[0].execution_count, 1)
+        self.assertEqual(nb.cells[1].execution_count, 2)
+        self.assertEqual(nb.cells[1].outputs[0].output_type, 'error')
+        self.assertEqual(nb.cells[1].outputs[0].ename, 'SystemExit')
+        self.assertEqual(nb.cells[1].outputs[0].evalue, '0')
+        self.assertEqual(nb.cells[2].execution_count, None)
+
+    def test_sys_exit1(self):
+        notebook_name = 'sysexit1.ipynb'
+        result_path = os.path.join(self.test_dir, 'output_{}'.format(notebook_name))
+        with self.assertRaises(PapermillExecutionError):
+            execute_notebook(get_notebook_path(notebook_name), result_path)
+        nb = load_notebook_node(result_path)
+        self.assertEqual(nb.cells[0].cell_type, "code")
+        self.assertEqual(nb.cells[0].outputs[0].output_type, "display_data")
+        self.assertEqual(nb.cells[1].execution_count, 1)
+        self.assertEqual(nb.cells[2].execution_count, 2)
+        self.assertEqual(nb.cells[2].outputs[0].output_type, 'error')
+        self.assertEqual(nb.cells[3].execution_count, None)

@@ -168,6 +168,8 @@ def raise_for_execution_errors(nb, output_path):
 
         for output in cell.outputs:
             if output.output_type == "error":
+                if output.ename == "SystemExit" and (output.evalue == "" or output.evalue == "0"):
+                    continue
                 error = PapermillExecutionError(
                     exec_count=cell.execution_count,
                     source=cell.source,
