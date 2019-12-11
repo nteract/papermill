@@ -81,6 +81,12 @@ def print_papermill_version(ctx, param, value):
     help='Request save notebook after each cell execution',
 )
 @click.option(
+    '--autosave-cell-every',
+    default=30,
+    type=int,
+    help='How often in seconds to autosave the notebook during long cell executions (0 to disable)',
+)
+@click.option(
     '--prepare-only/--prepare-execute',
     default=False,
     help="Flag for outputting the notebook without execution, but with parameters applied.",
@@ -136,6 +142,7 @@ def papermill(
     inject_paths,
     engine,
     request_save_on_cell_execute,
+    autosave_cell_every,
     prepare_only,
     kernel,
     cwd,
@@ -206,6 +213,7 @@ def papermill(
         parameters=parameters_final,
         engine_name=engine,
         request_save_on_cell_execute=request_save_on_cell_execute,
+        autosave_cell_every=autosave_cell_every,
         prepare_only=prepare_only,
         kernel_name=kernel,
         progress_bar=progress_bar,
