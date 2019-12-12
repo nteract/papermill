@@ -121,15 +121,40 @@ class PythonTranslator(Translator):
 
     @classmethod
     def translate_dict(cls, val):
-        escaped = ', '.join(
-            ["{}: {}".format(cls.translate_str(k), cls.translate(v)) for k, v in val.items()]
+        # If dict has more than 3 items, use hanging indents
+        if len(val) > 3:
+            sepchar = '\n'
+            indent = '    '
+            close = '\n}'
+            open = '{\n'
+        else:
+            sepchar = ' '
+            indent = ''
+            close = '}'
+            open = '{'
+        escaped = (',' + sepchar).join(
+            ["{}{}: {}".format(indent, cls.translate_str(k), cls.translate(v))
+             for k, v in val.items()]
         )
-        return '{{{}}}'.format(escaped)
+        return open + escaped + close
 
     @classmethod
     def translate_list(cls, val):
-        escaped = ', '.join([cls.translate(v) for v in val])
-        return '[{}]'.format(escaped)
+        # If list has more than 5 items, use hanging indents
+        if len(val) > 5:
+            sepchar = '\n'
+            indent = '    '
+            close = '\n]'
+            open = '[\n'
+        else:
+            sepchar = ' '
+            indent = ''
+            close = ']'
+            open = '['
+        escaped = (', ' + sepchar).join(
+            [indent + cls.translate(v) for v in val]
+        )
+        return open + escaped + close
 
     @classmethod
     def comment(cls, cmt_str):
