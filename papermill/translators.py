@@ -1,4 +1,5 @@
 import sys
+import black
 from six import string_types, integer_types
 from .exceptions import PapermillException
 
@@ -134,6 +135,12 @@ class PythonTranslator(Translator):
     @classmethod
     def comment(cls, cmt_str):
         return '# {}'.format(cmt_str).strip()
+
+    @classmethod
+    def codify(cls, parameters):
+        content = super().codify(parameters)
+        # Put content through the Black Python code formatter
+        return black.format_str(content, mode=black.FileMode())
 
 
 class RTranslator(Translator):
