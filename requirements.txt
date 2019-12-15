@@ -12,3 +12,4 @@ jupyter_client
 requests
 entrypoints
 tenacity
+black; python_version >= '3.6'
