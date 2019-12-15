@@ -138,7 +138,7 @@ class PythonTranslator(Translator):
     @classmethod
     def codify(cls, parameters):
         content = super().codify(parameters)
-        if sys.version_info.major >= 3 and sys.version_info.minor >= 6:
+        if sys.version_info >= (3, 6):
             # Put content through the Black Python code formatter
             import black
             content = black.format_str(content, mode=black.FileMode())
