@@ -141,7 +141,8 @@ class PythonTranslator(Translator):
         if sys.version_info >= (3, 6):
             # Put content through the Black Python code formatter
             import black
-            content = black.format_str(content, mode=black.FileMode())
+            fm = black.FileMode(string_normalization=False)
+            content = black.format_str(content, mode=fm)
         return content
 
 
