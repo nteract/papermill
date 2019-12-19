@@ -153,7 +153,7 @@ class NotebookExecutionManager(object):
 
         for cell in self.nb.cells:
             # Reset the cell execution counts.
-            if cell.get("execution_count") is not None:
+            if cell.get("cell_type") == "code":
                 cell.execution_count = None
 
             # Clear out the papermill metadata for each cell.
@@ -164,7 +164,7 @@ class NotebookExecutionManager(object):
                 duration=None,
                 status=self.PENDING,  # pending, running, completed
             )
-            if cell.get("outputs") is not None:
+            if cell.get("cell_type") == "code":
                 cell.outputs = []
 
         self.save()

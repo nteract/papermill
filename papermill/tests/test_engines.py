@@ -102,7 +102,11 @@ class TestNotebookExecutionManager(unittest.TestCase):
             self.assertIsNone(cell.metadata.papermill['duration'])
             self.assertIsNone(cell.metadata.papermill['exception'])
             self.assertEqual(cell.metadata.papermill['status'], NotebookExecutionManager.PENDING)
-            self.assertIsNone(cell.execution_count)
+            self.assertIsNone(cell.get('execution_count'))
+            if cell.cell_type == 'code':
+                self.assertEqual(cell.get('outputs'), [])
+            else:
+                self.assertIsNone(cell.get('outputs'))
 
         nb_man.save.assert_called_once()
 
@@ -110,6 +114,12 @@ class TestNotebookExecutionManager(unittest.TestCase):
         nb_man = NotebookExecutionManager(self.nb)
         nb_man.notebook_start(nb=self.foo_nb)
         self.assertEqual(nb_man.nb.metadata['foo'], 'bar')
+
+    def test_notebook_start_markdown_code(self):
+        nb_man = NotebookExecutionManager(self.nb)
+        nb_man.notebook_start(nb=self.foo_nb)
+        self.assertNotIn('execution_count', nb_man.nb.cells[-1])
+        self.assertNotIn('outputs', nb_man.nb.cells[-1])
 
     def test_cell_start(self):
         nb_man = NotebookExecutionManager(self.nb)
