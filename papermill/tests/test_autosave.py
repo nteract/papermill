@@ -50,9 +50,15 @@ class TestMidCellAutosave(unittest.TestCase):
     def test_end2end_autosave_slow_notebook(self):
         test_dir = tempfile.mkdtemp()
         nb_test_executed_fname = os.path.join(test_dir, 'output_{}'.format(self.notebook_name))
+
+        # Count how many times it writes the file w/o autosave
         with patch.object(engines, 'write_ipynb') as write_mock:
-            # This notebook has a cell which takes 2.5 seconds to run
-            execute_notebook(self.notebook_path, nb_test_executed_fname, autosave_cell_ever=1)
-            assert (
-                write_mock.call_count == 4
-            )  # Saves twice normally, and 2x autosave during slow cell.
+            execute_notebook(self.notebook_path, nb_test_executed_fname, autosave_cell_every=0)
+            default_write_count = write_mock.call_count
+
+        # Turn on autosave and see how many more times it gets saved.
+        with patch.object(engines, 'write_ipynb') as write_mock:
+            execute_notebook(self.notebook_path, nb_test_executed_fname, autosave_cell_every=1)
+            # This notebook has a cell which takes 2.5 seconds to run.
+            # Autosave every 1 sec should add two more saves.
+            assert write_mock.call_count == default_write_count + 2

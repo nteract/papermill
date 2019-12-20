@@ -121,5 +121,5 @@ binder/*run*.ipynb
 # pip generated wheel metadata
 pip-wheel-metadata
 
-# VIM swamp files
+# VIM swap files
 *.swp
