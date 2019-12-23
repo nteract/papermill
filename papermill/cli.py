@@ -120,6 +120,11 @@ def print_papermill_version(ctx, param, value):
 @click.option(
     '--start_timeout', type=int, default=60, help="Time in seconds to wait for kernel to start."
 )
+@click.option(
+    '--execution_timeout',
+    type=int,
+    help="Time in seconds to wait for each cell before failing execution (default: forever)",
+)
 @click.option('--report-mode/--no-report-mode', default=False, help="Flag for hiding input.")
 @click.option(
     '--version',
@@ -150,6 +155,7 @@ def papermill(
     log_output,
     log_level,
     start_timeout,
+    execution_timeout,
     report_mode,
     stdout_file,
     stderr_file,
@@ -223,6 +229,7 @@ def papermill(
         start_timeout=start_timeout,
         report_mode=report_mode,
         cwd=cwd,
+        execution_timeout=execution_timeout,
     )
 
 

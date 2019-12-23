@@ -86,6 +86,7 @@ class TestCLI(unittest.TestCase):
         log_output=False,
         progress_bar=True,
         start_timeout=60,
+        execution_timeout=None,
         report_mode=False,
         cwd=None,
         stdout_file=None,
@@ -294,6 +295,11 @@ class TestCLI(unittest.TestCase):
         execute_patch.assert_called_with(**self.augment_execute_kwargs(start_timeout=123))
 
     @patch(cli.__name__ + '.execute_notebook')
+    def test_execution_timeout(self, execute_patch):
+        self.runner.invoke(papermill, self.default_args + ['--execution_timeout', '123'])
+        execute_patch.assert_called_with(**self.augment_execute_kwargs(execution_timeout=123))
+
+    @patch(cli.__name__ + '.execute_notebook')
     def test_report_mode(self, execute_patch):
         self.runner.invoke(papermill, self.default_args + ['--report-mode'])
         execute_patch.assert_called_with(**self.augment_execute_kwargs(report_mode=True))
@@ -337,6 +343,8 @@ class TestCLI(unittest.TestCase):
                 '--no-progress-bar',
                 '--start_timeout',
                 '321',
+                '--execution_timeout',
+                '654',
                 '--report-mode',
             ],
         )
@@ -358,6 +366,7 @@ class TestCLI(unittest.TestCase):
                 log_output=True,
                 progress_bar=False,
                 start_timeout=321,
+                execution_timeout=654,
                 report_mode=True,
                 cwd=None,
             )
