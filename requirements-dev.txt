@@ -9,7 +9,6 @@ pytest-env>=0.6.2
 ipython>=5.0
 moto
 check-manifest
-black; python_version >= '3.6'
 attrs>=17.4.0
 pre-commit
 boto3

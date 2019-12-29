@@ -135,6 +135,16 @@ class PythonTranslator(Translator):
     def comment(cls, cmt_str):
         return '# {}'.format(cmt_str).strip()
 
+    @classmethod
+    def codify(cls, parameters):
+        content = super(PythonTranslator, cls).codify(parameters)
+        if sys.version_info >= (3, 6):
+            # Put content through the Black Python code formatter
+            import black
+            fm = black.FileMode(string_normalization=False)
+            content = black.format_str(content, mode=fm)
+        return content
+
 
 class RTranslator(Translator):
     @classmethod
