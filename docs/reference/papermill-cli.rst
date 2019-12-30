@@ -50,7 +50,7 @@ Command Line options
                                       as notebook parameters.
       --engine TEXT                   The execution engine name to use in
                                       evaluating the notebook.
-      --request-save-on-cell-execute TEXT
+      --request-save-on-cell-execute / --no-request-save-on-cell-execute
                                       Request save notebook after each cell
                                       execution
       --prepare-only / --prepare-execute
@@ -60,10 +60,15 @@ Command Line options
       --cwd TEXT                      Working directory to run notebook in.
       --progress-bar / --no-progress-bar
                                       Flag for turning on the progress bar.
-      --log-output / --no-log-output  Flag for writing notebook output to stderr.
+      --log-output / --no-log-output  Flag for writing notebook output to the
+                                      configured logger.
+      --stdout-file FILENAME          File to write notebook stdout output to.
+      --stderr-file FILENAME          File to write notebook stderr output to.
       --log-level [NOTSET|DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                       Set log level
       --start_timeout INTEGER         Time in seconds to wait for kernel to start.
+      --execution_timeout INTEGER     Time in seconds to wait for each cell before
+                                      failing execution (default: forever)
       --report-mode / --no-report-mode
                                       Flag for hiding input.
       --version                       Flag for displaying the version.
