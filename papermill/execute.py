@@ -44,6 +44,8 @@ def execute_notebook(
         Name of execution engine to use
     request_save_on_cell_execute : bool, optional
         Request save notebook after each cell execution
+    autosave_cell_every : int, optional
+        How often in seconds to save in the middle of long cell executions
     prepare_only : bool, optional
         Flag to determine if execution should occur or not
     kernel_name : str, optional

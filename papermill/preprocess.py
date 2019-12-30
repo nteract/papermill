@@ -55,6 +55,7 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
         """
         # Execute each cell and update the output in real time.
         nb = nb_man.nb
+        self.current_nb_man = nb_man
         for index, cell in enumerate(nb.cells):
             try:
                 nb_man.cell_start(cell, index)
@@ -96,6 +97,7 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
 
     def process_message(self, *arg, **kwargs):
         output = super(PapermillExecutePreprocessor, self).process_message(*arg, **kwargs)
+        self.current_nb_man.autosave_cell()
         if output and (self.log_output or self.stderr_file or self.stdout_file):
             self.log_output_message(output)
         return output

@@ -304,7 +304,7 @@ class TestEngineBase(unittest.TestCase):
 
     def test_wrap_and_execute_notebook(self):
         '''
-        Mocks each wrapped call and proves the correct inputs get applies to
+        Mocks each wrapped call and proves the correct inputs get applied to
         the correct underlying calls for execute_notebook.
         '''
         with patch.object(Engine, 'execute_managed_notebook') as exec_mock:
@@ -319,7 +319,11 @@ class TestEngineBase(unittest.TestCase):
                 )
 
                 wrap_mock.assert_called_once_with(
-                    self.nb, output_path='foo.ipynb', progress_bar=False, log_output=True
+                    self.nb,
+                    output_path='foo.ipynb',
+                    progress_bar=False,
+                    log_output=True,
+                    autosave_cell_every=30,
                 )
                 wrap_mock.return_value.notebook_start.assert_called_once()
                 exec_mock.assert_called_once_with(
