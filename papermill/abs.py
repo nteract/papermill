@@ -20,10 +20,7 @@ class AzureBlobStore(object):
     def _blob_service_client(self, account_name, sas_token):
 
         blob_service_client = BlobServiceClient(
-
-            "{account}.blob.core.windows.net".format(account=account_name),
-            sas_token
-
+            "{account}.blob.core.windows.net".format(account=account_name), sas_token
         )
         return blob_service_client
 

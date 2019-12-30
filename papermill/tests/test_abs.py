@@ -29,16 +29,11 @@ class ABSTest(unittest.TestCase):
         self.list_blobs = Mock(return_value=["foo", "bar", "baz"])
         self.upload_blob = Mock()
         self.download_blob = Mock()
-        self._container_client = Mock(
-            list_blobs=self.list_blobs
-        )
-        self._blob_client = Mock(
-            upload_blob=self.upload_blob,
-            download_blob=self.download_blob
-        )
+        self._container_client = Mock(list_blobs=self.list_blobs)
+        self._blob_client = Mock(upload_blob=self.upload_blob, download_blob=self.download_blob)
         self._blob_service_client = Mock(
             get_blob_client=Mock(return_value=self._blob_client),
-            get_container_client=Mock(return_value=self._container_client)
+            get_container_client=Mock(return_value=self._container_client),
         )
         self.abs = AzureBlobStore()
         self.abs._blob_service_client = Mock(return_value=self._blob_service_client)
@@ -77,17 +72,19 @@ class ABSTest(unittest.TestCase):
             ),
             ["hello", "world!"],
         )
-        self._blob_service_client.get_blob_client.assert_called_once_with("sascontainer", "sasblob.txt")
+        self._blob_service_client.get_blob_client.assert_called_once_with(
+            "sascontainer", "sasblob.txt"
+        )
         self.download_blob.assert_called_once_with()
 
     def test_write_file(self):
         self.abs.write(
             "hello world", "abs://myaccount.blob.core.windows.net/sascontainer/sasblob.txt?sastoken"
         )
-        self._blob_service_client.get_blob_client.assert_called_once_with("sascontainer", "sasblob.txt")
-        self.upload_blob.assert_called_once_with(
-            data="hello world", overwrite=True
+        self._blob_service_client.get_blob_client.assert_called_once_with(
+            "sascontainer", "sasblob.txt"
         )
+        self.upload_blob.assert_called_once_with(data="hello world", overwrite=True)
 
     def test_blob_service_client(self):
         abs = AzureBlobStore()

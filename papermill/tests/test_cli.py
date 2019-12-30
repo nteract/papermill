@@ -382,20 +382,22 @@ def papermill_version():
 def notebook():
     for name in kernelspec.find_kernel_specs():
         ks = kernelspec.get_kernel_spec(name)
-        metadata = {'kernelspec': {'name': name,
-                                   'language': ks.language,
-                                   'display_name': ks.display_name}}
+        metadata = {
+            'kernelspec': {'name': name, 'language': ks.language, 'display_name': ks.display_name}
+        }
         return nbformat.v4.new_notebook(
             metadata=metadata,
-            cells=[nbformat.v4.new_markdown_cell(
-                'This is a notebook with kernel: ' + ks.display_name)])
+            cells=[
+                nbformat.v4.new_markdown_cell('This is a notebook with kernel: ' + ks.display_name)
+            ],
+        )
 
     raise EnvironmentError('No kernel found')
 
 
 require_papermill_installed = pytest.mark.skipif(
-    not papermill_version(),
-    reason='papermill is not installed')
+    not papermill_version(), reason='papermill is not installed'
+)
 
 
 @require_papermill_installed
@@ -492,13 +494,19 @@ def test_stdout_file(tmpdir):
     stdout_file = tmpdir.join('notebook.stdout')
     secret = str(uuid.uuid4())
 
-    process = papermill_cli([
-        get_notebook_path('simple_execute.ipynb'),
-        str(nb_file),
-        '-k', kernel_name,
-        '-p', 'msg', secret,
-        '--stdout-file', str(stdout_file),
-    ])
+    process = papermill_cli(
+        [
+            get_notebook_path('simple_execute.ipynb'),
+            str(nb_file),
+            '-k',
+            kernel_name,
+            '-p',
+            'msg',
+            secret,
+            '--stdout-file',
+            str(stdout_file),
+        ]
+    )
     out, err = process.communicate()
 
     assert not out

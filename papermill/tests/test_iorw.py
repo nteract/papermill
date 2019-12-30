@@ -167,9 +167,7 @@ class TestPapermillIO(unittest.TestCase):
     def test_read_stdin(self):
         file_content = u'Τὴ γλῶσσα μοῦ ἔδωσαν ἑλληνικὴ'
         with mock.patch('sys.stdin', io.StringIO(file_content)):
-            self.assertEqual(
-                self.papermill_io.read("-"), file_content
-            )
+            self.assertEqual(self.papermill_io.read("-"), file_content)
 
     def test_listdir(self):
         self.assertEqual(self.papermill_io.listdir("fake/path"), ["fake", "contents"])

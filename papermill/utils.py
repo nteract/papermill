@@ -31,8 +31,7 @@ def merge_kwargs(caller_args, **callee_args):
     """
     conflicts = set(caller_args) & set(callee_args)
     if conflicts:
-        args = format('; '.join(['{}={}'.format(key, value)
-                                 for key, value in callee_args.items()]))
+        args = format('; '.join(['{}={}'.format(key, value) for key, value in callee_args.items()]))
         msg = "Callee will overwrite caller's argument(s): {}".format(args)
         warnings.warn(msg, PapermillParameterOverwriteWarning)
     return dict(caller_args, **callee_args)

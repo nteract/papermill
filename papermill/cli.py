@@ -75,8 +75,11 @@ def print_papermill_version(ctx, param, value):
     ),
 )
 @click.option('--engine', help='The execution engine name to use in evaluating the notebook.')
-@click.option('--request-save-on-cell-execute/--no-request-save-on-cell-execute', default=True,
-              help='Request save notebook after each cell execution')
+@click.option(
+    '--request-save-on-cell-execute/--no-request-save-on-cell-execute',
+    default=True,
+    help='Request save notebook after each cell execution',
+)
 @click.option(
     '--prepare-only/--prepare-execute',
     default=False,

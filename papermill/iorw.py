@@ -89,7 +89,9 @@ class PapermillIO(object):
             warnings.warn(
                 "the file is not specified with any extension : " + os.path.basename(path)
             )
-        elif not any(fnmatch.fnmatch(os.path.basename(path).split('?')[0], '*' + ext) for ext in extensions):
+        elif not any(
+            fnmatch.fnmatch(os.path.basename(path).split('?')[0], '*' + ext) for ext in extensions
+        ):
             warnings.warn(
                 "The specified input file ({}) does not end in one of {}".format(path, extensions)
             )
@@ -114,7 +116,9 @@ class PapermillIO(object):
             warnings.warn(
                 "the file is not specified with any extension : " + os.path.basename(path)
             )
-        elif not any(fnmatch.fnmatch(os.path.basename(path).split('?')[0], '*' + ext) for ext in extensions):
+        elif not any(
+            fnmatch.fnmatch(os.path.basename(path).split('?')[0], '*' + ext) for ext in extensions
+        ):
             warnings.warn(
                 "The specified input file ({}) does not end in one of {}".format(path, extensions)
             )
@@ -334,8 +338,8 @@ class GCSHandler(object):
 # https://stackoverflow.com/a/52312810
 class NoDatesSafeLoader(yaml.SafeLoader):
     yaml_implicit_resolvers = {
-        k: [r for r in v if r[0] != 'tag:yaml.org,2002:timestamp'] for
-        k, v in yaml.SafeLoader.yaml_implicit_resolvers.items()
+        k: [r for r in v if r[0] != 'tag:yaml.org,2002:timestamp']
+        for k, v in yaml.SafeLoader.yaml_implicit_resolvers.items()
     }
 
 

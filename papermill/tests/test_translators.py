@@ -193,14 +193,11 @@ def test_translate_codify_scala(parameters, expected):
     [
         ("foo", '"foo"'),
         ('{"foo": "bar"}', '"{\\"foo\\": \\"bar\\"}"'),
-        ({"foo": "bar"},
-            'new Dictionary<string,Object>{ { "foo" , "bar" } }'),
-        ({"foo": '"bar"'},
-            'new Dictionary<string,Object>{ { "foo" , "\\"bar\\"" } }'),
+        ({"foo": "bar"}, 'new Dictionary<string,Object>{ { "foo" , "bar" } }'),
+        ({"foo": '"bar"'}, 'new Dictionary<string,Object>{ { "foo" , "\\"bar\\"" } }'),
         (["foo"], 'new [] { "foo" }'),
         (["foo", '"bar"'], 'new [] { "foo", "\\"bar\\"" }'),
-        ([{"foo": "bar"}],
-            'new [] { new Dictionary<string,Object>{ { "foo" , "bar" } } }'),
+        ([{"foo": "bar"}], 'new [] { new Dictionary<string,Object>{ { "foo" , "bar" } } }'),
         (12345, '12345'),
         (-54321, '-54321'),
         (1.2345, '1.2345'),
@@ -208,7 +205,7 @@ def test_translate_codify_scala(parameters, expected):
         (2147483648, '2147483648L'),
         (-2147483649, '-2147483649L'),
         (True, 'true'),
-        (False, 'false')
+        (False, 'false'),
     ],
 )
 def test_translate_type_csharp(test_input, expected):
@@ -225,10 +222,7 @@ def test_translate_comment_csharp(test_input, expected):
 
 @pytest.mark.parametrize(
     "input_name,input_value,expected",
-    [
-        ("foo", '""', 'var foo = "";'),
-        ("foo", '"bar"', 'var foo = "bar";'),
-    ],
+    [("foo", '""', 'var foo = "";'), ("foo", '"bar"', 'var foo = "bar";')],
 )
 def test_translate_assign_csharp(input_name, input_value, expected):
     assert translators.CSharpTranslator.assign(input_name, input_value) == expected
@@ -242,8 +236,10 @@ def test_translate_assign_csharp(input_name, input_value, expected):
         ({"foo": 5}, '// Parameters\nvar foo = 5;\n'),
         ({"foo": 1.1}, '// Parameters\nvar foo = 1.1;\n'),
         ({"foo": ['bar', 'baz']}, '// Parameters\nvar foo = new [] { "bar", "baz" };\n'),
-        ({"foo": {'bar': 'baz'}},
-            '// Parameters\nvar foo = new Dictionary<string,Object>{ { "bar" , "baz" } };\n')
+        (
+            {"foo": {'bar': 'baz'}},
+            '// Parameters\nvar foo = new Dictionary<string,Object>{ { "bar" , "baz" } };\n',
+        ),
     ],
 )
 def test_translate_codify_csharp(parameters, expected):
@@ -268,7 +264,7 @@ def test_translate_codify_csharp(parameters, expected):
         (2147483648, '2147483648L'),
         (-2147483649, '-2147483649L'),
         (True, 'true'),
-        (False, 'false')
+        (False, 'false'),
     ],
 )
 def test_translate_type_fsharp(test_input, expected):
@@ -285,10 +281,7 @@ def test_translate_comment_fsharp(test_input, expected):
 
 @pytest.mark.parametrize(
     "input_name,input_value,expected",
-    [
-        ("foo", '""', 'let foo = ""'),
-        ("foo", '"bar"', 'let foo = "bar"'),
-    ],
+    [("foo", '""', 'let foo = ""'), ("foo", '"bar"', 'let foo = "bar"')],
 )
 def test_translate_assign_fsharp(input_name, input_value, expected):
     assert translators.FSharpTranslator.assign(input_name, input_value) == expected
@@ -302,8 +295,10 @@ def test_translate_assign_fsharp(input_name, input_value, expected):
         ({"foo": 5}, '(* Parameters *)\nlet foo = 5\n'),
         ({"foo": 1.1}, '(* Parameters *)\nlet foo = 1.1\n'),
         ({"foo": ['bar', 'baz']}, '(* Parameters *)\nlet foo = [ "bar"; "baz" ]\n'),
-        ({"foo": {'bar': 'baz'}},
-            '(* Parameters *)\nlet foo = [ ("bar", "baz" :> IComparable) ] |> Map.ofList\n')
+        (
+            {"foo": {'bar': 'baz'}},
+            '(* Parameters *)\nlet foo = [ ("bar", "baz" :> IComparable) ] |> Map.ofList\n',
+        ),
     ],
 )
 def test_translate_codify_fsharp(parameters, expected):
@@ -375,10 +370,13 @@ def test_translate_comment_julia(test_input, expected):
         ({"foo": "bar"}, 'containers.Map({\'foo\'}, {"bar"})'),
         ({"foo": '"bar"'}, 'containers.Map({\'foo\'}, {"""bar"""})'),
         ({"foo": ["bar"]}, 'containers.Map({\'foo\'}, {{"bar"}})'),
-        ({"foo": {"bar": "baz"}}, 'containers.Map({\'foo\'}, {containers.Map({\'bar\'}, {"baz"})})'),
+        (
+            {"foo": {"bar": "baz"}},
+            'containers.Map({\'foo\'}, {containers.Map({\'bar\'}, {"baz"})})',
+        ),
         (
             {"foo": {"bar": '"baz"'}},
-            'containers.Map({\'foo\'}, {containers.Map({\'bar\'}, {"""baz"""})})'
+            'containers.Map({\'foo\'}, {containers.Map({\'bar\'}, {"""baz"""})})',
         ),
         (["foo"], '{"foo"}'),
         (["foo", '"bar"'], '{"foo", """bar"""}'),
