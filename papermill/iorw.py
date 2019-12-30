@@ -85,11 +85,11 @@ class PapermillIO(object):
         if path == '-':
             return sys.stdin.read()
 
-        if not fnmatch.fnmatch(os.path.basename(path), '*.*'):
+        if not fnmatch.fnmatch(os.path.basename(path).split('?')[0], '*.*'):
             warnings.warn(
                 "the file is not specified with any extension : " + os.path.basename(path)
             )
-        elif not any(fnmatch.fnmatch(os.path.basename(path), '*' + ext) for ext in extensions):
+        elif not any(fnmatch.fnmatch(os.path.basename(path).split('?')[0], '*' + ext) for ext in extensions):
             warnings.warn(
                 "The specified input file ({}) does not end in one of {}".format(path, extensions)
             )
@@ -110,11 +110,11 @@ class PapermillIO(object):
                 return sys.stdout.write(buf.encode('utf-8'))
 
         # Usually no return object here
-        if not fnmatch.fnmatch(os.path.basename(path), '*.*'):
+        if not fnmatch.fnmatch(os.path.basename(path).split('?')[0], '*.*'):
             warnings.warn(
                 "the file is not specified with any extension : " + os.path.basename(path)
             )
-        elif not any(fnmatch.fnmatch(os.path.basename(path), '*' + ext) for ext in extensions):
+        elif not any(fnmatch.fnmatch(os.path.basename(path).split('?')[0], '*' + ext) for ext in extensions):
             warnings.warn(
                 "The specified input file ({}) does not end in one of {}".format(path, extensions)
             )

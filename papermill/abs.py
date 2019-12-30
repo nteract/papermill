@@ -2,8 +2,6 @@
 import re
 import io
 
-from six.moves import urllib
-
 from azure.storage.blob import BlobServiceClient
 
 
@@ -18,9 +16,6 @@ class AzureBlobStore(object):
         - listdir
         - write
     """
-
-    def __init__(self):
-        pass
 
     def _blob_service_client(self, account_name, sas_token):
 
@@ -46,7 +41,7 @@ class AzureBlobStore(object):
                 "account": match.group(1),
                 "container": match.group(2),
                 "blob": match.group(3),
-                "sas_token": urllib.parse.unquote_plus(match.group(4)),
+                "sas_token": match.group(4),
             }
             return params
 
