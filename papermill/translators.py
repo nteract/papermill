@@ -141,6 +141,7 @@ class PythonTranslator(Translator):
         if sys.version_info >= (3, 6):
             # Put content through the Black Python code formatter
             import black
+
             fm = black.FileMode(string_normalization=False)
             content = black.format_str(content, mode=fm)
         return content
@@ -174,7 +175,7 @@ class RTranslator(Translator):
     @classmethod
     def assign(cls, name, str_val):
         # Leading '_' aren't legal R variable names -- so we drop them when injecting
-        while (name.startswith("_")):
+        while name.startswith("_"):
             name = name[1:]
         return '{} = {}'.format(name, str_val)
 
@@ -257,12 +258,8 @@ class MatlabTranslator(Translator):
 
     @classmethod
     def translate_dict(cls, val):
-        keys = ', '.join(
-            ["{}".format(cls.__translate_char_array(k)) for k, v in val.items()]
-        )
-        vals = ', '.join(
-            ["{}".format(cls.translate(v)) for k, v in val.items()]
-        )
+        keys = ', '.join(["{}".format(cls.__translate_char_array(k)) for k, v in val.items()])
+        vals = ', '.join(["{}".format(cls.translate(v)) for k, v in val.items()])
         return 'containers.Map({{{}}}, {{{}}})'.format(keys, vals)
 
     @classmethod
@@ -282,15 +279,14 @@ class MatlabTranslator(Translator):
         return content
 
 
-class CSharpTranslator(Translator) :
-
+class CSharpTranslator(Translator):
     @classmethod
-    def translate_none(cls, val) :
+    def translate_none(cls, val):
         # Can't figure out how to do this as nullable
         raise NotImplementedError("Option type not implemented for C#.")
 
     @classmethod
-    def translate_bool(cls, val) :
+    def translate_bool(cls, val):
         return 'true' if val else 'false'
 
     @classmethod
@@ -303,8 +299,7 @@ class CSharpTranslator(Translator) :
         """Translate dicts to nontyped dictionary"""
 
         kvps = ', '.join(
-            ["{{ {} , {} }}".format(cls.translate_str(k), cls.translate(v))
-             for k, v in val.items()]
+            ["{{ {} , {} }}".format(cls.translate_str(k), cls.translate(v)) for k, v in val.items()]
         )
         return 'new Dictionary<string,Object>{{ {} }}'.format(kvps)
 
@@ -323,14 +318,13 @@ class CSharpTranslator(Translator) :
         return 'var {} = {};'.format(name, str_val)
 
 
-class FSharpTranslator(Translator) :
-
+class FSharpTranslator(Translator):
     @classmethod
-    def translate_none(cls, val) :
+    def translate_none(cls, val):
         return 'None'
 
     @classmethod
-    def translate_bool(cls, val) :
+    def translate_bool(cls, val):
         return 'true' if val else 'false'
 
     @classmethod
@@ -341,8 +335,10 @@ class FSharpTranslator(Translator) :
     @classmethod
     def translate_dict(cls, val):
         tuples = '; '.join(
-            ["({}, {} :> IComparable)".format(cls.translate_str(k), cls.translate(v))
-             for k, v in val.items()]
+            [
+                "({}, {} :> IComparable)".format(cls.translate_str(k), cls.translate(v))
+                for k, v in val.items()
+            ]
         )
         return '[ {} ] |> Map.ofList'.format(tuples)
 

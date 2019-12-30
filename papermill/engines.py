@@ -99,8 +99,8 @@ class NotebookExecutionManager(object):
         if progress_bar:
             # lazy import due to implict slow ipython import
             from tqdm.auto import tqdm
-            self.pbar = tqdm(total=len(self.nb.cells), unit="cell",
-                             desc="Executing")
+
+            self.pbar = tqdm(total=len(self.nb.cells), unit="cell", desc="Executing")
 
     def now(self):
         """Helper to return current UTC time"""

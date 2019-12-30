@@ -129,13 +129,12 @@ class GCSTest(unittest.TestCase):
                         self.gcs_handler.write('raise_limit_exception', 'gs://bucket/test.ipynb'), 2
                     )
 
-    @patch(
-        'papermill.iorw.gs_is_retriable',
-        side_effect=fallback_gs_is_retriable
-    )
+    @patch('papermill.iorw.gs_is_retriable', side_effect=fallback_gs_is_retriable)
     @patch(
         'papermill.iorw.GCSFileSystem',
-        side_effect=mock_gcs_fs_wrapper(GCSRateLimitException({"message": "test", "code": None}), 1),
+        side_effect=mock_gcs_fs_wrapper(
+            GCSRateLimitException({"message": "test", "code": None}), 1
+        ),
     )
     def test_gcs_fallback_retry_unknown_failure_code(self, mock_gcs_filesystem, mock_gcs_retriable):
         with patch.object(GCSHandler, 'RETRY_DELAY', 0):
@@ -145,10 +144,7 @@ class GCSTest(unittest.TestCase):
                         self.gcs_handler.write('raise_limit_exception', 'gs://bucket/test.ipynb'), 2
                     )
 
-    @patch(
-        'papermill.iorw.gs_is_retriable',
-        return_value=False,
-    )
+    @patch('papermill.iorw.gs_is_retriable', return_value=False)
     @patch(
         'papermill.iorw.GCSFileSystem',
         side_effect=mock_gcs_fs_wrapper(GCSRateLimitException({"message": "test", "code": 500}), 1),
@@ -157,10 +153,7 @@ class GCSTest(unittest.TestCase):
         with self.assertRaises(GCSRateLimitException):
             self.gcs_handler.write('fatal_exception', 'gs://bucket/test.ipynb')
 
-    @patch(
-        'papermill.iorw.gs_is_retriable',
-        side_effect=fallback_gs_is_retriable
-    )
+    @patch('papermill.iorw.gs_is_retriable', side_effect=fallback_gs_is_retriable)
     @patch(
         'papermill.iorw.GCSFileSystem',
         side_effect=mock_gcs_fs_wrapper(GCSRateLimitException({"message": "test", "code": 500}), 1),
