@@ -291,12 +291,17 @@ class TestCLI(unittest.TestCase):
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_start_timeout(self, execute_patch):
+        self.runner.invoke(papermill, self.default_args + ['--start-timeout', '123'])
+        execute_patch.assert_called_with(**self.augment_execute_kwargs(start_timeout=123))
+
+    @patch(cli.__name__ + '.execute_notebook')
+    def test_start_timeout_backwards_compatibility(self, execute_patch):
         self.runner.invoke(papermill, self.default_args + ['--start_timeout', '123'])
         execute_patch.assert_called_with(**self.augment_execute_kwargs(start_timeout=123))
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_execution_timeout(self, execute_patch):
-        self.runner.invoke(papermill, self.default_args + ['--execution_timeout', '123'])
+        self.runner.invoke(papermill, self.default_args + ['--execution-timeout', '123'])
         execute_patch.assert_called_with(**self.augment_execute_kwargs(execution_timeout=123))
 
     @patch(cli.__name__ + '.execute_notebook')
@@ -341,9 +346,9 @@ class TestCLI(unittest.TestCase):
                 '--autosave-cell-every',
                 '17',
                 '--no-progress-bar',
-                '--start_timeout',
+                '--start-timeout',
                 '321',
-                '--execution_timeout',
+                '--execution-timeout',
                 '654',
                 '--report-mode',
             ],

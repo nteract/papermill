@@ -57,8 +57,8 @@ options:
       --stderr-file FILENAME          File to write notebook stderr output to.
       --log-level [NOTSET|DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                       Set log level
-      --start_timeout INTEGER         Time in seconds to wait for kernel to start.
-      --execution_timeout INTEGER     Time in seconds to wait for each cell before
+      --start-timeout INTEGER         Time in seconds to wait for kernel to start.
+      --execution-timeout INTEGER     Time in seconds to wait for each cell before
                                       failing execution (default: forever)
       --report-mode / --no-report-mode
                                       Flag for hiding input.
