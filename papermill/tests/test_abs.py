@@ -1,12 +1,8 @@
 import unittest
-import six
+
+from unittest.mock import Mock, patch
 
 from ..abs import AzureBlobStore
-
-if six.PY3:
-    from unittest.mock import Mock, patch
-else:
-    from mock import Mock, patch
 
 
 class MockBytesIO(object):

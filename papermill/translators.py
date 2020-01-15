@@ -1,5 +1,5 @@
 import sys
-from six import string_types, integer_types
+
 from .exceptions import PapermillException
 
 
@@ -37,7 +37,7 @@ class Translator(object):
     @classmethod
     def translate_escaped_str(cls, str_val):
         """Reusable by most interpreters"""
-        if isinstance(str_val, string_types):
+        if isinstance(str_val, str):
             str_val = str_val.encode('unicode_escape')
             if sys.version_info >= (3, 0):
                 str_val = str_val.decode('utf-8')
@@ -82,12 +82,12 @@ class Translator(object):
         """Translate each of the standard json/yaml types to appropiate objects."""
         if val is None:
             return cls.translate_none(val)
-        elif isinstance(val, string_types):
+        elif isinstance(val, str):
             return cls.translate_str(val)
         # Needs to be before integer checks
         elif isinstance(val, bool):
             return cls.translate_bool(val)
-        elif isinstance(val, integer_types):
+        elif isinstance(val, int):
             return cls.translate_int(val)
         elif isinstance(val, float):
             return cls.translate_float(val)
@@ -235,7 +235,7 @@ class MatlabTranslator(Translator):
     @classmethod
     def translate_escaped_str(cls, str_val):
         """Translate a string to an escaped Matlab string"""
-        if isinstance(str_val, string_types):
+        if isinstance(str_val, str):
             str_val = str_val.encode('unicode_escape')
             if sys.version_info >= (3, 0):
                 str_val = str_val.decode('utf-8')
@@ -245,7 +245,7 @@ class MatlabTranslator(Translator):
     @staticmethod
     def __translate_char_array(str_val):
         """Translates a string to a Matlab char array"""
-        if isinstance(str_val, string_types):
+        if isinstance(str_val, str):
             str_val = str_val.encode('unicode_escape')
             if sys.version_info >= (3, 0):
                 str_val = str_val.decode('utf-8')

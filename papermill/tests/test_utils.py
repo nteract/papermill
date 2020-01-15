@@ -1,20 +1,12 @@
 import os
-import six
 import pytest
 import warnings
 
-try:
-    from tempfile import TemporaryDirectory
-except ImportError:
-    # python 2
-    from backports.tempfile import TemporaryDirectory
+from unittest.mock import Mock, call
+from tempfile import TemporaryDirectory
+
 from ..utils import retry, chdir, merge_kwargs, remove_args
 from ..exceptions import PapermillParameterOverwriteWarning
-
-if six.PY3:
-    from unittest.mock import Mock, call
-else:
-    from mock import Mock, call
 
 
 def test_merge_kwargs():

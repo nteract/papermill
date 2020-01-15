@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 """Main `papermill` interface."""
-from __future__ import unicode_literals
 
 import os
 import sys

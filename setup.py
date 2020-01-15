@@ -9,17 +9,18 @@ https://packaging.python.org/en/latest/distributing.html
 https://github.com/pypa/sampleproject
 
 """
-from __future__ import print_function
 import os
 import sys
 from os import path
 from setuptools import setup
 
-# io.open is needed for projects that support Python 2.7
-# It ensures open() defaults to text mode with universal newlines,
-# and accepts an argument to specify the text encoding
-# Python 3 only projects can skip this import
-from io import open
+
+v = sys.version_info
+if v[:2] < (3, 5):
+    error = "ERROR: papermill requires Python version 3.5 or above."
+    print(error, file=sys.stderr)
+    sys.exit(1)
+
 
 local_path = os.path.dirname(__file__)
 # Fix for tox which manipulates execution pathing
@@ -36,11 +37,8 @@ def version():
     raise ValueError('No version found in papermill/version.py')
 
 
-python_2 = sys.version_info[0] == 2
-
-
 def read(fname):
-    with open(fname, 'rU' if python_2 else 'r') as fhandle:
+    with open(fname, 'r') as fhandle:
         return fhandle.read()
 
 
@@ -96,6 +94,9 @@ setup(
         'License :: OSI Approved :: BSD License',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
     ],
 )

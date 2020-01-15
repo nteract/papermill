@@ -1,14 +1,10 @@
 import pytest
+
+from unittest.mock import Mock
 from collections import OrderedDict
+
 from .. import translators
 from ..exceptions import PapermillException
-
-import six
-
-if six.PY3:
-    from unittest.mock import Mock
-else:
-    from mock import Mock
 
 
 @pytest.mark.parametrize(
