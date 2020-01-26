@@ -10,23 +10,14 @@ https://github.com/pypa/sampleproject
 
 """
 import os
-import sys
-from os import path
 from setuptools import setup
-
-
-v = sys.version_info
-if v[:2] < (3, 5):
-    error = "ERROR: papermill requires Python version 3.5 or above."
-    print(error, file=sys.stderr)
-    sys.exit(1)
 
 
 local_path = os.path.dirname(__file__)
 # Fix for tox which manipulates execution pathing
 if not local_path:
     local_path = '.'
-here = path.abspath(local_path)
+here = os.path.abspath(local_path)
 
 
 def version():
@@ -62,7 +53,7 @@ extras_require = {
 }
 
 # Get the long description from the README file
-with open(path.join(here, 'README.md'), encoding='utf-8') as f:
+with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
@@ -78,6 +69,7 @@ setup(
     long_description_content_type='text/markdown',
     url='https://github.com/nteract/papermill',
     packages=['papermill'],
+    python_requires='>=3.5',
     install_requires=read_reqs('requirements.txt'),
     extras_require=extras_require,
     entry_points={'console_scripts': ['papermill = papermill.cli:papermill']},
