@@ -104,6 +104,7 @@ class PapermillIO(object):
             try:
                 return sys.stdout.buffer.write(buf.encode('utf-8'))
             except AttributeError:
+                # Originally required by https://github.com/nteract/papermill/issues/420
                 # Support Buffer.io objects
                 return sys.stdout.write(buf.encode('utf-8'))
 

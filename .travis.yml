@@ -19,7 +19,7 @@ matrix:
     - python: 3.6
       env: TOXENV=manifest
 install:
-  - pip install tox
+  - pip install tox coverage codecov
 script:
   - tox -e $TOXENV
 after_success:
