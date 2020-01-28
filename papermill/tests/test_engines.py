@@ -1,8 +1,8 @@
-import abc
 import copy
 import dateutil
 import unittest
 
+from abc import ABCMeta
 from mock import Mock, patch, call
 from nbformat.notebooknode import NotebookNode
 
@@ -14,17 +14,13 @@ from ..iorw import load_notebook_node
 from ..engines import NotebookExecutionManager, Engine, NBConvertEngine
 
 
-# ABC inheritable compatible with Python 2 and 3
-ABC = abc.ABCMeta('ABC', (object,), {'__slots__': ()})
-
-
 def AnyMock(cls):
     """
     Mocks a matcher for any instance of class cls.
     e.g. my_mock.called_once_with(Any(int), "bar")
     """
 
-    class AnyMock(ABC):
+    class AnyMock(metaclass=ABCMeta):
         def __eq__(self, other):
             return isinstance(other, cls)
 

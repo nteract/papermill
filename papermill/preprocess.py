@@ -1,5 +1,3 @@
-from __future__ import unicode_literals, print_function
-
 from nbconvert.preprocessors import ExecutePreprocessor
 from nbconvert.preprocessors.execute import CellExecutionError
 from traitlets import Bool, Instance

@@ -1,5 +1,6 @@
-import six
 import unittest
+
+from unittest.mock import patch
 
 from ..exceptions import PapermillRateLimitException
 from ..iorw import GCSHandler, fallback_gs_is_retriable
@@ -18,11 +19,6 @@ try:
 except ImportError:
     # Fall back to GCSHttpError when using older library
     GCSRateLimitException = GCSHttpError
-
-if six.PY3:
-    from unittest.mock import patch
-else:
-    from mock import patch
 
 
 def mock_gcs_fs_wrapper(exception=None, max_raises=1):

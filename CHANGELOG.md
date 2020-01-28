@@ -1,5 +1,8 @@
 # Change Log
 
+## 2.0.0
+- Papermill is now Python 3.5+ only!
+
 ## 1.2.1
 - Importing papermill no longer manipulates `yaml.SafeLoader` globally
 - Parameters with leading `_` now have prefix `_` stripped before passing to R kernels

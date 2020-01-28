@@ -6,24 +6,10 @@ import os
 import io
 import nbformat
 import pytest
-import mock
+
 from requests.exceptions import ConnectionError
-
-try:
-    from tempfile import TemporaryDirectory
-except ImportError:
-    # python 2
-    from backports.tempfile import TemporaryDirectory
-
-try:
-    from unittest.mock import Mock, patch
-except ImportError:
-    from mock import Mock, patch
-
-try:
-    FileNotFoundError
-except NameError:
-    FileNotFoundError = IOError
+from tempfile import TemporaryDirectory
+from unittest.mock import Mock, patch
 
 from .. import iorw
 from ..iorw import (
@@ -166,8 +152,10 @@ class TestPapermillIO(unittest.TestCase):
 
     def test_read_stdin(self):
         file_content = u'Τὴ γλῶσσα μοῦ ἔδωσαν ἑλληνικὴ'
-        with mock.patch('sys.stdin', io.StringIO(file_content)):
-            self.assertEqual(self.papermill_io.read("-"), file_content)
+        with patch('sys.stdin', io.StringIO(file_content)):
+            self.assertEqual(
+                self.papermill_io.read("-"), file_content
+            )
 
     def test_listdir(self):
         self.assertEqual(self.papermill_io.listdir("fake/path"), ["fake", "contents"])
@@ -186,7 +174,7 @@ class TestPapermillIO(unittest.TestCase):
     def test_write_stdout(self):
         file_content = u'Τὴ γλῶσσα μοῦ ἔδωσαν ἑλληνικὴ'
         out = io.BytesIO()
-        with mock.patch('sys.stdout', out):
+        with patch('sys.stdout', out):
             self.papermill_io.write(file_content, "-")
             self.assertEqual(out.getvalue(), file_content.encode('utf-8'))
 
