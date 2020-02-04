@@ -51,7 +51,7 @@ pip install papermill[all]
 
 ## Python Version Support
 
-This library currently supports Python 3.5+ verisons. As minor Python
+This library currently supports Python 3.5+ versions. As minor Python
 versions are officially sunset by the Python org papermill will similarly
 drop support in the future.
 
