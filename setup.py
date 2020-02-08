@@ -41,7 +41,8 @@ def read_reqs(fname):
 s3_reqs = read_reqs('requirements-s3.txt')
 azure_reqs = read_reqs('requirements-azure.txt')
 gcs_reqs = read_reqs('requirements-gcs.txt')
-all_reqs = s3_reqs + azure_reqs + gcs_reqs
+hdfs_reqs = read_reqs('requirements-hdfs.txt')
+all_reqs = s3_reqs + azure_reqs + gcs_reqs + hdfs_reqs
 dev_reqs = read_reqs('requirements-dev.txt') + all_reqs
 extras_require = {
     "test": dev_reqs,
@@ -50,6 +51,7 @@ extras_require = {
     "s3": s3_reqs,
     "azure": azure_reqs,
     "gcs": gcs_reqs,
+    "hdfs": hdfs_reqs,
 }
 
 # Get the long description from the README file
