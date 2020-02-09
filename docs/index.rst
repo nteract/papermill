@@ -34,7 +34,7 @@ This opens up new opportunities for how notebooks can be used. For example:
 Python Version Support
 ----------------------
 
-This library currently supports python 3.5+ verisons. As minor python
+This library currently supports python 3.5+ versions. As minor python
 versions are officially sunset by the python org papermill will similarly
 drop support in the future.
 
