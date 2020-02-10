@@ -9,7 +9,7 @@ import entrypoints
 
 from .log import logger
 from .exceptions import PapermillException
-from .preprocess import PapermillExecutePreprocessor
+from .clientwrap import PapermillNotebookClient
 from .iorw import write_ipynb
 from .utils import merge_kwargs, remove_args
 
@@ -340,10 +340,7 @@ class Engine(object):
 
         nb_man.notebook_start()
         try:
-            nb = cls.execute_managed_notebook(nb_man, kernel_name, log_output=log_output, **kwargs)
-            # Update the notebook object in case the executor didn't do it for us
-            if nb:
-                nb_man.nb = nb
+            cls.execute_managed_notebook(nb_man, kernel_name, log_output=log_output, **kwargs)
         finally:
             nb_man.cleanup_pbar()
             nb_man.notebook_complete()
@@ -356,9 +353,9 @@ class Engine(object):
         raise NotImplementedError("'execute_managed_notebook' is not implemented for this engine")
 
 
-class NBConvertEngine(Engine):
+class NBClientEngine(Engine):
     """
-    A notebook engine representing an nbconvert process.
+    A notebook engine representing an nbclient process.
 
     This can execute a notebook document and update the `nb_man.nb` object with
     the results.
@@ -386,11 +383,6 @@ class NBConvertEngine(Engine):
                                configured logger.
             start_timeout (int): Duration to wait for kernel start-up.
             execution_timeout (int): Duration to wait before failing execution (default: never).
-
-
-        Note: The preprocessor concept in this method is similar to what is used
-        by `nbconvert`, and it is somewhat misleading here. The preprocesser
-        represents a notebook processor, not a preparation object.
         """
 
         # Exclude parameters that named differently downstream
@@ -407,12 +399,11 @@ class NBConvertEngine(Engine):
             stdout_file=stdout_file,
             stderr_file=stderr_file,
         )
-        preprocessor = PapermillExecutePreprocessor(**final_kwargs)
-        preprocessor.preprocess(nb_man, safe_kwargs)
+        return PapermillNotebookClient(nb_man, **final_kwargs).execute()
 
 
 # Instantiate a PapermillEngines instance, register Handlers and entrypoints
 papermill_engines = PapermillEngines()
-papermill_engines.register(None, NBConvertEngine)
-papermill_engines.register('nbconvert', NBConvertEngine)
+papermill_engines.register(None, NBClientEngine)
+papermill_engines.register('nbclient', NBClientEngine)
 papermill_engines.register_entry_points()

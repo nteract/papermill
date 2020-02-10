@@ -11,8 +11,6 @@ try:
 except ImportError:
     from mock import patch
 
-from nbconvert import HTMLExporter
-
 from .. import engines
 from ..log import logger
 from ..iorw import load_notebook_node
@@ -36,7 +34,7 @@ class TestNotebookHelpers(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.test_dir)
 
-    @patch(engines.__name__ + '.PapermillExecutePreprocessor')
+    @patch(engines.__name__ + '.PapermillNotebookClient')
     def test_start_timeout(self, preproc_mock):
         execute_notebook(self.notebook_path, self.nb_test_executed_fname, start_timeout=123)
         args, kwargs = preproc_mock.call_args
@@ -52,7 +50,7 @@ class TestNotebookHelpers(unittest.TestCase):
             msg='Expected arguments {} are not a subset of actual {}'.format(expected, actual),
         )
 
-    @patch(engines.__name__ + '.PapermillExecutePreprocessor')
+    @patch(engines.__name__ + '.PapermillNotebookClient')
     def test_default_start_timeout(self, preproc_mock):
         execute_notebook(self.notebook_path, self.nb_test_executed_fname)
         args, kwargs = preproc_mock.call_args
@@ -178,32 +176,6 @@ class TestBrokenNotebook2(unittest.TestCase):
         self.assertEqual(nb.cells[2].outputs[0].output_type, 'display_data')
         self.assertEqual(nb.cells[2].outputs[1].output_type, 'error')
         self.assertEqual(nb.cells[3].execution_count, None)
-
-
-class TestNBConvertCalls(unittest.TestCase):
-    def setUp(self):
-        self.test_dir = tempfile.mkdtemp()
-        self.notebook_name = 'simple_execute.ipynb'
-        self.notebook_path = get_notebook_path(self.notebook_name)
-        self.nb_test_executed_fname = os.path.join(
-            self.test_dir, 'output_{}'.format(self.notebook_name)
-        )
-
-        self.html_exporter = HTMLExporter()
-        self.html_exporter.template_file = 'basic'
-
-    def test_convert_output_to_html(self):
-        execute_notebook(
-            self.notebook_path,
-            self.nb_test_executed_fname,
-            {'msg': 'Hello'},
-            engine_name='nbconvert',
-        )
-        test_nb = load_notebook_node(self.nb_test_executed_fname)
-
-        # Ensure the notebook builds valid html without crashing
-        (body, resources) = self.html_exporter.from_notebook_node(test_nb)
-        self.assertTrue(body.startswith("<div"))
 
 
 class TestReportMode(unittest.TestCase):
