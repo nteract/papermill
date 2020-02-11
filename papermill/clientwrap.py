@@ -13,7 +13,7 @@ class PapermillNotebookClient(NotebookClient):
     stdout_file = Instance(object, default_value=None).tag(config=True)
     stderr_file = Instance(object, default_value=None).tag(config=True)
 
-    def __init__(self, nb_man, km=None, **kw):
+    def __init__(self, nb_man, km=None, raise_on_iopub_timeout=True, **kw):
         """Initializes the execution manager.
 
         Parameters
@@ -24,7 +24,7 @@ class PapermillNotebookClient(NotebookClient):
             Optional kernel manager. If none is provided, a kernel manager will
             be created.
         """
-        super().__init__(nb_man.nb, km=km, **kw)
+        super().__init__(nb_man.nb, km=km, raise_on_iopub_timeout=raise_on_iopub_timeout, **kw)
         self.nb_man = nb_man
 
     def execute(self, **kwargs):
