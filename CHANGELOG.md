@@ -1,7 +1,33 @@
 # Change Log
 
 ## 2.0.0
+
+Papermill 2.0 has a number of awesome features from many different contributors. We used the major version change mostly to signify the change to Python 3 only, but we also allowed for PRs which has small interaction changes to also be made. No major functionality should change with this release, but many minor improvements might impact specific execution patterns. We'll keep an eye on issues and post bug fixes ASAP if any of these cause larger unexpected issues.
+
+### Features
 - Papermill is now Python 3.5+ only!
+- [nbconvert](https://nbconvert.readthedocs.io/en/latest/) is no longer a dependency of papermill, instead the smaller and newly released [nbclient](https://nbconvert.readthedocs.io/en/latest/) is now the execution dependency.
+- Support added for parameterizing C# kernels
+- Support added for parameterizing F# kernels
+- `sys.exit(0)` now respected by papermill
+- Python parameters are now black formatted (in python versions >= 3.6)
+- Notebook documents are saved periodically now rather than solely on cell completion.
+- A cell `--execute-timeout` option was added.
+- HDFS io support added with `hdfs://` scheme (with `papermill[hdfs]` install).
+
+### Fixes
+- Fixed metadata writing on markdown and raw cells to follow v4.4 schema correctly
+- Azure Blob Storage support fixed for newer blob storage. `azure-storage-blob >= 12.1.0` is now supported, older version support was dropped.
+- IOPub timeouts now raise an exception instead of a warning.
+
+### Interaction Changes (more details)
+- [nbconvert](https://nbconvert.readthedocs.io/en/latest/) dependency has been replaced with [nbclient](https://nbconvert.readthedocs.io/en/latest/). This means the default engine is now `nbclient` rather than `nbconvert` and the NBConvertEngine class no longer exists. This may mean extensions that extended this class will need to be updated slightly to the new class.
+- `sys.exit(0)` in python kernels now transfers exit code to papermill, meaning papermill will gracefully stop the notebook execution and not raise an exception to the user. `sys.exit(1)` or other exceptions still raise as expected and change the status code from 0 for the papermill process.
+- When generating parameters for python (when running on 3.6+) the parameters will be printed more cleanly with a pass of [black](https://github.com/psf/black) before injecting into the notebook.
+- Older Azure Blob Storage support was dropped: `azure-storage-blob < 12.1.0`
+- The `--autosave-cell-every` option now controls the minimum time between notebook saves during cell execution. This time will exponentially backoff if it takes more than 25% of the autosave-cell-every value. Setting `--autosave-cell-every` to `0` disabled this feature.
+- The `--execute-timeout` option can be set to enable a per-cell execution timeout limit.
+- IOPub timeouts used to only warn and attempt to continue execution. This can be triggered by printing '0' in a wide for-loop without any sleeps. The side-effect of best-effort execution was that outputs and failures could be lost in the IOPub timeout event and notebooks would "succeed" when they were actually failing. We chose to change this pattern from a warning to an error for papermill. To fix the issue when it occurs you need to delay the number of print or display messages per second being produced in your notebooks.
 
 ## 1.2.1
 - Importing papermill no longer manipulates `yaml.SafeLoader` globally
