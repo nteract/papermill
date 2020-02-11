@@ -1,34 +1,50 @@
-from nbconvert.preprocessors import ExecutePreprocessor
-from nbconvert.preprocessors.execute import CellExecutionError
+from nbclient import NotebookClient
+from nbclient.exceptions import CellExecutionError
 from traitlets import Bool, Instance
 
 
-class PapermillExecutePreprocessor(ExecutePreprocessor):
-    """Module containing a preprocessor that executes the code cells
-    and updates outputs"""
+class PapermillNotebookClient(NotebookClient):
+    """
+    Module containing a  that executes the code cells
+    and updates outputs
+    """
 
     log_output = Bool(False).tag(config=True)
     stdout_file = Instance(object, default_value=None).tag(config=True)
     stderr_file = Instance(object, default_value=None).tag(config=True)
 
-    def preprocess(self, nb_man, resources, km=None):
+    def __init__(self, nb_man, km=None, **kw):
+        """Initializes the execution manager.
+
+        Parameters
+        ----------
+        nb_man : NotebookExecutionManager
+            Notebook execution manager wrapper being executed.
+        km : KernerlManager (optional)
+            Optional kernel manager. If none is provided, a kernel manager will
+            be created.
+        """
+        super().__init__(nb_man.nb, km=km, **kw)
+        self.nb_man = nb_man
+
+    def execute(self, **kwargs):
         """
         Wraps the parent class process call slightly
         """
-        with self.setup_preprocessor(nb_man.nb, resources, km=km):
-            if self.log_output:
-                self.log.info("Executing notebook with kernel: {}".format(self.kernel_name))
-            nb, resources = self.papermill_process(nb_man, resources)
+        self.reset_execution_trackers()
+
+        with self.setup_kernel(**kwargs):
+            self.log.info("Executing notebook with kernel: %s" % self.kernel_name)
+            self.papermill_execute_cells()
             info_msg = self._wait_for_reply(self.kc.kernel_info())
-            nb.metadata['language_info'] = info_msg['content']['language_info']
+            self.nb.metadata['language_info'] = info_msg['content']['language_info']
             self.set_widgets_metadata()
 
-        return nb, resources
+        return self.nb
 
-    def papermill_process(self, nb_man, resources):
+    def papermill_execute_cells(self):
         """
-        This function acts as a replacement for the grandparent's `preprocess`
-        method.
+        This function replaces cell execution with it's own wrapper.
 
         We are doing this for the following reasons:
 
@@ -41,31 +57,17 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
 
         3. We want to include timing and execution status information with the
            metadata of each cell.
-
-        Parameters
-        ----------
-        nb_man : NotebookExecutionManager
-            Engine wrapper of notebook being converted
-        resources : dictionary
-            Additional resources used in the conversion process.  Allows
-            preprocessors to pass variables into the Jinja engine.
-
         """
         # Execute each cell and update the output in real time.
-        nb = nb_man.nb
-        self.current_nb_man = nb_man
-        for index, cell in enumerate(nb.cells):
+        for index, cell in enumerate(self.nb.cells):
             try:
-                nb_man.cell_start(cell, index)
-                if not cell.source:
-                    continue
-                nb.cells[index], resources = self.preprocess_cell(cell, resources, index)
+                self.nb_man.cell_start(cell, index)
+                self.execute_cell(cell, index)
             except CellExecutionError as ex:
-                nb_man.cell_exception(nb.cells[index], cell_index=index, exception=ex)
+                self.nb_man.cell_exception(self.nb.cells[index], cell_index=index, exception=ex)
                 break
             finally:
-                nb_man.cell_complete(nb.cells[index], cell_index=index)
-        return nb, resources
+                self.nb_man.cell_complete(self.nb.cells[index], cell_index=index)
 
     def log_output_message(self, output):
         """
@@ -94,8 +96,8 @@ class PapermillExecutePreprocessor(ExecutePreprocessor):
             self.log.info("".join(output.data['text/plain']))
 
     def process_message(self, *arg, **kwargs):
-        output = super(PapermillExecutePreprocessor, self).process_message(*arg, **kwargs)
-        self.current_nb_man.autosave_cell()
+        output = super().process_message(*arg, **kwargs)
+        self.nb_man.autosave_cell()
         if output and (self.log_output or self.stderr_file or self.stdout_file):
             self.log_output_message(output)
         return output

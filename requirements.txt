@@ -2,7 +2,7 @@ ansiwrap
 click
 pyyaml
 nbformat
-nbconvert >= 5.5
+nbclient
 tqdm >= 4.32.2
 jupyter_client
 requests

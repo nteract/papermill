@@ -11,7 +11,7 @@ from . import get_notebook_path
 from .. import engines, exceptions
 from ..log import logger
 from ..iorw import load_notebook_node
-from ..engines import NotebookExecutionManager, Engine, NBConvertEngine
+from ..engines import NotebookExecutionManager, Engine, NBClientEngine
 
 
 def AnyMock(cls):
@@ -391,16 +391,16 @@ class TestEngineBase(unittest.TestCase):
                     )
 
 
-class TestNBConvertEngine(unittest.TestCase):
+class TestNBClientEngine(unittest.TestCase):
     def setUp(self):
         self.notebook_name = 'simple_execute.ipynb'
         self.notebook_path = get_notebook_path(self.notebook_name)
         self.nb = load_notebook_node(self.notebook_path)
 
     def test_nb_convert_engine(self):
-        with patch.object(engines, 'PapermillExecutePreprocessor') as pep_mock:
+        with patch.object(engines, 'PapermillNotebookClient') as client_mock:
             with patch.object(NotebookExecutionManager, 'save') as save_mock:
-                nb = NBConvertEngine.execute_notebook(
+                nb = NBClientEngine.execute_notebook(
                     self.nb,
                     'python',
                     output_path='foo.ipynb',
@@ -414,9 +414,9 @@ class TestNBConvertEngine(unittest.TestCase):
                 self.assertEqual(nb, AnyMock(NotebookNode))
                 self.assertNotEqual(self.nb, nb)
 
-                pep_mock.assert_called_once()
+                client_mock.assert_called_once()
 
-                args, kwargs = pep_mock.call_args
+                args, kwargs = client_mock.call_args
                 expected = [
                     ('timeout', 1000),
                     ('startup_timeout', 30),
@@ -428,15 +428,13 @@ class TestNBConvertEngine(unittest.TestCase):
                 msg = 'Expected arguments {} are not a subset of actual {}'.format(expected, actual)
                 self.assertTrue(set(expected).issubset(actual), msg=msg)
 
-                pep_mock.return_value.preprocess.assert_called_once_with(
-                    AnyMock(NotebookExecutionManager), {'bar': 'baz'}
-                )
+                client_mock.return_value.execute.assert_called_once_with()
                 # Once for start and once for complete (cell not called by mock)
                 self.assertEqual(save_mock.call_count, 2)
 
     def test_nb_convert_engine_execute(self):
         with patch.object(NotebookExecutionManager, 'save') as save_mock:
-            nb = NBConvertEngine.execute_notebook(
+            nb = NBClientEngine.execute_notebook(
                 self.nb, 'python', output_path='foo.ipynb', progress_bar=False, log_output=True
             )
             self.assertEqual(save_mock.call_count, 8)
@@ -460,7 +458,7 @@ class TestNBConvertEngine(unittest.TestCase):
         with patch.object(logger, 'info') as info_mock:
             with patch.object(logger, 'warning') as warning_mock:
                 with patch.object(NotebookExecutionManager, 'save'):
-                    NBConvertEngine.execute_notebook(
+                    NBClientEngine.execute_notebook(
                         self.nb,
                         'python',
                         output_path='foo.ipynb',
@@ -483,7 +481,7 @@ class TestNBConvertEngine(unittest.TestCase):
         with patch.object(logger, 'info') as info_mock:
             with patch.object(logger, 'warning') as warning_mock:
                 with patch.object(NotebookExecutionManager, 'save'):
-                    NBConvertEngine.execute_notebook(
+                    NBClientEngine.execute_notebook(
                         self.nb,
                         'python',
                         output_path='foo.ipynb',

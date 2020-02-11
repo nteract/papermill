@@ -19,10 +19,10 @@ papermill.execute
     :undoc-members:
     :show-inheritance:
 
-papermill.preprocess
+papermill.clientwrap
 --------------------
 
-.. automodule:: papermill.preprocess
+.. automodule:: papermill.clientwrap
     :members:
     :undoc-members:
     :show-inheritance:
