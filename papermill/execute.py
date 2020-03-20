@@ -182,13 +182,7 @@ def raise_for_execution_errors(nb, output_path):
     if error:
         # Write notebook back out with the Error Message at the top of the Notebook.
         error_msg = ERROR_MESSAGE_TEMPLATE % str(error.exec_count)
-        error_msg_cell = nbformat.v4.new_code_cell(
-            source="%%html\n" + error_msg,
-            outputs=[
-                nbformat.v4.new_output(output_type="display_data", data={"text/html": error_msg})
-            ],
-            metadata={"inputHidden": True, "hide_input": True},
-        )
+        error_msg_cell = nbformat.v4.new_markdown_cell(error_msg)
         nb.cells = [error_msg_cell] + nb.cells
         write_ipynb(nb, output_path)
         raise error
