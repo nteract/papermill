@@ -283,8 +283,8 @@ class TestSysExit(unittest.TestCase):
         with self.assertRaises(PapermillExecutionError):
             execute_notebook(get_notebook_path(notebook_name), result_path)
         nb = load_notebook_node(result_path)
-        self.assertEqual(nb.cells[0].cell_type, "code")
-        self.assertEqual(nb.cells[0].outputs[0].output_type, "display_data")
+        self.assertEqual(nb.cells[0].cell_type, "markdown")
+        self.assertRegex(nb.cells[0].source, r"^<span .*In \[2\].*</span>$")
         self.assertEqual(nb.cells[1].execution_count, 1)
         self.assertEqual(nb.cells[2].execution_count, 2)
         self.assertEqual(nb.cells[2].outputs[0].output_type, 'error')
