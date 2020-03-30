@@ -144,14 +144,15 @@ def prepare_notebook_metadata(nb, input_path, output_path, report_mode=False):
     return nb
 
 
+ERROR_STYLE = 'style="color:red; font-family:Helvetica Neue, Helvetica, Arial, sans-serif; font-size:2em;"'
 ERROR_MESSAGE_TEMPLATE = (
-    '<span style="color:red; font-family:Helvetica Neue, Helvetica, Arial, sans-serif; font-size:2em;">'
+    '<span ' + ERROR_STYLE + '>'
     "An Exception was encountered at '<a href=\"#papermill-error-cell\">In [%s]</a>'."
     '</span>'
 )
 
 ERROR_ANCHOR_MSG = (
-    '<span id="papermill-error-cell" style="color:red; font-family:Helvetica Neue, Helvetica, Arial, sans-serif; font-size:2em;">'
+    '<span id="papermill-error-cell" ' + ERROR_STYLE + '>'
     'Papermill encountered exception here:'
     '</span>'
 )

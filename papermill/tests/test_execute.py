@@ -149,7 +149,10 @@ class TestBrokenNotebook1(unittest.TestCase):
             execute_notebook(path, result_path)
         nb = load_notebook_node(result_path)
         self.assertEqual(nb.cells[0].cell_type, "markdown")
-        self.assertRegex(nb.cells[0].source, r'^<span .*<a href="#papermill-error-cell".*In \[2\].*</span>$')
+        self.assertRegex(
+            nb.cells[0].source,
+            r'^<span .*<a href="#papermill-error-cell".*In \[2\].*</span>$'
+        )
 
         self.assertEqual(nb.cells[1].cell_type, "markdown")
         self.assertEqual(nb.cells[2].execution_count, 1)
@@ -178,7 +181,10 @@ class TestBrokenNotebook2(unittest.TestCase):
             execute_notebook(path, result_path)
         nb = load_notebook_node(result_path)
         self.assertEqual(nb.cells[0].cell_type, "markdown")
-        self.assertRegex(nb.cells[0].source, r'^<span .*<a href="#papermill-error-cell">.*In \[2\].*</span>$')
+        self.assertRegex(
+            nb.cells[0].source,
+            r'^<span .*<a href="#papermill-error-cell">.*In \[2\].*</span>$'
+        )
         self.assertEqual(nb.cells[1].execution_count, 1)
 
         self.assertEqual(nb.cells[2].cell_type, "markdown")
@@ -296,7 +302,10 @@ class TestSysExit(unittest.TestCase):
             execute_notebook(get_notebook_path(notebook_name), result_path)
         nb = load_notebook_node(result_path)
         self.assertEqual(nb.cells[0].cell_type, "markdown")
-        self.assertRegex(nb.cells[0].source, r'^<span .*<a href="#papermill-error-cell".*In \[2\].*</span>$')
+        self.assertRegex(
+            nb.cells[0].source,
+            r'^<span .*<a href="#papermill-error-cell".*In \[2\].*</span>$'
+        )
         self.assertEqual(nb.cells[1].execution_count, 1)
 
         self.assertEqual(nb.cells[2].cell_type, "markdown")
