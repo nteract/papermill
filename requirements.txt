@@ -2,10 +2,10 @@ ansiwrap
 click
 pyyaml
 nbformat
-nbclient
+nbclient >= 0.2.0
 tqdm >= 4.32.2
 jupyter_client
 requests
 entrypoints
 tenacity
-black; python_version >= '3.6'
+black

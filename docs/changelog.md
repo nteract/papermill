@@ -1,5 +1,10 @@
 # Change Log
 
+## 2.1.0
+
+- Support for python 3.5 has been dropped. Upstream library changes for async were causing process deadlocks with await commands. End-of-life is later this year for 3.5 anyway so we decided to also drop support here.
+- Error cells injected at the top of failed notebooks look nicer now as markdown.
+
 ## 2.0.0
 
 Papermill 2.0 has a number of awesome features from many different contributors. We used the major version change mostly to signify the change to Python 3 only, but we also allowed for PRs which has small interaction changes to also be made. No major functionality should change with this release, but many minor improvements might impact specific execution patterns. We'll keep an eye on issues and post bug fixes ASAP if any of these cause larger unexpected issues.
