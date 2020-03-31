@@ -47,6 +47,7 @@ These pages guide you through the installation and usage of papermill.
    :maxdepth: 1
 
    installation
+   changelog
    usage-workflow
    usage-parameterize
    usage-execute
