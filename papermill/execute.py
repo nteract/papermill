@@ -155,7 +155,7 @@ ERROR_MESSAGE_TEMPLATE = (
 
 ERROR_ANCHOR_MSG = (
     '<span id="papermill-error-cell" ' + ERROR_STYLE + '>'
-    'Papermill encountered exception here:'
+    'Execution encountered an exception here and stopped:'
     '</span>'
 )
 
