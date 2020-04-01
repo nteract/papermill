@@ -242,6 +242,7 @@ def papermill(
         traceback.print_exc()
         sys.exit(138)
 
+
 def _resolve_type(value):
     if value == "True":
         return True
