@@ -1,4 +1,5 @@
 # So You Want to Contribute to Papermill!
+
 We welcome all contributions to Papermill both large and small. We encourage you to join our community.
 
 ## Our Community Values
@@ -12,10 +13,13 @@ All contributions are equally important. Documentation, answering questions, and
 Please read our entire code of conduct [here](https://github.com/nteract/nteract/blob/master/CODE_OF_CONDUCT.md). Also, check out the for the [Python](https://github.com/nteract/nteract/blob/master/CODE_OF_CONDUCT.md) code of conduct.
 
 ## Setting up Your Development Environment
+
 Following these instructions should give you an efficient path to opening your first pull-request.
 
 ### Cloning the Papermill Repository
+
 Fork the repository to your local Github account. Clone this repository to your local development machine.
+
 ```bash
 git clone https://github.com/<your_account>/papermill
 cd papermill
