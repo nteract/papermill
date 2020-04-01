@@ -4,6 +4,8 @@
 import os
 import sys
 from stat import S_ISFIFO
+import nbclient
+import traceback
 
 import base64
 import logging
@@ -216,25 +218,29 @@ def papermill(
     for name, value in parameters_raw or []:
         parameters_final[name] = value
 
-    execute_notebook(
-        input_path=notebook_path,
-        output_path=output_path,
-        parameters=parameters_final,
-        engine_name=engine,
-        request_save_on_cell_execute=request_save_on_cell_execute,
-        autosave_cell_every=autosave_cell_every,
-        prepare_only=prepare_only,
-        kernel_name=kernel,
-        progress_bar=progress_bar,
-        log_output=log_output,
-        stdout_file=stdout_file,
-        stderr_file=stderr_file,
-        start_timeout=start_timeout,
-        report_mode=report_mode,
-        cwd=cwd,
-        execution_timeout=execution_timeout,
-    )
-
+    try:
+        execute_notebook(
+            input_path=notebook_path,
+            output_path=output_path,
+            parameters=parameters_final,
+            engine_name=engine,
+            request_save_on_cell_execute=request_save_on_cell_execute,
+            autosave_cell_every=autosave_cell_every,
+            prepare_only=prepare_only,
+            kernel_name=kernel,
+            progress_bar=progress_bar,
+            log_output=log_output,
+            stdout_file=stdout_file,
+            stderr_file=stderr_file,
+            start_timeout=start_timeout,
+            report_mode=report_mode,
+            cwd=cwd,
+            execution_timeout=execution_timeout,
+        )
+    except nbclient.exceptions.DeadKernelError:
+        # Exiting with a special exit code for dead kernels
+        traceback.print_exc()
+        sys.exit(138)
 
 def _resolve_type(value):
     if value == "True":
