@@ -179,7 +179,7 @@ class TestCLI(unittest.TestCase):
             )
         )
 
-    @patch(cli.__name__ + '.execute_notebook', side_effect=nbclient.exceptions.DeadKernelError("Fake Death"))
+    @patch(cli.__name__ + '.execute_notebook', side_effect=nbclient.exceptions.DeadKernelError("Fake"))
     def test_parameters_dead_kernel(self, execute_patch):
         result = self.runner.invoke(
             papermill,
