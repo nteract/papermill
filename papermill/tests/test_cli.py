@@ -6,6 +6,7 @@ import os
 import sys
 import subprocess
 import uuid
+import nbclient
 
 import nbformat
 from jupyter_client import kernelspec
@@ -177,6 +178,14 @@ class TestCLI(unittest.TestCase):
                 parameters={'foo': ['baz']}
             )
         )
+
+    @patch(cli.__name__ + '.execute_notebook', side_effect=nbclient.exceptions.DeadKernelError("Fake Death"))
+    def test_parameters_dead_kernel(self, execute_patch):
+        result = self.runner.invoke(
+            papermill,
+            self.default_args + ['--parameters_yaml', '{"foo": "bar"}', '-y', '{"foo": ["baz"]}'],
+        )
+        assert result.exit_code == 138
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_parameters_base64(self, execute_patch):
