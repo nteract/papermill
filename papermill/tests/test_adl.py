@@ -44,7 +44,7 @@ class ADLTest(unittest.TestCase):
         self.ls.assert_called_once_with("path/to/directory")
 
     def test_read_opens_and_reads_file(self):
-        self.assertEquals(
+        self.assertEqual(
             self.adl.read("adl://foo_store.azuredatalakestore.net/path/to/file"), ["a", "b", "c"]
         )
         self.fakeFile.__iter__.assert_called_once_with()
