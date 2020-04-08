@@ -30,7 +30,7 @@ class PapermillTranslators(object):
 
 class Translator(object):
     @classmethod
-    def translate_raw_str(csl, val):
+    def translate_raw_str(cls, val):
         """Reusable by most interpreters"""
         return '{}'.format(val)
 
