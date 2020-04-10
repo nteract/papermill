@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 """Utilities for working with S3."""
-from __future__ import unicode_literals
+
 import os
 
 import logging
 import threading
 import zlib
-import six
 
 from boto3.session import Session
 
@@ -242,7 +241,7 @@ class S3(object):
 
         # support passing in open file obj.  Why did we do this in the past?
 
-        if not isinstance(source, six.string_types):
+        if not isinstance(source, str):
             obj.upload_fileobj(source, ExtraArgs={'ACL': policy})
         else:
             obj.upload_file(source, ExtraArgs={'ACL': policy})
@@ -254,14 +253,14 @@ class S3(object):
         key = self._get_key(dest)
         obj = self.s3.Object(key.bucket.name, key.name)
 
-        if isinstance(source, six.string_types):
+        if isinstance(source, str):
             source = source.encode('utf-8')
         obj.put(Body=source, ACL=policy)
         return key
 
     def _is_s3(self, name):
         # only allow file objects from local
-        if not isinstance(name, six.string_types + (Key, Prefix)):
+        if not isinstance(name, (str, Key, Prefix)):
             return False
 
         name = self._clean_s3(name)
@@ -371,7 +370,7 @@ class S3(object):
             the s3 location
         """
 
-        assert isinstance(source, six.string_types), "source must be a string"
+        assert isinstance(source, str), "source must be a string"
         assert self._is_s3(dest), "Destination must be s3 location"
 
         return self._put_string(source, dest, **kwargs)

@@ -34,9 +34,9 @@ This opens up new opportunities for how notebooks can be used. For example:
 Python Version Support
 ----------------------
 
-This library will support python 2.7 and 3.5+ until end-of-life for
-python 2 in 2020. After which python 2 support will halt and only 3.x
-version will be maintained.
+This library currently supports python 3.6+ versions. As minor python
+versions are officially sunset by the python org papermill will similarly
+drop support in the future.
 
 Documentation
 -------------
@@ -47,6 +47,7 @@ These pages guide you through the installation and usage of papermill.
    :maxdepth: 1
 
    installation
+   changelog
    usage-workflow
    usage-parameterize
    usage-execute

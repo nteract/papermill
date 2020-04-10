@@ -228,10 +228,10 @@ library to create a `notebook node object`_.
 .. code-block:: python
 
     from datetime import datetime
-    from papermill.engines import NBConvertEngine
+    from papermill.engines import NBClientEngine
     from nbformat.v4 import new_output
 
-    class CustomEngine(NBConvertEngine):
+    class CustomEngine(NBClientEngine):
 
         @classmethod
         def execute_managed_notebook(cls, nb_man, kernel_name, **kwargs):

@@ -1,4 +1,3 @@
-import six
 import copy
 import nbformat
 
@@ -65,7 +64,7 @@ def parameterize_notebook(nb, parameters, report_mode=False):
        Flag to set report mode
     """
     # Load from a file if 'parameters' is a string.
-    if isinstance(parameters, six.string_types):
+    if isinstance(parameters, str):
         parameters = read_yaml_file(parameters)
 
     # Copy the nb object to avoid polluting the input

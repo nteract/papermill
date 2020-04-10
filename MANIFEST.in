@@ -18,9 +18,7 @@ include *.toml
 include .bumpversion.cfg
 
 # Documentation
-graft docs
-# exclude build files
-prune docs/_build
+prune docs
 # exclude sample notebooks for binder
 prune binder
 # Scripts

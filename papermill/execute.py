@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import unicode_literals, print_function
-
 import copy
 import nbformat
 
@@ -23,6 +21,8 @@ def execute_notebook(
     kernel_name=None,
     progress_bar=True,
     log_output=False,
+    stdout_file=None,
+    stderr_file=None,
     start_timeout=60,
     report_mode=False,
     cwd=None,
@@ -42,6 +42,8 @@ def execute_notebook(
         Name of execution engine to use
     request_save_on_cell_execute : bool, optional
         Request save notebook after each cell execution
+    autosave_cell_every : int, optional
+        How often in seconds to save in the middle of long cell executions
     prepare_only : bool, optional
         Flag to determine if execution should occur or not
     kernel_name : str, optional
@@ -49,7 +51,7 @@ def execute_notebook(
     progress_bar : bool, optional
         Flag for whether or not to show the progress bar.
     log_output : bool, optional
-        Flag for whether or not to write notebook output_path to `stderr`
+        Flag for whether or not to write notebook output to the configured logger
     start_timeout : int, optional
         Duration in seconds to wait for kernel start-up
     report_mode : bool, optional
@@ -97,6 +99,8 @@ def execute_notebook(
                     progress_bar=progress_bar,
                     log_output=log_output,
                     start_timeout=start_timeout,
+                    stdout_file=stdout_file,
+                    stderr_file=stderr_file,
                     **engine_kwargs
                 )
 
@@ -164,6 +168,8 @@ def raise_for_execution_errors(nb, output_path):
 
         for output in cell.outputs:
             if output.output_type == "error":
+                if output.ename == "SystemExit" and (output.evalue == "" or output.evalue == "0"):
+                    continue
                 error = PapermillExecutionError(
                     exec_count=cell.execution_count,
                     source=cell.source,
@@ -176,13 +182,7 @@ def raise_for_execution_errors(nb, output_path):
     if error:
         # Write notebook back out with the Error Message at the top of the Notebook.
         error_msg = ERROR_MESSAGE_TEMPLATE % str(error.exec_count)
-        error_msg_cell = nbformat.v4.new_code_cell(
-            source="%%html\n" + error_msg,
-            outputs=[
-                nbformat.v4.new_output(output_type="display_data", data={"text/html": error_msg})
-            ],
-            metadata={"inputHidden": True, "hide_input": True},
-        )
+        error_msg_cell = nbformat.v4.new_markdown_cell(error_msg)
         nb.cells = [error_msg_cell] + nb.cells
         write_ipynb(nb, output_path)
         raise error
