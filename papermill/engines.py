@@ -9,7 +9,7 @@ import entrypoints
 
 from .log import logger
 from .exceptions import PapermillException
-from .preprocess import PapermillExecutePreprocessor
+from .clientwrap import PapermillNotebookClient
 from .iorw import write_ipynb
 from .utils import merge_kwargs, remove_args
 
@@ -88,19 +88,24 @@ class NotebookExecutionManager(object):
     COMPLETED = "completed"
     FAILED = "failed"
 
-    def __init__(self, nb, output_path=None, log_output=False, progress_bar=True):
+    def __init__(
+        self, nb, output_path=None, log_output=False, progress_bar=True, autosave_cell_every=30
+    ):
         # Deep copy the input to isolate the object being executed against
         self.nb = copy.deepcopy(nb)
         self.output_path = output_path
         self.log_output = log_output
         self.start_time = None
         self.end_time = None
+        self.autosave_cell_every = autosave_cell_every
+        self.max_autosave_pct = 25
+        self.last_save_time = self.now()  # Not exactly true, but simplifies testing logic
         self.pbar = None
         if progress_bar:
             # lazy import due to implict slow ipython import
             from tqdm.auto import tqdm
-            self.pbar = tqdm(total=len(self.nb.cells), unit="cell",
-                             desc="Executing")
+
+            self.pbar = tqdm(total=len(self.nb.cells), unit="cell", desc="Executing")
 
     def now(self):
         """Helper to return current UTC time"""
@@ -132,6 +137,29 @@ class NotebookExecutionManager(object):
         """
         if self.output_path:
             write_ipynb(self.nb, self.output_path)
+        self.last_save_time = self.now()
+
+    @catch_nb_assignment
+    def autosave_cell(self):
+        """Saves the notebook if it's been more than self.autosave_cell_every seconds
+        since it was last saved.
+        """
+        if self.autosave_cell_every == 0:
+            # feature is disabled
+            return
+        time_since_last_save = (self.now() - self.last_save_time).total_seconds()
+        if time_since_last_save >= self.autosave_cell_every:
+            start_save = self.now()
+            self.save()
+            save_elapsed = (self.now() - start_save).total_seconds()
+            if save_elapsed > self.autosave_cell_every * self.max_autosave_pct / 100.0:
+                # Autosave is taking too long, so exponentially back off.
+                self.autosave_cell_every *= 2
+                logger.warning(
+                    "Autosave too slow: {:.2f} sec, over {}% limit. Backing off to {} sec".format(
+                        save_elapsed, self.max_autosave_pct, self.autosave_cell_every
+                    )
+                )
 
     @catch_nb_assignment
     def notebook_start(self, **kwargs):
@@ -153,7 +181,7 @@ class NotebookExecutionManager(object):
 
         for cell in self.nb.cells:
             # Reset the cell execution counts.
-            if cell.get("execution_count") is not None:
+            if cell.get("cell_type") == "code":
                 cell.execution_count = None
 
             # Clear out the papermill metadata for each cell.
@@ -164,7 +192,7 @@ class NotebookExecutionManager(object):
                 duration=None,
                 status=self.PENDING,  # pending, running, completed
             )
-            if cell.get("outputs") is not None:
+            if cell.get("cell_type") == "code":
                 cell.outputs = []
 
         self.save()
@@ -285,7 +313,14 @@ class Engine(object):
 
     @classmethod
     def execute_notebook(
-        cls, nb, kernel_name, output_path=None, progress_bar=True, log_output=False, **kwargs
+        cls,
+        nb,
+        kernel_name,
+        output_path=None,
+        progress_bar=True,
+        log_output=False,
+        autosave_cell_every=30,
+        **kwargs
     ):
         """
         A wrapper to handle notebook execution tasks.
@@ -296,15 +331,16 @@ class Engine(object):
         iterating and executing the cell contents.
         """
         nb_man = NotebookExecutionManager(
-            nb, output_path=output_path, progress_bar=progress_bar, log_output=log_output
+            nb,
+            output_path=output_path,
+            progress_bar=progress_bar,
+            log_output=log_output,
+            autosave_cell_every=autosave_cell_every,
         )
 
         nb_man.notebook_start()
         try:
-            nb = cls.execute_managed_notebook(nb_man, kernel_name, log_output=log_output, **kwargs)
-            # Update the notebook object in case the executor didn't do it for us
-            if nb:
-                nb_man.nb = nb
+            cls.execute_managed_notebook(nb_man, kernel_name, log_output=log_output, **kwargs)
         finally:
             nb_man.cleanup_pbar()
             nb_man.notebook_complete()
@@ -317,9 +353,9 @@ class Engine(object):
         raise NotImplementedError("'execute_managed_notebook' is not implemented for this engine")
 
 
-class NBConvertEngine(Engine):
+class NBClientEngine(Engine):
     """
-    A notebook engine representing an nbconvert process.
+    A notebook engine representing an nbclient process.
 
     This can execute a notebook document and update the `nb_man.nb` object with
     the results.
@@ -331,6 +367,8 @@ class NBConvertEngine(Engine):
         nb_man,
         kernel_name,
         log_output=False,
+        stdout_file=None,
+        stderr_file=None,
         start_timeout=60,
         execution_timeout=None,
         **kwargs
@@ -341,33 +379,31 @@ class NBConvertEngine(Engine):
         Args:
             nb (NotebookNode): Executable notebook object.
             kernel_name (str): Name of kernel to execute the notebook against.
-            log_output (bool): Flag for whether or not to write notebook output to stderr.
+            log_output (bool): Flag for whether or not to write notebook output to the
+                               configured logger.
             start_timeout (int): Duration to wait for kernel start-up.
             execution_timeout (int): Duration to wait before failing execution (default: never).
-
-
-        Note: The preprocessor concept in this method is similar to what is used
-        by `nbconvert`, and it is somewhat misleading here. The preprocesser
-        represents a notebook processor, not a preparation object.
         """
 
         # Exclude parameters that named differently downstream
         safe_kwargs = remove_args(['timeout', 'startup_timeout'], **kwargs)
 
         # Nicely handle preprocessor arguments prioritizing values set by engine
-        preprocessor = PapermillExecutePreprocessor(
-            **merge_kwargs(safe_kwargs,
-                           timeout=execution_timeout if execution_timeout else kwargs.get('timeout'),
-                           startup_timeout=start_timeout,
-                           kernel_name=kernel_name,
-                           log=logger))
-
-        preprocessor.log_output = log_output
-        preprocessor.preprocess(nb_man, safe_kwargs)
+        final_kwargs = merge_kwargs(
+            safe_kwargs,
+            timeout=execution_timeout if execution_timeout else kwargs.get('timeout'),
+            startup_timeout=start_timeout,
+            kernel_name=kernel_name,
+            log=logger,
+            log_output=log_output,
+            stdout_file=stdout_file,
+            stderr_file=stderr_file,
+        )
+        return PapermillNotebookClient(nb_man, **final_kwargs).execute()
 
 
 # Instantiate a PapermillEngines instance, register Handlers and entrypoints
 papermill_engines = PapermillEngines()
-papermill_engines.register(None, NBConvertEngine)
-papermill_engines.register('nbconvert', NBConvertEngine)
+papermill_engines.register(None, NBClientEngine)
+papermill_engines.register('nbclient', NBClientEngine)
 papermill_engines.register_entry_points()

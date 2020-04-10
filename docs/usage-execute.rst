@@ -61,23 +61,6 @@ remain a string, even if it may be interpreted as a number or boolean.
 
     $ papermill local/input.ipynb s3://bkt/output.ipynb -r version 1.0
 
-Setting a list of values for a parameter
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Both ``-p`` and ``-r`` support multiple values, which will be turned into a list. For example:
-
-.. code-block:: bash
-
-   $ papermill input.ipynb output.ipynb -p foo bar baz 42 -p piyo hoge -r spam ham eggs 45
-
-will populate the parameter cell with:
-
-.. code-block:: python
-
-    foo = ['bar', 'baz', 42]
-    piyo = 'hoge'
-    spam = ['ham', 'eggs', '45']
-
 Using a parameters file
 ^^^^^^^^^^^^^^^^^^^^^^^
 

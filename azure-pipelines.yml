@@ -16,14 +16,6 @@ jobs:
   - job: 'Test'
     strategy:
       matrix:
-        py27-linux:
-          imageName: $(linux)
-          python.version: '2.7'
-          tox.env: py27
-        py35-linux:
-          imageName: $(linux)
-          python.version: '3.5'
-          tox.env: py35
         py36-linux:
           imageName: $(linux)
           python.version: '3.6'
@@ -32,14 +24,6 @@ jobs:
           imageName: $(linux)
           python.version: '3.7'
           tox.env: py37
-        py27-mac:
-          imageName: $(mac)
-          python.version: '2.7'
-          tox.env: py27
-        py35-mac:
-          imageName: $(mac)
-          python.version: '3.5'
-          tox.env: py35
         py36-mac:
           imageName: $(mac)
           python.version: '3.6'
@@ -48,14 +32,6 @@ jobs:
           imageName: $(mac)
           python.version: '3.7'
           tox.env: py37
-        py27-win:
-          imageName: $(windows)
-          python.version: '2.7'
-          tox.env: py27
-        py35-win:
-          imageName: $(windows)
-          python.version: '3.5'
-          tox.env: py35
         py36-win:
           imageName: $(windows)
           python.version: '3.6'

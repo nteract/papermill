@@ -1,10 +1,9 @@
 import os
-import sys
 
-try:
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
+from io import StringIO
+
+
+kernel_name = 'python3'
 
 
 def get_notebook_path(*args):

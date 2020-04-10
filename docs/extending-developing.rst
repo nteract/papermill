@@ -3,9 +3,9 @@
 Extending papermill by contributing to it
 =========================================
 
-If you find that you'd like to not just add I/O and execution handlers, but
+If you find that you'd like to not only add I/O and execution handlers, but
 think a fundamental aspect of the project could use some improvement, then you
-want contribute to it.
+may want to contribute to it.
 
 Development of papermill happens on github, and a
 `detailed guide to contributing`_ to it can be found there. There is also a

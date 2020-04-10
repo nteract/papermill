@@ -52,21 +52,27 @@ If you are contributing with documentation please jump to [building documentatio
 We need to install the development package before we can run the tests. If anything is confusing below, always resort to the relevant documentation.
 
 For the most basic test runs against python 3.6 use this tox subset (callable after `pip install tox`):
+
 ```bash
 tox -e py36
 ```
+
 This will just execute the unittests against python 3.6 in a new virtual env. The first run will take longer to setup the virtualenv, but will be fast after that point.
 
 For a full test suite of all envs and linting checks simply run tox without any arguments
+
 ```bash
 tox
 ```
-This will require python2.7, python3.5, python3.6, and python3.7 to be installed. **Note** that python 3.7 has problems with the alpha build which is the available package version on many linux distros. Local build failures with 3.7 can happen as a result (you'll see a seg fault or exist code -11).
+
+This will require python3.6, python3.8, and python3.7 to be installed. **Note** that python 3.7 has problems with the alpha build which is the available package version on many linux distros. Local build failures with 3.7 can happen as a result (you'll see a seg fault or exist code -11).
 
 Alternavitely pytest can be used if you have an environment already setup which works or has custom packages not present in the tox build.
+
 ```bash
 pytest --pyargs papermill
 ```
+
 The `pyargs` option allows `pytest` to interpret arguments as python package names. An advantage is that `pytest` will run in any directory, and this approach follows the `pytest` [best practices](https://docs.pytest.org/en/latest/goodpractices.html#tests-as-part-of-application-code).
 
 Now there should be a working and editable installation of Papermill to start making your own contributions.
@@ -86,6 +92,7 @@ This will generate `.html` files in the `/.tox/docs_out/` directory. Once you ar
 ## So You're Ready to Pull Request
 
 The general workflow for this will be:
+
 1. Run local tests
 2. Pushed changes to your forked repository
 3. Open pull request to main repository
@@ -97,26 +104,33 @@ pytest --pyargs papermill
 ```
 
 Run check manifest to ensure all files are accounted for in the repository.
+
 ```bash
 check-manifest
 ```
+
 This commands read the `MANIFEST.in` file and explicitly specify the files to include in the source distribution. You can read more about how this works [here](https://docs.python.org/3/distutils/sourcedist.html).
 
 ### Push Changes to Forked Repo
 
 Your commits should be pushed to the forked repository. To verify this type
+
 ```bash
 git remote -v
 ```
+
 and ensure the remotes point to your GitHub. Don't work on the master branch!
 
 1. Commit changes to local repository:
+
     ```bash
     git checkout -b my-feature
     git add <updated_files>
     git commit
     ```
+
 2. Push changes to your remote repository:
+
     ```bash
     git push -u origin my-feature
     ```
@@ -128,6 +142,7 @@ Follow [these](https://help.github.com/articles/creating-a-pull-request-from-a-f
 There are good references to the [Git documentation](https://git-scm.com/doc) and [Git workflows](https://docs.scipy.org/doc/numpy/dev/gitwash/development_workflow.html) for more information if any of this is unfamiliar.
 
 _Note: You might want to set a reference to the main repository to fetch/merge from there instead of your forked repository. You can do that using:_
+
 ```bash
 git remote add upstream https://github.com/nteract/papermill
 ```

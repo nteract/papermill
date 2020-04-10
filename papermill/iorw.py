@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import unicode_literals
-
 import io
 import os
 import sys
@@ -48,22 +46,26 @@ try:
     from gcsfs import GCSFileSystem
 except ImportError:
     GCSFileSystem = missing_dependency_generator("gcsfs", "gcs")
-
-# Handle newer and older gcsfs versions
 try:
+    from pyarrow import HadoopFileSystem
+except ImportError:
+    HadoopFileSystem = missing_dependency_generator("pyarrow", "hdfs")
+
+
+def fallback_gs_is_retriable(e):
     try:
-        from gcsfs.utils import HttpError as GCSHttpError
-    except ImportError:
-        from gcsfs.utils import HtmlError as GCSHttpError
-except ImportError:
-    # Fall back to a sane import if gcsfs is missing
-    GCSHttpError = Exception
+        print(e.code)
+        return e.code is None or e.code == 429
+    except AttributeError:
+        print(e)
+        return False
+
 
 try:
-    from gcsfs.utils import RateLimitException as GCSRateLimitException
+    # Default to gcsfs library's retry logic
+    from gcsfs.utils import is_retriable as gs_is_retriable
 except ImportError:
-    # Fall back to GCSHttpError when using older library
-    GCSRateLimitException = GCSHttpError
+    gs_is_retriable = fallback_gs_is_retriable
 
 try:
     FileNotFoundError
@@ -85,11 +87,13 @@ class PapermillIO(object):
         if path == '-':
             return sys.stdin.read()
 
-        if not fnmatch.fnmatch(os.path.basename(path), '*.*'):
+        if not fnmatch.fnmatch(os.path.basename(path).split('?')[0], '*.*'):
             warnings.warn(
                 "the file is not specified with any extension : " + os.path.basename(path)
             )
-        elif not any(fnmatch.fnmatch(os.path.basename(path), '*' + ext) for ext in extensions):
+        elif not any(
+            fnmatch.fnmatch(os.path.basename(path).split('?')[0], '*' + ext) for ext in extensions
+        ):
             warnings.warn(
                 "The specified input file ({}) does not end in one of {}".format(path, extensions)
             )
@@ -101,14 +105,23 @@ class PapermillIO(object):
 
     def write(self, buf, path, extensions=['.ipynb', '.json']):
         if path == '-':
-            return sys.stdout.write(buf)
+            try:
+                return sys.stdout.buffer.write(buf.encode('utf-8'))
+            except AttributeError:
+                # Originally required by https://github.com/nteract/papermill/issues/420
+                # Support Buffer.io objects
+                return sys.stdout.write(buf.encode('utf-8'))
+
+            return sys.stdout.buffer.write(buf.encode('utf-8'))
 
         # Usually no return object here
-        if not fnmatch.fnmatch(os.path.basename(path), '*.*'):
+        if not fnmatch.fnmatch(os.path.basename(path).split('?')[0], '*.*'):
             warnings.warn(
                 "the file is not specified with any extension : " + os.path.basename(path)
             )
-        elif not any(fnmatch.fnmatch(os.path.basename(path), '*' + ext) for ext in extensions):
+        elif not any(
+            fnmatch.fnmatch(os.path.basename(path).split('?')[0], '*' + ext) for ext in extensions
+        ):
             warnings.warn(
                 "The specified input file ({}) does not end in one of {}".format(path, extensions)
             )
@@ -308,16 +321,12 @@ class GCSHandler(object):
             try:
                 with self._get_client().open(path, 'w') as f:
                     return f.write(buf)
-            except (GCSHttpError, GCSRateLimitException) as e:
+            except Exception as e:
                 try:
-                    # If code is assigned but unknown, optimistically retry
-                    if e.code is None or e.code == 429:
-                        raise PapermillRateLimitException(e.message)
+                    message = e.message
                 except AttributeError:
-                    try:
-                        message = e.message
-                    except AttributeError:
-                        message = "Generic exception {} raised, retrying".format(type(e))
+                    message = "Generic exception {} raised".format(type(e))
+                if gs_is_retriable(e):
                     raise PapermillRateLimitException(message)
                 # Reraise the original exception without retries
                 raise
@@ -328,13 +337,37 @@ class GCSHandler(object):
         return path
 
 
+class HDFSHandler(object):
+    def __init__(self):
+        self._client = None
+
+    def _get_client(self):
+        if self._client is None:
+            self._client = HadoopFileSystem()
+        return self._client
+
+    def read(self, path):
+        with self._get_client().open(path, 'rb') as f:
+            return f.read()
+
+    def listdir(self, path):
+        return self._get_client().ls(path)
+
+    def write(self, buf, path):
+        with self._get_client().open(path, 'wb') as f:
+            return f.write(str.encode(buf))
+
+    def pretty_path(self, path):
+        return path
+
+
 # Hack to make YAML loader not auto-convert datetimes
 # https://stackoverflow.com/a/52312810
-NoDatesSafeLoader = yaml.SafeLoader
-NoDatesSafeLoader.yaml_implicit_resolvers = {
-    k: [r for r in v if r[0] != 'tag:yaml.org,2002:timestamp'] for
-    k, v in NoDatesSafeLoader.yaml_implicit_resolvers.items()
-}
+class NoDatesSafeLoader(yaml.SafeLoader):
+    yaml_implicit_resolvers = {
+        k: [r for r in v if r[0] != 'tag:yaml.org,2002:timestamp']
+        for k, v in yaml.SafeLoader.yaml_implicit_resolvers.items()
+    }
 
 
 # Instantiate a PapermillIO instance and register Handlers.
@@ -346,6 +379,7 @@ papermill_io.register("abs://", ABSHandler())
 papermill_io.register("http://", HttpHandler)
 papermill_io.register("https://", HttpHandler)
 papermill_io.register("gs://", GCSHandler())
+papermill_io.register("hdfs://", HDFSHandler())
 papermill_io.register_entry_points()
 
 

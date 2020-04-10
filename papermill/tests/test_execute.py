@@ -1,6 +1,5 @@
 import os
 import io
-import six
 import shutil
 import tempfile
 import unittest
@@ -12,21 +11,14 @@ try:
 except ImportError:
     from mock import patch
 
-from nbconvert import HTMLExporter
-
 from .. import engines
 from ..log import logger
 from ..iorw import load_notebook_node
 from ..utils import chdir
 from ..execute import execute_notebook
 from ..exceptions import PapermillExecutionError
-from . import get_notebook_path
+from . import get_notebook_path, kernel_name
 
-
-if six.PY2:
-    kernel_name = 'python2'
-else:
-    kernel_name = 'python3'
 execute_notebook = partial(execute_notebook, kernel_name=kernel_name)
 
 
@@ -42,27 +34,37 @@ class TestNotebookHelpers(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.test_dir)
 
-    @patch(engines.__name__ + '.PapermillExecutePreprocessor')
+    @patch(engines.__name__ + '.PapermillNotebookClient')
     def test_start_timeout(self, preproc_mock):
         execute_notebook(self.notebook_path, self.nb_test_executed_fname, start_timeout=123)
         args, kwargs = preproc_mock.call_args
-        expected = [('timeout', None), ('startup_timeout', 123),
-                    ('kernel_name', kernel_name), ('log', logger)]
+        expected = [
+            ('timeout', None),
+            ('startup_timeout', 123),
+            ('kernel_name', kernel_name),
+            ('log', logger),
+        ]
         actual = set([(key, kwargs[key]) for key in kwargs])
-        self.assertTrue(set(expected).issubset(actual),
-                        msg='Expected arguments {} are not a subset of actual {}'.format(expected,
-                                                                                         actual))
+        self.assertTrue(
+            set(expected).issubset(actual),
+            msg='Expected arguments {} are not a subset of actual {}'.format(expected, actual),
+        )
 
-    @patch(engines.__name__ + '.PapermillExecutePreprocessor')
+    @patch(engines.__name__ + '.PapermillNotebookClient')
     def test_default_start_timeout(self, preproc_mock):
         execute_notebook(self.notebook_path, self.nb_test_executed_fname)
         args, kwargs = preproc_mock.call_args
-        expected = [('timeout', None), ('startup_timeout', 60),
-                    ('kernel_name', kernel_name), ('log', logger)]
+        expected = [
+            ('timeout', None),
+            ('startup_timeout', 60),
+            ('kernel_name', kernel_name),
+            ('log', logger),
+        ]
         actual = set([(key, kwargs[key]) for key in kwargs])
-        self.assertTrue(set(expected).issubset(actual),
-                        msg='Expected arguments {} are not a subset of actual {}'.format(expected,
-                                                                                         actual))
+        self.assertTrue(
+            set(expected).issubset(actual),
+            msg='Expected arguments {} are not a subset of actual {}'.format(expected, actual),
+        )
 
     def test_cell_insertion(self):
         execute_notebook(self.notebook_path, self.nb_test_executed_fname, {'msg': 'Hello'})
@@ -146,8 +148,8 @@ class TestBrokenNotebook1(unittest.TestCase):
         with self.assertRaises(PapermillExecutionError):
             execute_notebook(path, result_path)
         nb = load_notebook_node(result_path)
-        self.assertEqual(nb.cells[0].cell_type, "code")
-        self.assertEqual(nb.cells[0].outputs[0].output_type, "display_data")
+        self.assertEqual(nb.cells[0].cell_type, "markdown")
+        self.assertRegex(nb.cells[0].source, r"^<span .*In \[2\].*</span>$")
         self.assertEqual(nb.cells[1].execution_count, 1)
         self.assertEqual(nb.cells[2].execution_count, 2)
         self.assertEqual(nb.cells[2].outputs[0].output_type, 'error')
@@ -167,39 +169,13 @@ class TestBrokenNotebook2(unittest.TestCase):
         with self.assertRaises(PapermillExecutionError):
             execute_notebook(path, result_path)
         nb = load_notebook_node(result_path)
-        self.assertEqual(nb.cells[0].cell_type, "code")
-        self.assertEqual(nb.cells[0].outputs[0].output_type, "display_data")
+        self.assertEqual(nb.cells[0].cell_type, "markdown")
+        self.assertRegex(nb.cells[0].source, r"^<span .*In \[2\].*</span>$")
         self.assertEqual(nb.cells[1].execution_count, 1)
         self.assertEqual(nb.cells[2].execution_count, 2)
         self.assertEqual(nb.cells[2].outputs[0].output_type, 'display_data')
         self.assertEqual(nb.cells[2].outputs[1].output_type, 'error')
         self.assertEqual(nb.cells[3].execution_count, None)
-
-
-class TestNBConvertCalls(unittest.TestCase):
-    def setUp(self):
-        self.test_dir = tempfile.mkdtemp()
-        self.notebook_name = 'simple_execute.ipynb'
-        self.notebook_path = get_notebook_path(self.notebook_name)
-        self.nb_test_executed_fname = os.path.join(
-            self.test_dir, 'output_{}'.format(self.notebook_name)
-        )
-
-        self.html_exporter = HTMLExporter()
-        self.html_exporter.template_file = 'basic'
-
-    def test_convert_output_to_html(self):
-        execute_notebook(
-            self.notebook_path,
-            self.nb_test_executed_fname,
-            {'msg': 'Hello'},
-            engine_name='nbconvert',
-        )
-        test_nb = load_notebook_node(self.nb_test_executed_fname)
-
-        # Ensure the notebook builds valid html without crashing
-        (body, resources) = self.html_exporter.from_notebook_node(test_nb)
-        self.assertTrue(body.startswith("<div"))
 
 
 class TestReportMode(unittest.TestCase):
@@ -266,3 +242,50 @@ class TestCWD(unittest.TestCase):
         self.assertTrue(
             os.path.isfile(os.path.join(self.base_test_dir, self.nb_test_executed_fname))
         )
+
+
+class TestSysExit(unittest.TestCase):
+    def setUp(self):
+        self.test_dir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        shutil.rmtree(self.test_dir)
+
+    def test_sys_exit(self):
+        notebook_name = 'sysexit.ipynb'
+        result_path = os.path.join(self.test_dir, 'output_{}'.format(notebook_name))
+        execute_notebook(get_notebook_path(notebook_name), result_path)
+        nb = load_notebook_node(result_path)
+        self.assertEqual(nb.cells[0].cell_type, "code")
+        self.assertEqual(nb.cells[0].execution_count, 1)
+        self.assertEqual(nb.cells[1].execution_count, 2)
+        self.assertEqual(nb.cells[1].outputs[0].output_type, 'error')
+        self.assertEqual(nb.cells[1].outputs[0].ename, 'SystemExit')
+        self.assertEqual(nb.cells[1].outputs[0].evalue, '')
+        self.assertEqual(nb.cells[2].execution_count, None)
+
+    def test_sys_exit0(self):
+        notebook_name = 'sysexit0.ipynb'
+        result_path = os.path.join(self.test_dir, 'output_{}'.format(notebook_name))
+        execute_notebook(get_notebook_path(notebook_name), result_path)
+        nb = load_notebook_node(result_path)
+        self.assertEqual(nb.cells[0].cell_type, "code")
+        self.assertEqual(nb.cells[0].execution_count, 1)
+        self.assertEqual(nb.cells[1].execution_count, 2)
+        self.assertEqual(nb.cells[1].outputs[0].output_type, 'error')
+        self.assertEqual(nb.cells[1].outputs[0].ename, 'SystemExit')
+        self.assertEqual(nb.cells[1].outputs[0].evalue, '0')
+        self.assertEqual(nb.cells[2].execution_count, None)
+
+    def test_sys_exit1(self):
+        notebook_name = 'sysexit1.ipynb'
+        result_path = os.path.join(self.test_dir, 'output_{}'.format(notebook_name))
+        with self.assertRaises(PapermillExecutionError):
+            execute_notebook(get_notebook_path(notebook_name), result_path)
+        nb = load_notebook_node(result_path)
+        self.assertEqual(nb.cells[0].cell_type, "markdown")
+        self.assertRegex(nb.cells[0].source, r"^<span .*In \[2\].*</span>$")
+        self.assertEqual(nb.cells[1].execution_count, 1)
+        self.assertEqual(nb.cells[2].execution_count, 2)
+        self.assertEqual(nb.cells[2].outputs[0].output_type, 'error')
+        self.assertEqual(nb.cells[3].execution_count, None)

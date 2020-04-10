@@ -1,12 +1,8 @@
 import unittest
+
+from unittest.mock import Mock, MagicMock, patch
+
 from ..adl import ADL, core as adl_core, lib as adl_lib
-
-import six
-
-if six.PY3:
-    from unittest.mock import Mock, MagicMock, patch
-else:
-    from mock import Mock, MagicMock, patch
 
 
 class ADLTest(unittest.TestCase):

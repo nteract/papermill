@@ -1,14 +1,11 @@
 ansiwrap
 click
-future
-futures ; python_version < "3.0"
-backports.tempfile ; python_version < "3.0"
 pyyaml
 nbformat
-nbconvert >= 5.5
-six
+nbclient >= 0.2.0
 tqdm >= 4.32.2
 jupyter_client
 requests
 entrypoints
 tenacity
+black

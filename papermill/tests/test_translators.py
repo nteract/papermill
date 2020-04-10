@@ -1,14 +1,10 @@
 import pytest
+
+from unittest.mock import Mock
 from collections import OrderedDict
+
 from .. import translators
 from ..exceptions import PapermillException
-
-import six
-
-if six.PY3:
-    from unittest.mock import Mock
-else:
-    from mock import Mock
 
 
 @pytest.mark.parametrize(
@@ -111,6 +107,8 @@ def test_translate_comment_r(test_input, expected):
             OrderedDict([['foo', 'bar'], ['baz', ['buz']]]),
             '# Parameters\nfoo = "bar"\nbaz = list("buz")\n',
         ),
+        # Underscores remove
+        ({"___foo": 5}, '# Parameters\nfoo = 5\n'),
     ],
 )
 def test_translate_codify_r(parameters, expected):
@@ -185,6 +183,124 @@ def test_translate_codify_scala(parameters, expected):
     assert translators.ScalaTranslator.codify(parameters) == expected
 
 
+# C# section
+@pytest.mark.parametrize(
+    "test_input,expected",
+    [
+        ("foo", '"foo"'),
+        ('{"foo": "bar"}', '"{\\"foo\\": \\"bar\\"}"'),
+        ({"foo": "bar"}, 'new Dictionary<string,Object>{ { "foo" , "bar" } }'),
+        ({"foo": '"bar"'}, 'new Dictionary<string,Object>{ { "foo" , "\\"bar\\"" } }'),
+        (["foo"], 'new [] { "foo" }'),
+        (["foo", '"bar"'], 'new [] { "foo", "\\"bar\\"" }'),
+        ([{"foo": "bar"}], 'new [] { new Dictionary<string,Object>{ { "foo" , "bar" } } }'),
+        (12345, '12345'),
+        (-54321, '-54321'),
+        (1.2345, '1.2345'),
+        (-5432.1, '-5432.1'),
+        (2147483648, '2147483648L'),
+        (-2147483649, '-2147483649L'),
+        (True, 'true'),
+        (False, 'false'),
+    ],
+)
+def test_translate_type_csharp(test_input, expected):
+    assert translators.CSharpTranslator.translate(test_input) == expected
+
+
+@pytest.mark.parametrize(
+    "test_input,expected",
+    [("", '//'), ("foo", '// foo'), ("['best effort']", "// ['best effort']")],
+)
+def test_translate_comment_csharp(test_input, expected):
+    assert translators.CSharpTranslator.comment(test_input) == expected
+
+
+@pytest.mark.parametrize(
+    "input_name,input_value,expected",
+    [("foo", '""', 'var foo = "";'), ("foo", '"bar"', 'var foo = "bar";')],
+)
+def test_translate_assign_csharp(input_name, input_value, expected):
+    assert translators.CSharpTranslator.assign(input_name, input_value) == expected
+
+
+@pytest.mark.parametrize(
+    "parameters,expected",
+    [
+        ({"foo": "bar"}, '// Parameters\nvar foo = "bar";\n'),
+        ({"foo": True}, '// Parameters\nvar foo = true;\n'),
+        ({"foo": 5}, '// Parameters\nvar foo = 5;\n'),
+        ({"foo": 1.1}, '// Parameters\nvar foo = 1.1;\n'),
+        ({"foo": ['bar', 'baz']}, '// Parameters\nvar foo = new [] { "bar", "baz" };\n'),
+        (
+            {"foo": {'bar': 'baz'}},
+            '// Parameters\nvar foo = new Dictionary<string,Object>{ { "bar" , "baz" } };\n',
+        ),
+    ],
+)
+def test_translate_codify_csharp(parameters, expected):
+    assert translators.CSharpTranslator.codify(parameters) == expected
+
+
+# F# section
+@pytest.mark.parametrize(
+    "test_input,expected",
+    [
+        ("foo", '"foo"'),
+        ('{"foo": "bar"}', '"{\\"foo\\": \\"bar\\"}"'),
+        ({"foo": "bar"}, '[ ("foo", "bar" :> IComparable) ] |> Map.ofList'),
+        ({"foo": '"bar"'}, '[ ("foo", "\\"bar\\"" :> IComparable) ] |> Map.ofList'),
+        (["foo"], '[ "foo" ]'),
+        (["foo", '"bar"'], '[ "foo"; "\\"bar\\"" ]'),
+        ([{"foo": "bar"}], '[ [ ("foo", "bar" :> IComparable) ] |> Map.ofList ]'),
+        (12345, '12345'),
+        (-54321, '-54321'),
+        (1.2345, '1.2345'),
+        (-5432.1, '-5432.1'),
+        (2147483648, '2147483648L'),
+        (-2147483649, '-2147483649L'),
+        (True, 'true'),
+        (False, 'false'),
+    ],
+)
+def test_translate_type_fsharp(test_input, expected):
+    assert translators.FSharpTranslator.translate(test_input) == expected
+
+
+@pytest.mark.parametrize(
+    "test_input,expected",
+    [("", '(*  *)'), ("foo", '(* foo *)'), ("['best effort']", "(* ['best effort'] *)")],
+)
+def test_translate_comment_fsharp(test_input, expected):
+    assert translators.FSharpTranslator.comment(test_input) == expected
+
+
+@pytest.mark.parametrize(
+    "input_name,input_value,expected",
+    [("foo", '""', 'let foo = ""'), ("foo", '"bar"', 'let foo = "bar"')],
+)
+def test_translate_assign_fsharp(input_name, input_value, expected):
+    assert translators.FSharpTranslator.assign(input_name, input_value) == expected
+
+
+@pytest.mark.parametrize(
+    "parameters,expected",
+    [
+        ({"foo": "bar"}, '(* Parameters *)\nlet foo = "bar"\n'),
+        ({"foo": True}, '(* Parameters *)\nlet foo = true\n'),
+        ({"foo": 5}, '(* Parameters *)\nlet foo = 5\n'),
+        ({"foo": 1.1}, '(* Parameters *)\nlet foo = 1.1\n'),
+        ({"foo": ['bar', 'baz']}, '(* Parameters *)\nlet foo = [ "bar"; "baz" ]\n'),
+        (
+            {"foo": {'bar': 'baz'}},
+            '(* Parameters *)\nlet foo = [ ("bar", "baz" :> IComparable) ] |> Map.ofList\n',
+        ),
+    ],
+)
+def test_translate_codify_fsharp(parameters, expected):
+    assert translators.FSharpTranslator.codify(parameters) == expected
+
+
 @pytest.mark.parametrize(
     "test_input,expected",
     [
@@ -250,10 +366,13 @@ def test_translate_comment_julia(test_input, expected):
         ({"foo": "bar"}, 'containers.Map({\'foo\'}, {"bar"})'),
         ({"foo": '"bar"'}, 'containers.Map({\'foo\'}, {"""bar"""})'),
         ({"foo": ["bar"]}, 'containers.Map({\'foo\'}, {{"bar"}})'),
-        ({"foo": {"bar": "baz"}}, 'containers.Map({\'foo\'}, {containers.Map({\'bar\'}, {"baz"})})'),
+        (
+            {"foo": {"bar": "baz"}},
+            'containers.Map({\'foo\'}, {containers.Map({\'bar\'}, {"baz"})})',
+        ),
         (
             {"foo": {"bar": '"baz"'}},
-            'containers.Map({\'foo\'}, {containers.Map({\'bar\'}, {"""baz"""})})'
+            'containers.Map({\'foo\'}, {containers.Map({\'bar\'}, {"""baz"""})})',
         ),
         (["foo"], '{"foo"}'),
         (["foo", '"bar"'], '{"foo", """bar"""}'),
