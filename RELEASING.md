@@ -11,7 +11,7 @@ Change from patch to minor or major for appropriate version updates.
 
 ```bash
 bumpversion patch
-git push && git push --tags
+git push upstream && git push upstream --tags
 ```
 
 ## Push to PyPI

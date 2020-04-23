@@ -1,4 +1,5 @@
 # So You Want to Contribute to Papermill!
+
 We welcome all contributions to Papermill both large and small. We encourage you to join our community.
 
 ## Our Community Values
@@ -12,35 +13,38 @@ All contributions are equally important. Documentation, answering questions, and
 Please read our entire code of conduct [here](https://github.com/nteract/nteract/blob/master/CODE_OF_CONDUCT.md). Also, check out the for the [Python](https://github.com/nteract/nteract/blob/master/CODE_OF_CONDUCT.md) code of conduct.
 
 ## Setting up Your Development Environment
+
 Following these instructions should give you an efficient path to opening your first pull-request.
 
 ### Cloning the Papermill Repository
+
 Fork the repository to your local Github account. Clone this repository to your local development machine.
+
 ```bash
 git clone https://github.com/<your_account>/papermill
 cd papermill
 ```
 
 ### Install an Editable Version
-We prefer to use [conda](https://conda.io/docs/user-guide/tasks/manage-environments.html) to manage the development environment.
-```bash
-conda create -n dev
-. activate dev
-```
-or use native venv capabilities if you prefer.
+
+We prefer to use native venv to manage the development environment.
+
 ```bash
 python3 -m venv dev
 source dev/bin/activate
 ```
 
 Install Papermill using:
+
 ```bash
 pip install -e '.[dev]'
 ```
 
-If you're using pip 19 or above, you should run
+or use conda if you prefer [conda](https://conda.io/docs/user-guide/tasks/manage-environments.html):
+
 ```bash
-pip install -e '.[dev]' --no-use-pep517
+conda create -n dev
+. activate dev
 ```
 
 _Note: When you are finished you can use `source deactivate` to go back to your base environment._
@@ -70,10 +74,8 @@ This will require python3.6, python3.8, and python3.7 to be installed. **Note** 
 Alternavitely pytest can be used if you have an environment already setup which works or has custom packages not present in the tox build.
 
 ```bash
-pytest --pyargs papermill
+pytest
 ```
-
-The `pyargs` option allows `pytest` to interpret arguments as python package names. An advantage is that `pytest` will run in any directory, and this approach follows the `pytest` [best practices](https://docs.pytest.org/en/latest/goodpractices.html#tests-as-part-of-application-code).
 
 Now there should be a working and editable installation of Papermill to start making your own contributions.
 
