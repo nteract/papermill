@@ -22,7 +22,8 @@ class PapermillMissingParameterException(PapermillException):
 class PapermillExecutionError(PapermillException):
     """Raised when an exception is encountered in a notebook."""
 
-    def __init__(self, exec_count, source, ename, evalue, traceback):
+    def __init__(self, cell_index, exec_count, source, ename, evalue, traceback):
+        self.cell_index = cell_index
         self.exec_count = exec_count
         self.source = source
         self.ename = ename

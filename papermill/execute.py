@@ -83,6 +83,8 @@ def execute_notebook(
             nb = parameterize_notebook(nb, parameters, report_mode)
 
         nb = prepare_notebook_metadata(nb, input_path, output_path, report_mode)
+        # clear out any existing error markers from previous papermill runs
+        nb = remove_error_markers(nb)
 
         if not prepare_only:
             # Fetch the kernel name if it's not supplied
@@ -144,11 +146,33 @@ def prepare_notebook_metadata(nb, input_path, output_path, report_mode=False):
     return nb
 
 
+ERROR_MARKER_TAG = "papermill-error-cell-tag"
+
+ERROR_STYLE = (
+    'style="color:red; font-family:Helvetica Neue, Helvetica, Arial, sans-serif; font-size:2em;"'
+)
+
 ERROR_MESSAGE_TEMPLATE = (
-    '<span style="color:red; font-family:Helvetica Neue, Helvetica, Arial, sans-serif; font-size:2em;">'
-    "An Exception was encountered at 'In [%s]'."
+    '<span ' + ERROR_STYLE + '>'
+    "An Exception was encountered at '<a href=\"#papermill-error-cell\">In [%s]</a>'."
     '</span>'
 )
+
+ERROR_ANCHOR_MSG = (
+    '<span id="papermill-error-cell" ' + ERROR_STYLE + '>'
+    'Execution using papermill encountered an exception here and stopped:'
+    '</span>'
+)
+
+
+def remove_error_markers(nb):
+    nb = copy.deepcopy(nb)
+    nb.cells = [
+        cell
+        for cell in nb.cells
+        if ERROR_MARKER_TAG not in cell.metadata.get("tags", [])
+    ]
+    return nb
 
 
 def raise_for_execution_errors(nb, output_path):
@@ -162,7 +186,7 @@ def raise_for_execution_errors(nb, output_path):
        Path to write executed notebook
     """
     error = None
-    for cell in nb.cells:
+    for index, cell in enumerate(nb.cells):
         if cell.get("outputs") is None:
             continue
 
@@ -171,6 +195,7 @@ def raise_for_execution_errors(nb, output_path):
                 if output.ename == "SystemExit" and (output.evalue == "" or output.evalue == "0"):
                     continue
                 error = PapermillExecutionError(
+                    cell_index=index,
                     exec_count=cell.execution_count,
                     source=cell.source,
                     ename=output.ename,
@@ -180,9 +205,18 @@ def raise_for_execution_errors(nb, output_path):
                 break
 
     if error:
-        # Write notebook back out with the Error Message at the top of the Notebook.
+        # Write notebook back out with the Error Message at the top of the Notebook, and a link to
+        # the relevant cell (by adding a note just before the failure with an HTML anchor)
         error_msg = ERROR_MESSAGE_TEMPLATE % str(error.exec_count)
         error_msg_cell = nbformat.v4.new_markdown_cell(error_msg)
-        nb.cells = [error_msg_cell] + nb.cells
+        error_msg_cell.metadata['tags'] = [ERROR_MARKER_TAG]
+        error_anchor_cell = nbformat.v4.new_markdown_cell(ERROR_ANCHOR_MSG)
+        error_anchor_cell.metadata['tags'] = [ERROR_MARKER_TAG]
+
+        # put the anchor before the cell with the error, before all the indices change due to the
+        # heading-prepending
+        nb.cells.insert(error.cell_index, error_anchor_cell)
+        nb.cells.insert(0, error_msg_cell)
+
         write_ipynb(nb, output_path)
         raise error
