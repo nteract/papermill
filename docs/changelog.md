@@ -1,5 +1,12 @@
 # Change Log
 
+## 2.1.1
+
+- DeadKernelExceptions, usually from OOM, now exit with a status code of 138 from the CLI.
+- Error cell at the top of failed notebook has been made better. It now also has a link to an injected cell where the error occurred.
+- Updated a deprecated function to the new function name for nbclient dependency.
+- Some development and documentation updates / fixes have also been made by a few different contributions (thank you!).
+
 ## 2.1.0
 
 - Support for python 3.5 has been dropped. Upstream library changes for async were causing process deadlocks with await commands. End-of-life is later this year for 3.5 anyway so we decided to also drop support here.
