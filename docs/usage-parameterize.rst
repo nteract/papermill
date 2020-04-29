@@ -33,8 +33,10 @@ Lab
 If using the `JupyterLab`_ interface
 
 1. Select the cell to parameterize
-2. Click the cell inspector (wrench icon)
-3. Edit the ``Cell Metadata`` field by adding ``"tags":["parameters"]``
+2. Click the property inspector on the left side (double gear icon)
+3. Type "parameters" in the "Add Tag" box and hit "Enter".
+
+.. image:: img/notebook_parameters.png
 
 Learn more about the jupyter notebook format and metadata fields `here`_.
 For easier management, consider using an extension such as
