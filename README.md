@@ -33,6 +33,10 @@ example:
     **execute a workflow** without having to copy and paste from
     notebook to notebook manually.
 
+Papermill takes an *opinionated* approach to notebook parameterization and
+execution based on our experiences using notebooks at scale in data
+pipelines.
+
 ## Installation
 
 From the command line:
