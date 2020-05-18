@@ -2,6 +2,7 @@ recursive-include papermill *.py
 recursive-include papermill *.ipynb
 recursive-include papermill *.json
 recursive-include papermill *.yaml
+recursive-include papermill *.yml
 recursive-include papermill *.keep
 recursive-include papermill *.txt
 
