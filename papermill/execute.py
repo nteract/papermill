@@ -2,6 +2,8 @@
 
 import copy
 import nbformat
+import sys
+import traceback
 
 from .log import logger
 from .exceptions import PapermillExecutionError
@@ -107,7 +109,11 @@ def execute_notebook(
                 )
 
             # Check for errors first (it saves on error before raising)
-            raise_for_execution_errors(nb, output_path)
+            try:
+                raise_for_execution_errors(nb, output_path)
+            except PapermillExecutionError:
+                traceback.print_exc()
+                sys.exit(1)
 
         # Write final output in case the engine didn't write it on cell completion.
         write_ipynb(nb, output_path)
