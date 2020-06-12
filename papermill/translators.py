@@ -1,3 +1,4 @@
+import math
 import sys
 
 from .exceptions import PapermillException
@@ -115,6 +116,17 @@ class Translator(object):
 
 
 class PythonTranslator(Translator):
+    @classmethod
+    def translate_float(cls, val):
+        if math.isfinite(val):
+            return cls.translate_raw_str(val)
+        elif math.isnan(val):
+            return "float('nan')"
+        elif val < 0:
+            return "float('-inf')"
+        else:
+            return "float('inf')"
+
     @classmethod
     def translate_bool(cls, val):
         return cls.translate_raw_str(val)
