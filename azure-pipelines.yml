@@ -42,19 +42,19 @@ jobs:
           tox.env: py37
         flake8:
           imageName: $(linux)
-          python.version: '3.6'
+          python.version: '3.8'
           tox.env: flake8
         dist:
           imageName: $(linux)
-          python.version: '3.6'
+          python.version: '3.8'
           tox.env: dist
         docs:
           imageName: $(linux)
-          python.version: '3.6'
+          python.version: '3.8'
           tox.env: docs
         manifest:
           imageName: $(linux)
-          python.version: '3.6'
+          python.version: '3.8'
           tox.env: manifest
 
     steps:
