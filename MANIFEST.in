@@ -26,6 +26,7 @@ prune binder
 graft scripts
 # Test env
 prune .tox
+
 # Build files
-prune .travis.yml
-prune azure-pipelines.yml
+exclude .travis.yml
+exclude azure-pipelines.yml
