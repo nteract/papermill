@@ -1,3 +1,6 @@
+import sys
+import asyncio
+
 from nbclient import NotebookClient
 from nbclient.exceptions import CellExecutionError
 from traitlets import Bool, Instance
@@ -32,6 +35,10 @@ class PapermillNotebookClient(NotebookClient):
         Wraps the parent class process call slightly
         """
         self.reset_execution_trackers()
+        
+        # See https://bugs.python.org/issue37373 :(
+        if sys.version_info[0] == 3 and sys.version_info[1] >= 8 and sys.platform.startswith('win'):
+            asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
         with self.setup_kernel(**kwargs):
             self.log.info("Executing notebook with kernel: %s" % self.kernel_name)
