@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.1.2
+
+- Expand Usage Docs for JupyterLab
+- Support `nan` and `inf` in Python translator
+- Added fix for required async loop registration in python 38 on windows
+
 ## 2.1.1
 
 - DeadKernelExceptions, usually from OOM, now exit with a status code of 138 from the CLI.
