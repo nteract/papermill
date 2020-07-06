@@ -51,7 +51,7 @@ def parameterize_path(path, parameters):
         raise PapermillMissingParameterException("Missing parameter {}".format(key_error))
 
 
-def parameterize_notebook(nb, parameters, report_mode=False):
+def parameterize_notebook(nb, parameters, report_mode=False, comment='Parameters'):
     """Assigned parameters into the appropriate place in the input notebook
 
     Parameters
@@ -62,6 +62,8 @@ def parameterize_notebook(nb, parameters, report_mode=False):
        Arbitrary keyword arguments to pass as notebook parameters
     report_mode : bool, optional
        Flag to set report mode
+    comment : str, optional
+        Comment added to the injected cell
     """
     # Load from a file if 'parameters' is a string.
     if isinstance(parameters, str):
@@ -74,7 +76,7 @@ def parameterize_notebook(nb, parameters, report_mode=False):
     language = nb.metadata.kernelspec.language
 
     # Generate parameter content based on the kernel_name
-    param_content = translate_parameters(kernel_name, language, parameters)
+    param_content = translate_parameters(kernel_name, language, parameters, comment)
 
     newcell = nbformat.v4.new_code_cell(source=param_content)
     newcell.metadata['tags'] = ['injected-parameters']
