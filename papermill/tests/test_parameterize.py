@@ -75,6 +75,15 @@ class TestNotebookParametrizing(unittest.TestCase):
         test_nb = parameterize_notebook(test_nb, {'msg': 'Hello'})
         self.assertEqual(self.count_nb_injected_parameter_cells(test_nb), 1)
 
+    def test_custom_comment(self):
+        test_nb = load_notebook_node(get_notebook_path("simple_execute.ipynb"))
+        test_nb = parameterize_notebook(test_nb, {'msg': 'Hello'},
+                                        comment='This is a custom comment')
+
+        cell_one = test_nb.cells[1]
+        first_line = cell_one['source'].split('\n')[0]
+        self.assertEqual(first_line, '# This is a custom comment')
+
 
 class TestBuiltinParameters(unittest.TestCase):
     def test_add_builtin_parameters_keeps_provided_parameters(self):
