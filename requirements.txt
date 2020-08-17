@@ -4,7 +4,7 @@ pyyaml
 nbformat
 nbclient >= 0.2.0
 tqdm >= 4.32.2
-jupyter_client
+jupyter_client >= 6.1.0
 requests
 entrypoints
 tenacity
