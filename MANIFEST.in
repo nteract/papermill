@@ -2,6 +2,7 @@ recursive-include papermill *.py
 recursive-include papermill *.ipynb
 recursive-include papermill *.json
 recursive-include papermill *.yaml
+recursive-include papermill *.yml
 recursive-include papermill *.keep
 recursive-include papermill *.txt
 
@@ -25,6 +26,7 @@ prune binder
 graft scripts
 # Test env
 prune .tox
+
 # Build files
-prune .tavis.yml
-prune azure-pipelines.yml
+exclude .travis.yml
+exclude azure-pipelines.yml

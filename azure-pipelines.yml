@@ -24,6 +24,10 @@ jobs:
           imageName: $(linux)
           python.version: '3.7'
           tox.env: py37
+        py38-linux:
+          imageName: $(linux)
+          python.version: '3.8'
+          tox.env: py38
         py36-mac:
           imageName: $(mac)
           python.version: '3.6'
@@ -32,6 +36,10 @@ jobs:
           imageName: $(mac)
           python.version: '3.7'
           tox.env: py37
+        py38-mac:
+          imageName: $(mac)
+          python.version: '3.8'
+          tox.env: py38
         py36-win:
           imageName: $(windows)
           python.version: '3.6'
@@ -40,21 +48,25 @@ jobs:
           imageName: $(windows)
           python.version: '3.7'
           tox.env: py37
+        py38-win:
+          imageName: $(windows)
+          python.version: '3.8'
+          tox.env: py38
         flake8:
           imageName: $(linux)
-          python.version: '3.6'
+          python.version: '3.8'
           tox.env: flake8
         dist:
           imageName: $(linux)
-          python.version: '3.6'
+          python.version: '3.8'
           tox.env: dist
         docs:
           imageName: $(linux)
-          python.version: '3.6'
+          python.version: '3.8'
           tox.env: docs
         manifest:
           imageName: $(linux)
-          python.version: '3.6'
+          python.version: '3.8'
           tox.env: manifest
 
     steps:
