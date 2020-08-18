@@ -367,6 +367,34 @@ class FSharpTranslator(Translator):
     def assign(cls, name, str_val):
         return 'let {} = {}'.format(name, str_val)
 
+class PowershellTranslator(Translator):
+    @classmethod
+    def translate_none(cls, val):
+        return '$Null'
+
+    @classmethod
+    def translate_bool(cls, val):
+        return '$True' if val else '$False'
+
+    @classmethod
+    def translate_dict(cls, val):
+        kvps = '\n '.join(
+            [" {} = {} ".format(cls.translate_str(k), cls.translate(v)) for k, v in val.items()]
+        )
+        return '@{{ {} }}'.format(kvps)
+
+    @classmethod
+    def translate_list(cls, val):
+        escaped = ', '.join([cls.translate(v) for v in val])
+        return '@({})'.format(escaped)
+
+    @classmethod
+    def comment(cls, cmt_str):
+        return '# {}'.format(cmt_str).strip()
+
+    @classmethod
+    def assign(cls, name, str_val):
+        return '${} = {}'.format(name, str_val)
 
 # Instantiate a PapermillIO instance and register Handlers.
 papermill_translators = PapermillTranslators()
@@ -377,6 +405,7 @@ papermill_translators.register("julia", JuliaTranslator)
 papermill_translators.register("matlab", MatlabTranslator)
 papermill_translators.register(".net-csharp", CSharpTranslator)
 papermill_translators.register(".net-fsharp", FSharpTranslator)
+papermill_translators.register(".net-powershell", PowershellTranslator)
 
 
 def translate_parameters(kernel_name, language, parameters, comment='Parameters'):
