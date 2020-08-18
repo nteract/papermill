@@ -1,5 +1,5 @@
 trigger:
-  - master
+  - main
 
 # Set variables once
 variables:
