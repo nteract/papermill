@@ -368,6 +368,57 @@ class FSharpTranslator(Translator):
         return 'let {} = {}'.format(name, str_val)
 
 
+class PowershellTranslator(Translator):
+    @classmethod
+    def translate_escaped_str(cls, str_val):
+        """Translate a string to an escaped Matlab string"""
+        if isinstance(str_val, str):
+            str_val = str_val.encode('unicode_escape')
+            if sys.version_info >= (3, 0):
+                str_val = str_val.decode('utf-8')
+            str_val = str_val.replace('"', '`"')
+        return '"{}"'.format(str_val)
+
+    @classmethod
+    def translate_float(cls, val):
+        if math.isfinite(val):
+            return cls.translate_raw_str(val)
+        elif math.isnan(val):
+            return "[double]::NaN"
+        elif val < 0:
+            return "[double]::NegativeInfinity"
+        else:
+            return "[double]::PositiveInfinity"
+
+    @classmethod
+    def translate_none(cls, val):
+        return '$Null'
+
+    @classmethod
+    def translate_bool(cls, val):
+        return '$True' if val else '$False'
+
+    @classmethod
+    def translate_dict(cls, val):
+        kvps = '\n '.join(
+            ["{} = {}".format(cls.translate_str(k), cls.translate(v)) for k, v in val.items()]
+        )
+        return '@{{{}}}'.format(kvps)
+
+    @classmethod
+    def translate_list(cls, val):
+        escaped = ', '.join([cls.translate(v) for v in val])
+        return '@({})'.format(escaped)
+
+    @classmethod
+    def comment(cls, cmt_str):
+        return '# {}'.format(cmt_str).strip()
+
+    @classmethod
+    def assign(cls, name, str_val):
+        return '${} = {}'.format(name, str_val)
+
+
 # Instantiate a PapermillIO instance and register Handlers.
 papermill_translators = PapermillTranslators()
 papermill_translators.register("python", PythonTranslator)
@@ -377,6 +428,7 @@ papermill_translators.register("julia", JuliaTranslator)
 papermill_translators.register("matlab", MatlabTranslator)
 papermill_translators.register(".net-csharp", CSharpTranslator)
 papermill_translators.register(".net-fsharp", FSharpTranslator)
+papermill_translators.register(".net-powershell", PowershellTranslator)
 
 
 def translate_parameters(kernel_name, language, parameters, comment='Parameters'):
