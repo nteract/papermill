@@ -367,6 +367,7 @@ class FSharpTranslator(Translator):
     def assign(cls, name, str_val):
         return 'let {} = {}'.format(name, str_val)
 
+
 class PowershellTranslator(Translator):
     @classmethod
     def translate_escaped_str(cls, str_val):
