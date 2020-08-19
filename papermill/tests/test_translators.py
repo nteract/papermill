@@ -245,6 +245,71 @@ def test_translate_codify_csharp(parameters, expected):
     assert translators.CSharpTranslator.codify(parameters) == expected
 
 
+# Powershell section
+@pytest.mark.parametrize(
+    "test_input,expected",
+    [
+        ("foo", '"foo"'),
+        ('{"foo": "bar"}', '"{`"foo`": `"bar`"}"'),
+        ({"foo": "bar"}, '@{"foo" = "bar"}'),
+        ({"foo": '"bar"'}, '@{"foo" = "`"bar`""}'),
+        ({"foo": ["bar"]}, '@{"foo" = @("bar")}'),
+        ({"foo": {"bar": "baz"}}, '@{"foo" = @{"bar" = "baz"}}'),
+        ({"foo": {"bar": '"baz"'}}, '@{"foo" = @{"bar" = "`"baz`""}}'),
+        (["foo"], '@("foo")'),
+        (["foo", '"bar"'], '@("foo", "`"bar`"")'),
+        ([{"foo": "bar"}], '@(@{"foo" = "bar"})'),
+        ([{"foo": '"bar"'}], '@(@{"foo" = "`"bar`""})'),
+        (12345, '12345'),
+        (-54321, '-54321'),
+        (1.2345, '1.2345'),
+        (-5432.1, '-5432.1'),
+        (float('nan'), "[double]::NaN"),
+        (float('-inf'), "[double]::NegativeInfinity"),
+        (float('inf'), "[double]::PositiveInfinity"),
+        (True, '$True'),
+        (False, '$False'),
+        (None, '$Null'),
+    ],
+)
+def test_translate_type_powershell(test_input, expected):
+    assert translators.PowershellTranslator.translate(test_input) == expected
+
+
+@pytest.mark.parametrize(
+    "parameters,expected",
+    [
+        ({"foo": "bar"}, '# Parameters\n$foo = "bar"\n'),
+        ({"foo": True}, '# Parameters\n$foo = $True\n'),
+        ({"foo": 5}, '# Parameters\n$foo = 5\n'),
+        ({"foo": 1.1}, '# Parameters\n$foo = 1.1\n'),
+        ({"foo": ['bar', 'baz']}, '# Parameters\n$foo = @("bar", "baz")\n'),
+        ({"foo": {'bar': 'baz'}}, '# Parameters\n$foo = @{"bar" = "baz"}\n'),
+        (
+            OrderedDict([['foo', 'bar'], ['baz', ['buz']]]),
+            '# Parameters\n$foo = "bar"\n$baz = @("buz")\n',
+        ),
+    ],
+)
+def test_translate_codify_powershell(parameters, expected):
+    assert translators.PowershellTranslator.codify(parameters) == expected
+
+
+@pytest.mark.parametrize(
+    "input_name,input_value,expected",
+    [("foo", '""', '$foo = ""'), ("foo", '"bar"', '$foo = "bar"')],
+)
+def test_translate_assign_powershell(input_name, input_value, expected):
+    assert translators.PowershellTranslator.assign(input_name, input_value) == expected
+
+
+@pytest.mark.parametrize(
+    "test_input,expected", [("", '#'), ("foo", '# foo'), ("['best effort']", "# ['best effort']")]
+)
+def test_translate_comment_powershell(test_input, expected):
+    assert translators.PowershellTranslator.comment(test_input) == expected
+
+
 # F# section
 @pytest.mark.parametrize(
     "test_input,expected",
