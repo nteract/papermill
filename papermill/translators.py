@@ -1,3 +1,4 @@
+import math
 import sys
 
 from .exceptions import PapermillException
@@ -108,14 +109,25 @@ class Translator(object):
         return '{} = {}'.format(name, str_val)
 
     @classmethod
-    def codify(cls, parameters):
-        content = '{}\n'.format(cls.comment('Parameters'))
+    def codify(cls, parameters, comment='Parameters'):
+        content = '{}\n'.format(cls.comment(comment))
         for name, val in parameters.items():
             content += '{}\n'.format(cls.assign(name, cls.translate(val)))
         return content
 
 
 class PythonTranslator(Translator):
+    @classmethod
+    def translate_float(cls, val):
+        if math.isfinite(val):
+            return cls.translate_raw_str(val)
+        elif math.isnan(val):
+            return "float('nan')"
+        elif val < 0:
+            return "float('-inf')"
+        else:
+            return "float('inf')"
+
     @classmethod
     def translate_bool(cls, val):
         return cls.translate_raw_str(val)
@@ -138,8 +150,8 @@ class PythonTranslator(Translator):
         return '# {}'.format(cmt_str).strip()
 
     @classmethod
-    def codify(cls, parameters):
-        content = super(PythonTranslator, cls).codify(parameters)
+    def codify(cls, parameters, comment='Parameters'):
+        content = super(PythonTranslator, cls).codify(parameters, comment)
         if sys.version_info >= (3, 6):
             # Put content through the Black Python code formatter
             import black
@@ -380,6 +392,10 @@ papermill_translators.register(".net-fsharp", FSharpTranslator)
 papermill_translators.register("pysparkkernel", PythonTranslator)
 papermill_translators.register("sparkkernel", ScalaTranslator)
 
-def translate_parameters(kernel_name, language, parameters):
-    return papermill_translators.find_translator(kernel_name,
-                                                 language).codify(parameters)
+
+def translate_parameters(kernel_name,
+                         language,
+                         parameters,
+                         comment='Parameters'):
+    return papermill_translators.find_translator(kernel_name, language).codify(
+        parameters, comment)

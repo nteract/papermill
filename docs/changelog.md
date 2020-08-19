@@ -1,5 +1,16 @@
 # Change Log
 
+## 2.1.3
+
+- Removed jupyter_client dependency in requirements to avoid confusing pip on the actual version requirements.
+- Parameterized commenting so that once can pass a `comment` argument to assign the comment string in injected cells.
+
+## 2.1.2
+
+- Expand Usage Docs for JupyterLab
+- Support `nan` and `inf` in Python translator
+- Added fix for required async loop registration in python 38 on windows
+
 ## 2.1.1
 
 - DeadKernelExceptions, usually from OOM, now exit with a status code of 138 from the CLI.
