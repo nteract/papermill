@@ -417,6 +417,7 @@ class PowershellTranslator(Translator):
     def assign(cls, name, str_val):
         return '${} = {}'.format(name, str_val)
 
+
 # Instantiate a PapermillIO instance and register Handlers.
 papermill_translators = PapermillTranslators()
 papermill_translators.register("python", PythonTranslator)
