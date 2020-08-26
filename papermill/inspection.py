@@ -30,8 +30,12 @@ def display_notebook_help(ctx, notebook_path):
     params = nb.metadata['papermill']['default_parameters']
     if params:
         for p in params.values():
-            type_repr = p["inferred_type_name"] if p["inferred_type_name"] != "None" else "Unknown type"
-            click.echo("     {}: {} (default {})\t\t{}".format(p["name"], type_repr, p["default"], p["help"]))
+            type_repr = p["inferred_type_name"]
+            if type_repr == "None":
+                type_repr = "Unknown type"
+            click.echo(
+                "     {}: {} (default {})\t\t{}".format(p["name"], type_repr, p["default"], p["help"])
+            )
     else:
         click.echo(
             "\n  Can't infer anything about this notebook's parameters. "

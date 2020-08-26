@@ -39,11 +39,6 @@ def print_papermill_version(ctx, param, value):
     ctx.exit()
 
 
-def print_notebook_help(ctx, param, value):
-    print(ctx.args, ctx.params, param, value)
-    ctx.exit()
-
-
 @click.command(context_settings=dict(help_option_names=['-h', '--help']))
 @click.pass_context
 @click.argument('notebook_path', required=not INPUT_PIPED)

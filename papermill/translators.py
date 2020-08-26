@@ -251,7 +251,6 @@ class PythonTranslator(Translator):
         grouped_variable.append(flatten_accumulator(accumulator))
 
         for definition in grouped_variable:
-            print(definition)
             if len(definition) == 0:
                 continue
 
