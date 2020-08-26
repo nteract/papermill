@@ -331,6 +331,13 @@ class TestCLI(unittest.TestCase):
         execute_patch.assert_not_called()
 
     @patch(cli.__name__ + '.execute_notebook')
+    @patch(cli.__name__ + '.display_notebook_help')
+    def test_help_notebook(self, display_notebook_help, execute_path):
+        self.runner.invoke(papermill, ['--help-notebook', 'input_path.ipynb'])
+        execute_path.assert_not_called()
+        display_notebook_help.assert_called_with('input_path.ipynb')
+
+    @patch(cli.__name__ + '.execute_notebook')
     def test_many_args(self, execute_patch):
         self.runner.invoke(
             papermill,
