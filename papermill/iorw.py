@@ -16,14 +16,15 @@ from contextlib import contextmanager
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 
 from . import __version__
-from .log import logger
-from .utils import chdir
 from .exceptions import (
     PapermillException,
     PapermillRateLimitException,
     missing_dependency_generator,
     missing_environment_variable_generator,
 )
+from .log import logger
+from .utils import chdir, find_first_tagged_cell_index
+from .translators import papermill_translators
 
 try:
     from .s3 import S3
@@ -411,6 +412,7 @@ def load_notebook_node(notebook_path):
 
     if not hasattr(nb.metadata, 'papermill'):
         nb.metadata['papermill'] = {
+            'default_parameters': dict(),
             'parameters': dict(),
             'environment_variables': dict(),
             'version': __version__,
@@ -422,6 +424,19 @@ def load_notebook_node(notebook_path):
 
         if not hasattr(cell.metadata, 'papermill'):
             cell.metadata['papermill'] = dict()
+
+    # Force refreshing default parameters
+    parameter_cell_idx = find_first_tagged_cell_index(nb, "parameters")
+    parameter_cell = nb.cells[parameter_cell_idx]
+    kernel_name = nb.metadata.kernelspec.name
+    language = nb.metadata.kernelspec.language
+
+    translator = papermill_translators.find_translator(kernel_name, language)
+    try:
+        nb.metadata['papermill']['default_parameters'] = translator.inspect(parameter_cell)
+    except NotImplementedError:
+        logger.warning("Translator for '{}' language does not support parameter introspection.".format(language))
+
     return nb
 
 

@@ -142,7 +142,7 @@ class Translator(object):
         List[Parameter]
             A list of all parameters
         """
-        return list()
+        raise NotImplementedError('parameters introspection not implemented for {}'.format(cls))
 
 
 class PythonTranslator(Translator):

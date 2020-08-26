@@ -1,10 +1,11 @@
 import copy
 import nbformat
 
-from .translators import translate_parameters
 from .log import logger
 from .exceptions import PapermillMissingParameterException
 from .iorw import read_yaml_file
+from .translators import translate_parameters
+from .utils import find_first_tagged_cell_index
 
 from uuid import uuid4
 from datetime import datetime
@@ -30,16 +31,6 @@ def add_builtin_parameters(parameters):
         with_builtin_parameters.update(parameters)
 
     return with_builtin_parameters
-
-
-def find_first_tagged_cell_index(nb, tag):
-    parameters_indices = []
-    for idx, cell in enumerate(nb.cells):
-        if tag in cell.metadata.tags:
-            parameters_indices.append(idx)
-    if not parameters_indices:
-        return -1
-    return parameters_indices[0]
 
 
 def parameterize_path(path, parameters):
