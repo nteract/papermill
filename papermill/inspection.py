@@ -8,21 +8,19 @@ from .iorw import get_pretty_path, open_notebook
 from .utils import any_tagged_cell
 
 
-def display_notebook_help(notebook_path):
-    """
-    We make a separate function here with --help available to enable
-    the same automatic error messaging, but with the ability to hijack
-    the normal help messaging for when a user types `--help` on an
-    input notebook
+def display_notebook_help(ctx, notebook_path):
+    """Display help on notebook parameters.
 
     Parameters
     ----------
+    ctx : click.Context
+        Click context
     notebook_path : str
         Path to the notebook to be inspected
     """
     nb = open_notebook(notebook_path)
+    click.echo(ctx.command.get_usage(ctx))
     pretty_path = get_pretty_path(notebook_path)
-    click.echo("Usage: papermill [OPTIONS] {} [OUTPUT_PATH]".format(pretty_path))
     click.echo("\n  Parameters inferred for notebook '{}':".format(pretty_path))
 
     if not any_tagged_cell(nb, "parameters"):

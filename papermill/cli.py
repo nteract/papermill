@@ -45,6 +45,7 @@ def print_notebook_help(ctx, param, value):
 
 
 @click.command(context_settings=dict(help_option_names=['-h', '--help']))
+@click.pass_context
 @click.argument('notebook_path', required=not INPUT_PIPED)
 @click.argument('output_path', default="")
 @click.option(
@@ -154,6 +155,7 @@ def print_notebook_help(ctx, param, value):
     help='Flag for displaying the version.',
 )
 def papermill(
+    click_ctx,
     notebook_path,
     output_path,
     help_notebook,
@@ -242,7 +244,7 @@ def papermill(
     if help_notebook:
         input_path = parameterize_path(notebook_path, path_parameters)
         logger.info("Input Notebook:  %s" % get_pretty_path(input_path))
-        display_notebook_help(input_path)
+        display_notebook_help(click_ctx, input_path)
         return
 
     input_path = parameterize_path(input_path, path_parameters)
