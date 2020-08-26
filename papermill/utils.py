@@ -12,7 +12,7 @@ logger = logging.getLogger('papermill.utils')
 
 def any_tagged_cell(nb, tag):
     """Whether the notebook contains at least one cell tagged ``tag``?
-    
+
     Parameters
     ----------
     nb : nbformat.NotebookNode
@@ -30,7 +30,7 @@ def any_tagged_cell(nb, tag):
 
 def find_first_tagged_cell_index(nb, tag):
     """Find the first tagged cell ``tag`` in the notebook.
-    
+
     Parameters
     ----------
     nb : nbformat.NotebookNode

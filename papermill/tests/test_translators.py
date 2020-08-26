@@ -74,10 +74,22 @@ def test_translate_comment_python(test_input, expected):
         ("a = 2 # type:int", [Parameter("a", "int", "2", "")]),
         ("a = False # Nice variable a", [Parameter("a", "None", "False", "Nice variable a")]),
         ("a: float = 2.258 # type: int Nice variable a", [Parameter("a", "float", "2.258", "Nice variable a")]),
-        ("a = 'this is a string' # type: int Nice variable a", [Parameter("a", "int", "'this is a string'", "Nice variable a")]),
-        ("a: List[str] = ['this', 'is', 'a', 'string', 'list'] # Nice variable a", [Parameter("a", "List[str]", "['this', 'is', 'a', 'string', 'list']", "Nice variable a")]),
-        ("a: List[str] = [\n    'this', # First\n    'is',\n    'a',\n    'string',\n    'list' # Last\n] # Nice variable a", [Parameter("a", "List[str]", "['this','is','a','string','list']", "Nice variable a")]),
-        ("a: List[str] = [\n    'this',\n    'is',\n    'a',\n    'string',\n    'list'\n] # Nice variable a", [Parameter("a", "List[str]", "['this','is','a','string','list']", "Nice variable a")]),
+        (
+            "a = 'this is a string' # type: int Nice variable a",
+            [Parameter("a", "int", "'this is a string'", "Nice variable a")]
+        ),
+        (
+            "a: List[str] = ['this', 'is', 'a', 'string', 'list'] # Nice variable a",
+            [Parameter("a", "List[str]", "['this', 'is', 'a', 'string', 'list']", "Nice variable a")]
+        ),
+        (
+            "a: List[str] = [\n    'this', # First\n    'is',\n    'a',\n    'string',\n    'list' # Last\n] # Nice variable a", # noqa
+            [Parameter("a", "List[str]", "['this','is','a','string','list']", "Nice variable a")]
+        ),
+        (
+            "a: List[str] = [\n    'this',\n    'is',\n    'a',\n    'string',\n    'list'\n] # Nice variable a",
+            [Parameter("a", "List[str]", "['this','is','a','string','list']", "Nice variable a")]
+        ),
         (
             """a: List[str] = [
                 'this', # First
@@ -89,7 +101,7 @@ def test_translate_comment_python(test_input, expected):
             ] # Nice variable a
 
             b: float = -2.3432 # My b variable
-            """, 
+            """,
             [
                 Parameter("a", "List[str]", "['this','is','a','string','list']", "Nice variable a"),
                 Parameter("b", "float", "-2.3432", "My b variable"),
@@ -100,6 +112,7 @@ def test_translate_comment_python(test_input, expected):
 def test_inspect_python(test_input, expected):
     cell = new_code_cell(source=test_input)
     assert translators.PythonTranslator.inspect(cell) == expected
+
 
 @pytest.mark.parametrize(
     "test_input,expected",

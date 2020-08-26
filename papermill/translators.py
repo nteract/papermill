@@ -1,4 +1,3 @@
-import ast
 import logging
 import math
 import re
@@ -124,7 +123,7 @@ class Translator(object):
     @classmethod
     def inspect(cls, parameters_cell):
         """Inspect the parameters cell to get a Parameter list
-        
+
         It must return an empty list if no parameters are found and
         it should ignore inspection errors.
 
@@ -136,7 +135,7 @@ class Translator(object):
         ----------
         parameters_cell : NotebookNode
             Cell tagged _parameters_
-        
+
         Returns
         -------
         List[Parameter]
@@ -148,7 +147,7 @@ class Translator(object):
 class PythonTranslator(Translator):
     # Pattern to capture parameters within cell input
     PARAMETER_PATTERN = re.compile(
-        r"^(?P<target>\w[\w_]*)\s*(:\s*(?P<annotation>\w[\w_\[\],\s]*))?=\s*(?P<value>.*?)(\s*#\s*(type:\s*(?P<type_comment>[^\s]*)\s*)?(?P<help>.*))?$"
+        r"^(?P<target>\w[\w_]*)\s*(:\s*(?P<annotation>\w[\w_\[\],\s]*))?=\s*(?P<value>.*?)(\s*#\s*(type:\s*(?P<type_comment>[^\s]*)\s*)?(?P<help>.*))?$"  # noqa
     )
 
     @classmethod
@@ -196,7 +195,7 @@ class PythonTranslator(Translator):
     @classmethod
     def inspect(cls, parameters_cell):
         """Inspect the parameters cell to get a Parameter list
-        
+
         It must return an empty list if no parameters are found and
         it should ignore inspection errors.
 
@@ -204,7 +203,7 @@ class PythonTranslator(Translator):
         ----------
         parameters_cell : NotebookNode
             Cell tagged _parameters_
-        
+
         Returns
         -------
         List[Parameter]
@@ -215,7 +214,7 @@ class PythonTranslator(Translator):
 
         def flatten_accumulator(accumulator):
             """Flatten a multilines variable definition.
-            
+
             Remove all comments except on the latest line - will be interpreted as help.
 
             Args:
@@ -247,14 +246,14 @@ class PythonTranslator(Translator):
                 if nequal > 1:
                     logger.warning("Unable to parse line {} '{}'.".format(iline + 1, line))
                     continue
-            
+
             accumulator.append(line)
         grouped_variable.append(flatten_accumulator(accumulator))
-            
+
         for definition in grouped_variable:
             if len(definition) == 0:
                 continue
-            
+
             match = re.match(cls.PARAMETER_PATTERN, definition)
             if match is not None:
                 attr = match.groupdict()
@@ -268,7 +267,7 @@ class PythonTranslator(Translator):
                     default=str(attr["value"]).strip(),
                     help=str(attr["help"] or "").strip()
                 ))
-                
+
         return params
 
 

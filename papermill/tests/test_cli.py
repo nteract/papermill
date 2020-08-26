@@ -134,8 +134,9 @@ class TestCLI(unittest.TestCase):
     def test_parameters_file(self, execute_patch):
         self.runner.invoke(
             papermill,
-            self.default_args
-            + ['-f', self.sample_yaml_file, '--parameters_file', self.sample_json_file],
+            self.default_args + [
+                '-f', self.sample_yaml_file, '--parameters_file', self.sample_json_file
+            ],
         )
         execute_patch.assert_called_with(
             **self.augment_execute_kwargs(
@@ -193,8 +194,7 @@ class TestCLI(unittest.TestCase):
     def test_parameters_base64(self, execute_patch):
         self.runner.invoke(
             papermill,
-            self.default_args
-            + [
+            self.default_args + [
                 '--parameters_base64',
                 'eyJmb28iOiAicmVwbGFjZWQiLCAiYmFyIjogMn0=',
                 '-b',
@@ -341,8 +341,7 @@ class TestCLI(unittest.TestCase):
     def test_many_args(self, execute_patch):
         self.runner.invoke(
             papermill,
-            self.default_args
-            + [
+            self.default_args + [
                 '-f',
                 self.sample_yaml_file,
                 '-y',

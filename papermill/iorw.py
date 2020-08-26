@@ -469,7 +469,7 @@ def local_file_io_cwd(path=None):
 
 def open_notebook(input_path):
     """Open the input notebook.
-    
+
     Parameters
     ----------
     input_path : str

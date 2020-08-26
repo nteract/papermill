@@ -1,14 +1,10 @@
- # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """
 Deduce parameters of a notebook from the parameters cell.
 """
-
-import ast
-
 import click
 
 from .iorw import get_pretty_path, open_notebook
-from .models import Parameter
 from .utils import any_tagged_cell
 
 
@@ -18,7 +14,7 @@ def display_notebook_help(notebook_path):
     the same automatic error messaging, but with the ability to hijack
     the normal help messaging for when a user types `--help` on an
     input notebook
-    
+
     Parameters
     ----------
     notebook_path : str
@@ -28,7 +24,7 @@ def display_notebook_help(notebook_path):
     pretty_path = get_pretty_path(notebook_path)
     click.echo("Usage: papermill [OPTIONS] {} [OUTPUT_PATH]".format(pretty_path))
     click.echo("\n  Parameters inferred for notebook '{}':".format(pretty_path))
-    
+
     if not any_tagged_cell(nb, "parameters"):
         click.echo("\n  No cell tagged 'parameters'")
         return

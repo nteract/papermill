@@ -5,7 +5,7 @@ import nbformat
 
 from .log import logger
 from .exceptions import PapermillExecutionError
-from .iorw import load_notebook_node, write_ipynb, get_pretty_path, local_file_io_cwd, open_notebook
+from .iorw import write_ipynb, get_pretty_path, local_file_io_cwd, open_notebook
 from .engines import papermill_engines
 from .utils import chdir
 from .parameterize import parameterize_notebook
