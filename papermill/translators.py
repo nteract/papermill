@@ -236,8 +236,8 @@ class PythonTranslator(Translator):
         grouped_variable = []
         accumulator = []
         for iline, line in enumerate(src.splitlines()):
-            if len(line.strip()) == 0:
-                continue  # Skip blank line
+            if len(line.strip()) == 0 or line.strip().startswith('#'):
+                continue  # Skip blank and comment
 
             nequal = line.count("=")
             if nequal > 0:
