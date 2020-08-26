@@ -436,7 +436,9 @@ def load_notebook_node(notebook_path):
         params = translator.inspect(parameter_cell)
         nb.metadata['papermill']['default_parameters'] = {p.name: p._asdict() for p in params}
     except NotImplementedError:
-        logger.warning("Translator for '{}' language does not support parameter introspection.".format(language))
+        logger.warning(
+            "Translator for '{}' language does not support parameter introspection.".format(language)
+        )
 
     return nb
 

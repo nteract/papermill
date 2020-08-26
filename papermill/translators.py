@@ -147,7 +147,7 @@ class Translator(object):
 class PythonTranslator(Translator):
     # Pattern to capture parameters within cell input
     PARAMETER_PATTERN = re.compile(
-        r"^(?P<target>\w[\w_]*)\s*(:\s*(?P<annotation>\w[\w_\[\],\s]*))?=\s*(?P<value>.*?)(\s*#\s*(type:\s*(?P<type_comment>[^\s]*)\s*)?(?P<help>.*))?$"  # noqa
+        r"^(?P<target>\w[\w_]*)\s*(:\s*[\"']?(?P<annotation>\w[\w_\[\],\s]*)[\"']?\s*)?=\s*(?P<value>.*?)(\s*#\s*(type:\s*(?P<type_comment>[^\s]*)\s*)?(?P<help>.*))?$"  # noqa
     )
 
     @classmethod
@@ -251,6 +251,7 @@ class PythonTranslator(Translator):
         grouped_variable.append(flatten_accumulator(accumulator))
 
         for definition in grouped_variable:
+            print(definition)
             if len(definition) == 0:
                 continue
 
