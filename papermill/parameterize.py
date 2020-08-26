@@ -32,6 +32,16 @@ def add_builtin_parameters(parameters):
     return with_builtin_parameters
 
 
+def find_first_tagged_cell_index(nb, tag):
+    parameters_indices = []
+    for idx, cell in enumerate(nb.cells):
+        if tag in cell.metadata.tags:
+            parameters_indices.append(idx)
+    if not parameters_indices:
+        return -1
+    return parameters_indices[0]
+
+
 def parameterize_path(path, parameters):
     """Format a path with a provided dictionary of parameters
 
@@ -85,8 +95,8 @@ def parameterize_notebook(nb, parameters, report_mode=False, comment='Parameters
         newcell.metadata['jupyter'] = newcell.get('jupyter', {})
         newcell.metadata['jupyter']['source_hidden'] = True
 
-    param_cell_index = _find_first_tagged_cell_index(nb, 'parameters')
-    injected_cell_index = _find_first_tagged_cell_index(nb, 'injected-parameters')
+    param_cell_index = find_first_tagged_cell_index(nb, 'parameters')
+    injected_cell_index = find_first_tagged_cell_index(nb, 'injected-parameters')
     if injected_cell_index >= 0:
         # Replace the injected cell with a new version
         before = nb.cells[:injected_cell_index]
@@ -105,13 +115,3 @@ def parameterize_notebook(nb, parameters, report_mode=False, comment='Parameters
     nb.metadata.papermill['parameters'] = parameters
 
     return nb
-
-
-def _find_first_tagged_cell_index(nb, tag):
-    parameters_indices = []
-    for idx, cell in enumerate(nb.cells):
-        if tag in cell.metadata.tags:
-            parameters_indices.append(idx)
-    if not parameters_indices:
-        return -1
-    return parameters_indices[0]

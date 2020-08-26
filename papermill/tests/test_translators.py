@@ -7,7 +7,7 @@ from nbformat.v4 import new_code_cell
 
 from .. import translators
 from ..exceptions import PapermillException
-from ..inspection import Parameter
+from ..models import Parameter
 
 
 @pytest.mark.parametrize(
