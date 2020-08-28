@@ -16,10 +16,8 @@ import yaml
 import platform
 
 from .execute import execute_notebook
-from .iorw import get_pretty_path, read_yaml_file, NoDatesSafeLoader
+from .iorw import read_yaml_file, NoDatesSafeLoader
 from .inspection import display_notebook_help
-from .log import logger
-from .parameterize import parameterize_path, add_builtin_parameters
 from . import __version__ as papermill_version
 
 click.disable_unicode_literals_warning = True
@@ -235,17 +233,10 @@ def papermill(
     for name, value in parameters_raw or []:
         parameters_final[name] = value
 
-    path_parameters = add_builtin_parameters(parameters_final)
     if help_notebook:
-        input_path = parameterize_path(notebook_path, path_parameters)
-        logger.info("Input Notebook:  %s" % get_pretty_path(input_path))
-        display_notebook_help(click_ctx, input_path)
+        display_notebook_help(click_ctx, input_path, parameters_final)
         return
 
-    input_path = parameterize_path(input_path, path_parameters)
-    output_path = parameterize_path(output_path, path_parameters)
-    logger.info("Input Notebook:  %s" % get_pretty_path(input_path))
-    logger.info("Output Notebook: %s" % get_pretty_path(output_path))
     try:
         execute_notebook(
             input_path=input_path,
