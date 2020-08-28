@@ -5,7 +5,7 @@ import nbformat
 
 from .log import logger
 from .exceptions import PapermillExecutionError
-from .iorw import write_ipynb, get_pretty_path, local_file_io_cwd, open_notebook
+from .iorw import write_ipynb, get_pretty_path, local_file_io_cwd, load_notebook_node
 from .engines import papermill_engines
 from .utils import chdir
 from .parameterize import add_builtin_parameters, parameterize_notebook,  parameterize_path
@@ -69,14 +69,14 @@ def execute_notebook(
     path_parameters = add_builtin_parameters(parameters)
     input_path = parameterize_path(input_path, path_parameters)
     output_path = parameterize_path(output_path, path_parameters)
+
     logger.info("Input Notebook:  %s" % get_pretty_path(input_path))
     logger.info("Output Notebook: %s" % get_pretty_path(output_path))
-
     with local_file_io_cwd():
         if cwd is not None:
             logger.info("Working directory: {}".format(get_pretty_path(cwd)))
 
-        nb = open_notebook(input_path)
+        nb = load_notebook_node(input_path)
 
         # Parameterize the Notebook.
         if parameters:

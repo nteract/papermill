@@ -468,20 +468,3 @@ def local_file_io_cwd(path=None):
                 yield
             finally:
                 local_handler.cwd(old_cwd)
-
-
-def open_notebook(input_path):
-    """Open the input notebook.
-
-    Parameters
-    ----------
-    input_path : str
-        Path to input notebook
-
-    Returns
-    -------
-    nb : NotebookNode
-       Input notebook object
-    """
-    with local_file_io_cwd():
-        return load_notebook_node(input_path)

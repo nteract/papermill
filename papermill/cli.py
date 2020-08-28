@@ -234,7 +234,7 @@ def papermill(
         parameters_final[name] = value
 
     if help_notebook:
-        display_notebook_help(click_ctx, input_path, parameters_final)
+        display_notebook_help(click_ctx, notebook_path, parameters_final)
         return
 
     try:

@@ -2,7 +2,7 @@
 """Deduce parameters of a notebook from the parameters cell."""
 import click
 
-from .iorw import get_pretty_path, open_notebook
+from .iorw import get_pretty_path, load_notebook_node, local_file_io_cwd
 from .log import logger
 from .parameterize import add_builtin_parameters, parameterize_path
 from .utils import any_tagged_cell
@@ -13,7 +13,8 @@ def _open_notebook(notebook_path, parameters):
     input_path = parameterize_path(notebook_path, path_parameters)
     logger.info("Input Notebook:  %s" % get_pretty_path(input_path))
 
-    return open_notebook(input_path)
+    with local_file_io_cwd():
+        return load_notebook_node(input_path)
 
 
 def display_notebook_help(ctx, notebook_path, parameters):
