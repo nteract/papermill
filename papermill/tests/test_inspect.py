@@ -4,8 +4,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from click import Context
 
-from papermill.iorw import load_notebook_node
-from papermill.inspection import display_notebook_help
+from papermill.inspection import display_notebook_help, inspect_notebook
 
 
 NOTEBOOKS_PATH = Path(__file__).parent / "notebooks"
@@ -52,10 +51,8 @@ def click_context():
         (_get_fullpath("notimplemented_translator.ipynb"), {}),
     ],
 )
-def test_default_parameters(name, expected):
-    nb = load_notebook_node(str(name))
-
-    assert nb.metadata['papermill']['default_parameters'] == expected
+def test_inspect_notebook(name, expected):
+    assert inspect_notebook(str(name)) == expected
 
 
 @pytest.mark.parametrize(
@@ -65,7 +62,7 @@ def test_default_parameters(name, expected):
             _get_fullpath("no_parameters.ipynb"),
             [
                 "Dummy usage",
-                "\n  Parameters inferred for notebook '{name}':",
+                "\nParameters inferred for notebook '{name}':",
                 "\n  No cell tagged 'parameters'",
             ],
         ),
@@ -73,26 +70,26 @@ def test_default_parameters(name, expected):
             _get_fullpath("simple_execute.ipynb"),
             [
                 "Dummy usage",
-                "\n  Parameters inferred for notebook '{name}':",
-                "     msg: Unknown type (default None)\t\t",
+                "\nParameters inferred for notebook '{name}':",
+                "  msg: Unknown type (default None)",
             ],
         ),
         (
             _get_fullpath("complex_parameters.ipynb"),
             [
                 "Dummy usage",
-                "\n  Parameters inferred for notebook '{name}':",
-                "     msg: Unknown type (default None)\t\t",
-                "     a: float (default 2.25)\t\tVariable a",
-                "     b: List[str] (default ['Hello','World'])\t\tNice list",
-                "     c: NoneType (default None)\t\t",
+                "\nParameters inferred for notebook '{name}':",
+                "  msg: Unknown type (default None)",
+                "  a: float (default 2.25)         Variable a",
+                "  b: List[str] (default ['Hello','World'])\n                                  Nice list",  # noqa
+                "  c: NoneType (default None)      ",
             ],
         ),
         (
             _get_fullpath("notimplemented_translator.ipynb"),
             [
                 "Dummy usage",
-                "\n  Parameters inferred for notebook '{name}':",
+                "\nParameters inferred for notebook '{name}':",
                 "\n  Can't infer anything about this notebook's parameters. It may not have any parameter defined.",  # noqa
             ],
         ),
@@ -100,8 +97,8 @@ def test_default_parameters(name, expected):
 )
 def test_display_notebook_help(click_context, name, expected):
     with patch("papermill.inspection.click.echo") as echo:
-        display_notebook_help(click_context, str(name))
-        print(echo.call_args_list)
+        display_notebook_help(click_context, str(name), None)
+
         assert echo.call_count == len(expected)
         for call, target in zip(echo.call_args_list, expected):
             assert call[0][0] == target.format(name=str(name))
