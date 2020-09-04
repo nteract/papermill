@@ -233,6 +233,11 @@ class PythonTranslator(Translator):
                 flat_string += accumulator[-1].strip()
             return flat_string
 
+        # Some common type like dictionaries or list can be expressed over multiline.
+        # To support the parsing of such case, the cell lines are grouped between line
+        # actually containing an assignment. In each group, the commented and empty lines
+        # are skip; i.e. the parameter help can only be given as comment on the last variable
+        # line definition
         grouped_variable = []
         accumulator = []
         for iline, line in enumerate(src.splitlines()):
@@ -261,12 +266,14 @@ class PythonTranslator(Translator):
                     continue
 
                 type_name = str(attr["annotation"] or attr["type_comment"] or None)
-                params.append(Parameter(
-                    name=attr["target"].strip(),
-                    inferred_type_name=type_name.strip(),
-                    default=str(attr["value"]).strip(),
-                    help=str(attr["help"] or "").strip()
-                ))
+                params.append(
+                    Parameter(
+                        name=attr["target"].strip(),
+                        inferred_type_name=type_name.strip(),
+                        default=str(attr["value"]).strip(),
+                        help=str(attr["help"] or "").strip(),
+                    )
+                )
 
         return params
 

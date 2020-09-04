@@ -23,8 +23,7 @@ from .exceptions import (
     missing_environment_variable_generator,
 )
 from .log import logger
-from .utils import chdir, find_first_tagged_cell_index
-from .translators import papermill_translators
+from .utils import chdir
 
 try:
     from .s3 import S3
@@ -424,21 +423,6 @@ def load_notebook_node(notebook_path):
 
         if not hasattr(cell.metadata, 'papermill'):
             cell.metadata['papermill'] = dict()
-
-    # Force refreshing default parameters
-    parameter_cell_idx = find_first_tagged_cell_index(nb, "parameters")
-    parameter_cell = nb.cells[parameter_cell_idx]
-    kernel_name = nb.metadata.kernelspec.name
-    language = nb.metadata.kernelspec.language
-
-    translator = papermill_translators.find_translator(kernel_name, language)
-    try:
-        params = translator.inspect(parameter_cell)
-        nb.metadata['papermill']['default_parameters'] = {p.name: p._asdict() for p in params}
-    except NotImplementedError:
-        logger.warning(
-            "Translator for '{}' language does not support parameter introspection.".format(language)
-        )
 
     return nb
 

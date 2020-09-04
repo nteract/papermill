@@ -5,7 +5,8 @@ import click
 from .iorw import get_pretty_path, load_notebook_node, local_file_io_cwd
 from .log import logger
 from .parameterize import add_builtin_parameters, parameterize_path
-from .utils import any_tagged_cell
+from .translators import papermill_translators
+from .utils import any_tagged_cell, find_first_tagged_cell_index
 
 
 def _open_notebook(notebook_path, parameters):
@@ -15,6 +16,41 @@ def _open_notebook(notebook_path, parameters):
 
     with local_file_io_cwd():
         return load_notebook_node(input_path)
+
+
+def _infer_parameters(nb):
+    """Infer the notebook parameters.
+
+    Parameters
+    ----------
+    nb : nbformat.NotebookNode
+        Notebook
+
+    Returns
+    -------
+    List[Parameter]
+       List of parameters (name, inferred_type_name, default, help)
+    """
+    params = []
+
+    parameter_cell_idx = find_first_tagged_cell_index(nb, "parameters")
+    if parameter_cell_idx < 0:
+        return params
+    parameter_cell = nb.cells[parameter_cell_idx]
+    kernel_name = nb.metadata.kernelspec.name
+    language = nb.metadata.kernelspec.language
+
+    translator = papermill_translators.find_translator(kernel_name, language)
+    try:
+        params = translator.inspect(parameter_cell)
+    except NotImplementedError:
+        logger.warning(
+            "Translator for '{}' language does not support parameter introspection.".format(
+                language
+            )
+        )
+
+    return params
 
 
 def display_notebook_help(ctx, notebook_path, parameters):
@@ -34,11 +70,12 @@ def display_notebook_help(ctx, notebook_path, parameters):
 
     if not any_tagged_cell(nb, "parameters"):
         click.echo("\n  No cell tagged 'parameters'")
-        return
+        return 1
 
-    params = nb.metadata['papermill']['default_parameters']
+    params = _infer_parameters(nb)
     if params:
-        for p in params.values():
+        for param in params:
+            p = param._asdict()
             type_repr = p["inferred_type_name"]
             if type_repr == "None":
                 type_repr = "Unknown type"
@@ -58,6 +95,8 @@ def display_notebook_help(ctx, notebook_path, parameters):
             "It may not have any parameter defined."
         )
 
+    return 0
+
 
 def inspect_notebook(notebook_path, parameters=None):
     """Return the inferred notebook parameters.
@@ -76,4 +115,5 @@ def inspect_notebook(notebook_path, parameters=None):
     """
     nb = _open_notebook(notebook_path, parameters)
 
-    return nb.metadata['papermill']['default_parameters']
+    params = _infer_parameters(nb)
+    return {p.name: p._asdict() for p in params}

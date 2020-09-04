@@ -45,7 +45,7 @@ def print_papermill_version(ctx, param, value):
     '--help-notebook',
     is_flag=True,
     default=False,
-    help='Display parameters information for the given notebook path.'
+    help='Display parameters information for the given notebook path.',
 )
 @click.option(
     '--parameters', '-p', nargs=2, multiple=True, help='Parameters to pass to the parameters cell.'
@@ -234,8 +234,7 @@ def papermill(
         parameters_final[name] = value
 
     if help_notebook:
-        display_notebook_help(click_ctx, notebook_path, parameters_final)
-        return
+        sys.exit(display_notebook_help(click_ctx, notebook_path, parameters_final))
 
     try:
         execute_notebook(
