@@ -17,6 +17,7 @@ import platform
 
 from .execute import execute_notebook
 from .iorw import read_yaml_file, NoDatesSafeLoader
+from .inspection import display_notebook_help
 from . import __version__ as papermill_version
 
 click.disable_unicode_literals_warning = True
@@ -37,8 +38,15 @@ def print_papermill_version(ctx, param, value):
 
 
 @click.command(context_settings=dict(help_option_names=['-h', '--help']))
+@click.pass_context
 @click.argument('notebook_path', required=not INPUT_PIPED)
-@click.argument('output_path', required=not (INPUT_PIPED or OUTPUT_PIPED))
+@click.argument('output_path', default="")
+@click.option(
+    '--help-notebook',
+    is_flag=True,
+    default=False,
+    help='Display parameters information for the given notebook path.',
+)
 @click.option(
     '--parameters', '-p', nargs=2, multiple=True, help='Parameters to pass to the parameters cell.'
 )
@@ -140,8 +148,10 @@ def print_papermill_version(ctx, param, value):
     help='Flag for displaying the version.',
 )
 def papermill(
+    click_ctx,
     notebook_path,
     output_path,
+    help_notebook,
     parameters,
     parameters_raw,
     parameters_file,
@@ -181,11 +191,16 @@ def papermill(
     from stdin and write it out to stdout.
 
     """
+    if not help_notebook:
+        required_output_path = not (INPUT_PIPED or OUTPUT_PIPED)
+        if required_output_path and not output_path:
+            raise click.UsageError("Missing argument 'OUTPUT_PATH'")
+
     if INPUT_PIPED and notebook_path and not output_path:
+        input_path = '-'
         output_path = notebook_path
-        notebook_path = '-'
     else:
-        notebook_path = notebook_path or '-'
+        input_path = notebook_path or '-'
         output_path = output_path or '-'
 
     if output_path == '-':
@@ -204,7 +219,7 @@ def papermill(
     # Read in Parameters
     parameters_final = {}
     if inject_input_path or inject_paths:
-        parameters_final['PAPERMILL_INPUT_PATH'] = notebook_path
+        parameters_final['PAPERMILL_INPUT_PATH'] = input_path
     if inject_output_path or inject_paths:
         parameters_final['PAPERMILL_OUTPUT_PATH'] = output_path
     for params in parameters_base64 or []:
@@ -218,9 +233,12 @@ def papermill(
     for name, value in parameters_raw or []:
         parameters_final[name] = value
 
+    if help_notebook:
+        sys.exit(display_notebook_help(click_ctx, notebook_path, parameters_final))
+
     try:
         execute_notebook(
-            input_path=notebook_path,
+            input_path=input_path,
             output_path=output_path,
             parameters=parameters_final,
             engine_name=engine,

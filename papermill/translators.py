@@ -1,7 +1,13 @@
+import logging
 import math
+import re
 import sys
 
 from .exceptions import PapermillException
+from .models import Parameter
+
+
+logger = logging.getLogger(__name__)
 
 
 class PapermillTranslators(object):
@@ -114,8 +120,36 @@ class Translator(object):
             content += '{}\n'.format(cls.assign(name, cls.translate(val)))
         return content
 
+    @classmethod
+    def inspect(cls, parameters_cell):
+        """Inspect the parameters cell to get a Parameter list
+
+        It must return an empty list if no parameters are found and
+        it should ignore inspection errors.
+
+        .. note::
+            ``inferred_type_name`` should be "None" if unknown (set it
+            to "NoneType" for null value)
+
+        Parameters
+        ----------
+        parameters_cell : NotebookNode
+            Cell tagged _parameters_
+
+        Returns
+        -------
+        List[Parameter]
+            A list of all parameters
+        """
+        raise NotImplementedError('parameters introspection not implemented for {}'.format(cls))
+
 
 class PythonTranslator(Translator):
+    # Pattern to capture parameters within cell input
+    PARAMETER_PATTERN = re.compile(
+        r"^(?P<target>\w[\w_]*)\s*(:\s*[\"']?(?P<annotation>\w[\w_\[\],\s]*)[\"']?\s*)?=\s*(?P<value>.*?)(\s*#\s*(type:\s*(?P<type_comment>[^\s]*)\s*)?(?P<help>.*))?$"  # noqa
+    )
+
     @classmethod
     def translate_float(cls, val):
         if math.isfinite(val):
@@ -157,6 +191,91 @@ class PythonTranslator(Translator):
             fm = black.FileMode(string_normalization=False)
             content = black.format_str(content, mode=fm)
         return content
+
+    @classmethod
+    def inspect(cls, parameters_cell):
+        """Inspect the parameters cell to get a Parameter list
+
+        It must return an empty list if no parameters are found and
+        it should ignore inspection errors.
+
+        Parameters
+        ----------
+        parameters_cell : NotebookNode
+            Cell tagged _parameters_
+
+        Returns
+        -------
+        List[Parameter]
+            A list of all parameters
+        """
+        params = []
+        src = parameters_cell['source']
+
+        def flatten_accumulator(accumulator):
+            """Flatten a multilines variable definition.
+
+            Remove all comments except on the latest line - will be interpreted as help.
+
+            Args:
+                accumulator (List[str]): Line composing the variable definition
+            Returns:
+                Flatten definition
+            """
+            flat_string = ""
+            for line in accumulator[:-1]:
+                if "#" in line:
+                    comment_pos = line.index("#")
+                    flat_string += line[:comment_pos].strip()
+                else:
+                    flat_string += line.strip()
+            if len(accumulator):
+                flat_string += accumulator[-1].strip()
+            return flat_string
+
+        # Some common type like dictionaries or list can be expressed over multiline.
+        # To support the parsing of such case, the cell lines are grouped between line
+        # actually containing an assignment. In each group, the commented and empty lines
+        # are skip; i.e. the parameter help can only be given as comment on the last variable
+        # line definition
+        grouped_variable = []
+        accumulator = []
+        for iline, line in enumerate(src.splitlines()):
+            if len(line.strip()) == 0 or line.strip().startswith('#'):
+                continue  # Skip blank and comment
+
+            nequal = line.count("=")
+            if nequal > 0:
+                grouped_variable.append(flatten_accumulator(accumulator))
+                accumulator = []
+                if nequal > 1:
+                    logger.warning("Unable to parse line {} '{}'.".format(iline + 1, line))
+                    continue
+
+            accumulator.append(line)
+        grouped_variable.append(flatten_accumulator(accumulator))
+
+        for definition in grouped_variable:
+            if len(definition) == 0:
+                continue
+
+            match = re.match(cls.PARAMETER_PATTERN, definition)
+            if match is not None:
+                attr = match.groupdict()
+                if attr["target"] is None:  # Fail to get variable name
+                    continue
+
+                type_name = str(attr["annotation"] or attr["type_comment"] or None)
+                params.append(
+                    Parameter(
+                        name=attr["target"].strip(),
+                        inferred_type_name=type_name.strip(),
+                        default=str(attr["value"]).strip(),
+                        help=str(attr["help"] or "").strip(),
+                    )
+                )
+
+        return params
 
 
 class RTranslator(Translator):

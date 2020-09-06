@@ -21,6 +21,7 @@ a collection of notebooks.
    :maxdepth: 2
 
    usage-parameterize
+   usage-inspect
    usage-execute
    usage-store
 
