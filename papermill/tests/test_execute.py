@@ -331,3 +331,16 @@ class TestSysExit(unittest.TestCase):
         self.assertEqual(nb.cells[3].outputs[0].output_type, 'error')
 
         self.assertEqual(nb.cells[4].execution_count, None)
+
+    def test_system_exit(self):
+        notebook_name = 'systemexit.ipynb'
+        result_path = os.path.join(self.test_dir, 'output_{}'.format(notebook_name))
+        execute_notebook(get_notebook_path(notebook_name), result_path)
+        nb = load_notebook_node(result_path)
+        self.assertEqual(nb.cells[0].cell_type, "code")
+        self.assertEqual(nb.cells[0].execution_count, 1)
+        self.assertEqual(nb.cells[1].execution_count, 2)
+        self.assertEqual(nb.cells[1].outputs[0].output_type, 'error')
+        self.assertEqual(nb.cells[1].outputs[0].ename, 'SystemExit')
+        self.assertEqual(nb.cells[1].outputs[0].evalue, '')
+        self.assertEqual(nb.cells[2].execution_count, None)
