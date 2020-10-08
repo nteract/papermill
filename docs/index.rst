@@ -1,16 +1,16 @@
 Welcome to papermill
 ====================
 
-.. image:: https://travis-ci.org/nteract/papermill.svg?branch=master
+.. image:: https://travis-ci.org/nteract/papermill.svg?branch=main
    :target: https://travis-ci.org/nteract/papermill
-.. image:: https://codecov.io/github/nteract/papermill/coverage.svg?branch=master
-   :target: https://codecov.io/github/nteract/papermill?branch=master
+.. image:: https://codecov.io/github/nteract/papermill/coverage.svg?branch=main
+   :target: https://codecov.io/github/nteract/papermill?branch=main
 .. image:: https://readthedocs.org/projects/papermill/badge/?version=latest
    :target: http://papermill.readthedocs.io/en/latest/?badge=latest
 .. image:: https://tinyurl.com/ybwovtw2
-   :target: https://mybinder.org/v2/gh/nteract/papermill/master?filepath=binder%2Fprocess_highlight_dates.ipynb
+   :target: https://mybinder.org/v2/gh/nteract/papermill/main?filepath=binder%2Fprocess_highlight_dates.ipynb
 .. image:: https://tinyurl.com/y7uz2eh9
-   :target: https://mybinder.org/v2/gh/nteract/papermill/master?filepath=binder%2Fcli-simple%2Fcli_example.ipynb
+   :target: https://mybinder.org/v2/gh/nteract/papermill/main?filepath=binder%2Fcli-simple%2Fcli_example.ipynb
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
    :target: https://github.com/ambv/black
 

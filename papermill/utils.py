@@ -10,6 +10,48 @@ from .exceptions import PapermillParameterOverwriteWarning
 logger = logging.getLogger('papermill.utils')
 
 
+def any_tagged_cell(nb, tag):
+    """Whether the notebook contains at least one cell tagged ``tag``?
+
+    Parameters
+    ----------
+    nb : nbformat.NotebookNode
+        The notebook to introspect
+    tag : str
+        The tag to look for
+
+    Returns
+    -------
+    bool
+        Whether the notebook contains a cell tagged ``tag``?
+    """
+    return any([tag in cell.metadata.tags for cell in nb.cells])
+
+
+def find_first_tagged_cell_index(nb, tag):
+    """Find the first tagged cell ``tag`` in the notebook.
+
+    Parameters
+    ----------
+    nb : nbformat.NotebookNode
+        The notebook to introspect
+    tag : str
+        The tag to look for
+
+    Returns
+    -------
+    nbformat.NotebookNode
+        Whether the notebook contains a cell tagged ``tag``?
+    """
+    parameters_indices = []
+    for idx, cell in enumerate(nb.cells):
+        if tag in cell.metadata.tags:
+            parameters_indices.append(idx)
+    if not parameters_indices:
+        return -1
+    return parameters_indices[0]
+
+
 def merge_kwargs(caller_args, **callee_args):
     """Merge named argument.
 

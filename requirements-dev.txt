@@ -1,19 +1,21 @@
+boto3
+botocore
 codecov
 coverage
+google_compute_engine # Need this because boto has issues with dynamic package loading during tests if other google components are there
+ipython>=5.0
+ipywidgets
 notebook
 mock
+moto
 pytest>=4.1
 pytest-cov>=2.6.1
 pytest-mock>=1.10
 pytest-env>=0.6.2
-ipython>=5.0
-moto
+requests >= 2.21.0
 check-manifest
 attrs>=17.4.0
 pre-commit
-boto3
-botocore
-ipywidgets
 flake8
 tox
 bumpversion
@@ -22,4 +24,3 @@ pip>=18.1
 wheel>=0.31.0
 setuptools>=38.6.0
 twine>=1.11.0
-google_compute_engine # Need this because boto has issues with dynamic package loading during tests if other google components are there

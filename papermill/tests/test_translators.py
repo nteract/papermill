@@ -3,8 +3,11 @@ import pytest
 from unittest.mock import Mock
 from collections import OrderedDict
 
+from nbformat.v4 import new_code_cell
+
 from .. import translators
 from ..exceptions import PapermillException
+from ..models import Parameter
 
 
 @pytest.mark.parametrize(
@@ -61,6 +64,54 @@ def test_translate_codify_python(parameters, expected):
 )
 def test_translate_comment_python(test_input, expected):
     assert translators.PythonTranslator.comment(test_input) == expected
+
+
+@pytest.mark.parametrize(
+    "test_input,expected",
+    [
+        ("a = 2", [Parameter("a", "None", "2", "")]),
+        ("a: int = 2", [Parameter("a", "int", "2", "")]),
+        ("a = 2 # type:int", [Parameter("a", "int", "2", "")]),
+        ("a = False # Nice variable a", [Parameter("a", "None", "False", "Nice variable a")]),
+        ("a: float = 2.258 # type: int Nice variable a", [Parameter("a", "float", "2.258", "Nice variable a")]),  # noqa
+        (
+            "a = 'this is a string' # type: int Nice variable a",
+            [Parameter("a", "int", "'this is a string'", "Nice variable a")]
+        ),
+        (
+            "a: List[str] = ['this', 'is', 'a', 'string', 'list'] # Nice variable a",
+            [Parameter("a", "List[str]", "['this', 'is', 'a', 'string', 'list']", "Nice variable a")]
+        ),
+        (
+            "a: List[str] = [\n    'this', # First\n    'is',\n    'a',\n    'string',\n    'list' # Last\n] # Nice variable a",  # noqa
+            [Parameter("a", "List[str]", "['this','is','a','string','list']", "Nice variable a")]
+        ),
+        (
+            "a: List[str] = [\n    'this',\n    'is',\n    'a',\n    'string',\n    'list'\n] # Nice variable a",  # noqa
+            [Parameter("a", "List[str]", "['this','is','a','string','list']", "Nice variable a")]
+        ),
+        (
+            """a: List[str] = [
+                'this', # First
+                'is',
+
+                'a',
+                'string',
+                'list' # Last
+            ] # Nice variable a
+
+            b: float = -2.3432 # My b variable
+            """,
+            [
+                Parameter("a", "List[str]", "['this','is','a','string','list']", "Nice variable a"),
+                Parameter("b", "float", "-2.3432", "My b variable"),
+            ]
+        ),
+    ]
+)
+def test_inspect_python(test_input, expected):
+    cell = new_code_cell(source=test_input)
+    assert translators.PythonTranslator.inspect(cell) == expected
 
 
 @pytest.mark.parametrize(
@@ -243,6 +294,71 @@ def test_translate_assign_csharp(input_name, input_value, expected):
 )
 def test_translate_codify_csharp(parameters, expected):
     assert translators.CSharpTranslator.codify(parameters) == expected
+
+
+# Powershell section
+@pytest.mark.parametrize(
+    "test_input,expected",
+    [
+        ("foo", '"foo"'),
+        ('{"foo": "bar"}', '"{`"foo`": `"bar`"}"'),
+        ({"foo": "bar"}, '@{"foo" = "bar"}'),
+        ({"foo": '"bar"'}, '@{"foo" = "`"bar`""}'),
+        ({"foo": ["bar"]}, '@{"foo" = @("bar")}'),
+        ({"foo": {"bar": "baz"}}, '@{"foo" = @{"bar" = "baz"}}'),
+        ({"foo": {"bar": '"baz"'}}, '@{"foo" = @{"bar" = "`"baz`""}}'),
+        (["foo"], '@("foo")'),
+        (["foo", '"bar"'], '@("foo", "`"bar`"")'),
+        ([{"foo": "bar"}], '@(@{"foo" = "bar"})'),
+        ([{"foo": '"bar"'}], '@(@{"foo" = "`"bar`""})'),
+        (12345, '12345'),
+        (-54321, '-54321'),
+        (1.2345, '1.2345'),
+        (-5432.1, '-5432.1'),
+        (float('nan'), "[double]::NaN"),
+        (float('-inf'), "[double]::NegativeInfinity"),
+        (float('inf'), "[double]::PositiveInfinity"),
+        (True, '$True'),
+        (False, '$False'),
+        (None, '$Null'),
+    ],
+)
+def test_translate_type_powershell(test_input, expected):
+    assert translators.PowershellTranslator.translate(test_input) == expected
+
+
+@pytest.mark.parametrize(
+    "parameters,expected",
+    [
+        ({"foo": "bar"}, '# Parameters\n$foo = "bar"\n'),
+        ({"foo": True}, '# Parameters\n$foo = $True\n'),
+        ({"foo": 5}, '# Parameters\n$foo = 5\n'),
+        ({"foo": 1.1}, '# Parameters\n$foo = 1.1\n'),
+        ({"foo": ['bar', 'baz']}, '# Parameters\n$foo = @("bar", "baz")\n'),
+        ({"foo": {'bar': 'baz'}}, '# Parameters\n$foo = @{"bar" = "baz"}\n'),
+        (
+            OrderedDict([['foo', 'bar'], ['baz', ['buz']]]),
+            '# Parameters\n$foo = "bar"\n$baz = @("buz")\n',
+        ),
+    ],
+)
+def test_translate_codify_powershell(parameters, expected):
+    assert translators.PowershellTranslator.codify(parameters) == expected
+
+
+@pytest.mark.parametrize(
+    "input_name,input_value,expected",
+    [("foo", '""', '$foo = ""'), ("foo", '"bar"', '$foo = "bar"')],
+)
+def test_translate_assign_powershell(input_name, input_value, expected):
+    assert translators.PowershellTranslator.assign(input_name, input_value) == expected
+
+
+@pytest.mark.parametrize(
+    "test_input,expected", [("", '#'), ("foo", '# foo'), ("['best effort']", "# ['best effort']")]
+)
+def test_translate_comment_powershell(test_input, expected):
+    assert translators.PowershellTranslator.comment(test_input) == expected
 
 
 # F# section

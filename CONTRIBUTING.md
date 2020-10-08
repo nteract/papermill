@@ -121,7 +121,7 @@ Your commits should be pushed to the forked repository. To verify this type
 git remote -v
 ```
 
-and ensure the remotes point to your GitHub. Don't work on the master branch!
+and ensure the remotes point to your GitHub. Don't work on the main branch!
 
 1. Commit changes to local repository:
 
@@ -149,6 +149,6 @@ _Note: You might want to set a reference to the main repository to fetch/merge f
 git remote add upstream https://github.com/nteract/papermill
 ```
 
-It's possible you will have conflicts between your repository and master. Here, `master` is meant to be synchronized with the ```upstream``` repository.  GitHub has some good [documentation](https://help.github.com/articles/resolving-a-merge-conflict-using-the-command-line/) on merging pull requests from the command line.
+It's possible you will have conflicts between your repository and main. Here, `main` is meant to be synchronized with the ```upstream``` repository.  GitHub has some good [documentation](https://help.github.com/articles/resolving-a-merge-conflict-using-the-command-line/) on merging pull requests from the command line.
 
 Happy hacking on Papermill!

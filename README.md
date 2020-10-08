@@ -2,12 +2,12 @@
 =======================================================================================================================================================================
 
 <!---(binder links generated at https://mybinder.readthedocs.io/en/latest/howto/badges.html and compressed at https://tinyurl.com) -->
-[![Travis Build Status](https://travis-ci.org/nteract/papermill.svg?branch=master)](https://travis-ci.org/nteract/papermill)
-[![Azure Build Status](https://dev.azure.com/nteract/nteract/_apis/build/status/nteract.papermill?branchName=master)](https://dev.azure.com/nteract/nteract/_build/latest?definitionId=5&branchName=master)
-[![image](https://codecov.io/github/nteract/papermill/coverage.svg?branch=master)](https://codecov.io/github/nteract/papermill?branch=master)
+[![Travis Build Status](https://travis-ci.org/nteract/papermill.svg?branch=main)](https://travis-ci.org/nteract/papermill)
+[![Azure Build Status](https://dev.azure.com/nteract/nteract/_apis/build/status/nteract.papermill?branchName=main)](https://dev.azure.com/nteract/nteract/_build/latest?definitionId=5&branchName=main)
+[![image](https://codecov.io/github/nteract/papermill/coverage.svg?branch=main)](https://codecov.io/github/nteract/papermill?branch=main)
 [![Documentation Status](https://readthedocs.org/projects/papermill/badge/?version=latest)](http://papermill.readthedocs.io/en/latest/?badge=latest)
-[![badge](https://tinyurl.com/ybwovtw2)](https://mybinder.org/v2/gh/nteract/papermill/master?filepath=binder%2Fprocess_highlight_dates.ipynb)
-[![badge](https://tinyurl.com/y7uz2eh9)](https://mybinder.org/v2/gh/nteract/papermill/master?)
+[![badge](https://tinyurl.com/ybwovtw2)](https://mybinder.org/v2/gh/nteract/papermill/main?filepath=binder%2Fprocess_highlight_dates.ipynb)
+[![badge](https://tinyurl.com/y7uz2eh9)](https://mybinder.org/v2/gh/nteract/papermill/main?)
 [![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/downloads/release/python-360/)
 [![Python 3.7](https://img.shields.io/badge/python-3.7-blue.svg)](https://www.python.org/downloads/release/python-370/)
 [![Python 3.8](https://img.shields.io/badge/python-3.8-blue.svg)](https://www.python.org/downloads/release/python-380/)

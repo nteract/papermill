@@ -5,8 +5,26 @@ import warnings
 from unittest.mock import Mock, call
 from tempfile import TemporaryDirectory
 
-from ..utils import retry, chdir, merge_kwargs, remove_args
+from nbformat.v4 import new_notebook, new_code_cell
+
+from ..utils import (
+    any_tagged_cell,
+    retry,
+    chdir,
+    merge_kwargs,
+    remove_args,
+)
 from ..exceptions import PapermillParameterOverwriteWarning
+
+
+def test_no_tagged_cell():
+    nb = new_notebook(cells=[new_code_cell('a = 2', metadata={"tags": []})],)
+    assert not any_tagged_cell(nb, "parameters")
+
+
+def test_tagged_cell():
+    nb = new_notebook(cells=[new_code_cell('a = 2', metadata={"tags": ["parameters"]})],)
+    assert any_tagged_cell(nb, "parameters")
 
 
 def test_merge_kwargs():
