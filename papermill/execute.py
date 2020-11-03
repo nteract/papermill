@@ -2,6 +2,7 @@
 
 import copy
 import nbformat
+from pathlib import Path
 
 from .log import logger
 from .exceptions import PapermillExecutionError
@@ -32,9 +33,9 @@ def execute_notebook(
 
     Parameters
     ----------
-    input_path : str
+    input_path : str or Path
         Path to input notebook
-    output_path : str
+    output_path : str or Path
         Path to save executed notebook
     parameters : dict, optional
         Arbitrary keyword arguments to pass to the notebook parameters
@@ -56,7 +57,7 @@ def execute_notebook(
         Duration in seconds to wait for kernel start-up
     report_mode : bool, optional
         Flag for whether or not to hide input.
-    cwd : str, optional
+    cwd : str or Path, optional
         Working directory to use when executing the notebook
     **kwargs
         Arbitrary keyword arguments to pass to the notebook engine
@@ -66,6 +67,13 @@ def execute_notebook(
     nb : NotebookNode
        Executed notebook object
     """
+    if isinstance(input_path, Path):
+        input_path = str(input_path)
+    if isinstance(output_path, Path):
+        output_path = str(output_path)
+    if isinstance(cwd, Path):
+        cwd = str(cwd)
+
     path_parameters = add_builtin_parameters(parameters)
     input_path = parameterize_path(input_path, path_parameters)
     output_path = parameterize_path(output_path, path_parameters)

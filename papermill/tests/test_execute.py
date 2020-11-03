@@ -5,6 +5,7 @@ import tempfile
 import unittest
 
 from functools import partial
+from pathlib import Path
 
 try:
     from unittest.mock import patch
@@ -277,6 +278,16 @@ class TestCWD(unittest.TestCase):
         self.assertTrue(
             os.path.isfile(os.path.join(self.base_test_dir, self.nb_test_executed_fname))
         )
+
+    def test_pathlib_paths(self):
+        # Copy of test_execution_respects_cwd_assignment but with `Path`s
+        with chdir(self.base_test_dir):
+            execute_notebook(
+                Path(self.check_notebook_name),
+                Path(self.nb_test_executed_fname),
+                cwd=Path(self.test_dir),
+            )
+        self.assertTrue(Path(self.base_test_dir).joinpath(self.nb_test_executed_fname).exists())
 
 
 class TestSysExit(unittest.TestCase):

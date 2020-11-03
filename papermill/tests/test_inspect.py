@@ -52,7 +52,12 @@ def click_context():
     ],
 )
 def test_inspect_notebook(name, expected):
-    assert inspect_notebook(str(name)) == expected
+    assert inspect_notebook(name) == expected
+
+
+def test_str_path():
+    expected = {"msg": {"name": "msg", "inferred_type_name": "None", "default": "None", "help": ""}}
+    assert inspect_notebook(str(_get_fullpath("simple_execute.ipynb"))) == expected
 
 
 @pytest.mark.parametrize(

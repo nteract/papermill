@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Deduce parameters of a notebook from the parameters cell."""
 import click
+from pathlib import Path
 
 from .iorw import get_pretty_path, load_notebook_node, local_file_io_cwd
 from .log import logger
@@ -103,7 +104,7 @@ def inspect_notebook(notebook_path, parameters=None):
 
     Parameters
     ----------
-    notebook_path : str
+    notebook_path : str or Path
         Path to notebook
     parameters : dict, optional
         Arbitrary keyword arguments to pass to the notebook parameters
@@ -113,6 +114,9 @@ def inspect_notebook(notebook_path, parameters=None):
     Dict[str, Parameter]
        Mapping of (parameter name, {name, inferred_type_name, default, help})
     """
+    if isinstance(notebook_path, Path):
+        notebook_path = str(notebook_path)
+
     nb = _open_notebook(notebook_path, parameters)
 
     params = _infer_parameters(nb)
