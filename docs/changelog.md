@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.2.0
+
+* Provide help for notebooks by inspecting the `parameters` cell, via `--help-notebook`
+* Allow `pathlib.Path`s in `execute_notebook` and `inspect_notebook`
+- Support added for parameterizing Powershell kernels
+
 ## 2.1.3
 
 - Removed jupyter_client dependency in requirements to avoid confusing pip on the actual version requirements.
