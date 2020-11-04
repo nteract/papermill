@@ -274,7 +274,7 @@ file, you should specify:
         packages=find_packages("./src"),
         package_dir={"": "src"},
         install_requires=["papermill", "nbformat"],
-        entry_points={"papermill.engine": ["timer_engine=papermill_timing:TimingEngine"]},
+        entry_points={"papermill.engine": ["timer_engine=papermill_timing:CustomEngine"]},
     )
 
 This allows users to specify the engine from ``papermill_timing`` by passing the
