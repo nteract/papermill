@@ -3,8 +3,10 @@
 """ Test the command line interface """
 
 import os
+from pathlib import Path
 import sys
 import subprocess
+import tempfile
 import uuid
 import nbclient
 
@@ -166,6 +168,31 @@ class TestCLI(unittest.TestCase):
         execute_patch.assert_called_with(
             **self.augment_execute_kwargs(parameters={'a_date': '2019-01-01'})
         )
+
+    @patch(cli.__name__ + '.execute_notebook')
+    def test_parameters_empty(self, execute_patch):
+        # "#empty" ---base64--> "I2VtcHR5"
+        with tempfile.TemporaryDirectory() as tmpdir:
+            empty_yaml = Path(tmpdir) / 'empty.yaml'
+            empty_yaml.write_text('#empty')
+            self.runner.invoke(
+                papermill,
+                self.default_args
+                + [
+                    '--parameters_file',
+                    str(empty_yaml),
+                    '--parameters_yaml',
+                    '#empty',
+                    '--parameters_base64',
+                    'I2VtcHR5',
+                ],
+            )
+            execute_patch.assert_called_with(
+                **self.augment_execute_kwargs(
+                    # should be empty
+                    parameters={}
+                )
+            )
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_parameters_yaml_override(self, execute_patch):
