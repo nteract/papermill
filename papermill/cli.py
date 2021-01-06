@@ -223,11 +223,11 @@ def papermill(
     if inject_output_path or inject_paths:
         parameters_final['PAPERMILL_OUTPUT_PATH'] = output_path
     for params in parameters_base64 or []:
-        parameters_final.update(yaml.load(base64.b64decode(params), Loader=NoDatesSafeLoader))
+        parameters_final.update(yaml.load(base64.b64decode(params), Loader=NoDatesSafeLoader) or {})
     for files in parameters_file or []:
-        parameters_final.update(read_yaml_file(files))
+        parameters_final.update(read_yaml_file(files) or {})
     for params in parameters_yaml or []:
-        parameters_final.update(yaml.load(params, Loader=NoDatesSafeLoader))
+        parameters_final.update(yaml.load(params, Loader=NoDatesSafeLoader) or {})
     for name, value in parameters or []:
         parameters_final[name] = _resolve_type(value)
     for name, value in parameters_raw or []:
