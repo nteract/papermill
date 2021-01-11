@@ -291,7 +291,8 @@ class NotebookExecutionManager(object):
         
     def get_cell_description(self, cell, escape_str="papermill_description="):
         """Fetches cell description if present"""
-        if cell is None: return None
+        if cell is None:
+            return None
         
         cell_code = cell["source"]
         if cell_code is None or escape_str not in cell_code:
