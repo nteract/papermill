@@ -212,7 +212,7 @@ class NotebookExecutionManager(object):
         cell.metadata.papermill['start_time'] = self.now().isoformat()
         cell.metadata.papermill["status"] = self.RUNNING
         cell.metadata.papermill['exception'] = False
-        
+
         # injects optional description of the current cell directly in the tqdm
         cell_description = self.get_cell_description(cell)
         if cell_description is not None and hasattr(self, 'pbar') and self.pbar:
@@ -288,16 +288,16 @@ class NotebookExecutionManager(object):
 
         # Force a final sync
         self.save()
-        
+
     def get_cell_description(self, cell, escape_str="papermill_description="):
         """Fetches cell description if present"""
         if cell is None:
             return None
-        
+
         cell_code = cell["source"]
         if cell_code is None or escape_str not in cell_code:
             return None
-        
+
         return cell_code.split(escape_str)[1].split()[0]
 
     def complete_pbar(self):
