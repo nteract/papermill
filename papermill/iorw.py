@@ -408,6 +408,9 @@ def load_notebook_node(notebook_path):
 
     """
     nb = nbformat.reads(papermill_io.read(notebook_path), as_version=4)
+    nb_upgraded = nbformat.v4.upgrade(nb)
+    if nb_upgraded is not None:
+        nb = nb_upgraded
 
     if not hasattr(nb.metadata, 'papermill'):
         nb.metadata['papermill'] = {
