@@ -7,6 +7,8 @@ import unittest
 from functools import partial
 from pathlib import Path
 
+from nbformat import validate
+
 try:
     from unittest.mock import patch
 except ImportError:
@@ -355,3 +357,18 @@ class TestSysExit(unittest.TestCase):
         self.assertEqual(nb.cells[1].outputs[0].ename, 'SystemExit')
         self.assertEqual(nb.cells[1].outputs[0].evalue, '')
         self.assertEqual(nb.cells[2].execution_count, None)
+
+
+class TestNotebookValidation(unittest.TestCase):
+    def setUp(self):
+        self.test_dir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        shutil.rmtree(self.test_dir)
+
+    def test_from_version_4_4_upgrades(self):
+        notebook_name = 'nb_version_4.4.ipynb'
+        result_path = os.path.join(self.test_dir, 'output_{}'.format(notebook_name))
+        execute_notebook(get_notebook_path(notebook_name), result_path, {'var': 'It works'})
+        nb = load_notebook_node(result_path)
+        validate(nb)
