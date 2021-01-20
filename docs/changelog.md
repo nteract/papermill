@@ -1,12 +1,21 @@
 # Change Log
 
+## 2.3.0
+
+- Notebooks that are loaded with papermill now upgrade the document to the latest spec version (to support cell-id assignments).
+- Empty yaml files are now accepted as parameter files
+- Binder typo fix for example notebook
+- Entry point documentation improvements
+- Code of Conduct documentation link cleanup
+- Tox change for local doc builds
+
 ## 2.2.1
 
-* Allow `pathlib.Path`s in `execute_notebook` and `inspect_notebook`
+- Allow `pathlib.Path`s in `execute_notebook` and `inspect_notebook`
 
 ## 2.2.0
 
-* Provide help for Python notebooks by inspecting the `parameters` cell, via `--help-notebook`
+- Provide help for Python notebooks by inspecting the `parameters` cell, via `--help-notebook`
 - Support added for parameterizing Powershell kernels
 
 ## 2.1.3
