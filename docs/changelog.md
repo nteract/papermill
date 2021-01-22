@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.3.1
+
+- Added minimum version pin for nbformat
+
 ## 2.3.0
 
 - Notebooks that are loaded with papermill now upgrade the document to the latest spec version (to support cell-id assignments).
