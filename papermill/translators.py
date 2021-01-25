@@ -403,8 +403,8 @@ class MatlabTranslator(Translator):
         return '% {}'.format(cmt_str).strip()
 
     @classmethod
-    def codify(cls, parameters):
-        content = '{}\n'.format(cls.comment('Parameters'))
+    def codify(cls, parameters, comment='Parameters'):
+        content = '{}\n'.format(cls.comment(comment))
         for name, val in parameters.items():
             content += '{};\n'.format(cls.assign(name, cls.translate(val)))
         return content
