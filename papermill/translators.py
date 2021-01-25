@@ -548,6 +548,9 @@ papermill_translators.register("matlab", MatlabTranslator)
 papermill_translators.register(".net-csharp", CSharpTranslator)
 papermill_translators.register(".net-fsharp", FSharpTranslator)
 papermill_translators.register(".net-powershell", PowershellTranslator)
+papermill_translators.register("pysparkkernel", PythonTranslator)
+papermill_translators.register("sparkkernel", ScalaTranslator)
+papermill_translators.register("sparkrkernel", RTranslator)
 
 
 def translate_parameters(kernel_name, language, parameters, comment='Parameters'):
