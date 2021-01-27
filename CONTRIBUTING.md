@@ -10,7 +10,7 @@ We encourage friendly discussions and respect for all. There are no exceptions.
 
 All contributions are equally important. Documentation, answering questions, and fixing bugs are equally as valuable as adding new features.
 
-Please read our entire [Code of Conduct](https://github.com/nteract/nteract/blob/master/CODE_OF_CONDUCT.md).
+Please read our entire [Code of Conduct](https://github.com/nteract/nteract/blob/main/CODE_OF_CONDUCT.md).
 
 ## Setting up Your Development Environment
 
