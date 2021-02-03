@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.3.2
+
+- Fixed code of conduct link
+- Fixed codify for matlab kernels
+- Added support for sparkmagic kernels
+
 ## 2.3.1
 
 - Added minimum version pin for nbformat
