@@ -13,4 +13,4 @@ Development of papermill happens on github, and a
 
 
 .. _`detailed guide to contributing`: https://github.com/nteract/papermill/blob/main/CONTRIBUTING.md
-.. _`code of conduct`: https://github.com/nteract/nteract/blob/master/CODE_OF_CONDUCT.md
+.. _`code of conduct`: https://github.com/nteract/nteract/blob/main/CODE_OF_CONDUCT.md
