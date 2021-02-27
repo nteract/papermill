@@ -161,7 +161,7 @@ test_clean_nb_content = no_empty_lines(test_nb_content)
 read_from_gen = lambda g: "\n".join(g)
 
 
-@pytest.yield_fixture(scope="function")
+@pytest.fixture(scope="function")
 def s3_client():
     mock_s3 = moto.mock_s3()
     mock_s3.start()

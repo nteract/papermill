@@ -5,7 +5,7 @@ from .log import logger
 from .exceptions import PapermillMissingParameterException
 from .iorw import read_yaml_file
 from .translators import translate_parameters
-from .utils import find_first_tagged_cell_index
+from .utils import find_first_tagged_cell_index, nb_kernel_name, nb_language
 
 from uuid import uuid4
 from datetime import datetime
@@ -52,7 +52,8 @@ def parameterize_path(path, parameters):
         raise PapermillMissingParameterException("Missing parameter {}".format(key_error))
 
 
-def parameterize_notebook(nb, parameters, report_mode=False, comment='Parameters'):
+def parameterize_notebook(nb, parameters,
+        report_mode=False, comment='Parameters', kernel_name=None, language=None):
     """Assigned parameters into the appropriate place in the input notebook
 
     Parameters
@@ -73,8 +74,9 @@ def parameterize_notebook(nb, parameters, report_mode=False, comment='Parameters
     # Copy the nb object to avoid polluting the input
     nb = copy.deepcopy(nb)
 
-    kernel_name = nb.metadata.kernelspec.name
-    language = nb.metadata.kernelspec.language
+    # Fetch out the name and language from the notebook document
+    kernel_name = nb_kernel_name(nb, kernel_name)
+    language = nb_language(nb, language)
 
     # Generate parameter content based on the kernel_name
     param_content = translate_parameters(kernel_name, language, parameters, comment)

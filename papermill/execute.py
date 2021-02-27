@@ -8,7 +8,7 @@ from .log import logger
 from .exceptions import PapermillExecutionError
 from .iorw import get_pretty_path, local_file_io_cwd, load_notebook_node, write_ipynb
 from .engines import papermill_engines
-from .utils import chdir
+from .utils import chdir, nb_kernel_name
 from .parameterize import add_builtin_parameters, parameterize_notebook, parameterize_path
 
 
@@ -20,6 +20,7 @@ def execute_notebook(
     request_save_on_cell_execute=True,
     prepare_only=False,
     kernel_name=None,
+    language=None,
     progress_bar=True,
     log_output=False,
     stdout_file=None,
@@ -49,6 +50,8 @@ def execute_notebook(
         Flag to determine if execution should occur or not
     kernel_name : str, optional
         Name of kernel to execute the notebook against
+    languages : str, optional
+        Programming language of the notebook
     progress_bar : bool, optional
         Flag for whether or not to show the progress bar.
     log_output : bool, optional
@@ -88,16 +91,16 @@ def execute_notebook(
 
         # Parameterize the Notebook.
         if parameters:
-            nb = parameterize_notebook(nb, parameters, report_mode)
+            nb = parameterize_notebook(nb, parameters, report_mode,
+            kernel_name=kernel_name, language=language)
 
         nb = prepare_notebook_metadata(nb, input_path, output_path, report_mode)
         # clear out any existing error markers from previous papermill runs
         nb = remove_error_markers(nb)
 
         if not prepare_only:
-            # Fetch the kernel name if it's not supplied
-            kernel_name = kernel_name or nb.metadata.kernelspec.name
-
+            # Fetch out the name from the notebook document
+            kernel_name = nb_kernel_name(nb, kernel_name)
             # Execute the Notebook in `cwd` if it is set
             with chdir(cwd):
                 nb = papermill_engines.execute_notebook_with_engine(

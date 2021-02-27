@@ -86,6 +86,7 @@ class TestCLI(unittest.TestCase):
         autosave_cell_every=30,
         prepare_only=False,
         kernel_name=None,
+        language=None,
         log_output=False,
         progress_bar=True,
         start_timeout=60,
@@ -283,6 +284,11 @@ class TestCLI(unittest.TestCase):
     def test_kernel(self, execute_patch):
         self.runner.invoke(papermill, self.default_args + ['-k', 'python3'])
         execute_patch.assert_called_with(**self.augment_execute_kwargs(kernel_name='python3'))
+
+    @patch(cli.__name__ + '.execute_notebook')
+    def test_language(self, execute_patch):
+        self.runner.invoke(papermill, self.default_args + ['-l', 'python'])
+        execute_patch.assert_called_with(**self.augment_execute_kwargs(language='python'))
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_set_cwd(self, execute_patch):

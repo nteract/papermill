@@ -372,3 +372,18 @@ class TestNotebookValidation(unittest.TestCase):
         execute_notebook(get_notebook_path(notebook_name), result_path, {'var': 'It works'})
         nb = load_notebook_node(result_path)
         validate(nb)
+
+
+class TestMinimalNotebook(unittest.TestCase):
+    def setUp(self):
+        self.test_dir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        shutil.rmtree(self.test_dir)
+
+    def test_no_v3_language_backport(self):
+        notebook_name = 'blank-vscode.ipynb'
+        result_path = os.path.join(self.test_dir, 'output_{}'.format(notebook_name))
+        execute_notebook(get_notebook_path(notebook_name), result_path, {'var': 'It works'})
+        nb = load_notebook_node(result_path)
+        validate(nb)
