@@ -91,8 +91,9 @@ def execute_notebook(
 
         # Parameterize the Notebook.
         if parameters:
-            nb = parameterize_notebook(nb, parameters, report_mode,
-            kernel_name=kernel_name, language=language)
+            nb = parameterize_notebook(
+                nb, parameters, report_mode, kernel_name=kernel_name, language=language
+            )
 
         nb = prepare_notebook_metadata(nb, input_path, output_path, report_mode)
         # clear out any existing error markers from previous papermill runs

@@ -52,8 +52,9 @@ def parameterize_path(path, parameters):
         raise PapermillMissingParameterException("Missing parameter {}".format(key_error))
 
 
-def parameterize_notebook(nb, parameters,
-        report_mode=False, comment='Parameters', kernel_name=None, language=None):
+def parameterize_notebook(
+    nb, parameters, report_mode=False, comment='Parameters', kernel_name=None, language=None
+):
     """Assigned parameters into the appropriate place in the input notebook
 
     Parameters

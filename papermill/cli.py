@@ -100,8 +100,16 @@ def print_papermill_version(ctx, param, value):
     default=False,
     help="Flag for outputting the notebook without execution, but with parameters applied.",
 )
-@click.option('--kernel', '-k', help='Name of kernel to run. Ignores kernel name in the notebook document.')
-@click.option('--language', '-l', help='Language override of notebook. Ignores language in the notebook document.')
+@click.option(
+    '--kernel',
+    '-k',
+    help='Name of kernel to run. Ignores kernel name in the notebook document.'
+)
+@click.option(
+    '--language',
+    '-l',
+    help='Language override of notebook. Ignores language in the notebook document.'
+)
 @click.option('--cwd', default=None, help='Working directory to run notebook in.')
 @click.option(
     '--progress-bar/--no-progress-bar', default=None, help="Flag for turning on the progress bar."
