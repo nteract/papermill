@@ -28,6 +28,61 @@ def any_tagged_cell(nb, tag):
     return any([tag in cell.metadata.tags for cell in nb.cells])
 
 
+def nb_kernel_name(nb, name=None):
+    """Helper for fetching out the kernel name from a notebook object.
+
+    Parameters
+    ----------
+    nb : nbformat.NotebookNode
+        The notebook to introspect
+    name : str
+        A provided name field
+
+    Returns
+    -------
+    str
+        The name of the kernel
+
+    Raises
+    ------
+    ValueError
+        If no kernel name is found or provided
+    """
+    name = name or nb.metadata.get('kernelspec', {}).get('name')
+    if not name:
+        raise ValueError("No kernel name found in notebook and no override provided.")
+    return name
+
+
+def nb_language(nb, language=None):
+    """Helper for fetching out the programming language from a notebook object.
+
+    Parameters
+    ----------
+    nb : nbformat.NotebookNode
+        The notebook to introspect
+    language : str
+        A provided language field
+
+    Returns
+    -------
+    str
+        The programming language of the notebook
+
+    Raises
+    ------
+    ValueError
+        If no notebook language is found or provided
+    """
+    language = language or nb.metadata.get('language_info', {}).get('name')
+    if not language:
+        # v3 language path for old notebooks that didn't convert cleanly
+        language = language or nb.metadata.get('kernelspec', {}).get('language')
+    if not language:
+        raise ValueError("No language found in notebook and no override provided.")
+    return language
+
+
 def find_first_tagged_cell_index(nb, tag):
     """Find the first tagged cell ``tag`` in the notebook.
 

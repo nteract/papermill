@@ -100,7 +100,16 @@ def print_papermill_version(ctx, param, value):
     default=False,
     help="Flag for outputting the notebook without execution, but with parameters applied.",
 )
-@click.option('--kernel', '-k', help='Name of kernel to run.')
+@click.option(
+    '--kernel',
+    '-k',
+    help='Name of kernel to run. Ignores kernel name in the notebook document metadata.'
+)
+@click.option(
+    '--language',
+    '-l',
+    help='Language for notebook execution. Ignores language in the notebook document metadata.'
+)
 @click.option('--cwd', default=None, help='Working directory to run notebook in.')
 @click.option(
     '--progress-bar/--no-progress-bar', default=None, help="Flag for turning on the progress bar."
@@ -165,6 +174,7 @@ def papermill(
     autosave_cell_every,
     prepare_only,
     kernel,
+    language,
     cwd,
     progress_bar,
     log_output,
@@ -246,6 +256,7 @@ def papermill(
             autosave_cell_every=autosave_cell_every,
             prepare_only=prepare_only,
             kernel_name=kernel,
+            language=language,
             progress_bar=progress_bar,
             log_output=log_output,
             stdout_file=stdout_file,
