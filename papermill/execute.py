@@ -50,7 +50,7 @@ def execute_notebook(
         Flag to determine if execution should occur or not
     kernel_name : str, optional
         Name of kernel to execute the notebook against
-    languages : str, optional
+    language : str, optional
         Programming language of the notebook
     progress_bar : bool, optional
         Flag for whether or not to show the progress bar.
