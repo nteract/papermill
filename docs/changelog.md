@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.3.3
+
+- Fixed language check to catch non-v3-backwards compatible notebook specs
+- Builds updated for python 3.6.12 / travis support
+- README updated to reflect supported python versions
+
 ## 2.3.2
 
 - Fixed code of conduct link
