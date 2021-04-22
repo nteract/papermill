@@ -27,8 +27,19 @@ If using the `Jupyter Notebook`_ interface
 2. Enter ``parameters`` into a textbox at the top right of a cell
 3. Click ``Add tag``
 
-JupyterLab 2.0+
-~~~~~~~~~~~~~~~~
+JupyterLab 3.0+
+~~~~~~~~~~~~~~~
+
+If using `JupyterLab`_ v3 or above:
+
+1. Select the cell to parameterize
+2. Click the property inspector in the right sidebar (double gear icon)
+3. Type "parameters" in the "Add Tag" box and hit "Enter".
+
+.. image:: img/lab3_parameters.png
+
+JupyterLab 2.0 - 2.2.x
+~~~~~~~~~~~~~~~~~~~~~~
 
 If using the `JupyterLab`_ interface
 
