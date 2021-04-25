@@ -24,12 +24,3 @@ a collection of notebooks.
    usage-inspect
    usage-execute
    usage-store
-
-See also:
-
-.. toctree::
-  :maxdepth: 1
-
-  usage-cli
-  extending-overview
-  troubleshooting

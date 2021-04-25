@@ -44,17 +44,14 @@ Documentation
 These pages guide you through the installation and usage of papermill.
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    installation
-   changelog
    usage-workflow
-   usage-parameterize
-   usage-execute
-   usage-store
    usage-cli
    extending-overview
    troubleshooting
+   changelog
 
 API Reference
 -------------
@@ -66,7 +63,6 @@ this documentation section will help you.
    :maxdepth: 3
 
    reference/index.rst
-   reference/papermill.tests.rst
 
 Indices and tables
 ------------------
