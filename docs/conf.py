@@ -36,7 +36,8 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.mathjax',
     'sphinx.ext.napoleon',
-    'recommonmark'
+    'recommonmark',
+    'sphinx_copybutton'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -80,7 +81,7 @@ language = None
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', 'UPDATE.md']
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = "sphinx"
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
@@ -90,22 +91,14 @@ todo_include_todos = False
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-#
-html_theme = 'alabaster'
+html_theme = "furo"
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
-
 html_theme_options = {
-    'logo': 'images/papermill.png',
-    'description': 'Parameterize, execute, and analyze notebooks',
-    'github_button': True,
-    'github_user': 'nteract',
-    'github_repo': 'papermill',
-    'travis_button': True,
-    'codecov_button': True,
+    "sidebar_hide_name": True,
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -113,19 +106,12 @@ html_theme_options = {
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
-# Custom sidebar templates, must be a dictionary that maps document names
-# to template names.
-#
-# This is required for the alabaster theme
-# refs: http://alabaster.readthedocs.io/en/latest/installation.html#sidebars
-html_sidebars = {'**': ['about.html', 'navigation.html', 'relations.html', 'searchbox.html']}
-
+html_logo = "_static/images/papermill.png"
 
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'papermilldoc'
-
 
 # -- Options for LaTeX output ---------------------------------------------
 
