@@ -1,4 +1,4 @@
-Sphinx>=1.7
+Sphinx~=3.0
 furo
 recommonmark
 mock
