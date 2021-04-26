@@ -20,6 +20,7 @@ include .bumpversion.cfg
 
 # Documentation
 prune docs
+prune .readthedocs.yaml
 # exclude sample notebooks for binder
 prune binder
 # Scripts
