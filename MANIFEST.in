@@ -20,6 +20,7 @@ include .bumpversion.cfg
 
 # Documentation
 prune docs
+
 # exclude sample notebooks for binder
 prune binder
 # Scripts
@@ -29,4 +30,5 @@ prune .tox
 
 # Build files
 exclude .travis.yml
-exclude azure-pipelines.yml
+exclude .github
+exclude .readthedocs.yaml

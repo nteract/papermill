@@ -36,7 +36,7 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.mathjax',
     'sphinx.ext.napoleon',
-    'recommonmark',
+    'myst_parser',
     'sphinx_copybutton'
 ]
 

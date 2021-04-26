@@ -1,6 +1,8 @@
-Sphinx~=3.0
-furo
-recommonmark
-mock
-moto
-sphinx-copybutton
+# Pin packages for RTD builds
+# https://docs.readthedocs.io/en/stable/guides/reproducible-builds.html#pinning-dependencies
+Sphinx==3.5.4
+furo==2021.4.11b34
+myst-parser==0.13.7
+mock==4.0.3
+moto==2.0.5
+sphinx-copybutton==0.3.1
