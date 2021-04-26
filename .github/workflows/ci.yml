@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  tests:
+    name: "Python ${{ matrix.python-version }}"
+    runs-on: "ubuntu-latest"
+    env:
+      USING_COVERAGE: '3.8'
+
+    strategy:
+      matrix:
+        python-version: ["3.6", "3.7", "3.8", "3.9"]
+
+    steps:
+      - uses: "actions/checkout@v2"
+      - uses: "actions/setup-python@v2"
+        with:
+          python-version: "${{ matrix.python-version }}"
+      - name: "Install dependencies"
+        run: |
+          set -xe
+          python -VV
+          python -m site
+          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install --upgrade coverage[toml] virtualenv tox tox-gh-actions          
+
+      - name: "Run tox targets for ${{ matrix.python-version }}"
+        run: "python -m tox"
+
+      - name: "Convert coverage"
+        run: "python -m coverage xml"
+
+      - name: "Upload coverage to Codecov"
+        uses: "codecov/codecov-action@v1"
+        with:
+          fail_ci_if_error: true
