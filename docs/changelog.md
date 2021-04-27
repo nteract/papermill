@@ -1,5 +1,12 @@
 # Change Log
 
+## Unreleased
+
+- Add GitHub Actions for CI
+- Builds updated for python 3.9
+- Remove support for python 3.5
+- Remove travis CI
+
 ## 2.3.3
 
 - Fixed language check to catch non-v3-backwards compatible notebook specs

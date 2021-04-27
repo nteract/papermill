@@ -1,8 +1,8 @@
 Welcome to papermill
 ====================
 
-.. image:: https://travis-ci.org/nteract/papermill.svg?branch=main
-   :target: https://travis-ci.org/nteract/papermill
+.. image:: https://github.com/nteract/papermill/actions/workflows/ci.yml/badge.svg
+   :target: https://github.com/nteract/papermill/actions/workflows/ci.yml
 .. image:: https://codecov.io/github/nteract/papermill/coverage.svg?branch=main
    :target: https://codecov.io/github/nteract/papermill?branch=main
 .. image:: https://readthedocs.org/projects/papermill/badge/?version=latest
