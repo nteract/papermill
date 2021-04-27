@@ -2,7 +2,7 @@
 =======================================================================================================================================================================
 
 <!---(binder links generated at https://mybinder.readthedocs.io/en/latest/howto/badges.html and compressed at https://tinyurl.com) -->
-[![Travis Build Status](https://travis-ci.org/nteract/papermill.svg?branch=main)](https://travis-ci.org/nteract/papermill)
+[![CI](https://github.com/nteract/papermill/actions/workflows/ci.yml/badge.svg)](https://github.com/nteract/papermill/actions/workflows/ci.yml)
 [![CI](https://github.com/nteract/papermill/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/nteract/papermill/actions/workflows/ci.yml)
 [![image](https://codecov.io/github/nteract/papermill/coverage.svg?branch=main)](https://codecov.io/github/nteract/papermill?branch=main)
 [![Documentation Status](https://readthedocs.org/projects/papermill/badge/?version=latest)](http://papermill.readthedocs.io/en/latest/?badge=latest)
