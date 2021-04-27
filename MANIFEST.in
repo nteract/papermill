@@ -29,6 +29,5 @@ graft scripts
 prune .tox
 
 # Build files
-exclude .travis.yml
 exclude .github
 exclude .readthedocs.yaml
