@@ -176,17 +176,17 @@ class TestCLI(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmpdir:
             empty_yaml = Path(tmpdir) / 'empty.yaml'
             empty_yaml.write_text('#empty')
+            extra_args = [
+                '--parameters_file',
+                str(empty_yaml),
+                '--parameters_yaml',
+                '#empty',
+                '--parameters_base64',
+                'I2VtcHR5',
+            ]
             self.runner.invoke(
                 papermill,
-                self.default_args
-                + [
-                    '--parameters_file',
-                    str(empty_yaml),
-                    '--parameters_yaml',
-                    '#empty',
-                    '--parameters_base64',
-                    'I2VtcHR5',
-                ],
+                self.default_args + extra_args,
             )
             execute_patch.assert_called_with(
                 **self.augment_execute_kwargs(

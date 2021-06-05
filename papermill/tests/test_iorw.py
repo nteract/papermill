@@ -101,10 +101,8 @@ class TestPapermillIO(unittest.TestCase):
 
             self.papermill_io.register_entry_points()
             mock_get_group_all.assert_called_once_with("papermill.io")
-            assert (
-                self.papermill_io.get_handler("fake-from-entry-point://")
-                == fake_entrypoint.load.return_value
-            )
+            fake_ = self.papermill_io.get_handler("fake-from-entry-point://")
+            assert fake_ == fake_entrypoint.load.return_value
 
     def test_register_ordering(self):
         # Should match fake1 with fake2 path
