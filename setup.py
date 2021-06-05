@@ -33,17 +33,18 @@ def read(fname):
         return fhandle.read()
 
 
-def read_reqs(fname):
-    req_path = os.path.join(here, fname)
+def read_reqs(fname, folder=None):
+    path_dir = os.path.join(here, folder) if folder else here
+    req_path = os.path.join(path_dir, fname)
     return [req.strip() for req in read(req_path).splitlines() if req.strip()]
 
 
-s3_reqs = read_reqs('requirements-s3.txt')
-azure_reqs = read_reqs('requirements-azure.txt')
-gcs_reqs = read_reqs('requirements-gcs.txt')
-hdfs_reqs = read_reqs('requirements-hdfs.txt')
+s3_reqs = read_reqs('s3.txt', folder='requirements')
+azure_reqs = read_reqs('azure.txt', folder='requirements')
+gcs_reqs = read_reqs('gcs.txt', folder='requirements')
+hdfs_reqs = read_reqs('hdfs.txt', folder='requirements')
 all_reqs = s3_reqs + azure_reqs + gcs_reqs + hdfs_reqs
-dev_reqs = read_reqs('requirements-dev.txt') + all_reqs
+dev_reqs = read_reqs('dev.txt', folder='requirements') + all_reqs
 extras_require = {
     "test": dev_reqs,
     "dev": dev_reqs,
