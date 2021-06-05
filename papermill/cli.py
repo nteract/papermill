@@ -305,7 +305,3 @@ def _is_float(value):
         return False
     else:
         return True
-
-
-if __name__ == '__main__':
-    papermill()
