@@ -304,6 +304,12 @@ class S3(object):
                 elif size != obj.content_length:
                     raise AwsError('key size unexpectedly changed while reading')
 
+                # For an empty file, 0 (first-bytes-pos) is equal to the length of the object
+                # hence the range is "unsatisfiable", and botocore correctly handles it by
+                # raising an exception. We'd rather just return with empty file contents here.
+                if size == 0:
+                    break
+
                 r = obj.get(Range="bytes={}-".format(bytes_read))
 
                 try:
