@@ -22,7 +22,7 @@ jobs:
       - uses: "actions/checkout@v2"
       - uses: "actions/setup-python@v2"
         with:
-          python-version: "${{ matrix.python-version }}"
+          python-version: ${{ matrix.python-version }}
       - name: "Install dependencies"
         run: |
           set -xe
@@ -32,12 +32,29 @@ jobs:
           python -m pip install --upgrade coverage[toml] virtualenv tox tox-gh-actions          
 
       - name: "Run tox targets for ${{ matrix.python-version }}"
-        run: "python -m tox"
+        run: python -m tox
 
       - name: "Convert coverage"
-        run: "python -m coverage xml"
+        run: python -m coverage xml
 
       - name: "Upload coverage to Codecov"
-        uses: "codecov/codecov-action@v1"
+        uses: codecov/codecov-action@v1
+
+  others:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        toxenv: ["flake8", "black", "manifest", "docs", "binder"]
+    env:
+      TOXENV: ${{ matrix.toxenv }}
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-python@v2
         with:
-          fail_ci_if_error: true
+          python-version: 3.8
+      - name: "Install dependencies"
+        run: |
+          set -xe
+          python -m pip install virtualenv tox
+      - name: "Run tox targets for ${{ matrix.toxenv }}"
+        run: python -m tox
