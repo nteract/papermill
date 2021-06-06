@@ -151,6 +151,7 @@ local_dir = os.path.dirname(os.path.abspath(__file__))
 test_bucket_name = 'test-pm-bucket'
 test_string = 'Hello'
 test_file_path = 'notebooks/s3/s3_in/s3-simple_notebook.ipynb'
+test_empty_file_path = 'notebooks/s3/s3_in/s3-empty.ipynb'
 
 with open(os.path.join(local_dir, test_file_path)) as f:
     test_nb_content = f.read()
@@ -169,10 +170,12 @@ def s3_client():
     client = boto3.client('s3')
     client.create_bucket(Bucket=test_bucket_name)
     client.put_object(Bucket=test_bucket_name, Key=test_file_path, Body=test_nb_content)
+    client.put_object(Bucket=test_bucket_name, Key=test_empty_file_path, Body='')
     yield S3()
     try:
         client.delete_object(Bucket=test_bucket_name, Key=test_file_path)
         client.delete_object(Bucket=test_bucket_name, Key=test_file_path + '.txt')
+        client.delete_object(Bucket=test_bucket_name, Key=test_empty_file_path)
     except Exception:
         pass
     mock_s3.stop()
@@ -182,6 +185,12 @@ def test_s3_read(s3_client):
     s3_path = "s3://{}/{}".format(test_bucket_name, test_file_path)
     data = read_from_gen(s3_client.read(s3_path))
     assert data == test_clean_nb_content
+
+
+def test_s3_read_empty(s3_client):
+    s3_path = "s3://{}/{}".format(test_bucket_name, test_empty_file_path)
+    data = read_from_gen(s3_client.read(s3_path))
+    assert data == ''
 
 
 def test_s3_write(s3_client):
@@ -205,5 +214,5 @@ def test_s3_listdir(s3_client):
     s3_dir = "s3://{}/{}".format(test_bucket_name, dir_name)
     s3_path = "s3://{}/{}".format(test_bucket_name, test_file_path)
     dir_listings = s3_client.listdir(s3_dir)
-    assert len(dir_listings) == 1
+    assert len(dir_listings) == 2
     assert s3_path in dir_listings
