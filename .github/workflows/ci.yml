@@ -15,6 +15,7 @@ jobs:
       USING_COVERAGE: '3.8'
 
     strategy:
+      fail-fast: false
       matrix:
         python-version: ["3.6", "3.7", "3.8", "3.9"]
 
@@ -43,6 +44,7 @@ jobs:
   others:
     runs-on: ubuntu-20.04
     strategy:
+      fail-fast: false
       matrix:
         toxenv: ["flake8", "black", "manifest", "docs", "binder"]
     env:
