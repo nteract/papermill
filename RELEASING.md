@@ -3,7 +3,7 @@
 ## Prerequisites
 
 - First check that the CHANGELOG is up to date for the next release version
-- Ensure dev requirements are installed `pip install -r requirements-dev.txt`
+- Ensure dev requirements are installed `pip install -r requirements/dev.txt`
 
 ## Push to GitHub
 

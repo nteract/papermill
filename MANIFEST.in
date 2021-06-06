@@ -7,7 +7,8 @@ recursive-include papermill *.keep
 recursive-include papermill *.txt
 
 include setup.py
-include requirements*.txt
+include requirements.txt
+recursive-include requirements *.txt
 include tox.ini
 include pytest.ini
 include README.md
