@@ -430,7 +430,7 @@ class TestCLI(unittest.TestCase):
 
 
 def papermill_cli(papermill_args=None, **kwargs):
-    cmd = [sys.executable, '-m', 'papermill.cli']
+    cmd = [sys.executable, '-m', 'papermill']
     if papermill_args:
         cmd.extend(papermill_args)
     return subprocess.Popen(cmd, **kwargs)

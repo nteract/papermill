@@ -74,7 +74,7 @@ setup(
     python_requires='>=3.6',
     install_requires=read_reqs('requirements.txt'),
     extras_require=extras_require,
-    entry_points={'console_scripts': ['papermill = papermill.cli:papermill']},
+    entry_points={'console_scripts': ['papermill = papermill.__main__:papermill']},
     project_urls={
         'Documentation': 'https://papermill.readthedocs.io',
         'Funding': 'https://nteract.io',
