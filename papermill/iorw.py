@@ -47,7 +47,7 @@ try:
 except ImportError:
     GCSFileSystem = missing_dependency_generator("gcsfs", "gcs")
 try:
-    from pyarrow import HadoopFileSystem
+    from pyarrow.fs import HadoopFileSystem
 except ImportError:
     HadoopFileSystem = missing_dependency_generator("pyarrow", "hdfs")
 
