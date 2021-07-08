@@ -29,6 +29,7 @@ try:
     from .s3 import S3
 except ImportError:
     S3 = missing_dependency_generator("boto3", "s3")
+
 try:
     from .adl import ADL
 except ImportError:
@@ -38,20 +39,23 @@ except KeyError as exc:
         ADL = missing_environment_variable_generator("azure.datalake.store", "APPDATA")
     else:
         raise
+
 try:
     from .abs import AzureBlobStore
 except ImportError:
     AzureBlobStore = missing_dependency_generator("azure.storage.blob", "azure")
+
 try:
     from gcsfs import GCSFileSystem
 except ImportError:
     GCSFileSystem = missing_dependency_generator("gcsfs", "gcs")
+
 try:
     try:
-      from pyarrow.fs import HadoopFileSystem
+        from pyarrow.fs import HadoopFileSystem
     except ImportError:
-      # Attempt the older package import pattern in case we're using an old dep version.
-      from pyarrow import HadoopFileSystem
+        # Attempt the older package import pattern in case we're using an old dep version.
+        from pyarrow import HadoopFileSystem
 except ImportError:
     HadoopFileSystem = missing_dependency_generator("pyarrow", "hdfs")
 
