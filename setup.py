@@ -43,6 +43,7 @@ s3_reqs = read_reqs('s3.txt', folder='requirements')
 azure_reqs = read_reqs('azure.txt', folder='requirements')
 gcs_reqs = read_reqs('gcs.txt', folder='requirements')
 hdfs_reqs = read_reqs('hdfs.txt', folder='requirements')
+github_reqs = read_reqs('github.txt', folder='requirements')
 all_reqs = s3_reqs + azure_reqs + gcs_reqs + hdfs_reqs
 dev_reqs = read_reqs('dev.txt', folder='requirements') + all_reqs
 extras_require = {
@@ -53,6 +54,7 @@ extras_require = {
     "azure": azure_reqs,
     "gcs": gcs_reqs,
     "hdfs": hdfs_reqs,
+    "github": github_reqs,
 }
 
 # Get the long description from the README file
