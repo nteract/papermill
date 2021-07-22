@@ -376,7 +376,10 @@ class GithubHandler(object):
     def _get_client(self):
         if self._client is None:
             token = os.environ.get('GITHUB_ACCESS_TOKEN', None)
-            self._client = Github(token)
+            if token:
+                self._client = Github(token)
+            else:
+                self._client = Github()
         return self._client
 
     def read(self, path):
