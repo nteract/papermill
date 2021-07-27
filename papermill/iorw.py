@@ -48,12 +48,16 @@ except ImportError:
     GCSFileSystem = missing_dependency_generator("gcsfs", "gcs")
 try:
     try:
-      from pyarrow.fs import HadoopFileSystem
+        from pyarrow.fs import HadoopFileSystem
     except ImportError:
-      # Attempt the older package import pattern in case we're using an old dep version.
-      from pyarrow import HadoopFileSystem
+        # Attempt the older package import pattern in case we're using an old dep version.
+        from pyarrow import HadoopFileSystem
 except ImportError:
     HadoopFileSystem = missing_dependency_generator("pyarrow", "hdfs")
+try:
+    from github import Github
+except ImportError:
+    Github = missing_dependency_generator("pygithub", "github")
 
 
 def fallback_gs_is_retriable(e):
@@ -365,6 +369,39 @@ class HDFSHandler(object):
         return path
 
 
+class GithubHandler(object):
+    def __init__(self):
+        self._client = None
+
+    def _get_client(self):
+        if self._client is None:
+            token = os.environ.get('GITHUB_ACCESS_TOKEN', None)
+            if token:
+                self._client = Github(token)
+            else:
+                self._client = Github()
+        return self._client
+
+    def read(self, path):
+        splits = path.split('/')
+        org_id = splits[3]
+        repo_id = splits[4]
+        ref_id = splits[6]
+        sub_path = '/'.join(splits[7:])
+        repo = self._get_client().get_repo(org_id + '/' + repo_id)
+        content = repo.get_contents(sub_path, ref=ref_id)
+        return content.decoded_content
+
+    def listdir(self, path):
+        raise PapermillException('listdir is not supported by GithubHandler')
+
+    def write(self, buf, path):
+        raise PapermillException('write is not supported by GithubHandler')
+
+    def pretty_path(self, path):
+        return path
+
+
 # Hack to make YAML loader not auto-convert datetimes
 # https://stackoverflow.com/a/52312810
 class NoDatesSafeLoader(yaml.SafeLoader):
@@ -384,6 +421,8 @@ papermill_io.register("http://", HttpHandler)
 papermill_io.register("https://", HttpHandler)
 papermill_io.register("gs://", GCSHandler())
 papermill_io.register("hdfs://", HDFSHandler())
+papermill_io.register("http://github.com/", GithubHandler())
+papermill_io.register("https://github.com/", GithubHandler())
 papermill_io.register_entry_points()
 
 
