@@ -7,7 +7,10 @@ from ..iorw import GCSHandler, fallback_gs_is_retriable
 
 try:
     try:
-        from gcsfs.utils import HttpError as GCSHttpError
+        try:
+            from gcsfs.retry import HttpError as GCSHttpError
+        except ImportError:
+            from gcsfs.utils import HttpError as GCSHttpError
     except ImportError:
         from gcsfs.utils import HtmlError as GCSHttpError
 except ImportError:
