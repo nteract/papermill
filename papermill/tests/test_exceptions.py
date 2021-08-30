@@ -1,4 +1,3 @@
-import os
 import pickle
 import tempfile
 
@@ -14,12 +13,30 @@ def temp_file():
     f.close()
 
 
-def test_exceptions_are_unpickleable(temp_file):
-    """Ensure Exceptions can be unpickled"""
-    err = exceptions.PapermillExecutionError(1, 2, "TestSource", "Exception", Exception(), ["Traceback", "Message"])
+@pytest.mark.parametrize(
+    "exc,args",
+    [
+        (
+            exceptions.PapermillExecutionError,
+            (1, 2, "TestSource", "Exception", Exception(), ["Traceback", "Message"]),
+        ),
+        (exceptions.PapermillMissingParameterException, ("PapermillMissingParameterException",)),
+        (exceptions.AwsError, ("AwsError",)),
+        (exceptions.FileExistsError, ("FileExistsError",)),
+        (exceptions.PapermillException, ("PapermillException",)),
+        (exceptions.PapermillRateLimitException, ("PapermillRateLimitException",)),
+        (
+            exceptions.PapermillOptionalDependencyException,
+            ("PapermillOptionalDependencyException",),
+        ),
+    ],
+)
+def test_exceptions_are_unpickleable(temp_file, exc, args):
+    """Ensure exceptions can be unpickled"""
+    err = exc(*args)
     with open(temp_file.name, 'wb') as fd:
         pickle.dump(err, fd)
-    # Read File
+    # Read the Pickled File
     temp_file.seek(0)
     data = temp_file.read()
     pickled_err = pickle.loads(data)
