@@ -23,18 +23,26 @@ class PapermillExecutionError(PapermillException):
     """Raised when an exception is encountered in a notebook."""
 
     def __init__(self, cell_index, exec_count, source, ename, evalue, traceback):
+        args = cell_index, exec_count, source, ename, evalue, traceback
         self.cell_index = cell_index
         self.exec_count = exec_count
         self.source = source
         self.ename = ename
         self.evalue = evalue
         self.traceback = traceback
-        message = "\n" + 75 * "-" + "\n"
-        message += 'Exception encountered at "In [%s]":\n' % str(exec_count)
-        message += strip_color("\n".join(traceback))
-        message += "\n"
 
-        super(PapermillExecutionError, self).__init__(message)
+        super(PapermillExecutionError, self).__init__(*args)
+
+    def __str__(self):
+        # Standard Behavior of an exception is to produce a string representation of its arguments
+        # when called with str(). In order to maintain compatability with previous versions which
+        # passed only the message to the superclass constructor, __str__ method is implemented to
+        # provide the same result as was produced in the past.
+        message = "\n" + 75 * "-" + "\n"
+        message += 'Exception encountered at "In [%s]":\n' % str(self.exec_count)
+        message += strip_color("\n".join(self.traceback))
+        message += "\n"
+        return message
 
 
 class PapermillRateLimitException(PapermillException):
