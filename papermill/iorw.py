@@ -70,8 +70,11 @@ def fallback_gs_is_retriable(e):
 
 
 try:
-    # Default to gcsfs library's retry logic
-    from gcsfs.utils import is_retriable as gs_is_retriable
+    try:
+        # Default to gcsfs library's retry logic
+        from gcsfs.retry import is_retriable as gs_is_retriable
+    except ImportError:
+        from gcsfs.utils import is_retriable as gs_is_retriable
 except ImportError:
     gs_is_retriable = fallback_gs_is_retriable
 
