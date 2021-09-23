@@ -44,7 +44,8 @@ azure_reqs = read_reqs('azure.txt', folder='requirements')
 gcs_reqs = read_reqs('gcs.txt', folder='requirements')
 hdfs_reqs = read_reqs('hdfs.txt', folder='requirements')
 github_reqs = read_reqs('github.txt', folder='requirements')
-all_reqs = s3_reqs + azure_reqs + gcs_reqs + hdfs_reqs
+black_reqs = ['black >= 19.3b0']
+all_reqs = s3_reqs + azure_reqs + gcs_reqs + hdfs_reqs + black_reqs
 dev_reqs = read_reqs('dev.txt', folder='requirements') + all_reqs
 extras_require = {
     "test": dev_reqs,
@@ -55,6 +56,7 @@ extras_require = {
     "gcs": gcs_reqs,
     "hdfs": hdfs_reqs,
     "github": github_reqs,
+    "black": black_reqs
 }
 
 # Get the long description from the README file

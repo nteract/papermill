@@ -185,11 +185,14 @@ class PythonTranslator(Translator):
     def codify(cls, parameters, comment='Parameters'):
         content = super(PythonTranslator, cls).codify(parameters, comment)
         if sys.version_info >= (3, 6):
-            # Put content through the Black Python code formatter
-            import black
+            try:
+                # Put content through the Black Python code formatter
+                import black
 
-            fm = black.FileMode(string_normalization=False)
-            content = black.format_str(content, mode=fm)
+                fm = black.FileMode(string_normalization=False)
+                content = black.format_str(content, mode=fm)
+            except ImportError:
+                logger.warning("Black is not installed, parameters wont be formatted")
         return content
 
     @classmethod
