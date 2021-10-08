@@ -45,7 +45,7 @@ pip install papermill
 ```
 
 For all optional io dependencies, you can specify individual bundles
-like `s3`, or `azure` -- or use `all`
+like `s3`, or `azure` -- or use `all`. To use Black to format parameters you can add as an extra requires ['black'].
 
 ``` {.sourceCode .bash}
 pip install papermill[all]

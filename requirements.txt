@@ -7,4 +7,3 @@ tqdm >= 4.32.2
 requests
 entrypoints
 tenacity
-black >= 19.3b0
