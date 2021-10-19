@@ -458,7 +458,9 @@ def load_notebook_node(notebook_path):
 
     """
     nb = nbformat.reads(papermill_io.read(notebook_path), as_version=4)
-    nb_upgraded = nbformat.v4.upgrade(nb)
+    version = nb.get("nbformat", 3)
+    version_minor = nb.get("nbformat_minor", 0)
+    nb_upgraded = nbformat.v4.upgrade(nb, from_version=version, from_minor=version_minor)
     if nb_upgraded is not None:
         nb = nb_upgraded
 
