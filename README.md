@@ -8,7 +8,7 @@
 [![Documentation Status](https://readthedocs.org/projects/papermill/badge/?version=latest)](http://papermill.readthedocs.io/en/latest/?badge=latest)
 [![badge](https://tinyurl.com/ybwovtw2)](https://mybinder.org/v2/gh/nteract/papermill/main?filepath=binder%2Fprocess_highlight_dates.ipynb)
 [![badge](https://tinyurl.com/y7uz2eh9)](https://mybinder.org/v2/gh/nteract/papermill/main?)
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/papermill)](https://pypi.org/project/papermill/)]
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/papermill)](https://pypi.org/project/papermill/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 [![papermill](https://snyk.io/advisor/python/papermill/badge.svg)](https://snyk.io/advisor/python/papermill)
 
