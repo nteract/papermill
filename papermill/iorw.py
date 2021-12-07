@@ -138,7 +138,7 @@ class PapermillIO(object):
             fnmatch.fnmatch(os.path.basename(path).split('?')[0], '*' + ext) for ext in extensions
         ):
             warnings.warn(
-                "The specified input file ({}) does not end in one of {}".format(path, extensions)
+                "The specified output file ({}) does not end in one of {}".format(path, extensions)
             )
         return self.get_handler(path).write(buf, path)
 
