@@ -56,7 +56,7 @@ extras_require = {
     "gcs": gcs_reqs,
     "hdfs": hdfs_reqs,
     "github": github_reqs,
-    "black": black_reqs
+    "black": black_reqs,
 }
 
 # Get the long description from the README file
@@ -96,6 +96,7 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9'
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
     ],
 )
