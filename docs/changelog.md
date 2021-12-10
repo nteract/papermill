@@ -2,8 +2,19 @@
 
 ## Unreleased
 
+## 2.3.4
+
+- Add read handler for GitHub notebooks [PR #622](https://github.com/nteract/papermill/pull/622)
 - Add GitHub Actions for CI
-- Builds updated for python 3.9
+
+- Update builds for python 3.9 and 3.10
+- Update file read to not fail early with boto empty file exception [PR #614](https://github.com/nteract/papermill/pull/614)
+- Support new version of gcsfs [PR #624](https://github.com/nteract/papermill/pull/624)
+- Fix an issue where the `PapermillExecutionError` can be pickled but will
+not be unpicklable [PR #629](https://github.com/nteract/papermill/pull/624)
+- Update documentation build and theme
+
+- Remove deprecated `pyarrow.hdfs.connect` call from `iorw.py` [PR #615](https://github.com/nteract/papermill/pull/615)
 - Remove support for python 3.5
 - Remove travis CI
 
