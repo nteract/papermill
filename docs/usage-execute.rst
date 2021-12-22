@@ -114,7 +114,7 @@ Note about using with multiple account credentials
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 If you use multiple AWS accounts and are accessing S3 files, you can
-[configure your AWS  credentials](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/configuration.html),
+`configure your AWS credentials <https://boto3.amazonaws.com/v1/documentation/api/latest/guide/configuration.html>`__,
 to specify which account to use by setting the `AWS_PROFILE` environment
 variable at the command-line. For example:
 
