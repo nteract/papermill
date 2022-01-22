@@ -12,12 +12,12 @@ jobs:
     name: "Python ${{ matrix.python-version }}"
     runs-on: "ubuntu-latest"
     env:
-      USING_COVERAGE: '3.8'
+      USING_COVERAGE: '3.8,3.9,3.10'
 
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.6", "3.7", "3.8", "3.9"]
+        python-version: ["3.6", "3.7", "3.8", "3.9", "3.10"]
 
     steps:
       - uses: "actions/checkout@v2"
@@ -35,7 +35,8 @@ jobs:
       - name: "Run tox targets for ${{ matrix.python-version }}"
         run: python -m tox
 
-      - name: "Convert coverage"
+      - name: "Generate coverage XML"
+        if: "contains(env.USING_COVERAGE, matrix.python-version)"
         run: python -m coverage xml
 
       - name: "Upload coverage to Codecov"
