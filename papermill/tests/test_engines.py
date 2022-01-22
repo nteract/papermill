@@ -81,15 +81,16 @@ class TestNotebookExecutionManager(unittest.TestCase):
         nb_man = NotebookExecutionManager(self.nb)
         nb_man.save(nb=self.foo_nb)
         self.assertEqual(nb_man.nb.metadata['foo'], 'bar')
-    
+
     def test_get_cell_description(self):
         nb_man = NotebookExecutionManager(self.nb)
         self.assertIsNone(nb_man.get_cell_description(nb_man.nb.cells[0]))
         self.assertEqual(nb_man.get_cell_description(nb_man.nb.cells[1]), 'DESC')
-        
+
     def test_notebook_start(self):
         nb_man = NotebookExecutionManager(self.nb)
-        nb_man.nb_path.metadata['foo'] = 'bar'
+        nb_man.nb.metadata['foo'] = 'bar'
+        nb_man.save = Mock()
         nb_man.notebook_start()
 
         self.assertEqual(nb_man.nb.metadata.papermill['start_time'], nb_man.start_time.isoformat())
