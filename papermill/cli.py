@@ -103,12 +103,12 @@ def print_papermill_version(ctx, param, value):
 @click.option(
     '--kernel',
     '-k',
-    help='Name of kernel to run. Ignores kernel name in the notebook document metadata.'
+    help='Name of kernel to run. Ignores kernel name in the notebook document metadata.',
 )
 @click.option(
     '--language',
     '-l',
-    help='Language for notebook execution. Ignores language in the notebook document metadata.'
+    help='Language for notebook execution. Ignores language in the notebook document metadata.',
 )
 @click.option('--cwd', default=None, help='Working directory to run notebook in.')
 @click.option(

@@ -135,12 +135,8 @@ class TestCLI(unittest.TestCase):
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_parameters_file(self, execute_patch):
-        self.runner.invoke(
-            papermill,
-            self.default_args + [
-                '-f', self.sample_yaml_file, '--parameters_file', self.sample_json_file
-            ],
-        )
+        extra_args = ['-f', self.sample_yaml_file, '--parameters_file', self.sample_json_file]
+        self.runner.invoke(papermill, self.default_args + extra_args)
         execute_patch.assert_called_with(
             **self.augment_execute_kwargs(
                 # Last input wins dict update
@@ -220,15 +216,13 @@ class TestCLI(unittest.TestCase):
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_parameters_base64(self, execute_patch):
-        self.runner.invoke(
-            papermill,
-            self.default_args + [
-                '--parameters_base64',
-                'eyJmb28iOiAicmVwbGFjZWQiLCAiYmFyIjogMn0=',
-                '-b',
-                'eydmb28nOiAxfQ==',
-            ],
-        )
+        extra_args = [
+            '--parameters_base64',
+            'eyJmb28iOiAicmVwbGFjZWQiLCAiYmFyIjogMn0=',
+            '-b',
+            'eydmb28nOiAxfQ==',
+        ]
+        self.runner.invoke(papermill, self.default_args + extra_args)
         execute_patch.assert_called_with(
             **self.augment_execute_kwargs(parameters={'foo': 1, 'bar': 2})
         )
@@ -373,36 +367,37 @@ class TestCLI(unittest.TestCase):
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_many_args(self, execute_patch):
+        extra_args = [
+            '-f',
+            self.sample_yaml_file,
+            '-y',
+            '{"yaml_foo": {"yaml_bar": "yaml_baz"}}',
+            '-b',
+            'eyJiYXNlNjRfZm9vIjogImJhc2U2NF9iYXIifQ==',
+            '-p',
+            'baz',
+            'replace',
+            '-r',
+            'foo',
+            '54321',
+            '--kernel',
+            'R',
+            '--engine',
+            'engine-that-could',
+            '--prepare-only',
+            '--log-output',
+            '--autosave-cell-every',
+            '17',
+            '--no-progress-bar',
+            '--start-timeout',
+            '321',
+            '--execution-timeout',
+            '654',
+            '--report-mode',
+        ]
         self.runner.invoke(
             papermill,
-            self.default_args + [
-                '-f',
-                self.sample_yaml_file,
-                '-y',
-                '{"yaml_foo": {"yaml_bar": "yaml_baz"}}',
-                '-b',
-                'eyJiYXNlNjRfZm9vIjogImJhc2U2NF9iYXIifQ==',
-                '-p',
-                'baz',
-                'replace',
-                '-r',
-                'foo',
-                '54321',
-                '--kernel',
-                'R',
-                '--engine',
-                'engine-that-could',
-                '--prepare-only',
-                '--log-output',
-                '--autosave-cell-every',
-                '17',
-                '--no-progress-bar',
-                '--start-timeout',
-                '321',
-                '--execution-timeout',
-                '654',
-                '--report-mode',
-            ],
+            self.default_args + extra_args,
         )
         execute_patch.assert_called_with(
             **self.augment_execute_kwargs(

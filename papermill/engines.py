@@ -336,7 +336,7 @@ class Engine(object):
         progress_bar=True,
         log_output=False,
         autosave_cell_every=30,
-        **kwargs
+        **kwargs,
     ):
         """
         A wrapper to handle notebook execution tasks.
@@ -387,7 +387,7 @@ class NBClientEngine(Engine):
         stderr_file=None,
         start_timeout=60,
         execution_timeout=None,
-        **kwargs
+        **kwargs,
     ):
         """
         Performs the actual execution of the parameterized notebook locally.

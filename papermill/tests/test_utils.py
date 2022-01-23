@@ -18,12 +18,16 @@ from ..exceptions import PapermillParameterOverwriteWarning
 
 
 def test_no_tagged_cell():
-    nb = new_notebook(cells=[new_code_cell('a = 2', metadata={"tags": []})],)
+    nb = new_notebook(
+        cells=[new_code_cell('a = 2', metadata={"tags": []})],
+    )
     assert not any_tagged_cell(nb, "parameters")
 
 
 def test_tagged_cell():
-    nb = new_notebook(cells=[new_code_cell('a = 2', metadata={"tags": ["parameters"]})],)
+    nb = new_notebook(
+        cells=[new_code_cell('a = 2', metadata={"tags": ["parameters"]})],
+    )
     assert any_tagged_cell(nb, "parameters")
 
 

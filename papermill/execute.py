@@ -179,11 +179,7 @@ ERROR_ANCHOR_MSG = (
 
 def remove_error_markers(nb):
     nb = copy.deepcopy(nb)
-    nb.cells = [
-        cell
-        for cell in nb.cells
-        if ERROR_MARKER_TAG not in cell.metadata.get("tags", [])
-    ]
+    nb.cells = [cell for cell in nb.cells if ERROR_MARKER_TAG not in cell.metadata.get("tags", [])]
     return nb
 
 

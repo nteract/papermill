@@ -162,8 +162,7 @@ class TestBrokenNotebook1(unittest.TestCase):
         nb = load_notebook_node(result_path)
         self.assertEqual(nb.cells[0].cell_type, "markdown")
         self.assertRegex(
-            nb.cells[0].source,
-            r'^<span .*<a href="#papermill-error-cell".*In \[2\].*</span>$'
+            nb.cells[0].source, r'^<span .*<a href="#papermill-error-cell".*In \[2\].*</span>$'
         )
         self.assertEqual(nb.cells[0].metadata["tags"], ["papermill-error-cell-tag"])
 
@@ -182,8 +181,7 @@ class TestBrokenNotebook1(unittest.TestCase):
 
         # double check the removal (the new cells above should be the only two tagged ones)
         self.assertEqual(
-            sum("papermill-error-cell-tag" in cell.metadata.get("tags", []) for cell in nb.cells),
-            2
+            sum("papermill-error-cell-tag" in cell.metadata.get("tags", []) for cell in nb.cells), 2
         )
 
 
@@ -202,8 +200,7 @@ class TestBrokenNotebook2(unittest.TestCase):
         nb = load_notebook_node(result_path)
         self.assertEqual(nb.cells[0].cell_type, "markdown")
         self.assertRegex(
-            nb.cells[0].source,
-            r'^<span .*<a href="#papermill-error-cell">.*In \[2\].*</span>$'
+            nb.cells[0].source, r'^<span .*<a href="#papermill-error-cell">.*In \[2\].*</span>$'
         )
         self.assertEqual(nb.cells[1].execution_count, 1)
 
@@ -333,8 +330,7 @@ class TestSysExit(unittest.TestCase):
         nb = load_notebook_node(result_path)
         self.assertEqual(nb.cells[0].cell_type, "markdown")
         self.assertRegex(
-            nb.cells[0].source,
-            r'^<span .*<a href="#papermill-error-cell".*In \[2\].*</span>$'
+            nb.cells[0].source, r'^<span .*<a href="#papermill-error-cell".*In \[2\].*</span>$'
         )
         self.assertEqual(nb.cells[1].execution_count, 1)
 

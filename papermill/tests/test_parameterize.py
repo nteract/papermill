@@ -77,8 +77,9 @@ class TestNotebookParametrizing(unittest.TestCase):
 
     def test_custom_comment(self):
         test_nb = load_notebook_node(get_notebook_path("simple_execute.ipynb"))
-        test_nb = parameterize_notebook(test_nb, {'msg': 'Hello'},
-                                        comment='This is a custom comment')
+        test_nb = parameterize_notebook(
+            test_nb, {'msg': 'Hello'}, comment='This is a custom comment'
+        )
 
         cell_one = test_nb.cells[1]
         first_line = cell_one['source'].split('\n')[0]
