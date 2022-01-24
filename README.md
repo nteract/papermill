@@ -11,6 +11,7 @@
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/papermill)](https://pypi.org/project/papermill/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 [![papermill](https://snyk.io/advisor/python/papermill/badge.svg)](https://snyk.io/advisor/python/papermill)
+[![Anaconda-Server Badge](https://anaconda.org/conda-forge/papermill/badges/downloads.svg)](https://anaconda.org/conda-forge/papermill)
 
 **papermill** is a tool for parameterizing, executing, and analyzing
 Jupyter Notebooks.
