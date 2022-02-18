@@ -123,3 +123,37 @@ variable at the command-line. For example:
     $ AWS_PROFILE=dev_account papermill local/input.ipynb s3://bkt/output.ipynb -p alpha 0.6 -p l1_ratio 0.1
 
 A similar pattern may be needed for other types of remote storage accounts.
+
+Tracking the Execution with Cell Descriptions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+If you want to keep track of the execution in a closer way, you can add cell descriptions to the notebook being executed that will be injected to the TQDM progress bar. 
+
+Here is an example of the TQDM output during the execution of a 4-cells notebook without cell descriptions:
+
+.. code-block:: bash
+
+    10:10 # papermill input_notebook.ipynb output_notebook.ipynb 
+    Input Notebook:  input_notebook.ipynb
+    Output Notebook: output_notebook.ipynb
+    Executing:   0%|                                                                    | 0/4 [00:00<?, ?cell/s]Executing 
+    Executing:  25%|█████████                                                           | 1/4 [00:00<?, ?cell/s]Executing
+    [...]
+
+You can inject cell descriptions by adding a comment with the following formatting at the very beginning of each cell you are interested in:
+
+.. code-block:: bash
+
+    #papermill_description=TQDM_DESCRIPTION
+
+In this way, when the execution will reach the cell tagged with the description, the TQDM progress bar will show the string TQDM_DESCRIPTION. Please be careful: the comment must not contain any space, otherwise it will be ignored.
+
+Taking back our previous example, if we add the description 'FirstCell' to cell 0 and the description 'SecondCell' to the cell 1 we will get the TQDM to display the following information:
+
+.. code-block:: bash
+
+    10:12 # papermill input_notebook.ipynb output_notebook.ipynb 
+    Input Notebook:  input_notebook.ipynb
+    Output Notebook: output_notebook.ipynb
+    Executing FirstCell:   0%|                                                          | 0/4 [00:00<?, ?cell/s]Executing 
+    Executing SecondCell:  25%|█████████                                                 | 1/4 [00:00<?, ?cell/s]Executing
+    [...]
