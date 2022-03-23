@@ -358,7 +358,7 @@ class HDFSHandler(object):
 
     def _get_client(self):
         if self._client is None:
-            self._client = HadoopFileSystem()
+            self._client = HadoopFileSystem(host="default")
         return self._client
 
     def read(self, path):
