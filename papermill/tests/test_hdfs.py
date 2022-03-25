@@ -3,6 +3,7 @@ from unittest.mock import MagicMock, patch
 
 from ..iorw import HDFSHandler
 
+
 class MockHadoopFileSystem(MagicMock):
     def get_file_info(self, path):
         return [MockFileInfo('test1.ipynb'), MockFileInfo('test2.ipynb')]
