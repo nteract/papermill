@@ -51,13 +51,10 @@ except ImportError:
     GCSFileSystem = missing_dependency_generator("gcsfs", "gcs")
 
 try:
-    try:
-        from pyarrow.fs import HadoopFileSystem
-    except ImportError:
-        # Attempt the older package import pattern in case we're using an old dep version.
-        from pyarrow import HadoopFileSystem
+    from pyarrow.fs import HadoopFileSystem, FileSelector
 except ImportError:
     HadoopFileSystem = missing_dependency_generator("pyarrow", "hdfs")
+
 try:
     from github import Github
 except ImportError:
@@ -362,14 +359,14 @@ class HDFSHandler(object):
         return self._client
 
     def read(self, path):
-        with self._get_client().open(path, 'rb') as f:
+        with self._get_client().open_input_stream(path) as f:
             return f.read()
 
     def listdir(self, path):
-        return self._get_client().ls(path)
+        return [f.path for f in self._get_client().get_file_info(FileSelector(path))]
 
     def write(self, buf, path):
-        with self._get_client().open(path, 'wb') as f:
+        with self._get_client().open_output_stream(path) as f:
             return f.write(str.encode(buf))
 
     def pretty_path(self, path):
