@@ -5,12 +5,14 @@ from ..iorw import HDFSHandler
 
 
 class MockHadoopFileSystem(MagicMock):
-    def ls(self, path):
-        return ['test1.ipynb', 'test2.ipynb']
+    def get_file_info(self, path):
+        return [MockFileInfo('test1.ipynb'), MockFileInfo('test2.ipynb')]
 
-    def open(self, path, *args):
+    def open_input_stream(self, path):
         return MockHadoopFile()
 
+    def open_output_stream(self, path):
+        return MockHadoopFile()
 
 class MockHadoopFile(object):
     def __init__(self):
@@ -28,6 +30,10 @@ class MockHadoopFile(object):
     def write(self, new_content):
         self._content = new_content
         return 1
+
+class MockFileInfo(object):
+    def __init__(self, path):
+        self.path = path
 
 
 @patch('papermill.iorw.HadoopFileSystem', side_effect=MockHadoopFileSystem())

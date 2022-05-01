@@ -1,1 +1,1 @@
-pyarrow
+pyarrow >= 2.0
