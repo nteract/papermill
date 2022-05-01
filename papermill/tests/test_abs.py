@@ -50,6 +50,15 @@ class ABSTest(unittest.TestCase):
         self.assertEqual(params["blob"], "sasblob.txt")
         self.assertEqual(params["sas_token"], "sastoken")
 
+    def test_split_url_splits_valid_url_with_prefix(self):
+        params = AzureBlobStore._split_url(
+            "abs://myaccount.blob.core.windows.net/sascontainer/A/B/sasblob.txt?sastoken"
+        )
+        self.assertEqual(params["account"], "myaccount")
+        self.assertEqual(params["container"], "sascontainer")
+        self.assertEqual(params["blob"], "A/B/sasblob.txt")
+        self.assertEqual(params["sas_token"], "sastoken")
+
     def test_listdir_calls(self):
         self.assertEqual(
             self.abs.listdir(
