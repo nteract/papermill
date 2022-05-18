@@ -14,6 +14,7 @@ class MockHadoopFileSystem(MagicMock):
     def open_output_stream(self, path):
         return MockHadoopFile()
 
+
 class MockHadoopFile(object):
     def __init__(self):
         self._content = b'Content of notebook'
@@ -30,6 +31,7 @@ class MockHadoopFile(object):
     def write(self, new_content):
         self._content = new_content
         return 1
+
 
 class MockFileInfo(object):
     def __init__(self, path):
