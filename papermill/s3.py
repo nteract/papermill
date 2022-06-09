@@ -270,7 +270,7 @@ class S3(object):
         self,
         source,
         buffersize=None,
-        memsize=2 ** 24,
+        memsize=2**24,
         compressed=False,
         encoding='UTF-8',
         raw=False,
@@ -297,7 +297,7 @@ class S3(object):
             # try to read the file multiple times
             for i in range(100):
                 obj = self.s3.Object(key.bucket.name, key.name)
-                buffersize = buffersize if buffersize is not None else 2 ** 20
+                buffersize = buffersize if buffersize is not None else 2**20
 
                 if not size:
                     size = obj.content_length
