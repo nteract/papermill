@@ -12,7 +12,7 @@ from nbformat import validate
 try:
     from unittest.mock import patch
 except ImportError:
-    from mock import patch
+    from unittest.mock import patch
 
 from .. import engines
 from ..log import logger

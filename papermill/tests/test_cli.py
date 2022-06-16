@@ -17,7 +17,7 @@ import unittest
 import pytest
 from click.testing import CliRunner
 
-from mock import patch
+from unittest.mock import patch
 
 from . import get_notebook_path, kernel_name
 from .. import cli
