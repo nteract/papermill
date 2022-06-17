@@ -3,8 +3,7 @@ import os
 import tempfile
 import time
 import unittest
-
-from mock import patch
+from unittest.mock import patch
 
 from . import get_notebook_path
 

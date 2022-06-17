@@ -1,7 +1,7 @@
 import nbformat
 import unittest
 
-from mock import call, patch
+from unittest.mock import call, patch
 
 from . import get_notebook_path
 

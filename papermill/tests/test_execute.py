@@ -3,16 +3,12 @@ import io
 import shutil
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from functools import partial
 from pathlib import Path
 
 from nbformat import validate
-
-try:
-    from unittest.mock import patch
-except ImportError:
-    from mock import patch
 
 from .. import engines
 from ..log import logger

@@ -13,11 +13,10 @@ import nbclient
 import nbformat
 from jupyter_client import kernelspec
 import unittest
+from unittest.mock import patch
 
 import pytest
 from click.testing import CliRunner
-
-from mock import patch
 
 from . import get_notebook_path, kernel_name
 from .. import cli

@@ -3,7 +3,7 @@ import dateutil
 import unittest
 
 from abc import ABCMeta
-from mock import Mock, patch, call
+from unittest.mock import Mock, patch, call
 from nbformat.notebooknode import NotebookNode
 
 from . import get_notebook_path
