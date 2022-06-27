@@ -230,6 +230,13 @@ class TestReportMode(unittest.TestCase):
                 self.assertEqual(cell.metadata.get('jupyter', {}).get('source_hidden'), True)
 
 
+class TestOutputPathNone(unittest.TestCase):
+    def test_output_path_of_none(self):
+        """Output path of None should return notebook node obj but not write an ipynb"""
+        nb = execute_notebook(get_notebook_path('simple_execute.ipynb'), None, {'msg': 'Hello'})
+        self.assertEqual(nb.metadata.papermill.parameters, {'msg': 'Hello'})
+
+
 class TestCWD(unittest.TestCase):
     def setUp(self):
         self.test_dir = tempfile.mkdtemp()
