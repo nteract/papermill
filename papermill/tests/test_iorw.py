@@ -17,6 +17,7 @@ from ..iorw import (
     LocalHandler,
     NoIOHandler,
     ADLHandler,
+    StreamHandler,
     PapermillIO,
     read_yaml_file,
     papermill_io,
@@ -343,3 +344,30 @@ class TestHttpHandler(unittest.TestCase):
 
         with self.assertRaises(ConnectionError):
             HttpHandler.write(buf, path)
+
+
+class TestStreamHandler(unittest.TestCase):
+    @patch('sys.stdin', io.StringIO('mock stream'))
+    def test_read_from_stdin(self):
+        result = StreamHandler().read('foo')
+        self.assertEqual(result, 'mock stream')
+
+    def test_raises_on_listdir(self):
+        with self.assertRaises(PapermillException):
+            StreamHandler().listdir(None)
+
+    @patch('sys.stdout')
+    def test_write_to_stdout_buffer(self, mock_stdout):
+        mock_stdout.buffer = io.BytesIO()
+        StreamHandler().write('mock stream', 'foo')
+        self.assertEqual(mock_stdout.buffer.getbuffer(), 'mock stream'.encode('utf-8'))
+
+    @patch('sys.stdout', new_callable=io.BytesIO)
+    def test_write_to_stdout(self, mock_stdout):
+        StreamHandler().write('mock stream', 'foo')
+        self.assertEqual(mock_stdout.getbuffer(), 'mock stream'.encode('utf-8'))
+
+    def test_pretty_path_returns_input_path(self):
+        '''Should return the input str, which often is the default registered schema "-"
+        '''
+        self.assertEqual(StreamHandler().pretty_path('foo'), 'foo')
