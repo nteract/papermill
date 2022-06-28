@@ -124,7 +124,7 @@ class PapermillIO(object):
             self.register(entrypoint.name, entrypoint.load())
 
     def get_handler(self, path, extensions=None):
-        """Get I/O Handler based on a notebook path
+        '''Get I/O Handler based on a notebook path
 
         Parameters
         ----------
@@ -141,7 +141,7 @@ class PapermillIO(object):
         Returns
         -------
         I/O Handler
-        """
+        '''
         if path is None:
             return NoIOHandler()
 
@@ -410,6 +410,7 @@ class GithubHandler(object):
 
 
 class StreamHandler(object):
+    '''Handler for Stdin/Stdout streams'''
     def read(self, path):
         return sys.stdin.read()
 
@@ -429,6 +430,7 @@ class StreamHandler(object):
 
 
 class NotebookNodeHandler(object):
+    '''Handler for input_path of nbformat.NotebookNode object'''
     def read(self, path):
         return nbformat.writes(path)
 
