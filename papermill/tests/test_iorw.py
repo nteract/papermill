@@ -17,6 +17,7 @@ from ..iorw import (
     LocalHandler,
     NoIOHandler,
     ADLHandler,
+    NotebookNodeHandler,
     StreamHandler,
     PapermillIO,
     read_yaml_file,
@@ -24,6 +25,7 @@ from ..iorw import (
     local_file_io_cwd,
 )
 from ..exceptions import PapermillException
+from . import get_notebook_path
 
 FIXTURE_PATH = os.path.join(os.path.dirname(__file__), 'fixtures')
 
@@ -368,6 +370,31 @@ class TestStreamHandler(unittest.TestCase):
         self.assertEqual(mock_stdout.getbuffer(), 'mock stream'.encode('utf-8'))
 
     def test_pretty_path_returns_input_path(self):
-        '''Should return the input str, which often is the default registered schema "-"
-        '''
+        '''Should return the input str, which often is the default registered schema "-"'''
         self.assertEqual(StreamHandler().pretty_path('foo'), 'foo')
+
+
+class TestNotebookNodeHandler(unittest.TestCase):
+    def test_read_notebook_node(self):
+        input_nb = nbformat.read(get_notebook_path('test_notebooknode_io.ipynb'), as_version=4)
+        result = NotebookNodeHandler().read(input_nb)
+        expect = (
+            '{\n "cells": [\n  {\n   "cell_type": "code",\n   "execution_count": null,'
+            '\n   "metadata": {},\n   "outputs": [],\n   "source": ['
+            '\n    "print(\'Hello World\')"\n   ]\n  }\n ],\n "metadata": {'
+            '\n  "kernelspec": {\n   "display_name": "Python 3",\n   "language": "python",'
+            '\n   "name": "python3"\n  }\n },\n "nbformat": 4,\n "nbformat_minor": 2\n}'
+        )
+        self.assertEqual(result, expect)
+
+    def test_raises_on_listdir(self):
+        with self.assertRaises(PapermillException):
+            NotebookNodeHandler().listdir('foo')
+
+    def test_raises_on_write(self):
+        with self.assertRaises(PapermillException):
+            NotebookNodeHandler().write('foo', 'bar')
+
+    def test_pretty_path(self):
+        expect = 'NotebookNode object'
+        self.assertEqual(NotebookNodeHandler().pretty_path('foo'), expect)
