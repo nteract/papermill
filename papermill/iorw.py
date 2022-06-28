@@ -441,7 +441,7 @@ class NotebookNodeHandler(object):
         raise PapermillException('write is not supported by NotebookNode Handler')
 
     def pretty_path(self, path):
-        return "NotebookNode object"
+        return 'NotebookNode object'
 
 
 class NoIOHandler(object):
