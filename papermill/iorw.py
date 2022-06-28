@@ -124,6 +124,8 @@ class PapermillIO(object):
             self.register(entrypoint.name, entrypoint.load())
 
     def get_handler(self, path, extensions=['.ipynb', '.json']):
+        if path is None:
+            return NoIOHandler()
 
         if isinstance(path, nbformat.NotebookNode):
             return NotebookNodeHandler()
@@ -418,6 +420,21 @@ class NotebookNodeHandler(object):
 
     def pretty_path(self, path):
         return "NotebookNode object"
+
+class NoIOHandler(object):
+    '''Handler for output_path of None - intended to not write anything'''
+
+    def read(self, path):
+        raise PapermillException('read is not supported by NoIOHandler')
+
+    def listdir(self, path):
+        raise PapermillException('listdir is not supported by NoIOHandler')
+
+    def write(self, buf, path):
+        return
+
+    def pretty_path(self, path):
+        return 'Notebook will not be saved'
 
 
 # Hack to make YAML loader not auto-convert datetimes

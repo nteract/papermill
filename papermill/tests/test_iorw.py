@@ -15,6 +15,7 @@ from .. import iorw
 from ..iorw import (
     HttpHandler,
     LocalHandler,
+    NoIOHandler,
     ADLHandler,
     PapermillIO,
     read_yaml_file,
@@ -90,6 +91,9 @@ class TestPapermillIO(unittest.TestCase):
         self.papermill_io.register("local", self.fake2)
         self.assertEqual(self.papermill_io.get_handler("dne"), self.fake2)
 
+    def test_get_no_io_handler(self):
+        self.assertIsInstance(self.papermill_io.get_handler(None), NoIOHandler)
+
     def test_entrypoint_register(self):
 
         fake_entrypoint = Mock(load=Mock())
@@ -162,6 +166,9 @@ class TestPapermillIO(unittest.TestCase):
     def test_write_with_no_file_extension(self):
         with pytest.warns(UserWarning):
             self.papermill_io.write("buffer", "fake/path")
+
+    def test_write_with_path_of_none(self):
+        self.assertIsNone(self.papermill_io.write('buffer', None))
 
     def test_write_with_invalid_file_extension(self):
         with pytest.warns(UserWarning):
@@ -244,6 +251,23 @@ class TestLocalHandler(unittest.TestCase):
         # be a file and an IOError will be raised
         with self.assertRaises(IOError):
             LocalHandler().read("a random string")
+
+
+class TestNoIOHandler(unittest.TestCase):
+    def test_raises_on_read(self):
+        with self.assertRaises(PapermillException):
+            NoIOHandler().read(None)
+
+    def test_raises_on_listdir(self):
+        with self.assertRaises(PapermillException):
+            NoIOHandler().listdir(None)
+
+    def test_write_returns_none(self):
+        self.assertIsNone(NoIOHandler().write('buf', None))
+
+    def test_pretty_path(self):
+        expect = 'Notebook will not be saved'
+        self.assertEqual(NoIOHandler().pretty_path(None), expect)
 
 
 class TestADLHandler(unittest.TestCase):

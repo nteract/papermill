@@ -166,3 +166,7 @@ class TestPathParameterizing(unittest.TestCase):
         with self.assertRaises(PapermillMissingParameterException) as context:
             parameterize_path("{foo}", None)
         self.assertEqual(str(context.exception), "Missing parameter 'foo'")
+
+    def test_path_of_none_returns_none(self):
+        self.assertIsNone(parameterize_path(path=None, parameters={'foo': 'bar'}))
+        self.assertIsNone(parameterize_path(path=None, parameters=None))

@@ -36,8 +36,8 @@ def execute_notebook(
     ----------
     input_path : str or Path
         Path to input notebook
-    output_path : str or Path
-        Path to save executed notebook
+    output_path : str or Path or None
+        Path to save executed notebook. If None, no file will be saved
     parameters : dict, optional
         Arbitrary keyword arguments to pass to the notebook parameters
     engine_name : str, optional
