@@ -34,8 +34,8 @@ def execute_notebook(
 
     Parameters
     ----------
-    input_path : str or Path
-        Path to input notebook
+    input_path : str or Path or nbformat.NotebookNode
+        Path to input notebook or NotebookNode object of notebook
     output_path : str or Path or None
         Path to save executed notebook. If None, no file will be saved
     parameters : dict, optional
