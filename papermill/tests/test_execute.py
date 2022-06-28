@@ -399,5 +399,6 @@ class TestNotebookNodeInput(unittest.TestCase):
 
     def test_notebook_node_input(self):
         input_nb = nbformat.read(get_notebook_path('simple_execute.ipynb'), as_version=4)
-        test_nb = execute_notebook(input_nb, self.result_path, {'msg': 'Hello'})
+        execute_notebook(input_nb, self.result_path, {'msg': 'Hello'})
+        test_nb = nbformat.read(self.result_path, as_version=4)
         self.assertEqual(test_nb.metadata.papermill.parameters, {'msg': 'Hello'})
