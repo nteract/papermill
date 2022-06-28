@@ -414,7 +414,7 @@ class StreamHandler(object):
         return sys.stdin.read()
 
     def listdir(self, path):
-        raise PapermillException('listdir is not supported by Stdin/Stdout')
+        raise PapermillException('listdir is not supported by Stream Handler')
 
     def write(self, buf, path):
         try:
@@ -440,6 +440,7 @@ class NotebookNodeHandler(object):
 
     def pretty_path(self, path):
         return "NotebookNode object"
+
 
 class NoIOHandler(object):
     '''Handler for output_path of None - intended to not write anything'''
