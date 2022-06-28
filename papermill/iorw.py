@@ -123,23 +123,43 @@ class PapermillIO(object):
         for entrypoint in entrypoints.get_group_all("papermill.io"):
             self.register(entrypoint.name, entrypoint.load())
 
-    def get_handler(self, path, extensions=['.ipynb', '.json']):
+    def get_handler(self, path, extensions=None):
+        """Get I/O Handler based on a notebook path
+
+        Parameters
+        ----------
+        path : str or nbformat.NotebookNode or None
+        extensions : list of str, optional
+            Required file extension options for the path (if path is a string), which
+            will log a warning if there is no match. Defaults to None, which does not
+            check for any extensions
+
+        Raises
+        ------
+        PapermillException: If a valid I/O handler could not be found for the input path
+
+        Returns
+        -------
+        I/O Handler
+        """
         if path is None:
             return NoIOHandler()
 
         if isinstance(path, nbformat.NotebookNode):
             return NotebookNodeHandler()
 
-        if not fnmatch.fnmatch(os.path.basename(path).split('?')[0], '*.*'):
-            warnings.warn(
-                "the file is not specified with any extension : " + os.path.basename(path)
-            )
-        elif not any(
-            fnmatch.fnmatch(os.path.basename(path).split('?')[0], '*' + ext) for ext in extensions
-        ):
-            warnings.warn(
-                "The specified file ({}) does not end in one of {}".format(path, extensions)
-            )
+        if extensions:
+            if not fnmatch.fnmatch(os.path.basename(path).split('?')[0], '*.*'):
+                warnings.warn(
+                    "the file is not specified with any extension : " + os.path.basename(path)
+                )
+            elif not any(
+                fnmatch.fnmatch(os.path.basename(path).split('?')[0], '*' + ext)
+                for ext in extensions
+            ):
+                warnings.warn(
+                    "The specified file ({}) does not end in one of {}".format(path, extensions)
+                )
 
         local_handler = None
         for scheme, handler in self._handlers:
