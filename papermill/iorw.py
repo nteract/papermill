@@ -96,48 +96,14 @@ class PapermillIO(object):
         self.reset()
 
     def read(self, path, extensions=['.ipynb', '.json']):
-        if path == '-':
-            return sys.stdin.read()
-
-        if not fnmatch.fnmatch(os.path.basename(path).split('?')[0], '*.*'):
-            warnings.warn(
-                "the file is not specified with any extension : " + os.path.basename(path)
-            )
-        elif not any(
-            fnmatch.fnmatch(os.path.basename(path).split('?')[0], '*' + ext) for ext in extensions
-        ):
-            warnings.warn(
-                "The specified input file ({}) does not end in one of {}".format(path, extensions)
-            )
         # Handle https://github.com/nteract/papermill/issues/317
-        notebook_metadata = self.get_handler(path).read(path)
+        notebook_metadata = self.get_handler(path, extensions).read(path)
         if isinstance(notebook_metadata, (bytes, bytearray)):
             return notebook_metadata.decode('utf-8')
         return notebook_metadata
 
     def write(self, buf, path, extensions=['.ipynb', '.json']):
-        if path == '-':
-            try:
-                return sys.stdout.buffer.write(buf.encode('utf-8'))
-            except AttributeError:
-                # Originally required by https://github.com/nteract/papermill/issues/420
-                # Support Buffer.io objects
-                return sys.stdout.write(buf.encode('utf-8'))
-
-            return sys.stdout.buffer.write(buf.encode('utf-8'))
-
-        # Usually no return object here
-        if not fnmatch.fnmatch(os.path.basename(path).split('?')[0], '*.*'):
-            warnings.warn(
-                "the file is not specified with any extension : " + os.path.basename(path)
-            )
-        elif not any(
-            fnmatch.fnmatch(os.path.basename(path).split('?')[0], '*' + ext) for ext in extensions
-        ):
-            warnings.warn(
-                "The specified output file ({}) does not end in one of {}".format(path, extensions)
-            )
-        return self.get_handler(path).write(buf, path)
+        return self.get_handler(path, extensions).write(buf, path)
 
     def listdir(self, path):
         return self.get_handler(path).listdir(path)
@@ -157,7 +123,22 @@ class PapermillIO(object):
         for entrypoint in entrypoints.get_group_all("papermill.io"):
             self.register(entrypoint.name, entrypoint.load())
 
-    def get_handler(self, path):
+    def get_handler(self, path, extensions=['.ipynb', '.json']):
+
+        if isinstance(path, nbformat.NotebookNode):
+            return NotebookNodeHandler()
+
+        if not fnmatch.fnmatch(os.path.basename(path).split('?')[0], '*.*'):
+            warnings.warn(
+                "the file is not specified with any extension : " + os.path.basename(path)
+            )
+        elif not any(
+            fnmatch.fnmatch(os.path.basename(path).split('?')[0], '*' + ext) for ext in extensions
+        ):
+            warnings.warn(
+                "The specified file ({}) does not end in one of {}".format(path, extensions)
+            )
+
         local_handler = None
         for scheme, handler in self._handlers:
             if scheme == 'local':
@@ -406,6 +387,39 @@ class GithubHandler(object):
         return path
 
 
+class StreamHandler(object):
+    def read(self, path):
+        return sys.stdin.read()
+
+    def listdir(self, path):
+        raise PapermillException('listdir is not supported by Stdin/Stdout')
+
+    def write(self, buf, path):
+        try:
+            return sys.stdout.buffer.write(buf.encode('utf-8'))
+        except AttributeError:
+            # Originally required by https://github.com/nteract/papermill/issues/420
+            # Support Buffer.io objects
+            return sys.stdout.write(buf.encode('utf-8'))
+
+    def pretty_path(self, path):
+        return path
+
+
+class NotebookNodeHandler(object):
+    def read(self, path):
+        return nbformat.writes(path)
+
+    def listdir(self, path):
+        raise PapermillException('listdir is not supported by NotebookNode Handler')
+
+    def write(self, buf, path):
+        raise PapermillException('write is not supported by NotebookNode Handler')
+
+    def pretty_path(self, path):
+        return "NotebookNode object"
+
+
 # Hack to make YAML loader not auto-convert datetimes
 # https://stackoverflow.com/a/52312810
 class NoDatesSafeLoader(yaml.SafeLoader):
@@ -427,6 +441,7 @@ papermill_io.register("gs://", GCSHandler())
 papermill_io.register("hdfs://", HDFSHandler())
 papermill_io.register("http://github.com/", GithubHandler())
 papermill_io.register("https://github.com/", GithubHandler())
+papermill_io.register("-", StreamHandler())
 papermill_io.register_entry_points()
 
 

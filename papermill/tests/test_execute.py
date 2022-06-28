@@ -8,6 +8,7 @@ from unittest.mock import patch
 from functools import partial
 from pathlib import Path
 
+import nbformat
 from nbformat import validate
 
 from .. import engines
@@ -379,3 +380,17 @@ class TestMinimalNotebook(unittest.TestCase):
         execute_notebook(get_notebook_path(notebook_name), result_path, {'var': 'It works'})
         nb = load_notebook_node(result_path)
         validate(nb)
+
+
+class TestNotebookNodeInput(unittest.TestCase):
+    def setUp(self):
+        self.test_dir = tempfile.TemporaryDirectory()
+        self.result_path = os.path.join(self.test_dir.name, 'output.ipynb')
+
+    def tearDown(self):
+        self.test_dir.cleanup()
+
+    def test_notebook_node_input(self):
+        input_nb = nbformat.read(get_notebook_path('simple_execute.ipynb'), as_version=4)
+        test_nb = execute_notebook(input_nb, self.result_path, {'msg': 'Hello'})
+        self.assertEqual(test_nb.metadata.papermill.parameters, {'msg': 'Hello'})

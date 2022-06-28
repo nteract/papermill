@@ -43,6 +43,8 @@ def parameterize_path(path, parameters):
     parameters : dict
        Arbitrary keyword arguments to fill in the path
     """
+    if isinstance(path, nbformat.NotebookNode):
+        return path
     if parameters is None:
         parameters = {}
 

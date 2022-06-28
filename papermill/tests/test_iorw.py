@@ -151,7 +151,7 @@ class TestPapermillIO(unittest.TestCase):
     def test_read_stdin(self):
         file_content = u'Τὴ γλῶσσα μοῦ ἔδωσαν ἑλληνικὴ'
         with patch('sys.stdin', io.StringIO(file_content)):
-            self.assertEqual(self.papermill_io.read("-"), file_content)
+            self.assertEqual(self.old_papermill_io.read("-"), file_content)
 
     def test_listdir(self):
         self.assertEqual(self.papermill_io.listdir("fake/path"), ["fake", "contents"])
@@ -171,7 +171,7 @@ class TestPapermillIO(unittest.TestCase):
         file_content = u'Τὴ γλῶσσα μοῦ ἔδωσαν ἑλληνικὴ'
         out = io.BytesIO()
         with patch('sys.stdout', out):
-            self.papermill_io.write(file_content, "-")
+            self.old_papermill_io.write(file_content, "-")
             self.assertEqual(out.getvalue(), file_content.encode('utf-8'))
 
     def test_pretty_path(self):
