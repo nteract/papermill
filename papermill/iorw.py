@@ -116,6 +116,8 @@ class PapermillIO(object):
         return notebook_metadata
 
     def write(self, buf, path, extensions=['.ipynb', '.json']):
+        if path is None:
+            return
         if path == '-':
             try:
                 return sys.stdout.buffer.write(buf.encode('utf-8'))
@@ -158,6 +160,9 @@ class PapermillIO(object):
             self.register(entrypoint.name, entrypoint.load())
 
     def get_handler(self, path):
+        if path is None:
+            return NoIOHandler()
+
         local_handler = None
         for scheme, handler in self._handlers:
             if scheme == 'local':
@@ -404,6 +409,22 @@ class GithubHandler(object):
 
     def pretty_path(self, path):
         return path
+
+
+class NoIOHandler(object):
+    '''Handler for output_path of None - intended to not write anything'''
+
+    def read(self, path):
+        raise PapermillException('read is not supported by NoIOHandler')
+
+    def listdir(self, path):
+        raise PapermillException('listdir is not supported by NoIOHandler')
+
+    def write(self, buf, path):
+        return
+
+    def pretty_path(self, path):
+        return 'Notebook will not be saved'
 
 
 # Hack to make YAML loader not auto-convert datetimes
