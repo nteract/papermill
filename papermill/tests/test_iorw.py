@@ -97,6 +97,10 @@ class TestPapermillIO(unittest.TestCase):
     def test_get_no_io_handler(self):
         self.assertIsInstance(self.papermill_io.get_handler(None), NoIOHandler)
 
+    def test_get_notebook_node_handler(self):
+        test_nb = nbformat.read(get_notebook_path('test_notebooknode_io.ipynb'), as_version=4)
+        self.assertIsInstance(self.papermill_io.get_handler(test_nb), NotebookNodeHandler)
+
     def test_entrypoint_register(self):
 
         fake_entrypoint = Mock(load=Mock())
