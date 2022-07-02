@@ -1,4 +1,3 @@
-import copy
 import nbformat
 
 from .engines import papermill_engines
@@ -81,9 +80,6 @@ def parameterize_notebook(
     # Load from a file if 'parameters' is a string.
     if isinstance(parameters, str):
         parameters = read_yaml_file(parameters)
-
-    # Copy the nb object to avoid polluting the input
-    nb = copy.deepcopy(nb)
 
     # Fetch out the name and language from the notebook document by dropping-down into the engine's implementation
     kernel_name = papermill_engines.nb_kernel_name(engine_name, nb, kernel_name)
