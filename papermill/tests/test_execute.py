@@ -11,7 +11,7 @@ from pathlib import Path
 
 from nbformat import validate
 
-from .. import engines, translators, parameterize
+from .. import engines, translators
 from ..log import logger
 from ..iorw import load_notebook_node
 from ..utils import chdir
@@ -423,7 +423,7 @@ class TestExecuteWithCustomEngine(unittest.TestCase):
         translators.papermill_translators = self._orig_translators
 
     @patch.object(CustomEngine, "execute_managed_notebook", wraps=CustomEngine.execute_managed_notebook)
-    @patch(parameterize.__name__ + ".translate_parameters", wraps=translators.translate_parameters)
+    @patch("papermill.parameterize.translate_parameters", wraps=translators.translate_parameters)
     def test_custom_kernel_name_and_language(self, translate_parameters, execute_managed_notebook):
         """Tests execute against engine with custom implementations to fetch
         kernel name and language from the notebook object
