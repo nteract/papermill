@@ -100,6 +100,7 @@ def execute_notebook(
         nb = remove_error_markers(nb)
 
         if not prepare_only:
+            # Execute the Notebook in `cwd` if it is set
             with chdir(cwd):
                 nb = papermill_engines.execute_notebook_with_engine(
                     engine_name,
