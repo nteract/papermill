@@ -54,7 +54,7 @@ class PapermillEngines(object):
         """
         engine = self.get_engine(engine_name)
         if hasattr(engine, "nb_kernel_name"):
-            return self.get_engine(engine_name).nb_kernel_name(nb, name)
+            return engine.nb_kernel_name(nb, name)
         else:
             return nb_kernel_name(nb, name)
 
@@ -64,7 +64,7 @@ class PapermillEngines(object):
         """
         engine = self.get_engine(engine_name)
         if hasattr(engine, "nb_language"):
-            return self.get_engine(engine_name).nb_language(nb, language)
+            return engine.nb_language(nb, language)
         else:
             return nb_language(nb, language)
 
