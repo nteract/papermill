@@ -92,7 +92,7 @@ def execute_notebook(
         # Parameterize the Notebook.
         if parameters:
             nb = parameterize_notebook(
-                nb, parameters, report_mode, kernel_name=kernel_name, language=language
+                nb, parameters, report_mode, kernel_name=kernel_name, language=language, engine_name=engine_name
             )
 
         nb = prepare_notebook_metadata(nb, input_path, output_path, report_mode)
