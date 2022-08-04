@@ -100,6 +100,8 @@ def execute_notebook(
         nb = remove_error_markers(nb)
 
         if not prepare_only:
+            # Dropdown to the engine to fetch the kernel name from the notebook document
+            kernel_name = papermill_engines.nb_kernel_name(engine_name=engine_name, nb=nb, name=kernel_name)
             # Execute the Notebook in `cwd` if it is set
             with chdir(cwd):
                 nb = papermill_engines.execute_notebook_with_engine(

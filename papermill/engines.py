@@ -11,7 +11,7 @@ from .log import logger
 from .exceptions import PapermillException
 from .clientwrap import PapermillNotebookClient
 from .iorw import write_ipynb
-from .utils import merge_kwargs, remove_args, nb_kernel_name
+from .utils import merge_kwargs, remove_args, nb_kernel_name, nb_language
 
 
 class PapermillEngines(object):
@@ -47,6 +47,26 @@ class PapermillEngines(object):
     def execute_notebook_with_engine(self, engine_name, nb, kernel_name, **kwargs):
         """Fetch a named engine and execute the nb object against it."""
         return self.get_engine(engine_name).execute_notebook(nb, kernel_name, **kwargs)
+
+    def nb_kernel_name(self, engine_name, nb, name=None):
+        """Fetch the kernel name from the document by dropping-down into the provided engine.
+        If the engine does not implement `nb_kernel_name`, then use the default implementation.
+        """
+        engine = self.get_engine(engine_name)
+        if hasattr(engine, "nb_kernel_name"):
+            return self.get_engine(engine_name).nb_kernel_name(nb, name)
+        else:
+            return nb_kernel_name(nb, name)
+
+    def nb_language(self, engine_name, nb, language=None):
+        """Fetch language from the document by dropping-down into the provided engine.
+        If the engine does not implement `nb_language`, then use the default implementation.
+        """
+        engine = self.get_engine(engine_name)
+        if hasattr(engine, "nb_language"):
+            return self.get_engine(engine_name).nb_language(nb, language)
+        else:
+            return nb_language(nb, language)
 
 
 def catch_nb_assignment(func):
@@ -364,14 +384,19 @@ class Engine(object):
         return nb_man.nb
 
     @classmethod
-    def nb_kernel_name(cls, nb, name=None):
-        """A wrapper to handle the logic to fetch name from kernelspec metadata during execution"""
-        return nb_kernel_name(nb=nb, name=name)
-
-    @classmethod
     def execute_managed_notebook(cls, nb_man, kernel_name, **kwargs):
         """An abstract method where implementation will be defined in a subclass."""
         raise NotImplementedError("'execute_managed_notebook' is not implemented for this engine")
+
+    @classmethod
+    def nb_kernel_name(cls, nb, name=None):
+        """Use default implementation to fetch kernel name from the notebook object"""
+        return nb_kernel_name(nb, name)
+
+    @classmethod
+    def nb_language(cls, nb, language=None):
+        """Use default implementation to fetch programming language from the notebook object"""
+        return nb_language(nb, language)
 
 
 class NBClientEngine(Engine):
@@ -405,8 +430,7 @@ class NBClientEngine(Engine):
             start_timeout (int): Duration to wait for kernel start-up.
             execution_timeout (int): Duration to wait before failing execution (default: never).
         """
-        # Fetch out the name from the notebook document
-        kernel_name = cls.nb_kernel_name(nb_man.nb, kernel_name)
+
         # Exclude parameters that named differently downstream
         safe_kwargs = remove_args(['timeout', 'startup_timeout'], **kwargs)
 
