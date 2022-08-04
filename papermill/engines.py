@@ -49,24 +49,12 @@ class PapermillEngines(object):
         return self.get_engine(engine_name).execute_notebook(nb, kernel_name, **kwargs)
 
     def nb_kernel_name(self, engine_name, nb, name=None):
-        """Fetch the kernel name from the document by dropping-down into the provided engine.
-        If the engine does not implement `nb_kernel_name`, then use the default implementation.
-        """
-        engine = self.get_engine(engine_name)
-        if hasattr(engine, "nb_kernel_name"):
-            return engine.nb_kernel_name(nb, name)
-        else:
-            return nb_kernel_name(nb, name)
+        """Fetch the kernel name from the document by dropping-down into the provided engine."""
+        return self.get_engine(engine_name).nb_kernel_name(nb, name)
 
     def nb_language(self, engine_name, nb, language=None):
-        """Fetch language from the document by dropping-down into the provided engine.
-        If the engine does not implement `nb_language`, then use the default implementation.
-        """
-        engine = self.get_engine(engine_name)
-        if hasattr(engine, "nb_language"):
-            return engine.nb_language(nb, language)
-        else:
-            return nb_language(nb, language)
+        """Fetch language from the document by dropping-down into the provided engine."""
+        return self.get_engine(engine_name).nb_language(nb, language)
 
 
 def catch_nb_assignment(func):
