@@ -49,7 +49,7 @@ class PapermillEngines(object):
         return self.get_engine(engine_name).execute_notebook(nb, kernel_name, **kwargs)
 
     def nb_kernel_name(self, engine_name, nb, name=None):
-        """Fetch the kernel name from the document by dropping-down into the provided engine."""
+        """Fetch kernel name from the document by dropping-down into the provided engine."""
         return self.get_engine(engine_name).nb_kernel_name(nb, name)
 
     def nb_language(self, engine_name, nb, language=None):
