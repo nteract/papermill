@@ -390,9 +390,11 @@ class TestMinimalNotebook(unittest.TestCase):
 
 
 class TestExecuteWithCustomEngine(unittest.TestCase):
-    """Tests execute against engine with custom implementations to fetch
-    kernel name and language from the notebook object
-    """
+    class SimpleEngine(engines.Engine):
+        @classmethod
+        def execute_managed_notebook(cls, nb_man, kernel_name, **kwargs):
+            pass
+
     class CustomEngine(engines.Engine):
         @classmethod
         def execute_managed_notebook(cls, nb_man, kernel_name, **kwargs):
@@ -413,9 +415,11 @@ class TestExecuteWithCustomEngine(unittest.TestCase):
             self.test_dir, 'output_{}'.format('simple_execute.ipynb')
         )
 
-        self.engine_name = "custom_engine"
         self._orig_papermill_engines = deepcopy(engines.papermill_engines)
         self._orig_translators = deepcopy(translators.papermill_translators)
+        engines.papermill_engines.register(
+            "simple_engine", self.SimpleEngine
+        )
         engines.papermill_engines.register(
             "custom_engine", self.CustomEngine
         )
@@ -426,13 +430,28 @@ class TestExecuteWithCustomEngine(unittest.TestCase):
         engines.papermill_engines = self._orig_papermill_engines
         translators.papermill_translators = self._orig_translators
 
-    @patch.object(CustomEngine, "execute_managed_notebook", wraps=CustomEngine.execute_managed_notebook)
-    @patch(parameterize.__name__ + ".translate_parameters", wraps=translators.translate_parameters)
-    def test_custom_kernel_name_and_language(self, translate_parameters, execute_managed_notebook):
+    @patch.object(SimpleEngine, "execute_managed_notebook", wraps=SimpleEngine.execute_managed_notebook)
+    def test_default_kernel_name_and_language(self, execute_managed_notebook):
+        """Tests that the default implementations to fetch kernel name and language are used if they are not implemented
+        in the engine provided"""
         execute_notebook(
             self.notebook_path,
             self.nb_test_executed_fname,
-            engine_name=self.engine_name,
+            engine_name="simple_engine",
+            parameters={"msg": "fake msg"},
+        )
+        self.assertEqual(execute_managed_notebook.call_args[0], (ANY, "python3"))
+
+    @patch.object(CustomEngine, "execute_managed_notebook", wraps=CustomEngine.execute_managed_notebook)
+    @patch(parameterize.__name__ + ".translate_parameters", wraps=translators.translate_parameters)
+    def test_custom_kernel_name_and_language(self, translate_parameters, execute_managed_notebook):
+        """Tests execute against engine with custom implementations to fetch
+        kernel name and language from the notebook object
+        """
+        execute_notebook(
+            self.notebook_path,
+            self.nb_test_executed_fname,
+            engine_name="custom_engine",
             parameters={"msg": "fake msg"},
         )
         self.assertEqual(execute_managed_notebook.call_args[0], (ANY, "my_custom_kernel"))
