@@ -57,7 +57,13 @@ def parameterize_path(path, parameters):
 
 
 def parameterize_notebook(
-    nb, parameters, report_mode=False, comment='Parameters', kernel_name=None, language=None, engine_name=None
+    nb,
+    parameters,
+    report_mode=False,
+    comment='Parameters',
+    kernel_name=None,
+    language=None,
+    engine_name=None,
 ):
     """Assigned parameters into the appropriate place in the input notebook
 
