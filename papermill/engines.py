@@ -11,7 +11,7 @@ from .log import logger
 from .exceptions import PapermillException
 from .clientwrap import PapermillNotebookClient
 from .iorw import write_ipynb
-from .utils import merge_kwargs, remove_args
+from .utils import merge_kwargs, remove_args, nb_kernel_name
 
 
 class PapermillEngines(object):
@@ -364,6 +364,11 @@ class Engine(object):
         return nb_man.nb
 
     @classmethod
+    def nb_kernel_name(cls, nb, name=None):
+        """A wrapper to handle the logic to fetch name from kernelspec metadata during execution"""
+        return nb_kernel_name(nb=nb, name=name)
+
+    @classmethod
     def execute_managed_notebook(cls, nb_man, kernel_name, **kwargs):
         """An abstract method where implementation will be defined in a subclass."""
         raise NotImplementedError("'execute_managed_notebook' is not implemented for this engine")
@@ -393,14 +398,15 @@ class NBClientEngine(Engine):
         Performs the actual execution of the parameterized notebook locally.
 
         Args:
-            nb (NotebookNode): Executable notebook object.
+            nb_man (NotebookExecutionManager): Wrapper for execution state of a notebook.
             kernel_name (str): Name of kernel to execute the notebook against.
             log_output (bool): Flag for whether or not to write notebook output to the
                                configured logger.
             start_timeout (int): Duration to wait for kernel start-up.
             execution_timeout (int): Duration to wait before failing execution (default: never).
         """
-
+        # Fetch out the name from the notebook document
+        kernel_name = cls.nb_kernel_name(nb_man.nb, kernel_name)
         # Exclude parameters that named differently downstream
         safe_kwargs = remove_args(['timeout', 'startup_timeout'], **kwargs)
 
