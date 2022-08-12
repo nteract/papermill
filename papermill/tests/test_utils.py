@@ -1,9 +1,9 @@
-import os
 import pytest
 import warnings
 
 from unittest.mock import Mock, call
 from tempfile import TemporaryDirectory
+from pathlib import Path
 
 from nbformat.v4 import new_notebook, new_code_cell
 
@@ -52,10 +52,10 @@ def test_retry():
 
 
 def test_chdir():
-    old_cwd = os.getcwd()
+    old_cwd = Path.cwd()
     with TemporaryDirectory() as temp_dir:
         with chdir(temp_dir):
-            assert os.getcwd() != old_cwd
-            assert os.getcwd() == os.path.realpath(temp_dir)
+            assert Path.cwd() != old_cwd
+            assert Path.cwd() == Path(temp_dir)
 
-    assert os.getcwd() == old_cwd
+    assert Path.cwd() == old_cwd
