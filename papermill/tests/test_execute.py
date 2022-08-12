@@ -9,6 +9,7 @@ from unittest.mock import patch, ANY
 from functools import partial
 from pathlib import Path
 
+import nbformat
 from nbformat import validate
 
 from .. import engines, translators
@@ -436,3 +437,18 @@ class TestExecuteWithCustomEngine(unittest.TestCase):
         )
         self.assertEqual(execute_managed_notebook.call_args[0], (ANY, "my_custom_kernel"))
         self.assertEqual(translate_parameters.call_args[0], (ANY, 'my_custom_language', {"msg": "fake msg"}, ANY))
+
+
+class TestNotebookNodeInput(unittest.TestCase):
+    def setUp(self):
+        self.test_dir = tempfile.TemporaryDirectory()
+        self.result_path = os.path.join(self.test_dir.name, 'output.ipynb')
+
+    def tearDown(self):
+        self.test_dir.cleanup()
+
+    def test_notebook_node_input(self):
+        input_nb = nbformat.read(get_notebook_path('simple_execute.ipynb'), as_version=4)
+        execute_notebook(input_nb, self.result_path, {'msg': 'Hello'})
+        test_nb = nbformat.read(self.result_path, as_version=4)
+        self.assertEqual(test_nb.metadata.papermill.parameters, {'msg': 'Hello'})

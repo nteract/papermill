@@ -17,12 +17,15 @@ from ..iorw import (
     LocalHandler,
     NoIOHandler,
     ADLHandler,
+    NotebookNodeHandler,
+    StreamHandler,
     PapermillIO,
     read_yaml_file,
     papermill_io,
     local_file_io_cwd,
 )
 from ..exceptions import PapermillException
+from . import get_notebook_path
 
 FIXTURE_PATH = os.path.join(os.path.dirname(__file__), 'fixtures')
 
@@ -94,6 +97,10 @@ class TestPapermillIO(unittest.TestCase):
     def test_get_no_io_handler(self):
         self.assertIsInstance(self.papermill_io.get_handler(None), NoIOHandler)
 
+    def test_get_notebook_node_handler(self):
+        test_nb = nbformat.read(get_notebook_path('test_notebooknode_io.ipynb'), as_version=4)
+        self.assertIsInstance(self.papermill_io.get_handler(test_nb), NotebookNodeHandler)
+
     def test_entrypoint_register(self):
 
         fake_entrypoint = Mock(load=Mock())
@@ -155,7 +162,7 @@ class TestPapermillIO(unittest.TestCase):
     def test_read_stdin(self):
         file_content = u'Τὴ γλῶσσα μοῦ ἔδωσαν ἑλληνικὴ'
         with patch('sys.stdin', io.StringIO(file_content)):
-            self.assertEqual(self.papermill_io.read("-"), file_content)
+            self.assertEqual(self.old_papermill_io.read("-"), file_content)
 
     def test_listdir(self):
         self.assertEqual(self.papermill_io.listdir("fake/path"), ["fake", "contents"])
@@ -178,7 +185,7 @@ class TestPapermillIO(unittest.TestCase):
         file_content = u'Τὴ γλῶσσα μοῦ ἔδωσαν ἑλληνικὴ'
         out = io.BytesIO()
         with patch('sys.stdout', out):
-            self.papermill_io.write(file_content, "-")
+            self.old_papermill_io.write(file_content, "-")
             self.assertEqual(out.getvalue(), file_content.encode('utf-8'))
 
     def test_pretty_path(self):
@@ -343,3 +350,55 @@ class TestHttpHandler(unittest.TestCase):
 
         with self.assertRaises(ConnectionError):
             HttpHandler.write(buf, path)
+
+
+class TestStreamHandler(unittest.TestCase):
+    @patch('sys.stdin', io.StringIO('mock stream'))
+    def test_read_from_stdin(self):
+        result = StreamHandler().read('foo')
+        self.assertEqual(result, 'mock stream')
+
+    def test_raises_on_listdir(self):
+        with self.assertRaises(PapermillException):
+            StreamHandler().listdir(None)
+
+    @patch('sys.stdout')
+    def test_write_to_stdout_buffer(self, mock_stdout):
+        mock_stdout.buffer = io.BytesIO()
+        StreamHandler().write('mock stream', 'foo')
+        self.assertEqual(mock_stdout.buffer.getbuffer(), 'mock stream'.encode('utf-8'))
+
+    @patch('sys.stdout', new_callable=io.BytesIO)
+    def test_write_to_stdout(self, mock_stdout):
+        StreamHandler().write('mock stream', 'foo')
+        self.assertEqual(mock_stdout.getbuffer(), 'mock stream'.encode('utf-8'))
+
+    def test_pretty_path_returns_input_path(self):
+        '''Should return the input str, which often is the default registered schema "-"'''
+        self.assertEqual(StreamHandler().pretty_path('foo'), 'foo')
+
+
+class TestNotebookNodeHandler(unittest.TestCase):
+    def test_read_notebook_node(self):
+        input_nb = nbformat.read(get_notebook_path('test_notebooknode_io.ipynb'), as_version=4)
+        result = NotebookNodeHandler().read(input_nb)
+        expect = (
+            '{\n "cells": [\n  {\n   "cell_type": "code",\n   "execution_count": null,'
+            '\n   "metadata": {},\n   "outputs": [],\n   "source": ['
+            '\n    "print(\'Hello World\')"\n   ]\n  }\n ],\n "metadata": {'
+            '\n  "kernelspec": {\n   "display_name": "Python 3",\n   "language": "python",'
+            '\n   "name": "python3"\n  }\n },\n "nbformat": 4,\n "nbformat_minor": 2\n}'
+        )
+        self.assertEqual(result, expect)
+
+    def test_raises_on_listdir(self):
+        with self.assertRaises(PapermillException):
+            NotebookNodeHandler().listdir('foo')
+
+    def test_raises_on_write(self):
+        with self.assertRaises(PapermillException):
+            NotebookNodeHandler().write('foo', 'bar')
+
+    def test_pretty_path(self):
+        expect = 'NotebookNode object'
+        self.assertEqual(NotebookNodeHandler().pretty_path('foo'), expect)

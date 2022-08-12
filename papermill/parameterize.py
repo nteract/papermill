@@ -39,13 +39,14 @@ def parameterize_path(path, parameters):
 
     Parameters
     ----------
-    path : string or None
-       Path with optional parameters, as a python format string
+    path : string or nbformat.NotebookNode or None
+       Path with optional parameters, as a python format string. If path is a NotebookNode
+       or None, the path is returned without modification
     parameters : dict or None
        Arbitrary keyword arguments to fill in the path
     """
-    if path is None:
-        return
+    if path is None or isinstance(path, nbformat.NotebookNode):
+        return path
 
     if parameters is None:
         parameters = {}

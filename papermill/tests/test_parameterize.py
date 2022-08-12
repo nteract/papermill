@@ -170,3 +170,8 @@ class TestPathParameterizing(unittest.TestCase):
     def test_path_of_none_returns_none(self):
         self.assertIsNone(parameterize_path(path=None, parameters={'foo': 'bar'}))
         self.assertIsNone(parameterize_path(path=None, parameters=None))
+
+    def test_path_of_notebook_node_returns_input(self):
+        test_nb = load_notebook_node(get_notebook_path("simple_execute.ipynb"))
+        result_nb = parameterize_path(test_nb, parameters=None)
+        self.assertIs(result_nb, test_nb)
