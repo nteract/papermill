@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import copy
 import nbformat
 from pathlib import Path
 
@@ -148,9 +147,6 @@ def prepare_notebook_metadata(nb, input_path, output_path, report_mode=False):
     report_mode : bool, optional
        Flag to set report mode
     """
-    # Copy the nb object to avoid polluting the input
-    nb = copy.deepcopy(nb)
-
     # Hide input if report-mode is set to True.
     if report_mode:
         for cell in nb.cells:
@@ -185,7 +181,6 @@ ERROR_ANCHOR_MSG = (
 
 
 def remove_error_markers(nb):
-    nb = copy.deepcopy(nb)
     nb.cells = [cell for cell in nb.cells if ERROR_MARKER_TAG not in cell.metadata.get("tags", [])]
     return nb
 
