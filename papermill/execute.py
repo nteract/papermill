@@ -8,7 +8,7 @@ from .log import logger
 from .exceptions import PapermillExecutionError
 from .iorw import get_pretty_path, local_file_io_cwd, load_notebook_node, write_ipynb
 from .engines import papermill_engines
-from .utils import chdir, nb_kernel_name
+from .utils import chdir
 from .parameterize import add_builtin_parameters, parameterize_notebook, parameterize_path
 
 
@@ -92,7 +92,12 @@ def execute_notebook(
         # Parameterize the Notebook.
         if parameters:
             nb = parameterize_notebook(
-                nb, parameters, report_mode, kernel_name=kernel_name, language=language
+                nb,
+                parameters,
+                report_mode,
+                kernel_name=kernel_name,
+                language=language,
+                engine_name=engine_name,
             )
 
         nb = prepare_notebook_metadata(nb, input_path, output_path, report_mode)
@@ -100,8 +105,10 @@ def execute_notebook(
         nb = remove_error_markers(nb)
 
         if not prepare_only:
-            # Fetch out the name from the notebook document
-            kernel_name = nb_kernel_name(nb, kernel_name)
+            # Dropdown to the engine to fetch the kernel name from the notebook document
+            kernel_name = papermill_engines.nb_kernel_name(
+                engine_name=engine_name, nb=nb, name=kernel_name
+            )
             # Execute the Notebook in `cwd` if it is set
             with chdir(cwd):
                 nb = papermill_engines.execute_notebook_with_engine(
