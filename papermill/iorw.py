@@ -96,50 +96,14 @@ class PapermillIO(object):
         self.reset()
 
     def read(self, path, extensions=['.ipynb', '.json']):
-        if path == '-':
-            return sys.stdin.read()
-
-        if not fnmatch.fnmatch(os.path.basename(path).split('?')[0], '*.*'):
-            warnings.warn(
-                "the file is not specified with any extension : " + os.path.basename(path)
-            )
-        elif not any(
-            fnmatch.fnmatch(os.path.basename(path).split('?')[0], '*' + ext) for ext in extensions
-        ):
-            warnings.warn(
-                "The specified input file ({}) does not end in one of {}".format(path, extensions)
-            )
         # Handle https://github.com/nteract/papermill/issues/317
-        notebook_metadata = self.get_handler(path).read(path)
+        notebook_metadata = self.get_handler(path, extensions).read(path)
         if isinstance(notebook_metadata, (bytes, bytearray)):
             return notebook_metadata.decode('utf-8')
         return notebook_metadata
 
     def write(self, buf, path, extensions=['.ipynb', '.json']):
-        if path is None:
-            return
-        if path == '-':
-            try:
-                return sys.stdout.buffer.write(buf.encode('utf-8'))
-            except AttributeError:
-                # Originally required by https://github.com/nteract/papermill/issues/420
-                # Support Buffer.io objects
-                return sys.stdout.write(buf.encode('utf-8'))
-
-            return sys.stdout.buffer.write(buf.encode('utf-8'))
-
-        # Usually no return object here
-        if not fnmatch.fnmatch(os.path.basename(path).split('?')[0], '*.*'):
-            warnings.warn(
-                "the file is not specified with any extension : " + os.path.basename(path)
-            )
-        elif not any(
-            fnmatch.fnmatch(os.path.basename(path).split('?')[0], '*' + ext) for ext in extensions
-        ):
-            warnings.warn(
-                "The specified output file ({}) does not end in one of {}".format(path, extensions)
-            )
-        return self.get_handler(path).write(buf, path)
+        return self.get_handler(path, extensions).write(buf, path)
 
     def listdir(self, path):
         return self.get_handler(path).listdir(path)
@@ -159,9 +123,43 @@ class PapermillIO(object):
         for entrypoint in entrypoints.get_group_all("papermill.io"):
             self.register(entrypoint.name, entrypoint.load())
 
-    def get_handler(self, path):
+    def get_handler(self, path, extensions=None):
+        '''Get I/O Handler based on a notebook path
+
+        Parameters
+        ----------
+        path : str or nbformat.NotebookNode or None
+        extensions : list of str, optional
+            Required file extension options for the path (if path is a string), which
+            will log a warning if there is no match. Defaults to None, which does not
+            check for any extensions
+
+        Raises
+        ------
+        PapermillException: If a valid I/O handler could not be found for the input path
+
+        Returns
+        -------
+        I/O Handler
+        '''
         if path is None:
             return NoIOHandler()
+
+        if isinstance(path, nbformat.NotebookNode):
+            return NotebookNodeHandler()
+
+        if extensions:
+            if not fnmatch.fnmatch(os.path.basename(path).split('?')[0], '*.*'):
+                warnings.warn(
+                    "the file is not specified with any extension : " + os.path.basename(path)
+                )
+            elif not any(
+                fnmatch.fnmatch(os.path.basename(path).split('?')[0], '*' + ext)
+                for ext in extensions
+            ):
+                warnings.warn(
+                    "The specified file ({}) does not end in one of {}".format(path, extensions)
+                )
 
         local_handler = None
         for scheme, handler in self._handlers:
@@ -411,6 +409,41 @@ class GithubHandler(object):
         return path
 
 
+class StreamHandler(object):
+    '''Handler for Stdin/Stdout streams'''
+    def read(self, path):
+        return sys.stdin.read()
+
+    def listdir(self, path):
+        raise PapermillException('listdir is not supported by Stream Handler')
+
+    def write(self, buf, path):
+        try:
+            return sys.stdout.buffer.write(buf.encode('utf-8'))
+        except AttributeError:
+            # Originally required by https://github.com/nteract/papermill/issues/420
+            # Support Buffer.io objects
+            return sys.stdout.write(buf.encode('utf-8'))
+
+    def pretty_path(self, path):
+        return path
+
+
+class NotebookNodeHandler(object):
+    '''Handler for input_path of nbformat.NotebookNode object'''
+    def read(self, path):
+        return nbformat.writes(path)
+
+    def listdir(self, path):
+        raise PapermillException('listdir is not supported by NotebookNode Handler')
+
+    def write(self, buf, path):
+        raise PapermillException('write is not supported by NotebookNode Handler')
+
+    def pretty_path(self, path):
+        return 'NotebookNode object'
+
+
 class NoIOHandler(object):
     '''Handler for output_path of None - intended to not write anything'''
 
@@ -448,6 +481,7 @@ papermill_io.register("gs://", GCSHandler())
 papermill_io.register("hdfs://", HDFSHandler())
 papermill_io.register("http://github.com/", GithubHandler())
 papermill_io.register("https://github.com/", GithubHandler())
+papermill_io.register("-", StreamHandler())
 papermill_io.register_entry_points()
 
 

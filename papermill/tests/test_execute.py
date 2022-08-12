@@ -3,14 +3,16 @@ import io
 import shutil
 import tempfile
 import unittest
-from unittest.mock import patch
+from copy import deepcopy
+from unittest.mock import patch, ANY
 
 from functools import partial
 from pathlib import Path
 
+import nbformat
 from nbformat import validate
 
-from .. import engines
+from .. import engines, translators
 from ..log import logger
 from ..iorw import load_notebook_node
 from ..utils import chdir
@@ -386,3 +388,67 @@ class TestMinimalNotebook(unittest.TestCase):
         execute_notebook(get_notebook_path(notebook_name), result_path, {'var': 'It works'})
         nb = load_notebook_node(result_path)
         validate(nb)
+
+
+class TestExecuteWithCustomEngine(unittest.TestCase):
+    class CustomEngine(engines.Engine):
+        @classmethod
+        def execute_managed_notebook(cls, nb_man, kernel_name, **kwargs):
+            pass
+
+        @classmethod
+        def nb_kernel_name(cls, nb, name=None):
+            return "my_custom_kernel"
+
+        @classmethod
+        def nb_language(cls, nb, language=None):
+            return "my_custom_language"
+
+    def setUp(self):
+        self.test_dir = tempfile.mkdtemp()
+        self.notebook_path = get_notebook_path('simple_execute.ipynb')
+        self.nb_test_executed_fname = os.path.join(
+            self.test_dir, 'output_{}'.format('simple_execute.ipynb')
+        )
+
+        self._orig_papermill_engines = deepcopy(engines.papermill_engines)
+        self._orig_translators = deepcopy(translators.papermill_translators)
+        engines.papermill_engines.register(
+            "custom_engine", self.CustomEngine
+        )
+        translators.papermill_translators.register("my_custom_language", translators.PythonTranslator())
+
+    def tearDown(self):
+        shutil.rmtree(self.test_dir)
+        engines.papermill_engines = self._orig_papermill_engines
+        translators.papermill_translators = self._orig_translators
+
+    @patch.object(CustomEngine, "execute_managed_notebook", wraps=CustomEngine.execute_managed_notebook)
+    @patch("papermill.parameterize.translate_parameters", wraps=translators.translate_parameters)
+    def test_custom_kernel_name_and_language(self, translate_parameters, execute_managed_notebook):
+        """Tests execute against engine with custom implementations to fetch
+        kernel name and language from the notebook object
+        """
+        execute_notebook(
+            self.notebook_path,
+            self.nb_test_executed_fname,
+            engine_name="custom_engine",
+            parameters={"msg": "fake msg"},
+        )
+        self.assertEqual(execute_managed_notebook.call_args[0], (ANY, "my_custom_kernel"))
+        self.assertEqual(translate_parameters.call_args[0], (ANY, 'my_custom_language', {"msg": "fake msg"}, ANY))
+
+
+class TestNotebookNodeInput(unittest.TestCase):
+    def setUp(self):
+        self.test_dir = tempfile.TemporaryDirectory()
+        self.result_path = os.path.join(self.test_dir.name, 'output.ipynb')
+
+    def tearDown(self):
+        self.test_dir.cleanup()
+
+    def test_notebook_node_input(self):
+        input_nb = nbformat.read(get_notebook_path('simple_execute.ipynb'), as_version=4)
+        execute_notebook(input_nb, self.result_path, {'msg': 'Hello'})
+        test_nb = nbformat.read(self.result_path, as_version=4)
+        self.assertEqual(test_nb.metadata.papermill.parameters, {'msg': 'Hello'})

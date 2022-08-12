@@ -11,7 +11,7 @@ from .log import logger
 from .exceptions import PapermillException
 from .clientwrap import PapermillNotebookClient
 from .iorw import write_ipynb
-from .utils import merge_kwargs, remove_args
+from .utils import merge_kwargs, remove_args, nb_kernel_name, nb_language
 
 
 class PapermillEngines(object):
@@ -47,6 +47,14 @@ class PapermillEngines(object):
     def execute_notebook_with_engine(self, engine_name, nb, kernel_name, **kwargs):
         """Fetch a named engine and execute the nb object against it."""
         return self.get_engine(engine_name).execute_notebook(nb, kernel_name, **kwargs)
+
+    def nb_kernel_name(self, engine_name, nb, name=None):
+        """Fetch kernel name from the document by dropping-down into the provided engine."""
+        return self.get_engine(engine_name).nb_kernel_name(nb, name)
+
+    def nb_language(self, engine_name, nb, language=None):
+        """Fetch language from the document by dropping-down into the provided engine."""
+        return self.get_engine(engine_name).nb_language(nb, language)
 
 
 def catch_nb_assignment(func):
@@ -368,6 +376,16 @@ class Engine(object):
         """An abstract method where implementation will be defined in a subclass."""
         raise NotImplementedError("'execute_managed_notebook' is not implemented for this engine")
 
+    @classmethod
+    def nb_kernel_name(cls, nb, name=None):
+        """Use default implementation to fetch kernel name from the notebook object"""
+        return nb_kernel_name(nb, name)
+
+    @classmethod
+    def nb_language(cls, nb, language=None):
+        """Use default implementation to fetch programming language from the notebook object"""
+        return nb_language(nb, language)
+
 
 class NBClientEngine(Engine):
     """
@@ -393,7 +411,7 @@ class NBClientEngine(Engine):
         Performs the actual execution of the parameterized notebook locally.
 
         Args:
-            nb (NotebookNode): Executable notebook object.
+            nb_man (NotebookExecutionManager): Wrapper for execution state of a notebook.
             kernel_name (str): Name of kernel to execute the notebook against.
             log_output (bool): Flag for whether or not to write notebook output to the
                                configured logger.
