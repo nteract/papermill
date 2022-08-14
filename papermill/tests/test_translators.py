@@ -601,3 +601,49 @@ def test_translator_must_implement_comment():
 
     with pytest.raises(NotImplementedError):
         MyNewTranslator.comment("foo")
+
+
+# Bash/sh section
+@pytest.mark.parametrize(
+    "test_input,expected",
+    [
+        ("foo", "foo"),
+        ("foo space", "'foo space'"),
+        ("foo's apostrophe", "'foo'\"'\"'s apostrophe'"),
+        ("shell ( is ) <dumb>", "'shell ( is ) <dumb>'"),
+        (12345, '12345'),
+        (-54321, '-54321'),
+        (1.2345, '1.2345'),
+        (-5432.1, '-5432.1'),
+        (True, 'true'),
+        (False, 'false'),
+        (None, ''),
+    ],
+)
+def test_translate_type_sh(test_input, expected):
+    assert translators.BashTranslator.translate(test_input) == expected
+
+
+@pytest.mark.parametrize(
+    "test_input,expected", [("", '#'), ("foo", '# foo'), ("['best effort']", "# ['best effort']")]
+)
+def test_translate_comment_sh(test_input, expected):
+    assert translators.BashTranslator.comment(test_input) == expected
+
+
+@pytest.mark.parametrize(
+    "parameters,expected",
+    [
+        ({"foo": "bar"}, '# Parameters\nfoo=bar\n'),
+        ({"foo": "shell ( is ) <dumb>"}, "# Parameters\nfoo='shell ( is ) <dumb>'\n"),
+        ({"foo": True}, '# Parameters\nfoo=true\n'),
+        ({"foo": 5}, '# Parameters\nfoo=5\n'),
+        ({"foo": 1.1}, '# Parameters\nfoo=1.1\n'),
+        (
+            OrderedDict([['foo', 'bar'], ['baz', '$dumb(shell)']]),
+            "# Parameters\nfoo=bar\nbaz='$dumb(shell)'\n",
+        ),
+    ],
+)
+def test_translate_codify_sh(parameters, expected):
+    assert translators.BashTranslator.codify(parameters) == expected

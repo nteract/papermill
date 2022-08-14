@@ -1,6 +1,7 @@
 import logging
 import math
 import re
+import shlex
 import sys
 
 from .exceptions import PapermillException
@@ -541,6 +542,33 @@ class PowershellTranslator(Translator):
         return '${} = {}'.format(name, str_val)
 
 
+class BashTranslator(Translator):
+    @classmethod
+    def translate_none(cls, val):
+        return ''
+
+    @classmethod
+    def translate_bool(cls, val):
+        return 'true' if val else 'false'
+
+    @classmethod
+    def translate_escaped_str(cls, str_val):
+        return shlex.quote(str(str_val))
+
+    @classmethod
+    def translate_list(cls, val):
+        escaped = ' '.join([cls.translate(v) for v in val])
+        return '({})'.format(escaped)
+
+    @classmethod
+    def comment(cls, cmt_str):
+        return '# {}'.format(cmt_str).strip()
+
+    @classmethod
+    def assign(cls, name, str_val):
+        return '{}={}'.format(name, str_val)
+
+
 # Instantiate a PapermillIO instance and register Handlers.
 papermill_translators = PapermillTranslators()
 papermill_translators.register("python", PythonTranslator)
@@ -554,6 +582,7 @@ papermill_translators.register(".net-powershell", PowershellTranslator)
 papermill_translators.register("pysparkkernel", PythonTranslator)
 papermill_translators.register("sparkkernel", ScalaTranslator)
 papermill_translators.register("sparkrkernel", RTranslator)
+papermill_translators.register("bash", BashTranslator)
 
 
 def translate_parameters(kernel_name, language, parameters, comment='Parameters'):
