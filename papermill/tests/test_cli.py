@@ -443,19 +443,15 @@ def papermill_version():
 
 @pytest.fixture()
 def notebook():
-    for name in kernelspec.find_kernel_specs():
-        ks = kernelspec.get_kernel_spec(name)
-        metadata = {
-            'kernelspec': {'name': name, 'language': ks.language, 'display_name': ks.display_name}
-        }
-        return nbformat.v4.new_notebook(
-            metadata=metadata,
-            cells=[
-                nbformat.v4.new_markdown_cell('This is a notebook with kernel: ' + ks.display_name)
-            ],
-        )
-
-    raise EnvironmentError('No kernel found')
+    metadata = {
+        'kernelspec': {'name': 'python3', 'language': 'python', 'display_name': 'python3'}
+    }
+    return nbformat.v4.new_notebook(
+        metadata=metadata,
+        cells=[
+            nbformat.v4.new_markdown_cell('This is a notebook with kernel: python3')
+        ],
+    )
 
 
 require_papermill_installed = pytest.mark.skipif(
