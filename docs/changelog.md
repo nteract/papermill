@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+## 2.4.0
+
+- Add tracking cell executions with cell descriptions [PR #650](https://github.com/nteract/papermill/pull/650)
+- Fixed Azure Blob URI matching for prefixes [PR #654](https://github.com/nteract/papermill/pull/654)
+- Updates HDFS handler to use PyArrow.fs.HadoopFileSystm [PR #658](https://github.com/nteract/papermill/pull/658)
+- Drop support for Python 3.6 [PR #666](https://github.com/nteract/papermill/pull/666)
+- CI Build fixes [PR #664](https://github.com/nteract/papermill/pull/664)
+- Updated mock references in tests [PR #668](https://github.com/nteract/papermill/pull/668)
+- Added option for not writing any output ipynb file [PR #669](https://github.com/nteract/papermill/pull/669)
+- Allow custom kernel name and language in engine registration [PR #676](https://github.com/nteract/papermill/pull/676)
+- Allow for direct input of NotebookNode objects [PR #670](https://github.com/nteract/papermill/pull/670)
+- Removed deepcopy of input nodes [PR #673](https://github.com/nteract/papermill/pull/673)
+- Fixed failing tests for windows [PR #672](https://github.com/nteract/papermill/pull/672)
+- Implemented bash translator [PR #674](https://github.com/nteract/papermill/pull/674)
+
 ## 2.3.4
 
 - Add read handler for GitHub notebooks [PR #622](https://github.com/nteract/papermill/pull/622)
