@@ -11,7 +11,6 @@ import uuid
 import nbclient
 
 import nbformat
-from jupyter_client import kernelspec
 import unittest
 from unittest.mock import patch
 
