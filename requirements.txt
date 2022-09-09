@@ -1,4 +1,3 @@
-ansiwrap
 click
 pyyaml
 nbformat >= 5.1.2

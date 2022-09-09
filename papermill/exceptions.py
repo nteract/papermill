@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from ansiwrap import strip_color
-
-
 class AwsError(Exception):
     """Raised when an AWS Exception is encountered."""
 
@@ -40,7 +37,7 @@ class PapermillExecutionError(PapermillException):
         # provide the same result as was produced in the past.
         message = "\n" + 75 * "-" + "\n"
         message += 'Exception encountered at "In [%s]":\n' % str(self.exec_count)
-        message += strip_color("\n".join(self.traceback))
+        message += "\n".join(self.traceback)
         message += "\n"
         return message
 
