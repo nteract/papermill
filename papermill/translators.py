@@ -193,7 +193,7 @@ class PythonTranslator(Translator):
                 fm = black.FileMode(string_normalization=False)
                 content = black.format_str(content, mode=fm)
             except ImportError:
-                logger.warning("Black is not installed, parameters won't be formatted")
+                logger.debug("Black is not installed, parameters won't be formatted")
         return content
 
     @classmethod
