@@ -96,8 +96,8 @@ This will generate `.html` files in the `/.tox/docs_out/` directory. Once you ar
 The general workflow for this will be:
 
 1. Run local tests
-2. Pushed changes to your forked repository
-3. Open pull request to main repository
+1. Pushed changes to your forked repository
+1. Open pull request to main repository
 
 ### Run Tests Locally
 
@@ -125,17 +125,17 @@ and ensure the remotes point to your GitHub. Don't work on the main branch!
 
 1. Commit changes to local repository:
 
-    ```bash
-    git checkout -b my-feature
-    git add <updated_files>
-    git commit
-    ```
+   ```bash
+   git checkout -b my-feature
+   git add <updated_files>
+   git commit
+   ```
 
-2. Push changes to your remote repository:
+1. Push changes to your remote repository:
 
-    ```bash
-    git push -u origin my-feature
-    ```
+   ```bash
+   git push -u origin my-feature
+   ```
 
 ### Create Pull Request
 
@@ -149,6 +149,6 @@ _Note: You might want to set a reference to the main repository to fetch/merge f
 git remote add upstream https://github.com/nteract/papermill
 ```
 
-It's possible you will have conflicts between your repository and main. Here, `main` is meant to be synchronized with the ```upstream``` repository.  GitHub has some good [documentation](https://help.github.com/articles/resolving-a-merge-conflict-using-the-command-line/) on merging pull requests from the command line.
+It's possible you will have conflicts between your repository and main. Here, `main` is meant to be synchronized with the `upstream` repository.  GitHub has some good [documentation](https://help.github.com/articles/resolving-a-merge-conflict-using-the-command-line/) on merging pull requests from the command line.
 
 Happy hacking on Papermill!

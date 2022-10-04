@@ -126,16 +126,16 @@ A similar pattern may be needed for other types of remote storage accounts.
 
 Tracking the Execution with Cell Descriptions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-If you want to keep track of the execution in a closer way, you can add cell descriptions to the notebook being executed that will be injected to the TQDM progress bar. 
+If you want to keep track of the execution in a closer way, you can add cell descriptions to the notebook being executed that will be injected to the TQDM progress bar.
 
 Here is an example of the TQDM output during the execution of a 4-cells notebook without cell descriptions:
 
 .. code-block:: bash
 
-    10:10 # papermill input_notebook.ipynb output_notebook.ipynb 
+    10:10 # papermill input_notebook.ipynb output_notebook.ipynb
     Input Notebook:  input_notebook.ipynb
     Output Notebook: output_notebook.ipynb
-    Executing:   0%|                                                                    | 0/4 [00:00<?, ?cell/s]Executing 
+    Executing:   0%|                                                                    | 0/4 [00:00<?, ?cell/s]Executing
     Executing:  25%|█████████                                                           | 1/4 [00:00<?, ?cell/s]Executing
     [...]
 
@@ -151,9 +151,9 @@ Taking back our previous example, if we add the description 'FirstCell' to cell 
 
 .. code-block:: bash
 
-    10:12 # papermill input_notebook.ipynb output_notebook.ipynb 
+    10:12 # papermill input_notebook.ipynb output_notebook.ipynb
     Input Notebook:  input_notebook.ipynb
     Output Notebook: output_notebook.ipynb
-    Executing FirstCell:   0%|                                                          | 0/4 [00:00<?, ?cell/s]Executing 
+    Executing FirstCell:   0%|                                                          | 0/4 [00:00<?, ?cell/s]Executing
     Executing SecondCell:  25%|█████████                                                 | 1/4 [00:00<?, ?cell/s]Executing
     [...]
