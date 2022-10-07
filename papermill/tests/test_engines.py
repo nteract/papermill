@@ -36,14 +36,6 @@ class TestNotebookExecutionManager(unittest.TestCase):
         self.foo_nb = copy.deepcopy(self.nb)
         self.foo_nb.metadata['foo'] = 'bar'
 
-    def test_nb_isolation(self):
-        """
-        Tests that the engine notebook is isolated from source notebook
-        """
-        nb_man = NotebookExecutionManager(self.nb)
-        nb_man.nb.metadata['foo'] = 'bar'
-        self.assertNotEqual(nb_man.nb, self.nb)
-
     def test_basic_pbar(self):
         nb_man = NotebookExecutionManager(self.nb)
 
