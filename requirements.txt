@@ -1,4 +1,3 @@
-ansiwrap
 click
 pyyaml
 nbformat >= 5.1.2
@@ -6,4 +5,4 @@ nbclient >= 0.2.0
 tqdm >= 4.32.2
 requests
 entrypoints
-tenacity
+tenacity >= 5.0.2

@@ -20,8 +20,8 @@ jobs:
         python-version: ["3.7", "3.8", "3.9", "3.10"]
 
     steps:
-      - uses: "actions/checkout@v2"
-      - uses: "actions/setup-python@v2"
+      - uses: "actions/checkout@v3"
+      - uses: "actions/setup-python@v4"
         with:
           python-version: ${{ matrix.python-version }}
       - name: "Install dependencies"
@@ -40,7 +40,7 @@ jobs:
         run: python -m coverage xml
 
       - name: "Upload coverage to Codecov"
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v3
 
   others:
     runs-on: ubuntu-20.04
@@ -51,8 +51,8 @@ jobs:
     env:
       TOXENV: ${{ matrix.toxenv }}
     steps:
-      - uses: actions/checkout@master
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
           python-version: 3.8
       - name: "Install dependencies"

@@ -22,6 +22,7 @@ include .bumpversion.cfg
 # Documentation
 prune docs
 
+exclude .pre-commit-config.yaml
 # exclude sample notebooks for binder
 prune binder
 # Scripts
