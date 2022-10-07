@@ -343,7 +343,11 @@ class TestEngineBase(unittest.TestCase):
                     nb_man.cell_complete(cell)
 
         with patch.object(NotebookExecutionManager, 'save') as save_mock:
-            nb = CellCallbackEngine.execute_notebook(self.nb, 'python', output_path='foo.ipynb')
+            nb = CellCallbackEngine.execute_notebook(
+                copy.deepcopy(self.nb),
+                'python',
+                output_path='foo.ipynb'
+            )
 
             self.assertEqual(nb, AnyMock(NotebookNode))
             self.assertNotEqual(self.nb, nb)
