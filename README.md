@@ -1,7 +1,7 @@
-<a href="https://github.com/nteract/papermill"><img src="https://media.githubusercontent.com/media/nteract/logos/master/nteract_papermill/exports/images/png/papermill_logo_wide.png" height="48px" /></a>
-=======================================================================================================================================================================
+# <a href="https://github.com/nteract/papermill"><img src="https://media.githubusercontent.com/media/nteract/logos/master/nteract_papermill/exports/images/png/papermill_logo_wide.png" height="48px" /></a>
 
 <!---(binder links generated at https://mybinder.readthedocs.io/en/latest/howto/badges.html and compressed at https://tinyurl.com) -->
+
 [![CI](https://github.com/nteract/papermill/actions/workflows/ci.yml/badge.svg)](https://github.com/nteract/papermill/actions/workflows/ci.yml)
 [![CI](https://github.com/nteract/papermill/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/nteract/papermill/actions/workflows/ci.yml)
 [![image](https://codecov.io/github/nteract/papermill/coverage.svg?branch=main)](https://codecov.io/github/nteract/papermill?branch=main)
@@ -18,20 +18,20 @@ Jupyter Notebooks.
 
 Papermill lets you:
 
--   **parameterize** notebooks
--   **execute** notebooks
+- **parameterize** notebooks
+- **execute** notebooks
 
 This opens up new opportunities for how notebooks can be used. For
 example:
 
--   Perhaps you have a financial report that you wish to run with
-    different values on the first or last day of a month or at the
-    beginning or end of the year, **using parameters** makes this task
-    easier.
--   Do you want to run a notebook and depending on its results, choose a
-    particular notebook to run next? You can now programmatically
-    **execute a workflow** without having to copy and paste from
-    notebook to notebook manually.
+- Perhaps you have a financial report that you wish to run with
+  different values on the first or last day of a month or at the
+  beginning or end of the year, **using parameters** makes this task
+  easier.
+- Do you want to run a notebook and depending on its results, choose a
+  particular notebook to run next? You can now programmatically
+  **execute a workflow** without having to copy and paste from
+  notebook to notebook manually.
 
 Papermill takes an *opinionated* approach to notebook parameterization and
 execution based on our experiences using notebooks at scale in data
@@ -41,14 +41,14 @@ pipelines.
 
 From the command line:
 
-``` {.sourceCode .bash}
+```{.sourceCode .bash}
 pip install papermill
 ```
 
 For all optional io dependencies, you can specify individual bundles
-like `s3`, or `azure` -- or use `all`. To use Black to format parameters you can add as an extra requires ['black'].
+like `s3`, or `azure` -- or use `all`. To use Black to format parameters you can add as an extra requires \['black'\].
 
-``` {.sourceCode .bash}
+```{.sourceCode .bash}
 pip install papermill[all]
 ```
 
@@ -62,13 +62,13 @@ drop support in the future.
 
 ### Parameterizing a Notebook
 
-To parameterize your notebook designate a cell with the tag ``parameters``.
+To parameterize your notebook designate a cell with the tag `parameters`.
 
 ![enable parameters in Jupyter](docs/img/enable_parameters.gif)
 
-Papermill looks for the ``parameters`` cell and treats this cell as defaults for the parameters passed in at execution time. Papermill will add a new cell tagged with ``injected-parameters`` with input parameters in order to overwrite the values in ``parameters``. If no cell is tagged with ``parameters`` the injected cell will be inserted at the top of the notebook.
+Papermill looks for the `parameters` cell and treats this cell as defaults for the parameters passed in at execution time. Papermill will add a new cell tagged with `injected-parameters` with input parameters in order to overwrite the values in `parameters`. If no cell is tagged with `parameters` the injected cell will be inserted at the top of the notebook.
 
-Additionally, if you rerun notebooks through papermill and it will reuse the ``injected-parameters`` cell from the prior run. In this case Papermill will replace the old ``injected-parameters`` cell with the new run's inputs.
+Additionally, if you rerun notebooks through papermill and it will reuse the `injected-parameters` cell from the prior run. In this case Papermill will replace the old `injected-parameters` cell with the new run's inputs.
 
 ![image](docs/img/parameters.png)
 
@@ -79,7 +79,7 @@ the Python API and (2) through the command line interface.
 
 #### Execute via the Python API
 
-``` {.sourceCode .python}
+```{.sourceCode .python}
 import papermill as pm
 
 pm.execute_notebook(
@@ -94,48 +94,48 @@ pm.execute_notebook(
 Here's an example of a local notebook being executed and output to an
 Amazon S3 account:
 
-``` {.sourceCode .bash}
+```{.sourceCode .bash}
 $ papermill local/input.ipynb s3://bkt/output.ipynb -p alpha 0.6 -p l1_ratio 0.1
 ```
 
 **NOTE:**
 If you use multiple AWS accounts, and you have [properly configured your AWS  credentials](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/configuration.html), then you can specify which account to use by setting the `AWS_PROFILE` environment variable at the command-line. For example:
 
-``` {.sourceCode .bash}
+```{.sourceCode .bash}
 $ AWS_PROFILE=dev_account papermill local/input.ipynb s3://bkt/output.ipynb -p alpha 0.6 -p l1_ratio 0.1
 ```
 
-In the above example, two parameters are set: ``alpha`` and ``l1_ratio`` using ``-p`` (``--parameters`` also works). Parameter values that look like booleans or numbers will be interpreted as such. Here are the different ways users may set parameters:
+In the above example, two parameters are set: `alpha` and `l1_ratio` using `-p` (`--parameters` also works). Parameter values that look like booleans or numbers will be interpreted as such. Here are the different ways users may set parameters:
 
-``` {.sourceCode .bash}
+```{.sourceCode .bash}
 $ papermill local/input.ipynb s3://bkt/output.ipynb -r version 1.0
 ```
 
-Using ``-r`` or ``--parameters_raw``, users can set parameters one by one. However, unlike ``-p``, the parameter will remain a string, even if it may be interpreted as a number or boolean.
+Using `-r` or `--parameters_raw`, users can set parameters one by one. However, unlike `-p`, the parameter will remain a string, even if it may be interpreted as a number or boolean.
 
-``` {.sourceCode .bash}
+```{.sourceCode .bash}
 $ papermill local/input.ipynb s3://bkt/output.ipynb -f parameters.yaml
 ```
 
-Using ``-f`` or ``--parameters_file``, users can provide a YAML file from which parameter values should be read.
+Using `-f` or `--parameters_file`, users can provide a YAML file from which parameter values should be read.
 
-``` {.sourceCode .bash}
+```{.sourceCode .bash}
 $ papermill local/input.ipynb s3://bkt/output.ipynb -y "
 alpha: 0.6
 l1_ratio: 0.1"
 ```
 
-Using ``-y`` or ``--parameters_yaml``, users can directly provide a YAML string containing parameter values.
+Using `-y` or `--parameters_yaml`, users can directly provide a YAML string containing parameter values.
 
-``` {.sourceCode .bash}
+```{.sourceCode .bash}
 $ papermill local/input.ipynb s3://bkt/output.ipynb -b YWxwaGE6IDAuNgpsMV9yYXRpbzogMC4xCg==
 ```
 
-Using ``-b`` or ``--parameters_base64``, users can provide a YAML string, base64-encoded, containing parameter values.
+Using `-b` or `--parameters_base64`, users can provide a YAML string, base64-encoded, containing parameter values.
 
-When using YAML to pass arguments, through ``-y``, ``-b`` or ``-f``, parameter values can be arrays or dictionaries:
+When using YAML to pass arguments, through `-y`, `-b` or `-f`, parameter values can be arrays or dictionaries:
 
-``` {.sourceCode .bash}
+```{.sourceCode .bash}
 $ papermill local/input.ipynb s3://bkt/output.ipynb -y "
 x:
     - 0.0
@@ -151,25 +151,23 @@ linear_function:
 
 Papermill supports the following name handlers for input and output paths during execution:
 
- * Local file system: `local`
+- Local file system: `local`
 
- * HTTP, HTTPS protocol:  `http://, https://`
+- HTTP, HTTPS protocol:  `http://, https://`
 
- * Amazon Web Services: [AWS S3](https://aws.amazon.com/s3/) `s3://`
+- Amazon Web Services: [AWS S3](https://aws.amazon.com/s3/) `s3://`
 
- * Azure: [Azure DataLake Store](https://docs.microsoft.com/en-us/azure/data-lake-store/data-lake-store-overview), [Azure Blob Store](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blobs-overview) `adl://, abs://`
+- Azure: [Azure DataLake Store](https://docs.microsoft.com/en-us/azure/data-lake-store/data-lake-store-overview), [Azure Blob Store](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blobs-overview) `adl://, abs://`
 
- * Google Cloud: [Google Cloud Storage](https://cloud.google.com/storage/) `gs://`
+- Google Cloud: [Google Cloud Storage](https://cloud.google.com/storage/) `gs://`
 
-Development Guide
------------------
+## Development Guide
 
 Read [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on how to setup a local development environment and make code changes back to Papermill.
 
 For development guidelines look in the [DEVELOPMENT_GUIDE.md](./DEVELOPMENT_GUIDE.md) file. This should inform you on how to make particular additions to the code base.
 
-Documentation
--------------
+## Documentation
 
 We host the [Papermill documentation](http://papermill.readthedocs.io)
 on ReadTheDocs.

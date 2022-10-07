@@ -86,7 +86,7 @@ def test_str_path():
                 "\nParameters inferred for notebook '{name}':",
                 "  msg: Unknown type (default None)",
                 "  a: float (default 2.25)         Variable a",
-                "  b: List[str] (default ['Hello','World'])\n                                  Nice list",  # noqa
+                "  b: List[str] (default ['Hello','World'])\n                                  Nice list",
                 "  c: NoneType (default None)      ",
             ],
         ),

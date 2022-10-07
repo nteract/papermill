@@ -76,7 +76,7 @@ def test_translate_comment_python(test_input, expected):
         (
             "a: float = 2.258 # type: int Nice variable a",
             [Parameter("a", "float", "2.258", "Nice variable a")],
-        ),  # noqa
+        ),
         (
             "a = 'this is a string' # type: int Nice variable a",
             [Parameter("a", "int", "'this is a string'", "Nice variable a")],
