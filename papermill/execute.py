@@ -223,6 +223,9 @@ def raise_for_execution_errors(nb, output_path):
         error_anchor_cell = nbformat.v4.new_markdown_cell(ERROR_ANCHOR_MSG)
         error_anchor_cell.metadata['tags'] = [ERROR_MARKER_TAG]
 
+        # Upgrade the Notebook to the latest v4 before writing into it
+        nb = nbformat.v4.upgrade(nb)
+
         # put the anchor before the cell with the error, before all the indices change due to the
         # heading-prepending
         nb.cells.insert(error.cell_index, error_anchor_cell)

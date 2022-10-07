@@ -89,6 +89,9 @@ def parameterize_notebook(
     # Generate parameter content based on the kernel_name
     param_content = translate_parameters(kernel_name, language, parameters, comment)
 
+    # Upgrade the Notebook to the latest v4 before writing into it
+    nb = nbformat.v4.upgrade(nb)
+
     newcell = nbformat.v4.new_code_cell(source=param_content)
     newcell.metadata['tags'] = ['injected-parameters']
 

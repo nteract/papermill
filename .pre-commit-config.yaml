@@ -20,12 +20,12 @@ repos:
       - id: check-docstring-first
       - id: detect-private-key
 
-  #- repo: https://github.com/asottile/pyupgrade
-  #  rev: v2.37.3
-  #  hooks:
-  #    - id: pyupgrade
-  #      args: [--py37-plus]
-  #      name: Upgrade code
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v2.37.3
+    hooks:
+      - id: pyupgrade
+        args: [--py37-plus]
+        name: Upgrade code
 
   #- repo: https://github.com/myint/docformatter
   #  rev: v1.5.0
