@@ -2,7 +2,7 @@ import os
 import pickle
 import tempfile
 
-import pytest  # noqa
+import pytest
 
 from .. import exceptions
 
