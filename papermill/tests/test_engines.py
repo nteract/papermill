@@ -369,7 +369,9 @@ class TestEngineBase(unittest.TestCase):
         with patch.object(NotebookExecutionManager, 'save') as save_mock:
             with patch.object(NotebookExecutionManager, 'complete_pbar') as pbar_comp_mock:
                 nb = NoCellCallbackEngine.execute_notebook(
-                    self.nb, 'python', output_path='foo.ipynb'
+                    copy.deepcopy(self.nb),
+                    'python',
+                    output_path='foo.ipynb'
                 )
 
                 self.assertEqual(nb, AnyMock(NotebookNode))
@@ -403,7 +405,7 @@ class TestNBClientEngine(unittest.TestCase):
         with patch.object(engines, 'PapermillNotebookClient') as client_mock:
             with patch.object(NotebookExecutionManager, 'save') as save_mock:
                 nb = NBClientEngine.execute_notebook(
-                    self.nb,
+                    copy.deepcopy(self.nb),
                     'python',
                     output_path='foo.ipynb',
                     progress_bar=False,
