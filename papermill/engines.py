@@ -1,6 +1,5 @@
 """Engines to perform different roles"""
 import sys
-import copy
 import datetime
 import dateutil
 
@@ -99,8 +98,7 @@ class NotebookExecutionManager(object):
     def __init__(
         self, nb, output_path=None, log_output=False, progress_bar=True, autosave_cell_every=30
     ):
-        # Deep copy the input to isolate the object being executed against
-        self.nb = copy.deepcopy(nb)
+        self.nb = nb
         self.output_path = output_path
         self.log_output = log_output
         self.start_time = None
