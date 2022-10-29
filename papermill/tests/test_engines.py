@@ -36,14 +36,6 @@ class TestNotebookExecutionManager(unittest.TestCase):
         self.foo_nb = copy.deepcopy(self.nb)
         self.foo_nb.metadata['foo'] = 'bar'
 
-    def test_nb_isolation(self):
-        """
-        Tests that the engine notebook is isolated from source notebook
-        """
-        nb_man = NotebookExecutionManager(self.nb)
-        nb_man.nb.metadata['foo'] = 'bar'
-        self.assertNotEqual(nb_man.nb, self.nb)
-
     def test_basic_pbar(self):
         nb_man = NotebookExecutionManager(self.nb)
 
@@ -343,7 +335,11 @@ class TestEngineBase(unittest.TestCase):
                     nb_man.cell_complete(cell)
 
         with patch.object(NotebookExecutionManager, 'save') as save_mock:
-            nb = CellCallbackEngine.execute_notebook(self.nb, 'python', output_path='foo.ipynb')
+            nb = CellCallbackEngine.execute_notebook(
+                copy.deepcopy(self.nb),
+                'python',
+                output_path='foo.ipynb'
+            )
 
             self.assertEqual(nb, AnyMock(NotebookNode))
             self.assertNotEqual(self.nb, nb)
@@ -373,7 +369,9 @@ class TestEngineBase(unittest.TestCase):
         with patch.object(NotebookExecutionManager, 'save') as save_mock:
             with patch.object(NotebookExecutionManager, 'complete_pbar') as pbar_comp_mock:
                 nb = NoCellCallbackEngine.execute_notebook(
-                    self.nb, 'python', output_path='foo.ipynb'
+                    copy.deepcopy(self.nb),
+                    'python',
+                    output_path='foo.ipynb'
                 )
 
                 self.assertEqual(nb, AnyMock(NotebookNode))
@@ -407,7 +405,7 @@ class TestNBClientEngine(unittest.TestCase):
         with patch.object(engines, 'PapermillNotebookClient') as client_mock:
             with patch.object(NotebookExecutionManager, 'save') as save_mock:
                 nb = NBClientEngine.execute_notebook(
-                    self.nb,
+                    copy.deepcopy(self.nb),
                     'python',
                     output_path='foo.ipynb',
                     progress_bar=False,
