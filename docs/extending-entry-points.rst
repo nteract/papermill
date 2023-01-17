@@ -200,7 +200,7 @@ class:
     class CustomEngine(papermill.engines.Engine):
 
         @classmethod
-        execute_managed_notebook(cls, nb_man, kernel_name, **kwargs):
+        def execute_managed_notebook(cls, nb_man, kernel_name, **kwargs):
             pass
 
 ``nb_man`` is a |nbformat.NotebookNode|_, and ``kernel_name`` is a string. Your
