@@ -66,7 +66,7 @@ with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
 setup(
     name='papermill',
     version=version(),
-    description='Parametrize and run Jupyter and nteract Notebooks',
+    description='Parameterize and run Jupyter and nteract Notebooks',
     author='nteract contributors',
     author_email='nteract@googlegroups.com',
     license='BSD',
