@@ -42,9 +42,9 @@ class PapermillNotebookClient(NotebookClient):
 
         with self.setup_kernel(**kwargs):
             self.log.info("Executing notebook with kernel: %s" % self.kernel_name)
-            self.papermill_execute_cells()
             info_msg = self.wait_for_reply(self.kc.kernel_info())
             self.nb.metadata['language_info'] = info_msg['content']['language_info']
+            self.papermill_execute_cells()
             self.set_widgets_metadata()
 
         return self.nb
