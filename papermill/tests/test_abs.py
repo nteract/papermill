@@ -2,7 +2,6 @@ import os
 import unittest
 
 from unittest.mock import Mock, patch
-from azure.core.credentials import AzureSasCredential, AzureNamedKeyCredential
 from azure.identity import EnvironmentCredential
 from ..abs import AzureBlobStore
 
