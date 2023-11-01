@@ -1,8 +1,20 @@
 # Change Log
 
-## Unreleased
+## 2.5.0
 
-- Added support for python 3.11 and 3.12
+- Added support for python 3.11 and 3.12 [PR #733](https://github.com/nteract/papermill/pull/733)
+  - Dropped support for 3.7
+- ABS added support for using a Service principle via EnvCreds [PR #728](https://github.com/nteract/papermill/pull/728)
+- Added “github” extra deps. to the “all” extra [PR #715](https://github.com/nteract/papermill/pull/715)
+- Github actions updated to latest version [PR #732](https://github.com/nteract/papermill/pull/732)
+- Added a warning if non set parameter is passed through CLI [PR #701](https://github.com/nteract/papermill/pull/701)
+- Skip black formatting when encounting attribute errors [PR #699](https://github.com/nteract/papermill/pull/699)
+- Removed fored deepcopy of notebook objects [PR #694](https://github.com/nteract/papermill/pull/694)
+- Always update notebook version on execute [PR #691](https://github.com/nteract/papermill/pull/691)
+- Set minimum version for tenacity [PR #682](https://github.com/nteract/papermill/pull/682)
+- Removed use of ansiwrap [PR #681](https://github.com/nteract/papermill/pull/681)
+- Added precommit hook [PR #678](https://github.com/nteract/papermill/pull/678)
+- Added dependabot for GHA [PR #677](https://github.com/nteract/papermill/pull/677)
 
 ## 2.4.0
 
