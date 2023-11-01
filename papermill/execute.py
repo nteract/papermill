@@ -11,6 +11,7 @@ from .utils import chdir
 from .parameterize import add_builtin_parameters, parameterize_notebook, parameterize_path
 from .inspection import _infer_parameters
 
+
 def execute_notebook(
     input_path,
     output_path,
