@@ -3,6 +3,7 @@ import re
 import io
 
 from azure.storage.blob import BlobServiceClient
+from azure.identity import EnvironmentCredential
 
 
 class AzureBlobStore(object):
@@ -17,11 +18,13 @@ class AzureBlobStore(object):
         - write
     """
 
-    def _blob_service_client(self, account_name, sas_token):
+    def _blob_service_client(self, account_name, sas_token=None):
 
         blob_service_client = BlobServiceClient(
-            "{account}.blob.core.windows.net".format(account=account_name), sas_token
+            account_url="{account}.blob.core.windows.net".format(account=account_name),
+            credential=sas_token or EnvironmentCredential(),
         )
+
         return blob_service_client
 
     @classmethod
@@ -30,7 +33,7 @@ class AzureBlobStore(object):
         see: https://docs.microsoft.com/en-us/azure/storage/common/storage-dotnet-shared-access-signature-part-1  # noqa: E501
         abs://myaccount.blob.core.windows.net/sascontainer/sasblob.txt?sastoken
         """
-        match = re.match(r"abs://(.*)\.blob\.core\.windows\.net\/(.*?)\/(.*)\?(.*)$", url)
+        match = re.match(r"abs://(.*)\.blob\.core\.windows\.net\/(.*?)\/([^\?]*)\??(.*)$", url)
         if not match:
             raise Exception("Invalid azure blob url '{0}'".format(url))
         else:

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Added support for python 3.11 and 3.12
+
 ## 2.4.0
 
 - Add tracking cell executions with cell descriptions [PR #650](https://github.com/nteract/papermill/pull/650)
