@@ -194,6 +194,8 @@ class PythonTranslator(Translator):
                 content = black.format_str(content, mode=fm)
             except ImportError:
                 logger.debug("Black is not installed, parameters won't be formatted")
+            except AttributeError as aerr:
+                logger.warning(f"Black encountered an error, skipping formatting ({aerr})")
         return content
 
     @classmethod
