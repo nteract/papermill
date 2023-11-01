@@ -22,7 +22,7 @@ The `inspect_notebook` function can be called to inspect a notebook:
    pm.inspect_notebook('path/to/input.ipynb')
 
 .. note::
-    If your path is parametrized, you can pass those parameters in a dictionary
+    If your path is parameterized, you can pass those parameters in a dictionary
     as second parameter:
 
     ``inspect_notebook('path/to/input_{month}.ipynb', parameters={month='Feb'})``
