@@ -9,7 +9,7 @@ from .iorw import get_pretty_path, local_file_io_cwd, load_notebook_node, write_
 from .engines import papermill_engines
 from .utils import chdir
 from .parameterize import add_builtin_parameters, parameterize_notebook, parameterize_path
-
+from .inspection import _infer_parameters
 
 def execute_notebook(
     input_path,
@@ -90,6 +90,11 @@ def execute_notebook(
 
         # Parameterize the Notebook.
         if parameters:
+            parameter_predefined = _infer_parameters(nb)
+            parameter_predefined = {p.name for p in parameter_predefined}
+            for p in parameters:
+                if p not in parameter_predefined:
+                    logger.warning(f"Passed unknown parameter: {p}")
             nb = parameterize_notebook(
                 nb,
                 parameters,
