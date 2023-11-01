@@ -201,6 +201,10 @@ def papermill(
     from stdin and write it out to stdout.
 
     """
+    # Jupyter deps use frozen modules, so we disable the python 3.11+ warning about debugger if running the CLI
+    if 'PYDEVD_DISABLE_FILE_VALIDATION' not in os.environ:
+        os.environ['PYDEVD_DISABLE_FILE_VALIDATION'] = '1'
+
     if not help_notebook:
         required_output_path = not (INPUT_PIPED or OUTPUT_PIPED)
         if required_output_path and not output_path:
