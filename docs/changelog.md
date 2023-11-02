@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+- Changed parameter inspection to raise the same error messages as other pathways for missing kernel name and language
+
 ## 2.5.0
 
 - Added support for python 3.11 and 3.12 [PR #733](https://github.com/nteract/papermill/pull/733)
