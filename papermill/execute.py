@@ -91,7 +91,7 @@ def execute_notebook(
 
         # Parameterize the Notebook.
         if parameters:
-            parameter_predefined = _infer_parameters(nb)
+            parameter_predefined = _infer_parameters(nb, name=kernel_name, language=language)
             parameter_predefined = {p.name for p in parameter_predefined}
             for p in parameters:
                 if p not in parameter_predefined:
