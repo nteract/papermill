@@ -2,6 +2,7 @@
 
 import nbformat
 from pathlib import Path
+from copy import deepcopy
 
 from .log import logger
 from .exceptions import PapermillExecutionError
@@ -19,6 +20,7 @@ def execute_notebook(
     engine_name=None,
     request_save_on_cell_execute=True,
     prepare_only=False,
+    remove_tagged_cells=None,
     kernel_name=None,
     language=None,
     progress_bar=True,
@@ -28,7 +30,7 @@ def execute_notebook(
     start_timeout=60,
     report_mode=False,
     cwd=None,
-    **engine_kwargs
+    **engine_kwargs,
 ):
     """Executes a single notebook locally.
 
@@ -48,6 +50,9 @@ def execute_notebook(
         How often in seconds to save in the middle of long cell executions
     prepare_only : bool, optional
         Flag to determine if execution should occur or not
+    remove_tagged_cells : str, optional
+        If specified, cells with the specified tag will be removed
+        before execution and will not be present in the output notebook.
     kernel_name : str, optional
         Name of kernel to execute the notebook against
     language : str, optional
@@ -106,6 +111,8 @@ def execute_notebook(
             )
 
         nb = prepare_notebook_metadata(nb, input_path, output_path, report_mode)
+        if remove_tagged_cells is not None:
+            nb = remove_tagged_cells_from_notebook(nb, remove_tagged_cells)
         # clear out any existing error markers from previous papermill runs
         nb = remove_error_markers(nb)
 
@@ -127,7 +134,7 @@ def execute_notebook(
                     start_timeout=start_timeout,
                     stdout_file=stdout_file,
                     stderr_file=stderr_file,
-                    **engine_kwargs
+                    **engine_kwargs,
                 )
 
             # Check for errors first (it saves on error before raising)
@@ -163,6 +170,33 @@ def prepare_notebook_metadata(nb, input_path, output_path, report_mode=False):
     # Record specified environment variable values.
     nb.metadata.papermill['input_path'] = input_path
     nb.metadata.papermill['output_path'] = output_path
+
+    return nb
+
+
+def remove_tagged_cells_from_notebook(nb, tag):
+    """
+    Remove cells with a matching tag.
+
+    Parameters
+    ----------
+    nb : NotebookNode
+       Executable notebook object
+    tag : str
+        Tag to used to identify cells to remove.
+    """
+
+    # Copy the notebook to avoid changing the input one
+    nb = deepcopy(nb)
+
+    # Filter out cells containing the tag
+    cells = []
+    for cell in nb.cells:
+        if hasattr(cell, 'metadata') and 'tags' in cell.metadata:
+            if tag not in cell.metadata['tags']:
+                cells.append(cell)
+
+    nb.cells = cells
 
     return nb
 
