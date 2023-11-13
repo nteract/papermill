@@ -8,7 +8,7 @@ recursive-include papermill *.txt
 
 include setup.py
 include requirements.txt
-include tox_py_installer
+include tox_py_installer.sh
 recursive-include requirements *.txt
 include docs/requirements.txt
 include tox.ini
