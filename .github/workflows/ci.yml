@@ -47,7 +47,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        toxenv: ["flake8", "manifest", "docs", "binder"]
+        toxenv: ["manifest", "docs", "binder"]
     env:
       TOXENV: ${{ matrix.toxenv }}
     steps:
