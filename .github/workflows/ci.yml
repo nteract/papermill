@@ -29,8 +29,8 @@ jobs:
           set -xe
           python -VV
           python -m site
-          python -m pip install --upgrade pip setuptools wheel
-          python -m pip install --upgrade coverage[toml] virtualenv tox tox-gh-actions
+          python -m pip install --upgrade \
+            pip setuptools wheel coverage[toml] virtualenv tox tox-gh-actions
 
       - name: "Run tox targets for ${{ matrix.python-version }}"
         run: python -m tox
@@ -47,7 +47,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        toxenv: ["flake8", "black", "manifest", "docs", "binder"]
+        toxenv: ["flake8", "manifest", "docs", "binder"]
     env:
       TOXENV: ${{ matrix.toxenv }}
     steps:
