@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """ Test the command line interface """
 
 import os
@@ -31,7 +30,7 @@ from ..cli import papermill, _is_int, _is_float, _resolve_type
         ("12.51", 12.51),
         ("10", 10),
         ("hello world", "hello world"),
-        (u"😍", u"😍"),
+        ("😍", "😍"),
     ],
 )
 def test_resolve_type(test_input, expected):
@@ -49,7 +48,7 @@ def test_resolve_type(test_input, expected):
         ("10", True),
         ("12.31", True),
         ("hello world", False),
-        (u"😍", False),
+        ("😍", False),
     ],
 )
 def test_is_float(value, expected):
@@ -67,7 +66,7 @@ def test_is_float(value, expected):
         (10, True),
         ("13", True),
         ("hello world", False),
-        (u"😍", False),
+        ("😍", False),
     ],
 )
 def test_is_int(value, expected):

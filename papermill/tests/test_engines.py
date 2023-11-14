@@ -424,8 +424,8 @@ class TestNBClientEngine(unittest.TestCase):
                     ('log', logger),
                     ('log_output', True),
                 ]
-                actual = set([(key, kwargs[key]) for key in kwargs])
-                msg = 'Expected arguments {} are not a subset of actual {}'.format(expected, actual)
+                actual = {(key, kwargs[key]) for key in kwargs}
+                msg = f'Expected arguments {expected} are not a subset of actual {actual}'
                 self.assertTrue(set(expected).issubset(actual), msg=msg)
 
                 client_mock.return_value.execute.assert_called_once_with()

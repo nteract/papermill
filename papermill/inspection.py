@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Deduce parameters of a notebook from the parameters cell."""
 import click
 from pathlib import Path
@@ -68,7 +67,7 @@ def display_notebook_help(ctx, notebook_path, parameters):
     nb = _open_notebook(notebook_path, parameters)
     click.echo(ctx.command.get_usage(ctx))
     pretty_path = get_pretty_path(notebook_path)
-    click.echo("\nParameters inferred for notebook '{}':".format(pretty_path))
+    click.echo(f"\nParameters inferred for notebook '{pretty_path}':")
 
     if not any_tagged_cell(nb, "parameters"):
         click.echo("\n  No cell tagged 'parameters'")

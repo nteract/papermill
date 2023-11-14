@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Main `papermill` interface."""
 
 import os

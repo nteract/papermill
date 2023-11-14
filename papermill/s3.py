@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Utilities for working with S3."""
 
 import os
@@ -16,7 +15,7 @@ from .utils import retry
 logger = logging.getLogger('papermill.s3')
 
 
-class Bucket(object):
+class Bucket:
     """
     Represents a Bucket of storage on S3
 
@@ -40,7 +39,7 @@ class Bucket(object):
         )
 
 
-class Prefix(object):
+class Prefix:
     """
     Represents a prefix used in an S3 Bucket.
 
@@ -62,13 +61,13 @@ class Prefix(object):
         self.service = service
 
     def __str__(self):
-        return 's3://{}/{}'.format(self.bucket.name, self.name)
+        return f's3://{self.bucket.name}/{self.name}'
 
     def __repr__(self):
         return self.__str__()
 
 
-class Key(object):
+class Key:
     """
     A key that represents a unique object in an S3 Bucket.
 
@@ -115,13 +114,13 @@ class Key(object):
         self.service = service
 
     def __str__(self):
-        return 's3://{}/{}'.format(self.bucket.name, self.name)
+        return f's3://{self.bucket.name}/{self.name}'
 
     def __repr__(self):
         return self.__str__()
 
 
-class S3(object):
+class S3:
     """
     Wraps S3.
 
@@ -233,7 +232,7 @@ class S3(object):
                         yield Prefix(bucket, item['Prefix'], service=self)
                 else:
                     prefix = item['Key'] if 'Key' in item else item['Prefix']
-                    yield 's3://{}/{}'.format(bucket, prefix)
+                    yield f's3://{bucket}/{prefix}'
 
     def _put(self, source, dest, num_callbacks=10, policy='bucket-owner-full-control', **kwargs):
         key = self._get_key(dest)
@@ -310,7 +309,7 @@ class S3(object):
                 if size == 0:
                     break
 
-                r = obj.get(Range="bytes={}-".format(bytes_read))
+                r = obj.get(Range=f"bytes={bytes_read}-")
 
                 try:
                     while bytes_read < size:
@@ -442,12 +441,10 @@ class S3(object):
             buf += block
             if '\n' in buf:
                 ret, buf = buf.rsplit('\n', 1)
-                for line in ret.split('\n'):
-                    yield line
+                yield from ret.split('\n')
 
         lines = buf.split('\n')
-        for line in lines[:-1]:
-            yield line
+        yield from lines[:-1]
 
         # only yield the last line if the line has content in it
         if lines[-1]:

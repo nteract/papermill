@@ -27,9 +27,7 @@ class TestNotebookHelpers(unittest.TestCase):
         self.test_dir = tempfile.mkdtemp()
         self.notebook_name = 'simple_execute.ipynb'
         self.notebook_path = get_notebook_path(self.notebook_name)
-        self.nb_test_executed_fname = os.path.join(
-            self.test_dir, 'output_{}'.format(self.notebook_name)
-        )
+        self.nb_test_executed_fname = os.path.join(self.test_dir, f'output_{self.notebook_name}')
 
     def tearDown(self):
         shutil.rmtree(self.test_dir)
@@ -44,10 +42,10 @@ class TestNotebookHelpers(unittest.TestCase):
             ('kernel_name', kernel_name),
             ('log', logger),
         ]
-        actual = set([(key, kwargs[key]) for key in kwargs])
+        actual = {(key, kwargs[key]) for key in kwargs}
         self.assertTrue(
             set(expected).issubset(actual),
-            msg='Expected arguments {} are not a subset of actual {}'.format(expected, actual),
+            msg=f'Expected arguments {expected} are not a subset of actual {actual}',
         )
 
     @patch(engines.__name__ + '.PapermillNotebookClient')
@@ -60,10 +58,10 @@ class TestNotebookHelpers(unittest.TestCase):
             ('kernel_name', kernel_name),
             ('log', logger),
         ]
-        actual = set([(key, kwargs[key]) for key in kwargs])
+        actual = {(key, kwargs[key]) for key in kwargs}
         self.assertTrue(
             set(expected).issubset(actual),
-            msg='Expected arguments {} are not a subset of actual {}'.format(expected, actual),
+            msg=f'Expected arguments {expected} are not a subset of actual {actual}',
         )
 
     def test_cell_insertion(self):
@@ -76,7 +74,7 @@ class TestNotebookHelpers(unittest.TestCase):
 
     def test_no_tags(self):
         notebook_name = 'no_parameters.ipynb'
-        nb_test_executed_fname = os.path.join(self.test_dir, 'output_{}'.format(notebook_name))
+        nb_test_executed_fname = os.path.join(self.test_dir, f'output_{notebook_name}')
         execute_notebook(get_notebook_path(notebook_name), nb_test_executed_fname, {'msg': 'Hello'})
         test_nb = load_notebook_node(nb_test_executed_fname)
         self.assertListEqual(
@@ -215,9 +213,7 @@ class TestReportMode(unittest.TestCase):
         self.test_dir = tempfile.mkdtemp()
         self.notebook_name = 'report_mode_test.ipynb'
         self.notebook_path = get_notebook_path(self.notebook_name)
-        self.nb_test_executed_fname = os.path.join(
-            self.test_dir, 'output_{}'.format(self.notebook_name)
-        )
+        self.nb_test_executed_fname = os.path.join(self.test_dir, f'output_{self.notebook_name}')
 
     def tearDown(self):
         shutil.rmtree(self.test_dir)
@@ -247,9 +243,9 @@ class TestCWD(unittest.TestCase):
         self.check_notebook_path = os.path.join(self.base_test_dir, 'read_check.ipynb')
         # Setup read paths so base_test_dir has check_notebook_name
         shutil.copyfile(get_notebook_path(self.check_notebook_name), self.check_notebook_path)
-        with io.open(os.path.join(self.test_dir, 'check.txt'), 'w', encoding='utf-8') as f:
+        with open(os.path.join(self.test_dir, 'check.txt'), 'w', encoding='utf-8') as f:
             # Needed for read_check to pass
-            f.write(u'exists')
+            f.write('exists')
 
         self.simple_notebook_name = 'simple_execute.ipynb'
         self.simple_notebook_path = os.path.join(self.base_test_dir, 'simple_execute.ipynb')
@@ -302,7 +298,7 @@ class TestSysExit(unittest.TestCase):
 
     def test_sys_exit(self):
         notebook_name = 'sysexit.ipynb'
-        result_path = os.path.join(self.test_dir, 'output_{}'.format(notebook_name))
+        result_path = os.path.join(self.test_dir, f'output_{notebook_name}')
         execute_notebook(get_notebook_path(notebook_name), result_path)
         nb = load_notebook_node(result_path)
         self.assertEqual(nb.cells[0].cell_type, "code")
@@ -315,7 +311,7 @@ class TestSysExit(unittest.TestCase):
 
     def test_sys_exit0(self):
         notebook_name = 'sysexit0.ipynb'
-        result_path = os.path.join(self.test_dir, 'output_{}'.format(notebook_name))
+        result_path = os.path.join(self.test_dir, f'output_{notebook_name}')
         execute_notebook(get_notebook_path(notebook_name), result_path)
         nb = load_notebook_node(result_path)
         self.assertEqual(nb.cells[0].cell_type, "code")
@@ -328,7 +324,7 @@ class TestSysExit(unittest.TestCase):
 
     def test_sys_exit1(self):
         notebook_name = 'sysexit1.ipynb'
-        result_path = os.path.join(self.test_dir, 'output_{}'.format(notebook_name))
+        result_path = os.path.join(self.test_dir, f'output_{notebook_name}')
         with self.assertRaises(PapermillExecutionError):
             execute_notebook(get_notebook_path(notebook_name), result_path)
         nb = load_notebook_node(result_path)
@@ -347,7 +343,7 @@ class TestSysExit(unittest.TestCase):
 
     def test_system_exit(self):
         notebook_name = 'systemexit.ipynb'
-        result_path = os.path.join(self.test_dir, 'output_{}'.format(notebook_name))
+        result_path = os.path.join(self.test_dir, f'output_{notebook_name}')
         execute_notebook(get_notebook_path(notebook_name), result_path)
         nb = load_notebook_node(result_path)
         self.assertEqual(nb.cells[0].cell_type, "code")
@@ -368,7 +364,7 @@ class TestNotebookValidation(unittest.TestCase):
 
     def test_from_version_4_4_upgrades(self):
         notebook_name = 'nb_version_4.4.ipynb'
-        result_path = os.path.join(self.test_dir, 'output_{}'.format(notebook_name))
+        result_path = os.path.join(self.test_dir, f'output_{notebook_name}')
         execute_notebook(get_notebook_path(notebook_name), result_path, {'var': 'It works'})
         nb = load_notebook_node(result_path)
         validate(nb)
@@ -383,7 +379,7 @@ class TestMinimalNotebook(unittest.TestCase):
 
     def test_no_v3_language_backport(self):
         notebook_name = 'blank-vscode.ipynb'
-        result_path = os.path.join(self.test_dir, 'output_{}'.format(notebook_name))
+        result_path = os.path.join(self.test_dir, f'output_{notebook_name}')
         execute_notebook(get_notebook_path(notebook_name), result_path, {'var': 'It works'})
         nb = load_notebook_node(result_path)
         validate(nb)
