@@ -191,7 +191,7 @@ class S3(object):
         keys=False,
         objects=False,
         page_size=1000,
-        **kwargs
+        **kwargs,
     ):
         assert bucket is not None, 'You must specify a bucket to list'
 

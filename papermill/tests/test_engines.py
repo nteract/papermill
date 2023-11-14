@@ -336,9 +336,7 @@ class TestEngineBase(unittest.TestCase):
 
         with patch.object(NotebookExecutionManager, 'save') as save_mock:
             nb = CellCallbackEngine.execute_notebook(
-                copy.deepcopy(self.nb),
-                'python',
-                output_path='foo.ipynb'
+                copy.deepcopy(self.nb), 'python', output_path='foo.ipynb'
             )
 
             self.assertEqual(nb, AnyMock(NotebookNode))
@@ -369,9 +367,7 @@ class TestEngineBase(unittest.TestCase):
         with patch.object(NotebookExecutionManager, 'save') as save_mock:
             with patch.object(NotebookExecutionManager, 'complete_pbar') as pbar_comp_mock:
                 nb = NoCellCallbackEngine.execute_notebook(
-                    copy.deepcopy(self.nb),
-                    'python',
-                    output_path='foo.ipynb'
+                    copy.deepcopy(self.nb), 'python', output_path='foo.ipynb'
                 )
 
                 self.assertEqual(nb, AnyMock(NotebookNode))
@@ -524,7 +520,6 @@ class TestEngineRegistration(unittest.TestCase):
         with patch(
             "entrypoints.get_group_all", return_value=[fake_entrypoint]
         ) as mock_get_group_all:
-
             self.papermill_engines.register_entry_points()
             mock_get_group_all.assert_called_once_with("papermill.engine")
             self.assertEqual(

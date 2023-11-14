@@ -411,6 +411,7 @@ class GithubHandler(object):
 
 class StreamHandler(object):
     '''Handler for Stdin/Stdout streams'''
+
     def read(self, path):
         return sys.stdin.read()
 
@@ -431,6 +432,7 @@ class StreamHandler(object):
 
 class NotebookNodeHandler(object):
     '''Handler for input_path of nbformat.NotebookNode object'''
+
     def read(self, path):
         return nbformat.writes(path)
 

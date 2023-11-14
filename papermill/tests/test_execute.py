@@ -413,17 +413,19 @@ class TestExecuteWithCustomEngine(unittest.TestCase):
 
         self._orig_papermill_engines = deepcopy(engines.papermill_engines)
         self._orig_translators = deepcopy(translators.papermill_translators)
-        engines.papermill_engines.register(
-            "custom_engine", self.CustomEngine
+        engines.papermill_engines.register("custom_engine", self.CustomEngine)
+        translators.papermill_translators.register(
+            "my_custom_language", translators.PythonTranslator()
         )
-        translators.papermill_translators.register("my_custom_language", translators.PythonTranslator())
 
     def tearDown(self):
         shutil.rmtree(self.test_dir)
         engines.papermill_engines = self._orig_papermill_engines
         translators.papermill_translators = self._orig_translators
 
-    @patch.object(CustomEngine, "execute_managed_notebook", wraps=CustomEngine.execute_managed_notebook)
+    @patch.object(
+        CustomEngine, "execute_managed_notebook", wraps=CustomEngine.execute_managed_notebook
+    )
     @patch("papermill.parameterize.translate_parameters", wraps=translators.translate_parameters)
     def test_custom_kernel_name_and_language(self, translate_parameters, execute_managed_notebook):
         """Tests execute against engine with custom implementations to fetch
@@ -436,7 +438,9 @@ class TestExecuteWithCustomEngine(unittest.TestCase):
             parameters={"msg": "fake msg"},
         )
         self.assertEqual(execute_managed_notebook.call_args[0], (ANY, "my_custom_kernel"))
-        self.assertEqual(translate_parameters.call_args[0], (ANY, 'my_custom_language', {"msg": "fake msg"}, ANY))
+        self.assertEqual(
+            translate_parameters.call_args[0], (ANY, 'my_custom_language', {"msg": "fake msg"}, ANY)
+        )
 
 
 class TestNotebookNodeInput(unittest.TestCase):

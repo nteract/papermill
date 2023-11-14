@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 class AwsError(Exception):
     """Raised when an AWS Exception is encountered."""
 

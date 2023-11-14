@@ -442,14 +442,10 @@ def papermill_version():
 
 @pytest.fixture()
 def notebook():
-    metadata = {
-        'kernelspec': {'name': 'python3', 'language': 'python', 'display_name': 'python3'}
-    }
+    metadata = {'kernelspec': {'name': 'python3', 'language': 'python', 'display_name': 'python3'}}
     return nbformat.v4.new_notebook(
         metadata=metadata,
-        cells=[
-            nbformat.v4.new_markdown_cell('This is a notebook with kernel: python3')
-        ],
+        cells=[nbformat.v4.new_markdown_cell('This is a notebook with kernel: python3')],
     )
 
 

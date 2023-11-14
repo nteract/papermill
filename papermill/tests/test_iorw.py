@@ -102,14 +102,12 @@ class TestPapermillIO(unittest.TestCase):
         self.assertIsInstance(self.papermill_io.get_handler(test_nb), NotebookNodeHandler)
 
     def test_entrypoint_register(self):
-
         fake_entrypoint = Mock(load=Mock())
         fake_entrypoint.name = "fake-from-entry-point://"
 
         with patch(
             "entrypoints.get_group_all", return_value=[fake_entrypoint]
         ) as mock_get_group_all:
-
             self.papermill_io.register_entry_points()
             mock_get_group_all.assert_called_once_with("papermill.io")
             fake_ = self.papermill_io.get_handler("fake-from-entry-point://")

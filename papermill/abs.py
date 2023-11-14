@@ -19,7 +19,6 @@ class AzureBlobStore(object):
     """
 
     def _blob_service_client(self, account_name, sas_token=None):
-
         blob_service_client = BlobServiceClient(
             account_url="{account}.blob.core.windows.net".format(account=account_name),
             credential=sas_token or EnvironmentCredential(),

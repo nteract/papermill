@@ -28,7 +28,7 @@ def execute_notebook(
     start_timeout=60,
     report_mode=False,
     cwd=None,
-    **engine_kwargs
+    **engine_kwargs,
 ):
     """Executes a single notebook locally.
 
@@ -127,7 +127,7 @@ def execute_notebook(
                     start_timeout=start_timeout,
                     stdout_file=stdout_file,
                     stderr_file=stderr_file,
-                    **engine_kwargs
+                    **engine_kwargs,
                 )
 
             # Check for errors first (it saves on error before raising)
