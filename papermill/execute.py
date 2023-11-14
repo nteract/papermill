@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import nbformat
 from pathlib import Path
 
@@ -28,7 +26,7 @@ def execute_notebook(
     start_timeout=60,
     report_mode=False,
     cwd=None,
-    **engine_kwargs
+    **engine_kwargs,
 ):
     """Executes a single notebook locally.
 
@@ -85,7 +83,7 @@ def execute_notebook(
     logger.info("Output Notebook: %s" % get_pretty_path(output_path))
     with local_file_io_cwd():
         if cwd is not None:
-            logger.info("Working directory: {}".format(get_pretty_path(cwd)))
+            logger.info(f"Working directory: {get_pretty_path(cwd)}")
 
         nb = load_notebook_node(input_path)
 
@@ -127,7 +125,7 @@ def execute_notebook(
                     start_timeout=start_timeout,
                     stdout_file=stdout_file,
                     stderr_file=stderr_file,
-                    **engine_kwargs
+                    **engine_kwargs,
                 )
 
             # Check for errors first (it saves on error before raising)

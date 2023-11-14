@@ -48,7 +48,7 @@ class TestMidCellAutosave(unittest.TestCase):
 
     def test_end2end_autosave_slow_notebook(self):
         test_dir = tempfile.mkdtemp()
-        nb_test_executed_fname = os.path.join(test_dir, 'output_{}'.format(self.notebook_name))
+        nb_test_executed_fname = os.path.join(test_dir, f'output_{self.notebook_name}')
 
         # Count how many times it writes the file w/o autosave
         with patch.object(engines, 'write_ipynb') as write_mock:

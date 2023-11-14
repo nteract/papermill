@@ -6,7 +6,7 @@ from azure.storage.blob import BlobServiceClient
 from azure.identity import EnvironmentCredential
 
 
-class AzureBlobStore(object):
+class AzureBlobStore:
     """
     Represents a Blob of storage on Azure
 
@@ -19,9 +19,8 @@ class AzureBlobStore(object):
     """
 
     def _blob_service_client(self, account_name, sas_token=None):
-
         blob_service_client = BlobServiceClient(
-            account_url="{account}.blob.core.windows.net".format(account=account_name),
+            account_url=f"{account_name}.blob.core.windows.net",
             credential=sas_token or EnvironmentCredential(),
         )
 
@@ -35,7 +34,7 @@ class AzureBlobStore(object):
         """
         match = re.match(r"abs://(.*)\.blob\.core\.windows\.net\/(.*?)\/([^\?]*)\??(.*)$", url)
         if not match:
-            raise Exception("Invalid azure blob url '{0}'".format(url))
+            raise Exception(f"Invalid azure blob url '{url}'")
         else:
             params = {
                 "account": match.group(1),

@@ -184,19 +184,19 @@ def s3_client():
 
 
 def test_s3_read(s3_client):
-    s3_path = "s3://{}/{}".format(test_bucket_name, test_file_path)
+    s3_path = f"s3://{test_bucket_name}/{test_file_path}"
     data = read_from_gen(s3_client.read(s3_path))
     assert data == test_clean_nb_content
 
 
 def test_s3_read_empty(s3_client):
-    s3_path = "s3://{}/{}".format(test_bucket_name, test_empty_file_path)
+    s3_path = f"s3://{test_bucket_name}/{test_empty_file_path}"
     data = read_from_gen(s3_client.read(s3_path))
     assert data == ''
 
 
 def test_s3_write(s3_client):
-    s3_path = "s3://{}/{}.txt".format(test_bucket_name, test_file_path)
+    s3_path = f"s3://{test_bucket_name}/{test_file_path}.txt"
     s3_client.cp_string(test_string, s3_path)
 
     data = read_from_gen(s3_client.read(s3_path))
@@ -204,7 +204,7 @@ def test_s3_write(s3_client):
 
 
 def test_s3_overwrite(s3_client):
-    s3_path = "s3://{}/{}".format(test_bucket_name, test_file_path)
+    s3_path = f"s3://{test_bucket_name}/{test_file_path}"
     s3_client.cp_string(test_string, s3_path)
 
     data = read_from_gen(s3_client.read(s3_path))
@@ -213,8 +213,8 @@ def test_s3_overwrite(s3_client):
 
 def test_s3_listdir(s3_client):
     dir_name = os.path.dirname(test_file_path)
-    s3_dir = "s3://{}/{}".format(test_bucket_name, dir_name)
-    s3_path = "s3://{}/{}".format(test_bucket_name, test_file_path)
+    s3_dir = f"s3://{test_bucket_name}/{dir_name}"
+    s3_path = f"s3://{test_bucket_name}/{test_file_path}"
     dir_listings = s3_client.listdir(s3_dir)
     assert len(dir_listings) == 2
     assert s3_path in dir_listings
