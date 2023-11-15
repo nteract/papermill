@@ -55,10 +55,10 @@ If you are contributing with documentation please jump to [building documentatio
 
 We need to install the development package before we can run the tests. If anything is confusing below, always resort to the relevant documentation.
 
-For the most basic test runs against python 3.8 use this tox subset (callable after `pip install tox`):
+For the most basic test runs against python 3.12 use this tox subset (callable after `pip install tox`):
 
 ```bash
-tox -e py38
+tox -e py312
 ```
 
 This will just execute the unittests against python 3.8 in a new virtual env. The first run will take longer to setup the virtualenv, but will be fast after that point.
