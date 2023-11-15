@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """"
 setup.py
 
@@ -21,7 +20,7 @@ here = os.path.abspath(local_path)
 
 
 def version():
-    with open(here + '/papermill/version.py', 'r') as ver:
+    with open(here + '/papermill/version.py') as ver:
         for line in ver.readlines():
             if line.startswith('version ='):
                 return line.split(' = ')[-1].strip()[1:-1]
@@ -29,7 +28,7 @@ def version():
 
 
 def read(fname):
-    with open(fname, 'r') as fhandle:
+    with open(fname) as fhandle:
         return fhandle.read()
 
 
@@ -49,7 +48,9 @@ black_reqs = ['black >= 19.3b0']
 all_reqs = s3_reqs + azure_reqs + gcs_reqs + hdfs_reqs + github_reqs + black_reqs
 docs_reqs = all_reqs + docs_only_reqs
 # Temporarily remove hdfs_reqs from dev deps until the pyarrow package is available for Python 3.12
-dev_reqs = read_reqs('dev.txt', folder='requirements') + s3_reqs + azure_reqs + gcs_reqs + black_reqs # all_reqs
+dev_reqs = (
+    read_reqs('dev.txt', folder='requirements') + s3_reqs + azure_reqs + gcs_reqs + black_reqs
+)  # all_reqs
 extras_require = {
     "test": dev_reqs,
     "dev": dev_reqs,

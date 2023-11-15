@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import json
 import unittest
 import os
@@ -35,23 +33,23 @@ class TestPapermillIO(unittest.TestCase):
     Tests for `PapermillIO`.
     """
 
-    class FakeHandler(object):
+    class FakeHandler:
         def __init__(self, ver):
             self.ver = ver
 
         def read(self, path):
-            return "contents from {} for version {}".format(path, self.ver)
+            return f"contents from {path} for version {self.ver}"
 
         def listdir(self, path):
             return ["fake", "contents"]
 
         def write(self, buf, path):
-            return "wrote {}".format(buf)
+            return f"wrote {buf}"
 
         def pretty_path(self, path):
-            return "{}/pretty/{}".format(path, self.ver)
+            return f"{path}/pretty/{self.ver}"
 
-    class FakeByteHandler(object):
+    class FakeByteHandler:
         def __init__(self, ver):
             self.ver = ver
 
@@ -64,10 +62,10 @@ class TestPapermillIO(unittest.TestCase):
             return ["fake", "contents"]
 
         def write(self, buf, path):
-            return "wrote {}".format(buf)
+            return f"wrote {buf}"
 
         def pretty_path(self, path):
-            return "{}/pretty/{}".format(path, self.ver)
+            return f"{path}/pretty/{self.ver}"
 
     def setUp(self):
         self.papermill_io = PapermillIO()
@@ -102,14 +100,12 @@ class TestPapermillIO(unittest.TestCase):
         self.assertIsInstance(self.papermill_io.get_handler(test_nb), NotebookNodeHandler)
 
     def test_entrypoint_register(self):
-
         fake_entrypoint = Mock(load=Mock())
         fake_entrypoint.name = "fake-from-entry-point://"
 
         with patch(
             "entrypoints.get_group_all", return_value=[fake_entrypoint]
         ) as mock_get_group_all:
-
             self.papermill_io.register_entry_points()
             mock_get_group_all.assert_called_once_with("papermill.io")
             fake_ = self.papermill_io.get_handler("fake-from-entry-point://")
@@ -160,7 +156,7 @@ class TestPapermillIO(unittest.TestCase):
             read_yaml_file("fake/path/fakeinputpath.ipynb")
 
     def test_read_stdin(self):
-        file_content = u'Τὴ γλῶσσα μοῦ ἔδωσαν ἑλληνικὴ'
+        file_content = 'Τὴ γλῶσσα μοῦ ἔδωσαν ἑλληνικὴ'
         with patch('sys.stdin', io.StringIO(file_content)):
             self.assertEqual(self.old_papermill_io.read("-"), file_content)
 
@@ -182,7 +178,7 @@ class TestPapermillIO(unittest.TestCase):
             self.papermill_io.write("buffer", "fake/path/fakeoutputpath.ipynb1")
 
     def test_write_stdout(self):
-        file_content = u'Τὴ γλῶσσα μοῦ ἔδωσαν ἑλληνικὴ'
+        file_content = 'Τὴ γλῶσσα μοῦ ἔδωσαν ἑλληνικὴ'
         out = io.BytesIO()
         with patch('sys.stdout', out):
             self.old_papermill_io.write(file_content, "-")
@@ -198,14 +194,14 @@ class TestLocalHandler(unittest.TestCase):
     """
 
     def test_read_utf8(self):
-        self.assertEqual(LocalHandler().read(os.path.join(FIXTURE_PATH, 'rock.txt')).strip(), u'✄')
+        self.assertEqual(LocalHandler().read(os.path.join(FIXTURE_PATH, 'rock.txt')).strip(), '✄')
 
     def test_write_utf8(self):
         with TemporaryDirectory() as temp_dir:
             path = os.path.join(temp_dir, 'paper.txt')
-            LocalHandler().write(u'✄', path)
-            with io.open(path, 'r', encoding='utf-8') as f:
-                self.assertEqual(f.read().strip(), u'✄')
+            LocalHandler().write('✄', path)
+            with open(path, encoding='utf-8') as f:
+                self.assertEqual(f.read().strip(), '✄')
 
     def test_write_no_directory_exists(self):
         with self.assertRaises(FileNotFoundError):
@@ -221,11 +217,11 @@ class TestLocalHandler(unittest.TestCase):
             handler = LocalHandler()
 
             handler.cwd(temp_dir)
-            handler.write(u'✄', 'paper.txt')
+            handler.write('✄', 'paper.txt')
 
             path = os.path.join(temp_dir, 'paper.txt')
-            with io.open(path, 'r', encoding='utf-8') as f:
-                self.assertEqual(f.read().strip(), u'✄')
+            with open(path, encoding='utf-8') as f:
+                self.assertEqual(f.read().strip(), '✄')
 
     def test_local_file_io_cwd(self):
         with TemporaryDirectory() as temp_dir:
@@ -238,13 +234,13 @@ class TestLocalHandler(unittest.TestCase):
                 papermill_io.register("local", local_handler)
 
                 with local_file_io_cwd(temp_dir):
-                    local_handler.write(u'✄', 'paper.txt')
-                    self.assertEqual(local_handler.read('paper.txt'), u'✄')
+                    local_handler.write('✄', 'paper.txt')
+                    self.assertEqual(local_handler.read('paper.txt'), '✄')
 
                 # Double check it used the tmpdir
                 path = os.path.join(temp_dir, 'paper.txt')
-                with io.open(path, 'r', encoding='utf-8') as f:
-                    self.assertEqual(f.read().strip(), u'✄')
+                with open(path, encoding='utf-8') as f:
+                    self.assertEqual(f.read().strip(), '✄')
             finally:
                 papermill_io.handlers = handlers
 
@@ -314,7 +310,7 @@ class TestHttpHandler(unittest.TestCase):
         with self.assertRaises(PapermillException) as e:
             HttpHandler.listdir('http://example.com')
 
-        self.assertEqual('{}'.format(e.exception), 'listdir is not supported by HttpHandler')
+        self.assertEqual(f'{e.exception}', 'listdir is not supported by HttpHandler')
 
     def test_read(self):
         """
@@ -366,12 +362,12 @@ class TestStreamHandler(unittest.TestCase):
     def test_write_to_stdout_buffer(self, mock_stdout):
         mock_stdout.buffer = io.BytesIO()
         StreamHandler().write('mock stream', 'foo')
-        self.assertEqual(mock_stdout.buffer.getbuffer(), 'mock stream'.encode('utf-8'))
+        self.assertEqual(mock_stdout.buffer.getbuffer(), b'mock stream')
 
     @patch('sys.stdout', new_callable=io.BytesIO)
     def test_write_to_stdout(self, mock_stdout):
         StreamHandler().write('mock stream', 'foo')
-        self.assertEqual(mock_stdout.getbuffer(), 'mock stream'.encode('utf-8'))
+        self.assertEqual(mock_stdout.getbuffer(), b'mock stream')
 
     def test_pretty_path_returns_input_path(self):
         '''Should return the input str, which often is the default registered schema "-"'''
