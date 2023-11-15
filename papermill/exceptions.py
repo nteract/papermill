@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 class AwsError(Exception):
     """Raised when an AWS Exception is encountered."""
 
@@ -28,7 +26,7 @@ class PapermillExecutionError(PapermillException):
         self.evalue = evalue
         self.traceback = traceback
 
-        super(PapermillExecutionError, self).__init__(*args)
+        super().__init__(*args)
 
     def __str__(self):
         # Standard Behavior of an exception is to produce a string representation of its arguments

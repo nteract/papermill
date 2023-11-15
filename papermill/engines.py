@@ -13,7 +13,7 @@ from .iorw import write_ipynb
 from .utils import merge_kwargs, remove_args, nb_kernel_name, nb_language
 
 
-class PapermillEngines(object):
+class PapermillEngines:
     """
     The holder which houses any engine registered with the system.
 
@@ -40,7 +40,7 @@ class PapermillEngines(object):
         """Retrieves an engine by name."""
         engine = self._engines.get(name)
         if not engine:
-            raise PapermillException("No engine named '{}' found".format(name))
+            raise PapermillException(f"No engine named '{name}' found")
         return engine
 
     def execute_notebook_with_engine(self, engine_name, nb, kernel_name, **kwargs):
@@ -78,7 +78,7 @@ def catch_nb_assignment(func):
     return wrapper
 
 
-class NotebookExecutionManager(object):
+class NotebookExecutionManager:
     """
     Wrapper for execution state of a notebook.
 
@@ -213,7 +213,7 @@ class NotebookExecutionManager(object):
         """
         if self.log_output:
             ceel_num = cell_index + 1 if cell_index is not None else ''
-            logger.info('Executing Cell {:-<40}'.format(ceel_num))
+            logger.info(f'Executing Cell {ceel_num:-<40}')
 
         cell.metadata.papermill['start_time'] = self.now().isoformat()
         cell.metadata.papermill["status"] = self.RUNNING
@@ -251,7 +251,7 @@ class NotebookExecutionManager(object):
 
         if self.log_output:
             ceel_num = cell_index + 1 if cell_index is not None else ''
-            logger.info('Ending Cell {:-<43}'.format(ceel_num))
+            logger.info(f'Ending Cell {ceel_num:-<43}')
             # Ensure our last cell messages are not buffered by python
             sys.stdout.flush()
             sys.stderr.flush()
@@ -322,7 +322,7 @@ class NotebookExecutionManager(object):
         self.cleanup_pbar()
 
 
-class Engine(object):
+class Engine:
     """
     Base class for engines.
 

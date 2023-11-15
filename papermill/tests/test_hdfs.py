@@ -17,7 +17,7 @@ class MockHadoopFileSystem(MagicMock):
         return MockHadoopFile()
 
 
-class MockHadoopFile(object):
+class MockHadoopFile:
     def __init__(self):
         self._content = b'Content of notebook'
 
@@ -35,7 +35,7 @@ class MockHadoopFile(object):
         return 1
 
 
-class MockFileInfo(object):
+class MockFileInfo:
     def __init__(self, path):
         self.path = path
 

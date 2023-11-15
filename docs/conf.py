@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
 # papermill documentation build configuration file, created by
 # sphinx-quickstart on Mon Jan 15 09:50:01 2018.
