@@ -7,3 +7,4 @@ myst-parser>=2.0.0
 moto>=4.2.8
 sphinx-copybutton>=0.5.2
 nbformat
+entrypoints
