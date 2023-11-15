@@ -6,8 +6,12 @@ furo>=2023.9.10
 myst-parser>=2.0.0
 moto>=4.2.8
 sphinx-copybutton>=0.5.2
-<<<<<<< HEAD
 nbformat
 entrypoints
-=======
->>>>>>> 40bc794 (update docs dependencies)
+click
+pyyaml
+nbclient >= 0.2.0
+tqdm >= 4.32.2
+requests
+tenacity >= 5.0.2
+aiohttp
