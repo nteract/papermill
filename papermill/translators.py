@@ -2,7 +2,6 @@ import logging
 import math
 import re
 import shlex
-import sys
 
 from .exceptions import PapermillException
 from .models import Parameter
