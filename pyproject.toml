@@ -7,7 +7,7 @@ name = "papermill"
 dynamic = ["version"]
 description = "Parameterize and run Jupyter and nteract Notebooks"
 readme = "README.md"
-license = "BSD"
+license = "BSD-3-clause"
 requires-python = ">=3.8"
 authors = [
     { name = "nteract contributors", email = "nteract@googlegroups.com" },
@@ -175,12 +175,27 @@ Source = "https://github.com/nteract/papermill/"
 Tracker = "https://github.com/nteract/papermill/issues"
 
 [tool.hatch.version]
-path = "papermill/__init__.py"
+path = "papermill/version.py"
 
 [tool.hatch.build.targets.sdist]
 include = [
     "/papermill",
 ]
+
+# Test environment
+[[tool.hatch.envs.test.matrix]]
+python = ["3.8", "3.9", "3.10", "3.11"]
+
+[tool.hatch.envs.test]
+dependencies = [
+    "pytest>=4.1",
+]
+
+[tool.hatch.envs.test.scripts]
+test = "python -m pytest --settings tests.settings"
+test-cov = "coverage run -m django test --settings tests.settings"
+cov-report = ["coverage combine", "coverage report"]
+cov = ["test-cov", "cov-report"]
 
 [tool.black]
 line-length = 100
