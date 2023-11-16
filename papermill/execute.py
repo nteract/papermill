@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import nbformat
 from pathlib import Path
 from copy import deepcopy
@@ -90,7 +88,7 @@ def execute_notebook(
     logger.info("Output Notebook: %s" % get_pretty_path(output_path))
     with local_file_io_cwd():
         if cwd is not None:
-            logger.info("Working directory: {}".format(get_pretty_path(cwd)))
+            logger.info(f"Working directory: {get_pretty_path(cwd)}")
 
         nb = load_notebook_node(input_path)
 

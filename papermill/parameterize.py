@@ -53,7 +53,7 @@ def parameterize_path(path, parameters):
     try:
         return path.format(**parameters)
     except KeyError as key_error:
-        raise PapermillMissingParameterException("Missing parameter {}".format(key_error))
+        raise PapermillMissingParameterException(f"Missing parameter {key_error}")
 
 
 def parameterize_notebook(

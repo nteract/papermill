@@ -4,11 +4,12 @@ default_language_version:
 ci:
   autofix_prs: true
   autoupdate_commit_msg: '[pre-commit.ci] pre-commit suggestions'
+  autoupdate_schedule: quarterly
   # submodules: true
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.3.0
+    rev: v4.5.0
     hooks:
       - id: end-of-file-fixer
       - id: trailing-whitespace
@@ -21,7 +22,7 @@ repos:
       - id: detect-private-key
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.37.3
+    rev: v3.15.0
     hooks:
       - id: pyupgrade
         args: [--py37-plus]
@@ -38,14 +39,15 @@ repos:
   #  hooks:
   #    - id: isort
 
-  #- repo: https://github.com/psf/black
-  #  rev: 22.6.0
-  #  hooks:
-  #    - id: black
-  #      name: Black code
+  - repo: https://github.com/psf/black
+    rev: 23.11.0
+    hooks:
+      - id: black
+        name: Black code
+        args: ["-S"]
 
   - repo: https://github.com/executablebooks/mdformat
-    rev: 0.7.15
+    rev: 0.7.17
     hooks:
       - id: mdformat
         additional_dependencies:
@@ -53,6 +55,15 @@ repos:
           - mdformat_frontmatter
 
   - repo: https://github.com/asottile/yesqa
-    rev: v1.4.0
+    rev: v1.5.0
     hooks:
       - id: yesqa
+
+  - repo: https://github.com/pycqa/flake8
+    rev: 6.1.0
+    hooks:
+      - id: flake8
+        arge:
+          - "--count"
+          - "--show-source"
+          - "--statistics"

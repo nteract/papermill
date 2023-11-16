@@ -128,8 +128,8 @@ def merge_kwargs(caller_args, **callee_args):
     """
     conflicts = set(caller_args) & set(callee_args)
     if conflicts:
-        args = format('; '.join(['{}={}'.format(key, value) for key, value in callee_args.items()]))
-        msg = "Callee will overwrite caller's argument(s): {}".format(args)
+        args = format('; '.join([f'{key}={value}' for key, value in callee_args.items()]))
+        msg = f"Callee will overwrite caller's argument(s): {args}"
         warnings.warn(msg, PapermillParameterOverwriteWarning)
     return dict(caller_args, **callee_args)
 
@@ -165,7 +165,7 @@ def retry(num):
                 try:
                     return func(*args, **kwargs)
                 except Exception as e:
-                    logger.debug('Retrying after: {}'.format(e))
+                    logger.debug(f'Retrying after: {e}')
                     exception = e
             else:
                 raise exception

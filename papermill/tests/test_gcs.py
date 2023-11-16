@@ -24,7 +24,7 @@ except ImportError:
 
 
 def mock_gcs_fs_wrapper(exception=None, max_raises=1):
-    class MockGCSFileSystem(object):
+    class MockGCSFileSystem:
         def __init__(self):
             self._file = MockGCSFile(exception, max_raises)
 
@@ -37,7 +37,7 @@ def mock_gcs_fs_wrapper(exception=None, max_raises=1):
     return MockGCSFileSystem
 
 
-class MockGCSFile(object):
+class MockGCSFile:
     def __init__(self, exception=None, max_raises=1):
         self.read_count = 0
         self.write_count = 0

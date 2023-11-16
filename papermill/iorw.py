@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-import io
 import os
 import sys
 import json
@@ -85,7 +82,7 @@ except NameError:
     FileNotFoundError = IOError
 
 
-class PapermillIO(object):
+class PapermillIO:
     '''
     The holder which houses any io system registered with the system.
     This object is used in a singleton manner to save and load particular
@@ -157,9 +154,7 @@ class PapermillIO(object):
                 fnmatch.fnmatch(os.path.basename(path).split('?')[0], '*' + ext)
                 for ext in extensions
             ):
-                warnings.warn(
-                    "The specified file ({}) does not end in one of {}".format(path, extensions)
-                )
+                warnings.warn(f"The specified file ({path}) does not end in one of {extensions}")
 
         local_handler = None
         for scheme, handler in self._handlers:
@@ -170,14 +165,12 @@ class PapermillIO(object):
                 return handler
 
         if local_handler is None:
-            raise PapermillException(
-                "Could not find a registered schema handler for: {}".format(path)
-            )
+            raise PapermillException(f"Could not find a registered schema handler for: {path}")
 
         return local_handler
 
 
-class HttpHandler(object):
+class HttpHandler:
     @classmethod
     def read(cls, path):
         return requests.get(path, headers={'Accept': 'application/json'}).text
@@ -196,16 +189,16 @@ class HttpHandler(object):
         return path
 
 
-class LocalHandler(object):
+class LocalHandler:
     def __init__(self):
         self._cwd = None
 
     def read(self, path):
         try:
             with chdir(self._cwd):
-                with io.open(path, 'r', encoding="utf-8") as f:
+                with open(path, encoding="utf-8") as f:
                     return f.read()
-        except IOError as e:
+        except OSError as e:
             try:
                 # Check if path could be a notebook passed in as a
                 # string
@@ -223,8 +216,8 @@ class LocalHandler(object):
         with chdir(self._cwd):
             dirname = os.path.dirname(path)
             if dirname and not os.path.exists(dirname):
-                raise FileNotFoundError("output folder {} doesn't exist.".format(dirname))
-            with io.open(path, 'w', encoding="utf-8") as f:
+                raise FileNotFoundError(f"output folder {dirname} doesn't exist.")
+            with open(path, 'w', encoding="utf-8") as f:
                 f.write(buf)
 
     def pretty_path(self, path):
@@ -237,7 +230,7 @@ class LocalHandler(object):
         return old_cwd
 
 
-class S3Handler(object):
+class S3Handler:
     @classmethod
     def read(cls, path):
         return "\n".join(S3().read(path))
@@ -255,7 +248,7 @@ class S3Handler(object):
         return path
 
 
-class ADLHandler(object):
+class ADLHandler:
     def __init__(self):
         self._client = None
 
@@ -278,7 +271,7 @@ class ADLHandler(object):
         return path
 
 
-class ABSHandler(object):
+class ABSHandler:
     def __init__(self):
         self._client = None
 
@@ -301,7 +294,7 @@ class ABSHandler(object):
         return path
 
 
-class GCSHandler(object):
+class GCSHandler:
     RATE_LIMIT_RETRIES = 3
     RETRY_DELAY = 1
     RETRY_MULTIPLIER = 1
@@ -340,7 +333,7 @@ class GCSHandler(object):
                 try:
                     message = e.message
                 except AttributeError:
-                    message = "Generic exception {} raised".format(type(e))
+                    message = f"Generic exception {type(e)} raised"
                 if gs_is_retriable(e):
                     raise PapermillRateLimitException(message)
                 # Reraise the original exception without retries
@@ -352,7 +345,7 @@ class GCSHandler(object):
         return path
 
 
-class HDFSHandler(object):
+class HDFSHandler:
     def __init__(self):
         self._client = None
 
@@ -376,7 +369,7 @@ class HDFSHandler(object):
         return path
 
 
-class GithubHandler(object):
+class GithubHandler:
     def __init__(self):
         self._client = None
 
@@ -409,8 +402,9 @@ class GithubHandler(object):
         return path
 
 
-class StreamHandler(object):
+class StreamHandler:
     '''Handler for Stdin/Stdout streams'''
+
     def read(self, path):
         return sys.stdin.read()
 
@@ -429,8 +423,9 @@ class StreamHandler(object):
         return path
 
 
-class NotebookNodeHandler(object):
+class NotebookNodeHandler:
     '''Handler for input_path of nbformat.NotebookNode object'''
+
     def read(self, path):
         return nbformat.writes(path)
 
@@ -444,7 +439,7 @@ class NotebookNodeHandler(object):
         return 'NotebookNode object'
 
 
-class NoIOHandler(object):
+class NoIOHandler:
     '''Handler for output_path of None - intended to not write anything'''
 
     def read(self, path):

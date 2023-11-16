@@ -1,8 +1,10 @@
 # Pin packages for RTD builds
 # https://docs.readthedocs.io/en/stable/guides/reproducible-builds.html#pinning-dependencies
 #-r ../requirements.txt
-Sphinx>=3.5.4
-furo>=2021.4.11b34
-myst-parser>=0.13.7
-moto>=2.0.5
-sphinx-copybutton>=0.3.1
+Sphinx>=7.2.6
+furo>=2023.9.10
+myst-parser>=2.0.0
+moto>=4.2.8
+sphinx-copybutton>=0.5.2
+nbformat
+entrypoints
