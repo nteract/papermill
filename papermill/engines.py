@@ -417,6 +417,9 @@ class NBClientEngine(Engine):
             execution_timeout (int): Duration to wait before failing execution (default: never).
         """
 
+        # Exclude parameters that are unused downstream
+        kwargs = remove_args(['input_path'], **kwargs)
+
         # Exclude parameters that named differently downstream
         safe_kwargs = remove_args(['timeout', 'startup_timeout'], **kwargs)
 
