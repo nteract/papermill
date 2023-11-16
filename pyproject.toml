@@ -95,7 +95,6 @@ dev = [
     "requests >= 2.21.0",
     "requests >= 2.21.0",
     "setuptools>=38.6.0",
-    "tox",
     "twine>=1.11.0",
     "wheel>=0.31.0",
 ]
@@ -206,7 +205,6 @@ exclude = '''
     \.git
   | \.hg
   | \.mypy_cache
-  | \.tox
   | \.venv
   | _build
   | buck-out
