@@ -136,13 +136,13 @@ class TestNotebookHelpers(unittest.TestCase):
         notebook_name = 'simple_with_tags.ipynb'
 
         # Default case, no cells are skipped
-        nb_test_executed_fname = os.path.join(self.test_dir, 'output_{}'.format(notebook_name))
+        nb_test_executed_fname = os.path.join(self.test_dir, f'output_{notebook_name}')
         execute_notebook(get_notebook_path(notebook_name), nb_test_executed_fname, {})
         output_nb = load_notebook_node(nb_test_executed_fname)
         assert len(output_nb.cells) == 4
 
         # If a nonexistent tag is specified, no cells are skipped
-        nb_test_executed_fname = os.path.join(self.test_dir, 'output_{}'.format(notebook_name))
+        nb_test_executed_fname = os.path.join(self.test_dir, f'output_{notebook_name}')
         execute_notebook(
             get_notebook_path(notebook_name),
             nb_test_executed_fname,
@@ -153,7 +153,7 @@ class TestNotebookHelpers(unittest.TestCase):
         assert len(output_nb.cells) == 4
 
         # If cells with the 'printcell' tag are skipped, the output notebook is missing one cell
-        nb_test_executed_fname = os.path.join(self.test_dir, 'output_{}'.format(notebook_name))
+        nb_test_executed_fname = os.path.join(self.test_dir, f'output_{notebook_name}')
         execute_notebook(
             get_notebook_path(notebook_name),
             nb_test_executed_fname,
@@ -164,7 +164,7 @@ class TestNotebookHelpers(unittest.TestCase):
         assert len(output_nb.cells) == 3
 
         # If cells with the 'assigncell' tag are skipped, the execution raises an error
-        nb_test_executed_fname = os.path.join(self.test_dir, 'output_{}'.format(notebook_name))
+        nb_test_executed_fname = os.path.join(self.test_dir, f'output_{notebook_name}')
         with self.assertRaises(PapermillExecutionError):
             execute_notebook(
                 get_notebook_path(notebook_name),
