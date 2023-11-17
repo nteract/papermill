@@ -100,12 +100,8 @@ class TestCLI(unittest.TestCase):
             self.default_execute_kwargs['input_path'],
             self.default_execute_kwargs['output_path'],
         ]
-        self.sample_yaml_file = os.path.join(
-            os.path.dirname(__file__), 'parameters', 'example.yaml'
-        )
-        self.sample_json_file = os.path.join(
-            os.path.dirname(__file__), 'parameters', 'example.json'
-        )
+        self.sample_yaml_file = os.path.join(os.path.dirname(__file__), 'parameters', 'example.yaml')
+        self.sample_json_file = os.path.join(os.path.dirname(__file__), 'parameters', 'example.json')
 
     def augment_execute_kwargs(self, **new_kwargs):
         kwargs = self.default_execute_kwargs.copy()
@@ -114,21 +110,13 @@ class TestCLI(unittest.TestCase):
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_parameters(self, execute_patch):
-        self.runner.invoke(
-            papermill, self.default_args + ['-p', 'foo', 'bar', '--parameters', 'baz', '42']
-        )
-        execute_patch.assert_called_with(
-            **self.augment_execute_kwargs(parameters={'foo': 'bar', 'baz': 42})
-        )
+        self.runner.invoke(papermill, self.default_args + ['-p', 'foo', 'bar', '--parameters', 'baz', '42'])
+        execute_patch.assert_called_with(**self.augment_execute_kwargs(parameters={'foo': 'bar', 'baz': 42}))
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_parameters_raw(self, execute_patch):
-        self.runner.invoke(
-            papermill, self.default_args + ['-r', 'foo', 'bar', '--parameters_raw', 'baz', '42']
-        )
-        execute_patch.assert_called_with(
-            **self.augment_execute_kwargs(parameters={'foo': 'bar', 'baz': '42'})
-        )
+        self.runner.invoke(papermill, self.default_args + ['-r', 'foo', 'bar', '--parameters_raw', 'baz', '42'])
+        execute_patch.assert_called_with(**self.augment_execute_kwargs(parameters={'foo': 'bar', 'baz': '42'}))
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_parameters_file(self, execute_patch):
@@ -152,16 +140,12 @@ class TestCLI(unittest.TestCase):
             papermill,
             self.default_args + ['-y', '{"foo": "bar"}', '--parameters_yaml', '{"foo2": ["baz"]}'],
         )
-        execute_patch.assert_called_with(
-            **self.augment_execute_kwargs(parameters={'foo': 'bar', 'foo2': ['baz']})
-        )
+        execute_patch.assert_called_with(**self.augment_execute_kwargs(parameters={'foo': 'bar', 'foo2': ['baz']}))
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_parameters_yaml_date(self, execute_patch):
         self.runner.invoke(papermill, self.default_args + ['-y', 'a_date: 2019-01-01'])
-        execute_patch.assert_called_with(
-            **self.augment_execute_kwargs(parameters={'a_date': '2019-01-01'})
-        )
+        execute_patch.assert_called_with(**self.augment_execute_kwargs(parameters={'a_date': '2019-01-01'}))
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_parameters_empty(self, execute_patch):
@@ -201,9 +185,7 @@ class TestCLI(unittest.TestCase):
             )
         )
 
-    @patch(
-        cli.__name__ + '.execute_notebook', side_effect=nbclient.exceptions.DeadKernelError("Fake")
-    )
+    @patch(cli.__name__ + '.execute_notebook', side_effect=nbclient.exceptions.DeadKernelError("Fake"))
     def test_parameters_dead_kernel(self, execute_patch):
         result = self.runner.invoke(
             papermill,
@@ -220,18 +202,12 @@ class TestCLI(unittest.TestCase):
             'eydmb28nOiAxfQ==',
         ]
         self.runner.invoke(papermill, self.default_args + extra_args)
-        execute_patch.assert_called_with(
-            **self.augment_execute_kwargs(parameters={'foo': 1, 'bar': 2})
-        )
+        execute_patch.assert_called_with(**self.augment_execute_kwargs(parameters={'foo': 1, 'bar': 2}))
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_parameters_base64_date(self, execute_patch):
-        self.runner.invoke(
-            papermill, self.default_args + ['--parameters_base64', 'YV9kYXRlOiAyMDE5LTAxLTAx']
-        )
-        execute_patch.assert_called_with(
-            **self.augment_execute_kwargs(parameters={'a_date': '2019-01-01'})
-        )
+        self.runner.invoke(papermill, self.default_args + ['--parameters_base64', 'YV9kYXRlOiAyMDE5LTAxLTAx'])
+        execute_patch.assert_called_with(**self.augment_execute_kwargs(parameters={'a_date': '2019-01-01'}))
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_inject_input_path(self, execute_patch):
@@ -262,9 +238,7 @@ class TestCLI(unittest.TestCase):
     @patch(cli.__name__ + '.execute_notebook')
     def test_engine(self, execute_patch):
         self.runner.invoke(papermill, self.default_args + ['--engine', 'engine-that-could'])
-        execute_patch.assert_called_with(
-            **self.augment_execute_kwargs(engine_name='engine-that-could')
-        )
+        execute_patch.assert_called_with(**self.augment_execute_kwargs(engine_name='engine-that-could'))
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_prepare_only(self, execute_patch):
@@ -309,9 +283,7 @@ class TestCLI(unittest.TestCase):
     @patch(cli.__name__ + '.execute_notebook')
     def test_log_output_plus_progress(self, execute_patch):
         self.runner.invoke(papermill, self.default_args + ['--log-output', '--progress-bar'])
-        execute_patch.assert_called_with(
-            **self.augment_execute_kwargs(log_output=True, progress_bar=True)
-        )
+        execute_patch.assert_called_with(**self.augment_execute_kwargs(log_output=True, progress_bar=True))
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_no_log_output(self, execute_patch):
@@ -448,9 +420,7 @@ def notebook():
     )
 
 
-require_papermill_installed = pytest.mark.skipif(
-    not papermill_version(), reason='papermill is not installed'
-)
+require_papermill_installed = pytest.mark.skipif(not papermill_version(), reason='papermill is not installed')
 
 
 @require_papermill_installed

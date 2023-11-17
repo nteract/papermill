@@ -19,9 +19,7 @@ class TestMidCellAutosave(unittest.TestCase):
         self.nb = nbformat.read(self.notebook_path, as_version=4)
 
     def test_autosave_not_too_fast(self):
-        nb_man = NotebookExecutionManager(
-            self.nb, output_path='test.ipynb', autosave_cell_every=0.5
-        )
+        nb_man = NotebookExecutionManager(self.nb, output_path='test.ipynb', autosave_cell_every=0.5)
         with patch.object(engines, 'write_ipynb') as write_mock:
             write_mock.reset_mock()
             assert write_mock.call_count == 0  # check that the mock is sane

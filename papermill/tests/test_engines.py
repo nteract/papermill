@@ -169,9 +169,7 @@ class TestNotebookExecutionManager(unittest.TestCase):
         start_time = dateutil.parser.parse(cell.metadata.papermill['start_time'])
 
         self.assertEqual(cell.metadata.papermill['end_time'], fixed_now.isoformat())
-        self.assertEqual(
-            cell.metadata.papermill['duration'], (fixed_now - start_time).total_seconds()
-        )
+        self.assertEqual(cell.metadata.papermill['duration'], (fixed_now - start_time).total_seconds())
         self.assertFalse(cell.metadata.papermill['exception'])
         self.assertEqual(cell.metadata.papermill['status'], NotebookExecutionManager.COMPLETED)
 
@@ -218,9 +216,7 @@ class TestNotebookExecutionManager(unittest.TestCase):
         start_time = dateutil.parser.parse(cell.metadata.papermill['start_time'])
 
         self.assertEqual(cell.metadata.papermill['end_time'], fixed_now.isoformat())
-        self.assertEqual(
-            cell.metadata.papermill['duration'], (fixed_now - start_time).total_seconds()
-        )
+        self.assertEqual(cell.metadata.papermill['duration'], (fixed_now - start_time).total_seconds())
         self.assertTrue(cell.metadata.papermill['exception'])
         self.assertEqual(cell.metadata.papermill['status'], NotebookExecutionManager.FAILED)
 
@@ -252,9 +248,7 @@ class TestNotebookExecutionManager(unittest.TestCase):
         start_time = dateutil.parser.parse(nb_man.nb.metadata.papermill['start_time'])
 
         self.assertEqual(nb_man.nb.metadata.papermill['end_time'], fixed_now.isoformat())
-        self.assertEqual(
-            nb_man.nb.metadata.papermill['duration'], (fixed_now - start_time).total_seconds()
-        )
+        self.assertEqual(nb_man.nb.metadata.papermill['duration'], (fixed_now - start_time).total_seconds())
         self.assertFalse(nb_man.nb.metadata.papermill['exception'])
 
         nb_man.save.assert_called_once()
@@ -280,12 +274,8 @@ class TestNotebookExecutionManager(unittest.TestCase):
         nb_man.notebook_start()
         nb_man.cell_exception(nb_man.nb.cells[1])
         nb_man.notebook_complete()
-        self.assertEqual(
-            nb_man.nb.cells[0].metadata.papermill['status'], NotebookExecutionManager.COMPLETED
-        )
-        self.assertEqual(
-            nb_man.nb.cells[1].metadata.papermill['status'], NotebookExecutionManager.FAILED
-        )
+        self.assertEqual(nb_man.nb.cells[0].metadata.papermill['status'], NotebookExecutionManager.COMPLETED)
+        self.assertEqual(nb_man.nb.cells[1].metadata.papermill['status'], NotebookExecutionManager.FAILED)
         for cell in nb_man.nb.cells[2:]:
             self.assertEqual(cell.metadata.papermill['status'], NotebookExecutionManager.PENDING)
 
@@ -320,9 +310,7 @@ class TestEngineBase(unittest.TestCase):
                     autosave_cell_every=30,
                 )
                 wrap_mock.return_value.notebook_start.assert_called_once()
-                exec_mock.assert_called_once_with(
-                    wrap_mock.return_value, 'python', log_output=True, bar='baz'
-                )
+                exec_mock.assert_called_once_with(wrap_mock.return_value, 'python', log_output=True, bar='baz')
                 wrap_mock.return_value.notebook_complete.assert_called_once()
                 wrap_mock.return_value.cleanup_pbar.assert_called_once()
 
@@ -335,9 +323,7 @@ class TestEngineBase(unittest.TestCase):
                     nb_man.cell_complete(cell)
 
         with patch.object(NotebookExecutionManager, 'save') as save_mock:
-            nb = CellCallbackEngine.execute_notebook(
-                copy.deepcopy(self.nb), 'python', output_path='foo.ipynb'
-            )
+            nb = CellCallbackEngine.execute_notebook(copy.deepcopy(self.nb), 'python', output_path='foo.ipynb')
 
             self.assertEqual(nb, AnyMock(NotebookNode))
             self.assertNotEqual(self.nb, nb)
@@ -354,9 +340,7 @@ class TestEngineBase(unittest.TestCase):
                 self.assertIsNotNone(cell.metadata.papermill['end_time'])
                 self.assertEqual(cell.metadata.papermill['duration'], AnyMock(float))
                 self.assertFalse(cell.metadata.papermill['exception'])
-                self.assertEqual(
-                    cell.metadata.papermill['status'], NotebookExecutionManager.COMPLETED
-                )
+                self.assertEqual(cell.metadata.papermill['status'], NotebookExecutionManager.COMPLETED)
 
     def test_no_cell_callback_execute(self):
         class NoCellCallbackEngine(Engine):
@@ -366,9 +350,7 @@ class TestEngineBase(unittest.TestCase):
 
         with patch.object(NotebookExecutionManager, 'save') as save_mock:
             with patch.object(NotebookExecutionManager, 'complete_pbar') as pbar_comp_mock:
-                nb = NoCellCallbackEngine.execute_notebook(
-                    copy.deepcopy(self.nb), 'python', output_path='foo.ipynb'
-                )
+                nb = NoCellCallbackEngine.execute_notebook(copy.deepcopy(self.nb), 'python', output_path='foo.ipynb')
 
                 self.assertEqual(nb, AnyMock(NotebookNode))
                 self.assertNotEqual(self.nb, nb)
@@ -386,9 +368,7 @@ class TestEngineBase(unittest.TestCase):
                     self.assertIsNone(cell.metadata.papermill['end_time'])
                     self.assertIsNone(cell.metadata.papermill['duration'])
                     self.assertIsNone(cell.metadata.papermill['exception'])
-                    self.assertEqual(
-                        cell.metadata.papermill['status'], NotebookExecutionManager.COMPLETED
-                    )
+                    self.assertEqual(cell.metadata.papermill['status'], NotebookExecutionManager.COMPLETED)
 
 
 class TestNBClientEngine(unittest.TestCase):
@@ -450,9 +430,7 @@ class TestNBClientEngine(unittest.TestCase):
                 self.assertIsNotNone(cell.metadata.papermill['end_time'])
                 self.assertEqual(cell.metadata.papermill['duration'], AnyMock(float))
                 self.assertFalse(cell.metadata.papermill['exception'])
-                self.assertEqual(
-                    cell.metadata.papermill['status'], NotebookExecutionManager.COMPLETED
-                )
+                self.assertEqual(cell.metadata.papermill['status'], NotebookExecutionManager.COMPLETED)
 
     def test_nb_convert_log_outputs(self):
         with patch.object(logger, 'info') as info_mock:
@@ -509,19 +487,13 @@ class TestEngineRegistration(unittest.TestCase):
         retrieved_engine = self.papermill_engines.get_engine("mock_engine")
         self.assertIs(mock_engine, retrieved_engine)
         # test you can't retrieve a non-registered engine
-        self.assertRaises(
-            exceptions.PapermillException, self.papermill_engines.get_engine, "non-existent"
-        )
+        self.assertRaises(exceptions.PapermillException, self.papermill_engines.get_engine, "non-existent")
 
     def test_registering_entry_points(self):
         fake_entrypoint = Mock(load=Mock())
         fake_entrypoint.name = "fake-engine"
 
-        with patch(
-            "entrypoints.get_group_all", return_value=[fake_entrypoint]
-        ) as mock_get_group_all:
+        with patch("entrypoints.get_group_all", return_value=[fake_entrypoint]) as mock_get_group_all:
             self.papermill_engines.register_entry_points()
             mock_get_group_all.assert_called_once_with("papermill.engine")
-            self.assertEqual(
-                self.papermill_engines.get_engine("fake-engine"), fake_entrypoint.load.return_value
-            )
+            self.assertEqual(self.papermill_engines.get_engine("fake-engine"), fake_entrypoint.load.return_value)
