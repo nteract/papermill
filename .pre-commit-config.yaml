@@ -1,11 +1,10 @@
 default_language_version:
-  python: python3.8
+  python: python3.10
 
 ci:
-  autofix_prs: false
-  autoupdate_commit_msg: '[pre-commit.ci] pre-commit suggestions'
   autoupdate_schedule: quarterly
-  # submodules: true
+  autofix_commit_msg: 🎨 [pre-commit.ci] Auto format from pre-commit.com hooks
+  autoupdate_commit_msg: ⬆ [pre-commit.ci] pre-commit autoupdate
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -21,6 +20,14 @@ repos:
       - id: check-docstring-first
       - id: detect-private-key
 
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.1.2
+    hooks:
+    -   id: ruff
+        args:
+        - --fix
+    -   id: ruff-format
+
   - repo: https://github.com/asottile/pyupgrade
     rev: v3.15.0
     hooks:
@@ -33,11 +40,6 @@ repos:
   #  hooks:
   #    - id: docformatter
   #      args: [--in-place, --wrap-summaries=120, --wrap-descriptions=120]
-
-  #- repo: https://github.com/PyCQA/isort
-  #  rev: 5.10.1
-  #  hooks:
-  #    - id: isort
 
   - repo: https://github.com/psf/black
     rev: 23.11.0
@@ -58,9 +60,3 @@ repos:
     rev: v1.5.0
     hooks:
       - id: yesqa
-
-  - repo: https://github.com/pycqa/flake8
-    rev: 6.1.0
-    hooks:
-      - id: flake8p
-

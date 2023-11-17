@@ -282,10 +282,22 @@ filterwarnings = [
     "ignore:.*imp module is deprecated.","*:DeprecationWarning"
 ]
 
-[tool.flake8]
-exclude = "__init__.py"
+[tool.ruff]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+    "UP",  # pyupgrade
+]
 ignore = [
-     # Extra space in brackets
+    "E501",  # line too long, handled by black
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+    "W191", # indentation contains tabs
+    # Extra space in brackets
     "E20",
     # Multiple spaces around ","
     "E231","E241",
@@ -300,5 +312,6 @@ ignore = [
     # Do not use variables named ‘l’, ‘O’, or ‘I’
     "E741"
 ]
-max-line-length = 120
-max-complexity = 23
+
+[tool.ruff.isort]
+known-third-party = ["papermill"]
