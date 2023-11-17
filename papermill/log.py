@@ -1,4 +1,4 @@
 """Sets up a logger"""
 import logging
 
-logger = logging.getLogger("papermill")
+logger = logging.getLogger('papermill')

@@ -1,15 +1,14 @@
+import fnmatch
+import json
 import os
 import sys
-import json
-import yaml
-import fnmatch
-import nbformat
-import requests
 import warnings
-import entrypoints
-
 from contextlib import contextmanager
 
+import entrypoints
+import nbformat
+import requests
+import yaml
 from tenacity import (
     retry,
     retry_if_exception_type,
@@ -30,37 +29,37 @@ from .utils import chdir
 try:
     from .s3 import S3
 except ImportError:
-    S3 = missing_dependency_generator("boto3", "s3")
+    S3 = missing_dependency_generator('boto3', 's3')
 
 try:
     from .adl import ADL
 except ImportError:
-    ADL = missing_dependency_generator("azure.datalake.store", "azure")
+    ADL = missing_dependency_generator('azure.datalake.store', 'azure')
 except KeyError as exc:
-    if exc.args[0] == "APPDATA":
-        ADL = missing_environment_variable_generator("azure.datalake.store", "APPDATA")
+    if exc.args[0] == 'APPDATA':
+        ADL = missing_environment_variable_generator('azure.datalake.store', 'APPDATA')
     else:
         raise
 
 try:
     from .abs import AzureBlobStore
 except ImportError:
-    AzureBlobStore = missing_dependency_generator("azure.storage.blob", "azure")
+    AzureBlobStore = missing_dependency_generator('azure.storage.blob', 'azure')
 
 try:
     from gcsfs import GCSFileSystem
 except ImportError:
-    GCSFileSystem = missing_dependency_generator("gcsfs", "gcs")
+    GCSFileSystem = missing_dependency_generator('gcsfs', 'gcs')
 
 try:
-    from pyarrow.fs import HadoopFileSystem, FileSelector
+    from pyarrow.fs import FileSelector, HadoopFileSystem
 except ImportError:
-    HadoopFileSystem = missing_dependency_generator("pyarrow", "hdfs")
+    HadoopFileSystem = missing_dependency_generator('pyarrow', 'hdfs')
 
 try:
     from github import Github
 except ImportError:
-    Github = missing_dependency_generator("pygithub", "github")
+    Github = missing_dependency_generator('pygithub', 'github')
 
 
 def fallback_gs_is_retriable(e):
@@ -97,14 +96,14 @@ class PapermillIO:
     def __init__(self):
         self.reset()
 
-    def read(self, path, extensions=[".ipynb", ".json"]):
+    def read(self, path, extensions=['.ipynb', '.json']):
         # Handle https://github.com/nteract/papermill/issues/317
         notebook_metadata = self.get_handler(path, extensions).read(path)
         if isinstance(notebook_metadata, (bytes, bytearray)):
-            return notebook_metadata.decode("utf-8")
+            return notebook_metadata.decode('utf-8')
         return notebook_metadata
 
-    def write(self, buf, path, extensions=[".ipynb", ".json"]):
+    def write(self, buf, path, extensions=['.ipynb', '.json']):
         return self.get_handler(path, extensions).write(buf, path)
 
     def listdir(self, path):
@@ -122,7 +121,7 @@ class PapermillIO:
 
     def register_entry_points(self):
         # Load handlers provided by other packages
-        for entrypoint in entrypoints.get_group_all("papermill.io"):
+        for entrypoint in entrypoints.get_group_all('papermill.io'):
             self.register(entrypoint.name, entrypoint.load())
 
     def get_handler(self, path, extensions=None):
@@ -151,31 +150,21 @@ class PapermillIO:
             return NotebookNodeHandler()
 
         if extensions:
-            if not fnmatch.fnmatch(os.path.basename(path).split("?")[0], "*.*"):
-                warnings.warn(
-                    "the file is not specified with any extension : "
-                    + os.path.basename(path)
-                )
-            elif not any(
-                fnmatch.fnmatch(os.path.basename(path).split("?")[0], "*" + ext)
-                for ext in extensions
-            ):
-                warnings.warn(
-                    f"The specified file ({path}) does not end in one of {extensions}"
-                )
+            if not fnmatch.fnmatch(os.path.basename(path).split('?')[0], '*.*'):
+                warnings.warn('the file is not specified with any extension : ' + os.path.basename(path))
+            elif not any(fnmatch.fnmatch(os.path.basename(path).split('?')[0], '*' + ext) for ext in extensions):
+                warnings.warn(f'The specified file ({path}) does not end in one of {extensions}')
 
         local_handler = None
         for scheme, handler in self._handlers:
-            if scheme == "local":
+            if scheme == 'local':
                 local_handler = handler
 
             if path.startswith(scheme):
                 return handler
 
         if local_handler is None:
-            raise PapermillException(
-                f"Could not find a registered schema handler for: {path}"
-            )
+            raise PapermillException(f'Could not find a registered schema handler for: {path}')
 
         return local_handler
 
@@ -183,11 +172,11 @@ class PapermillIO:
 class HttpHandler:
     @classmethod
     def read(cls, path):
-        return requests.get(path, headers={"Accept": "application/json"}).text
+        return requests.get(path, headers={'Accept': 'application/json'}).text
 
     @classmethod
     def listdir(cls, path):
-        raise PapermillException("listdir is not supported by HttpHandler")
+        raise PapermillException('listdir is not supported by HttpHandler')
 
     @classmethod
     def write(cls, buf, path):
@@ -206,7 +195,7 @@ class LocalHandler:
     def read(self, path):
         try:
             with chdir(self._cwd):
-                with open(path, encoding="utf-8") as f:
+                with open(path, encoding='utf-8') as f:
                     return f.read()
         except OSError as e:
             try:
@@ -227,7 +216,7 @@ class LocalHandler:
             dirname = os.path.dirname(path)
             if dirname and not os.path.exists(dirname):
                 raise FileNotFoundError(f"output folder {dirname} doesn't exist.")
-            with open(path, "w", encoding="utf-8") as f:
+            with open(path, 'w', encoding='utf-8') as f:
                 f.write(buf)
 
     def pretty_path(self, path):
@@ -243,7 +232,7 @@ class LocalHandler:
 class S3Handler:
     @classmethod
     def read(cls, path):
-        return "\n".join(S3().read(path))
+        return '\n'.join(S3().read(path))
 
     @classmethod
     def listdir(cls, path):
@@ -269,7 +258,7 @@ class ADLHandler:
 
     def read(self, path):
         lines = self._get_client().read(path)
-        return "\n".join(lines)
+        return '\n'.join(lines)
 
     def listdir(self, path):
         return self._get_client().listdir(path)
@@ -292,7 +281,7 @@ class ABSHandler:
 
     def read(self, path):
         lines = self._get_client().read(path)
-        return "\n".join(lines)
+        return '\n'.join(lines)
 
     def listdir(self, path):
         return self._get_client().listdir(path)
@@ -339,13 +328,13 @@ class GCSHandler:
         )
         def retry_write():
             try:
-                with self._get_client().open(path, "w") as f:
+                with self._get_client().open(path, 'w') as f:
                     return f.write(buf)
             except Exception as e:
                 try:
                     message = e.message
                 except AttributeError:
-                    message = f"Generic exception {type(e)} raised"
+                    message = f'Generic exception {type(e)} raised'
                 if gs_is_retriable(e):
                     raise PapermillRateLimitException(message)
                 # Reraise the original exception without retries
@@ -363,7 +352,7 @@ class HDFSHandler:
 
     def _get_client(self):
         if self._client is None:
-            self._client = HadoopFileSystem(host="default")
+            self._client = HadoopFileSystem(host='default')
         return self._client
 
     def read(self, path):
@@ -387,7 +376,7 @@ class GithubHandler:
 
     def _get_client(self):
         if self._client is None:
-            token = os.environ.get("GITHUB_ACCESS_TOKEN", None)
+            token = os.environ.get('GITHUB_ACCESS_TOKEN', None)
             if token:
                 self._client = Github(token)
             else:
@@ -395,20 +384,20 @@ class GithubHandler:
         return self._client
 
     def read(self, path):
-        splits = path.split("/")
+        splits = path.split('/')
         org_id = splits[3]
         repo_id = splits[4]
         ref_id = splits[6]
-        sub_path = "/".join(splits[7:])
-        repo = self._get_client().get_repo(org_id + "/" + repo_id)
+        sub_path = '/'.join(splits[7:])
+        repo = self._get_client().get_repo(org_id + '/' + repo_id)
         content = repo.get_contents(sub_path, ref=ref_id)
         return content.decoded_content
 
     def listdir(self, path):
-        raise PapermillException("listdir is not supported by GithubHandler")
+        raise PapermillException('listdir is not supported by GithubHandler')
 
     def write(self, buf, path):
-        raise PapermillException("write is not supported by GithubHandler")
+        raise PapermillException('write is not supported by GithubHandler')
 
     def pretty_path(self, path):
         return path
@@ -421,15 +410,15 @@ class StreamHandler:
         return sys.stdin.read()
 
     def listdir(self, path):
-        raise PapermillException("listdir is not supported by Stream Handler")
+        raise PapermillException('listdir is not supported by Stream Handler')
 
     def write(self, buf, path):
         try:
-            return sys.stdout.buffer.write(buf.encode("utf-8"))
+            return sys.stdout.buffer.write(buf.encode('utf-8'))
         except AttributeError:
             # Originally required by https://github.com/nteract/papermill/issues/420
             # Support Buffer.io objects
-            return sys.stdout.write(buf.encode("utf-8"))
+            return sys.stdout.write(buf.encode('utf-8'))
 
     def pretty_path(self, path):
         return path
@@ -442,61 +431,59 @@ class NotebookNodeHandler:
         return nbformat.writes(path)
 
     def listdir(self, path):
-        raise PapermillException("listdir is not supported by NotebookNode Handler")
+        raise PapermillException('listdir is not supported by NotebookNode Handler')
 
     def write(self, buf, path):
-        raise PapermillException("write is not supported by NotebookNode Handler")
+        raise PapermillException('write is not supported by NotebookNode Handler')
 
     def pretty_path(self, path):
-        return "NotebookNode object"
+        return 'NotebookNode object'
 
 
 class NoIOHandler:
     """Handler for output_path of None - intended to not write anything"""
 
     def read(self, path):
-        raise PapermillException("read is not supported by NoIOHandler")
+        raise PapermillException('read is not supported by NoIOHandler')
 
     def listdir(self, path):
-        raise PapermillException("listdir is not supported by NoIOHandler")
+        raise PapermillException('listdir is not supported by NoIOHandler')
 
     def write(self, buf, path):
         return
 
     def pretty_path(self, path):
-        return "Notebook will not be saved"
+        return 'Notebook will not be saved'
 
 
 # Hack to make YAML loader not auto-convert datetimes
 # https://stackoverflow.com/a/52312810
 class NoDatesSafeLoader(yaml.SafeLoader):
     yaml_implicit_resolvers = {
-        k: [r for r in v if r[0] != "tag:yaml.org,2002:timestamp"]
+        k: [r for r in v if r[0] != 'tag:yaml.org,2002:timestamp']
         for k, v in yaml.SafeLoader.yaml_implicit_resolvers.items()
     }
 
 
 # Instantiate a PapermillIO instance and register Handlers.
 papermill_io = PapermillIO()
-papermill_io.register("local", LocalHandler())
-papermill_io.register("s3://", S3Handler)
-papermill_io.register("adl://", ADLHandler())
-papermill_io.register("abs://", ABSHandler())
-papermill_io.register("http://", HttpHandler)
-papermill_io.register("https://", HttpHandler)
-papermill_io.register("gs://", GCSHandler())
-papermill_io.register("hdfs://", HDFSHandler())
-papermill_io.register("http://github.com/", GithubHandler())
-papermill_io.register("https://github.com/", GithubHandler())
-papermill_io.register("-", StreamHandler())
+papermill_io.register('local', LocalHandler())
+papermill_io.register('s3://', S3Handler)
+papermill_io.register('adl://', ADLHandler())
+papermill_io.register('abs://', ABSHandler())
+papermill_io.register('http://', HttpHandler)
+papermill_io.register('https://', HttpHandler)
+papermill_io.register('gs://', GCSHandler())
+papermill_io.register('hdfs://', HDFSHandler())
+papermill_io.register('http://github.com/', GithubHandler())
+papermill_io.register('https://github.com/', GithubHandler())
+papermill_io.register('-', StreamHandler())
 papermill_io.register_entry_points()
 
 
 def read_yaml_file(path):
     """Reads a YAML file from the location specified at 'path'."""
-    return yaml.load(
-        papermill_io.read(path, [".json", ".yaml", ".yml"]), Loader=NoDatesSafeLoader
-    )
+    return yaml.load(papermill_io.read(path, ['.json', '.yaml', '.yml']), Loader=NoDatesSafeLoader)
 
 
 def write_ipynb(nb, path):
@@ -523,27 +510,27 @@ def load_notebook_node(notebook_path):
     if nb_upgraded is not None:
         nb = nb_upgraded
 
-    if not hasattr(nb.metadata, "papermill"):
-        nb.metadata["papermill"] = {
-            "default_parameters": dict(),
-            "parameters": dict(),
-            "environment_variables": dict(),
-            "version": __version__,
+    if not hasattr(nb.metadata, 'papermill'):
+        nb.metadata['papermill'] = {
+            'default_parameters': dict(),
+            'parameters': dict(),
+            'environment_variables': dict(),
+            'version': __version__,
         }
 
     for cell in nb.cells:
-        if not hasattr(cell.metadata, "tags"):
-            cell.metadata["tags"] = []  # Create tags attr if one doesn't exist.
+        if not hasattr(cell.metadata, 'tags'):
+            cell.metadata['tags'] = []  # Create tags attr if one doesn't exist.
 
-        if not hasattr(cell.metadata, "papermill"):
-            cell.metadata["papermill"] = dict()
+        if not hasattr(cell.metadata, 'papermill'):
+            cell.metadata['papermill'] = dict()
 
     return nb
 
 
 def list_notebook_files(path):
     """Returns a list of all the notebook files in a directory."""
-    return [p for p in papermill_io.listdir(path) if p.endswith(".ipynb")]
+    return [p for p in papermill_io.listdir(path) if p.endswith('.ipynb')]
 
 
 def get_pretty_path(path):
@@ -553,14 +540,14 @@ def get_pretty_path(path):
 @contextmanager
 def local_file_io_cwd(path=None):
     try:
-        local_handler = papermill_io.get_handler("local")
+        local_handler = papermill_io.get_handler('local')
     except PapermillException:
-        logger.warning("No local file handler detected")
+        logger.warning('No local file handler detected')
     else:
         try:
             old_cwd = local_handler.cwd(path or os.getcwd())
         except AttributeError:
-            logger.warning("Local file handler does not support cwd assignment")
+            logger.warning('Local file handler does not support cwd assignment')
         else:
             try:
                 yield

@@ -21,7 +21,7 @@ class ADL:
 
     @classmethod
     def _split_url(cls, url):
-        match = re.match(r"adl://(.*)\.azuredatalakestore\.net\/(.*)$", url)
+        match = re.match(r'adl://(.*)\.azuredatalakestore\.net\/(.*)$', url)
         if not match:
             raise Exception(f"Invalid ADL url '{url}'")
         else:
@@ -39,12 +39,7 @@ class ADL:
         """Returns a list of the files under the specified path"""
         (store_name, path) = self._split_url(url)
         adapter = self._create_adapter(store_name)
-        return [
-            "adl://{store_name}.azuredatalakestore.net/{path_to_child}".format(
-                store_name=store_name, path_to_child=path_to_child
-            )
-            for path_to_child in adapter.ls(path)
-        ]
+        return [f'adl://{store_name}.azuredatalakestore.net/{path_to_child}' for path_to_child in adapter.ls(path)]
 
     def read(self, url):
         """Read storage at a given url"""
@@ -60,5 +55,5 @@ class ADL:
         """Write buffer to storage at a given url"""
         (store_name, path) = self._split_url(url)
         adapter = self._create_adapter(store_name)
-        with adapter.open(path, "wb") as f:
+        with adapter.open(path, 'wb') as f:
             f.write(buf.encode())

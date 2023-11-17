@@ -1,23 +1,21 @@
 """Main `papermill` interface."""
 
-import os
-import sys
-from stat import S_ISFIFO
-import nbclient
-import traceback
-
 import base64
 import logging
+import os
+import platform
+import sys
+import traceback
+from stat import S_ISFIFO
 
 import click
-
+import nbclient
 import yaml
-import platform
 
-from .execute import execute_notebook
-from .iorw import read_yaml_file, NoDatesSafeLoader
-from .inspection import display_notebook_help
 from . import __version__ as papermill_version
+from .execute import execute_notebook
+from .inspection import display_notebook_help
+from .iorw import NoDatesSafeLoader, read_yaml_file
 
 click.disable_unicode_literals_warning = True
 
@@ -28,155 +26,147 @@ OUTPUT_PIPED = not sys.stdout.isatty()
 def print_papermill_version(ctx, param, value):
     if not value:
         return
-    print(
-        "{version} from {path} ({pyver})".format(
-            version=papermill_version, path=__file__, pyver=platform.python_version()
-        )
-    )
+    print(f'{papermill_version} from {__file__} ({platform.python_version()})')
     ctx.exit()
 
 
-@click.command(context_settings=dict(help_option_names=["-h", "--help"]))
+@click.command(context_settings=dict(help_option_names=['-h', '--help']))
 @click.pass_context
-@click.argument("notebook_path", required=not INPUT_PIPED)
-@click.argument("output_path", default="")
+@click.argument('notebook_path', required=not INPUT_PIPED)
+@click.argument('output_path', default='')
 @click.option(
-    "--help-notebook",
+    '--help-notebook',
     is_flag=True,
     default=False,
-    help="Display parameters information for the given notebook path.",
+    help='Display parameters information for the given notebook path.',
 )
 @click.option(
-    "--parameters",
-    "-p",
+    '--parameters',
+    '-p',
     nargs=2,
     multiple=True,
-    help="Parameters to pass to the parameters cell.",
+    help='Parameters to pass to the parameters cell.',
 )
 @click.option(
-    "--parameters_raw",
-    "-r",
+    '--parameters_raw',
+    '-r',
     nargs=2,
     multiple=True,
-    help="Parameters to be read as raw string.",
+    help='Parameters to be read as raw string.',
 )
 @click.option(
-    "--parameters_file",
-    "-f",
+    '--parameters_file',
+    '-f',
     multiple=True,
-    help="Path to YAML file containing parameters.",
+    help='Path to YAML file containing parameters.',
 )
 @click.option(
-    "--parameters_yaml",
-    "-y",
+    '--parameters_yaml',
+    '-y',
     multiple=True,
-    help="YAML string to be used as parameters.",
+    help='YAML string to be used as parameters.',
 )
 @click.option(
-    "--parameters_base64",
-    "-b",
+    '--parameters_base64',
+    '-b',
     multiple=True,
-    help="Base64 encoded YAML string as parameters.",
+    help='Base64 encoded YAML string as parameters.',
 )
 @click.option(
-    "--inject-input-path",
+    '--inject-input-path',
     is_flag=True,
     default=False,
-    help="Insert the path of the input notebook as PAPERMILL_INPUT_PATH as a notebook parameter.",
+    help='Insert the path of the input notebook as PAPERMILL_INPUT_PATH as a notebook parameter.',
 )
 @click.option(
-    "--inject-output-path",
+    '--inject-output-path',
     is_flag=True,
     default=False,
-    help="Insert the path of the output notebook as PAPERMILL_OUTPUT_PATH as a notebook parameter.",
+    help='Insert the path of the output notebook as PAPERMILL_OUTPUT_PATH as a notebook parameter.',
 )
 @click.option(
-    "--inject-paths",
+    '--inject-paths',
     is_flag=True,
     default=False,
     help=(
-        "Insert the paths of input/output notebooks as PAPERMILL_INPUT_PATH/PAPERMILL_OUTPUT_PATH"
-        " as notebook parameters."
+        'Insert the paths of input/output notebooks as PAPERMILL_INPUT_PATH/PAPERMILL_OUTPUT_PATH'
+        ' as notebook parameters.'
     ),
 )
+@click.option('--engine', help='The execution engine name to use in evaluating the notebook.')
 @click.option(
-    "--engine", help="The execution engine name to use in evaluating the notebook."
-)
-@click.option(
-    "--request-save-on-cell-execute/--no-request-save-on-cell-execute",
+    '--request-save-on-cell-execute/--no-request-save-on-cell-execute',
     default=True,
-    help="Request save notebook after each cell execution",
+    help='Request save notebook after each cell execution',
 )
 @click.option(
-    "--autosave-cell-every",
+    '--autosave-cell-every',
     default=30,
     type=int,
-    help="How often in seconds to autosave the notebook during long cell executions (0 to disable)",
+    help='How often in seconds to autosave the notebook during long cell executions (0 to disable)',
 )
 @click.option(
-    "--prepare-only/--prepare-execute",
+    '--prepare-only/--prepare-execute',
     default=False,
-    help="Flag for outputting the notebook without execution, but with parameters applied.",
+    help='Flag for outputting the notebook without execution, but with parameters applied.',
 )
 @click.option(
-    "--kernel",
-    "-k",
-    help="Name of kernel to run. Ignores kernel name in the notebook document metadata.",
+    '--kernel',
+    '-k',
+    help='Name of kernel to run. Ignores kernel name in the notebook document metadata.',
 )
 @click.option(
-    "--language",
-    "-l",
-    help="Language for notebook execution. Ignores language in the notebook document metadata.",
+    '--language',
+    '-l',
+    help='Language for notebook execution. Ignores language in the notebook document metadata.',
 )
-@click.option("--cwd", default=None, help="Working directory to run notebook in.")
+@click.option('--cwd', default=None, help='Working directory to run notebook in.')
 @click.option(
-    "--progress-bar/--no-progress-bar",
+    '--progress-bar/--no-progress-bar',
     default=None,
-    help="Flag for turning on the progress bar.",
+    help='Flag for turning on the progress bar.',
 )
 @click.option(
-    "--log-output/--no-log-output",
+    '--log-output/--no-log-output',
     default=False,
-    help="Flag for writing notebook output to the configured logger.",
+    help='Flag for writing notebook output to the configured logger.',
 )
 @click.option(
-    "--stdout-file",
-    type=click.File(mode="w", encoding="utf-8"),
-    help="File to write notebook stdout output to.",
+    '--stdout-file',
+    type=click.File(mode='w', encoding='utf-8'),
+    help='File to write notebook stdout output to.',
 )
 @click.option(
-    "--stderr-file",
-    type=click.File(mode="w", encoding="utf-8"),
-    help="File to write notebook stderr output to.",
+    '--stderr-file',
+    type=click.File(mode='w', encoding='utf-8'),
+    help='File to write notebook stderr output to.',
 )
 @click.option(
-    "--log-level",
-    type=click.Choice(["NOTSET", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]),
-    default="INFO",
-    help="Set log level",
+    '--log-level',
+    type=click.Choice(['NOTSET', 'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']),
+    default='INFO',
+    help='Set log level',
 )
 @click.option(
-    "--start-timeout",
-    "--start_timeout",  # Backwards compatible naming
+    '--start-timeout',
+    '--start_timeout',  # Backwards compatible naming
     type=int,
     default=60,
-    help="Time in seconds to wait for kernel to start.",
+    help='Time in seconds to wait for kernel to start.',
 )
 @click.option(
-    "--execution-timeout",
+    '--execution-timeout',
     type=int,
-    help="Time in seconds to wait for each cell before failing execution (default: forever)",
+    help='Time in seconds to wait for each cell before failing execution (default: forever)',
 )
+@click.option('--report-mode/--no-report-mode', default=False, help='Flag for hiding input.')
 @click.option(
-    "--report-mode/--no-report-mode", default=False, help="Flag for hiding input."
-)
-@click.option(
-    "--version",
+    '--version',
     is_flag=True,
     callback=print_papermill_version,
     expose_value=False,
     is_eager=True,
-    help="Flag for displaying the version.",
+    help='Flag for displaying the version.',
 )
 def papermill(
     click_ctx,
@@ -224,8 +214,8 @@ def papermill(
 
     """
     # Jupyter deps use frozen modules, so we disable the python 3.11+ warning about debugger if running the CLI
-    if "PYDEVD_DISABLE_FILE_VALIDATION" not in os.environ:
-        os.environ["PYDEVD_DISABLE_FILE_VALIDATION"] = "1"
+    if 'PYDEVD_DISABLE_FILE_VALIDATION' not in os.environ:
+        os.environ['PYDEVD_DISABLE_FILE_VALIDATION'] = '1'
 
     if not help_notebook:
         required_output_path = not (INPUT_PIPED or OUTPUT_PIPED)
@@ -233,35 +223,33 @@ def papermill(
             raise click.UsageError("Missing argument 'OUTPUT_PATH'")
 
     if INPUT_PIPED and notebook_path and not output_path:
-        input_path = "-"
+        input_path = '-'
         output_path = notebook_path
     else:
-        input_path = notebook_path or "-"
-        output_path = output_path or "-"
+        input_path = notebook_path or '-'
+        output_path = output_path or '-'
 
-    if output_path == "-":
+    if output_path == '-':
         # Save notebook to stdout just once
         request_save_on_cell_execute = False
 
         # Reduce default log level if we pipe to stdout
-        if log_level == "INFO":
-            log_level = "ERROR"
+        if log_level == 'INFO':
+            log_level = 'ERROR'
 
     elif progress_bar is None:
         progress_bar = not log_output
 
-    logging.basicConfig(level=log_level, format="%(message)s")
+    logging.basicConfig(level=log_level, format='%(message)s')
 
     # Read in Parameters
     parameters_final = {}
     if inject_input_path or inject_paths:
-        parameters_final["PAPERMILL_INPUT_PATH"] = input_path
+        parameters_final['PAPERMILL_INPUT_PATH'] = input_path
     if inject_output_path or inject_paths:
-        parameters_final["PAPERMILL_OUTPUT_PATH"] = output_path
+        parameters_final['PAPERMILL_OUTPUT_PATH'] = output_path
     for params in parameters_base64 or []:
-        parameters_final.update(
-            yaml.load(base64.b64decode(params), Loader=NoDatesSafeLoader) or {}
-        )
+        parameters_final.update(yaml.load(base64.b64decode(params), Loader=NoDatesSafeLoader) or {})
     for files in parameters_file or []:
         parameters_final.update(read_yaml_file(files) or {})
     for params in parameters_yaml or []:
@@ -301,11 +289,11 @@ def papermill(
 
 
 def _resolve_type(value):
-    if value == "True":
+    if value == 'True':
         return True
-    elif value == "False":
+    elif value == 'False':
         return False
-    elif value == "None":
+    elif value == 'None':
         return None
     elif _is_int(value):
         return int(value)

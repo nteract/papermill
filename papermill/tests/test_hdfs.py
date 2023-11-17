@@ -8,7 +8,7 @@ from ..iorw import HDFSHandler
 
 class MockHadoopFileSystem(MagicMock):
     def get_file_info(self, path):
-        return [MockFileInfo("test1.ipynb"), MockFileInfo("test2.ipynb")]
+        return [MockFileInfo('test1.ipynb'), MockFileInfo('test2.ipynb')]
 
     def open_input_stream(self, path):
         return MockHadoopFile()
@@ -19,7 +19,7 @@ class MockHadoopFileSystem(MagicMock):
 
 class MockHadoopFile:
     def __init__(self):
-        self._content = b"Content of notebook"
+        self._content = b'Content of notebook'
 
     def __enter__(self, *args):
         return self
@@ -40,8 +40,8 @@ class MockFileInfo:
         self.path = path
 
 
-@pytest.mark.skip(reason="No valid dep package for python 3.12 yet")
-@patch("papermill.iorw.HadoopFileSystem", side_effect=MockHadoopFileSystem())
+@pytest.mark.skip(reason='No valid dep package for python 3.12 yet')
+@patch('papermill.iorw.HadoopFileSystem', side_effect=MockHadoopFileSystem())
 class HDFSTest(unittest.TestCase):
     def setUp(self):
         self.hdfs_handler = HDFSHandler()
@@ -49,8 +49,8 @@ class HDFSTest(unittest.TestCase):
     def test_hdfs_listdir(self, mock_hdfs_filesystem):
         client = self.hdfs_handler._get_client()
         self.assertEqual(
-            self.hdfs_handler.listdir("hdfs:///Projects/"),
-            ["test1.ipynb", "test2.ipynb"],
+            self.hdfs_handler.listdir('hdfs:///Projects/'),
+            ['test1.ipynb', 'test2.ipynb'],
         )
         # Check if client is the same after calling
         self.assertIs(client, self.hdfs_handler._get_client())
@@ -58,14 +58,12 @@ class HDFSTest(unittest.TestCase):
     def test_hdfs_read(self, mock_hdfs_filesystem):
         client = self.hdfs_handler._get_client()
         self.assertEqual(
-            self.hdfs_handler.read("hdfs:///Projects/test1.ipynb"),
-            b"Content of notebook",
+            self.hdfs_handler.read('hdfs:///Projects/test1.ipynb'),
+            b'Content of notebook',
         )
         self.assertIs(client, self.hdfs_handler._get_client())
 
     def test_hdfs_write(self, mock_hdfs_filesystem):
         client = self.hdfs_handler._get_client()
-        self.assertEqual(
-            self.hdfs_handler.write("hdfs:///Projects/test1.ipynb", b"New content"), 1
-        )
+        self.assertEqual(self.hdfs_handler.write('hdfs:///Projects/test1.ipynb', b'New content'), 1)
         self.assertIs(client, self.hdfs_handler._get_client())

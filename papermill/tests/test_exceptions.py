@@ -12,29 +12,29 @@ def temp_file():
     """NamedTemporaryFile must be set in wb mode, closed without delete, opened with open(file, "rb"),
     then manually deleted. Otherwise, file fails to be read due to permission error on Windows.
     """
-    with tempfile.NamedTemporaryFile(mode="wb", delete=False) as f:
+    with tempfile.NamedTemporaryFile(mode='wb', delete=False) as f:
         yield f
         os.unlink(f.name)
 
 
 @pytest.mark.parametrize(
-    "exc,args",
+    'exc,args',
     [
         (
             exceptions.PapermillExecutionError,
-            (1, 2, "TestSource", "Exception", Exception(), ["Traceback", "Message"]),
+            (1, 2, 'TestSource', 'Exception', Exception(), ['Traceback', 'Message']),
         ),
         (
             exceptions.PapermillMissingParameterException,
-            ("PapermillMissingParameterException",),
+            ('PapermillMissingParameterException',),
         ),
-        (exceptions.AwsError, ("AwsError",)),
-        (exceptions.FileExistsError, ("FileExistsError",)),
-        (exceptions.PapermillException, ("PapermillException",)),
-        (exceptions.PapermillRateLimitException, ("PapermillRateLimitException",)),
+        (exceptions.AwsError, ('AwsError',)),
+        (exceptions.FileExistsError, ('FileExistsError',)),
+        (exceptions.PapermillException, ('PapermillException',)),
+        (exceptions.PapermillRateLimitException, ('PapermillRateLimitException',)),
         (
             exceptions.PapermillOptionalDependencyException,
-            ("PapermillOptionalDependencyException",),
+            ('PapermillOptionalDependencyException',),
         ),
     ],
 )
@@ -45,7 +45,7 @@ def test_exceptions_are_unpickleable(temp_file, exc, args):
     temp_file.close()  # close to re-open for reading
 
     # Read the Pickled File
-    with open(temp_file.name, "rb") as read_file:
+    with open(temp_file.name, 'rb') as read_file:
         read_file.seek(0)
         data = read_file.read()
         pickled_err = pickle.loads(data)
