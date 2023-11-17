@@ -46,3 +46,21 @@ jobs:
 
       - name: "Run tests for ${{ matrix.python-version }}"
         run: hatch run test:no-cov
+
+  docs:
+    name: Documentation
+    runs-on: "ubuntu-latest"
+    strategy:
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+      - name: "Install doc dependencies"
+        run: |
+          set -xe
+          python -m pip install --upgrade pip
+          pip install hatch
+      - name: "Build docs"
+        run: hatch run docs:build-ci
