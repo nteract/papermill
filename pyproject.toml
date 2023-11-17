@@ -79,6 +79,7 @@ dev = [
     "codecov",
     "coverage",
     "flake8",
+    "Flake8-pyproject",
     "gcsfs>=0.2.0",
     "google_compute_engine",
     "ipython>=5.0",
@@ -249,7 +250,7 @@ extra-dependencies = [
 build = "sphinx-build docs _build"
 
 [tool.black]
-line-length = 100
+line-length = 120
 target-version = ['py312']
 include = '\.pyi?$'
 exclude = '''
@@ -280,3 +281,24 @@ env = [
 filterwarnings = [
     "ignore:.*imp module is deprecated.","*:DeprecationWarning"
 ]
+
+[tool.flake8]
+exclude = "__init__.py"
+ignore = [
+     # Extra space in brackets
+    "E20",
+    # Multiple spaces around ","
+    "E231","E241",
+    # Comments
+    "E26",
+    # Import formatting
+    "E4",
+    # Comparing types instead of isinstance
+    "E721",
+    # Assigning lambda expression
+    "E731",
+    # Do not use variables named ‘l’, ‘O’, or ‘I’
+    "E741"
+]
+max-line-length = 120
+max-complexity = 23
