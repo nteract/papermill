@@ -295,6 +295,15 @@ target-version = "py310"
 
 [tool.ruff.per-file-ignores]
 "__init__.py" = ["F401"]
+"papermill/cli.py" = ["C408"]
+"papermill/engines.py" = ["C408"]
+"papermill/iorw.py" = ["B018", "B006","UP038","B904","C408"]
+"papermill/parameterize.py" = ["B904"]
+"papermill/s3.py" = ["C416","UP038","B007"]
+"papermill/tests/test_cli.py" = ["C408"]
+"papermill/tests/test_engines.py" = ["B024"]
+"papermill/tests/test_inspect.py" = ["B905"]
+"papermill/utils.py" = ["C419","B028","B007"]
 
 [tool.ruff.isort]
 known-third-party = ["papermill"]
