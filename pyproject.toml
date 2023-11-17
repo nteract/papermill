@@ -226,8 +226,8 @@ extra-dependencies = [
     "Sphinx>=7.2.6",
 ]
 [tool.hatch.envs.docs.scripts]
-build = "sphinx-build -d docs docs_out --color -W -bhtml"
-build-ci = "sphinx-build -d docs docs_out --color -W -bhtml"
+build = "sphinx-build docs docs_out --color -W -bhtml"
+build-ci = "sphinx-build docs docs_out --color -W -bhtml"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
