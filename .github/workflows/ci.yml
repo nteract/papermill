@@ -7,6 +7,15 @@ on:
     branches: ["main"]
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
+env:
+  STABLE_PYTHON_VERSION: '3.11'
+  PYTHONUNBUFFERED: "1"
+  FORCE_COLOR: "1"
+
 jobs:
   tests:
     name: "Python ${{ matrix.python-version }}"
@@ -21,42 +30,19 @@ jobs:
 
     steps:
       - uses: "actions/checkout@v4"
-      - uses: "actions/setup-python@v4"
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: "actions/setup-python@v4"
         with:
           python-version: ${{ matrix.python-version }}
-      - name: "Install dependencies"
+
+      - name: "Upgrade pip"
         run: |
           set -xe
           python -VV
           python -m site
-          python -m pip install --upgrade pip setuptools wheel coverage[toml] virtualenv tox tox-gh-actions
+          python -m pip install --upgrade pip
+          pip install hatch
 
-      - name: "Run tox targets for ${{ matrix.python-version }}"
-        run: python -m tox
-
-      - name: "Generate coverage XML"
-        if: "contains(env.USING_COVERAGE, matrix.python-version)"
-        run: python -m coverage xml
-
-      - name: "Upload coverage to Codecov"
-        uses: codecov/codecov-action@v3
-
-  others:
-    runs-on: ubuntu-20.04
-    strategy:
-      fail-fast: false
-      matrix:
-        toxenv: ["manifest", "docs", "binder"]
-    env:
-      TOXENV: ${{ matrix.toxenv }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
-        with:
-          python-version: 3.11
-      - name: "Install dependencies"
-        run: |
-          set -xe
-          python -m pip install virtualenv tox
-      - name: "Run tox targets for ${{ matrix.toxenv }}"
-        run: python -m tox
+      - name: "Run tests for ${{ matrix.python-version }}"
+        run: hatch run test:no-cov
