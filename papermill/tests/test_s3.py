@@ -1,13 +1,13 @@
 # The following tests are purposely limited to the exposed interface by iorw.py
 
 import os.path
-import pytest
+
 import boto3
 import moto
-
+import pytest
 from moto import mock_s3
 
-from ..s3 import Bucket, Prefix, Key, S3
+from ..s3 import S3, Bucket, Key, Prefix
 
 
 @pytest.fixture
@@ -121,8 +121,8 @@ def test_key_init():
 
 
 def test_key_repr():
-    k = Key("foo", "bar")
-    assert repr(k) == "s3://foo/bar"
+    k = Key('foo', 'bar')
+    assert repr(k) == 's3://foo/bar'
 
 
 def test_key_defaults():
@@ -156,20 +156,21 @@ test_empty_file_path = 'notebooks/s3/s3_in/s3-empty.ipynb'
 with open(os.path.join(local_dir, test_file_path)) as f:
     test_nb_content = f.read()
 
-no_empty_lines = lambda s: "\n".join([l for l in s.split('\n') if len(l) > 0])
+no_empty_lines = lambda s: '\n'.join([l for l in s.split('\n') if len(l) > 0])
 test_clean_nb_content = no_empty_lines(test_nb_content)
 
-read_from_gen = lambda g: "\n".join(g)
+read_from_gen = lambda g: '\n'.join(g)
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope='function')
 def s3_client():
     mock_s3 = moto.mock_s3()
     mock_s3.start()
 
     client = boto3.client('s3')
     client.create_bucket(
-        Bucket=test_bucket_name, CreateBucketConfiguration={'LocationConstraint': 'us-west-2'}
+        Bucket=test_bucket_name,
+        CreateBucketConfiguration={'LocationConstraint': 'us-west-2'},
     )
     client.put_object(Bucket=test_bucket_name, Key=test_file_path, Body=test_nb_content)
     client.put_object(Bucket=test_bucket_name, Key=test_empty_file_path, Body='')
@@ -184,19 +185,19 @@ def s3_client():
 
 
 def test_s3_read(s3_client):
-    s3_path = f"s3://{test_bucket_name}/{test_file_path}"
+    s3_path = f's3://{test_bucket_name}/{test_file_path}'
     data = read_from_gen(s3_client.read(s3_path))
     assert data == test_clean_nb_content
 
 
 def test_s3_read_empty(s3_client):
-    s3_path = f"s3://{test_bucket_name}/{test_empty_file_path}"
+    s3_path = f's3://{test_bucket_name}/{test_empty_file_path}'
     data = read_from_gen(s3_client.read(s3_path))
     assert data == ''
 
 
 def test_s3_write(s3_client):
-    s3_path = f"s3://{test_bucket_name}/{test_file_path}.txt"
+    s3_path = f's3://{test_bucket_name}/{test_file_path}.txt'
     s3_client.cp_string(test_string, s3_path)
 
     data = read_from_gen(s3_client.read(s3_path))
@@ -204,7 +205,7 @@ def test_s3_write(s3_client):
 
 
 def test_s3_overwrite(s3_client):
-    s3_path = f"s3://{test_bucket_name}/{test_file_path}"
+    s3_path = f's3://{test_bucket_name}/{test_file_path}'
     s3_client.cp_string(test_string, s3_path)
 
     data = read_from_gen(s3_client.read(s3_path))
@@ -213,8 +214,8 @@ def test_s3_overwrite(s3_client):
 
 def test_s3_listdir(s3_client):
     dir_name = os.path.dirname(test_file_path)
-    s3_dir = f"s3://{test_bucket_name}/{dir_name}"
-    s3_path = f"s3://{test_bucket_name}/{test_file_path}"
+    s3_dir = f's3://{test_bucket_name}/{dir_name}'
+    s3_path = f's3://{test_bucket_name}/{test_file_path}'
     dir_listings = s3_client.listdir(s3_dir)
     assert len(dir_listings) == 2
     assert s3_path in dir_listings

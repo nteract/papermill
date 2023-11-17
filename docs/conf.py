@@ -80,7 +80,7 @@ language = 'python'
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', 'UPDATE.md']
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = "sphinx"
+pygments_style = 'sphinx'
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
@@ -90,14 +90,14 @@ todo_include_todos = False
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = "furo"
+html_theme = 'furo'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
 html_theme_options = {
-    "sidebar_hide_name": True,
+    'sidebar_hide_name': True,
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -105,7 +105,7 @@ html_theme_options = {
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
-html_logo = "_static/images/papermill.png"
+html_logo = '_static/images/papermill.png'
 
 # -- Options for HTMLHelp output ------------------------------------------
 
@@ -132,9 +132,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
-latex_documents = [
-    (master_doc, 'papermill.tex', 'papermill Documentation', 'nteract team', 'manual')
-]
+latex_documents = [(master_doc, 'papermill.tex', 'papermill Documentation', 'nteract team', 'manual')]
 
 
 # -- Options for manual page output ---------------------------------------

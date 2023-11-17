@@ -1,16 +1,20 @@
+import fnmatch
+import json
 import os
 import sys
-import json
-import yaml
-import fnmatch
-import nbformat
-import requests
 import warnings
-import entrypoints
-
 from contextlib import contextmanager
 
-from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
+import entrypoints
+import nbformat
+import requests
+import yaml
+from tenacity import (
+    retry,
+    retry_if_exception_type,
+    stop_after_attempt,
+    wait_exponential,
+)
 
 from . import __version__
 from .exceptions import (
@@ -25,37 +29,37 @@ from .utils import chdir
 try:
     from .s3 import S3
 except ImportError:
-    S3 = missing_dependency_generator("boto3", "s3")
+    S3 = missing_dependency_generator('boto3', 's3')
 
 try:
     from .adl import ADL
 except ImportError:
-    ADL = missing_dependency_generator("azure.datalake.store", "azure")
+    ADL = missing_dependency_generator('azure.datalake.store', 'azure')
 except KeyError as exc:
-    if exc.args[0] == "APPDATA":
-        ADL = missing_environment_variable_generator("azure.datalake.store", "APPDATA")
+    if exc.args[0] == 'APPDATA':
+        ADL = missing_environment_variable_generator('azure.datalake.store', 'APPDATA')
     else:
         raise
 
 try:
     from .abs import AzureBlobStore
 except ImportError:
-    AzureBlobStore = missing_dependency_generator("azure.storage.blob", "azure")
+    AzureBlobStore = missing_dependency_generator('azure.storage.blob', 'azure')
 
 try:
     from gcsfs import GCSFileSystem
 except ImportError:
-    GCSFileSystem = missing_dependency_generator("gcsfs", "gcs")
+    GCSFileSystem = missing_dependency_generator('gcsfs', 'gcs')
 
 try:
-    from pyarrow.fs import HadoopFileSystem, FileSelector
+    from pyarrow.fs import FileSelector, HadoopFileSystem
 except ImportError:
-    HadoopFileSystem = missing_dependency_generator("pyarrow", "hdfs")
+    HadoopFileSystem = missing_dependency_generator('pyarrow', 'hdfs')
 
 try:
     from github import Github
 except ImportError:
-    Github = missing_dependency_generator("pygithub", "github")
+    Github = missing_dependency_generator('pygithub', 'github')
 
 
 def fallback_gs_is_retriable(e):
@@ -83,11 +87,11 @@ except NameError:
 
 
 class PapermillIO:
-    '''
+    """
     The holder which houses any io system registered with the system.
     This object is used in a singleton manner to save and load particular
     named Handler objects for reference externally.
-    '''
+    """
 
     def __init__(self):
         self.reset()
@@ -117,11 +121,11 @@ class PapermillIO:
 
     def register_entry_points(self):
         # Load handlers provided by other packages
-        for entrypoint in entrypoints.get_group_all("papermill.io"):
+        for entrypoint in entrypoints.get_group_all('papermill.io'):
             self.register(entrypoint.name, entrypoint.load())
 
     def get_handler(self, path, extensions=None):
-        '''Get I/O Handler based on a notebook path
+        """Get I/O Handler based on a notebook path
 
         Parameters
         ----------
@@ -138,7 +142,7 @@ class PapermillIO:
         Returns
         -------
         I/O Handler
-        '''
+        """
         if path is None:
             return NoIOHandler()
 
@@ -147,14 +151,9 @@ class PapermillIO:
 
         if extensions:
             if not fnmatch.fnmatch(os.path.basename(path).split('?')[0], '*.*'):
-                warnings.warn(
-                    "the file is not specified with any extension : " + os.path.basename(path)
-                )
-            elif not any(
-                fnmatch.fnmatch(os.path.basename(path).split('?')[0], '*' + ext)
-                for ext in extensions
-            ):
-                warnings.warn(f"The specified file ({path}) does not end in one of {extensions}")
+                warnings.warn('the file is not specified with any extension : ' + os.path.basename(path))
+            elif not any(fnmatch.fnmatch(os.path.basename(path).split('?')[0], '*' + ext) for ext in extensions):
+                warnings.warn(f'The specified file ({path}) does not end in one of {extensions}')
 
         local_handler = None
         for scheme, handler in self._handlers:
@@ -165,7 +164,7 @@ class PapermillIO:
                 return handler
 
         if local_handler is None:
-            raise PapermillException(f"Could not find a registered schema handler for: {path}")
+            raise PapermillException(f'Could not find a registered schema handler for: {path}')
 
         return local_handler
 
@@ -196,7 +195,7 @@ class LocalHandler:
     def read(self, path):
         try:
             with chdir(self._cwd):
-                with open(path, encoding="utf-8") as f:
+                with open(path, encoding='utf-8') as f:
                     return f.read()
         except OSError as e:
             try:
@@ -217,14 +216,14 @@ class LocalHandler:
             dirname = os.path.dirname(path)
             if dirname and not os.path.exists(dirname):
                 raise FileNotFoundError(f"output folder {dirname} doesn't exist.")
-            with open(path, 'w', encoding="utf-8") as f:
+            with open(path, 'w', encoding='utf-8') as f:
                 f.write(buf)
 
     def pretty_path(self, path):
         return path
 
     def cwd(self, new_path):
-        '''Sets the cwd during reads and writes'''
+        """Sets the cwd during reads and writes"""
         old_cwd = self._cwd
         self._cwd = new_path
         return old_cwd
@@ -233,7 +232,7 @@ class LocalHandler:
 class S3Handler:
     @classmethod
     def read(cls, path):
-        return "\n".join(S3().read(path))
+        return '\n'.join(S3().read(path))
 
     @classmethod
     def listdir(cls, path):
@@ -259,7 +258,7 @@ class ADLHandler:
 
     def read(self, path):
         lines = self._get_client().read(path)
-        return "\n".join(lines)
+        return '\n'.join(lines)
 
     def listdir(self, path):
         return self._get_client().listdir(path)
@@ -282,7 +281,7 @@ class ABSHandler:
 
     def read(self, path):
         lines = self._get_client().read(path)
-        return "\n".join(lines)
+        return '\n'.join(lines)
 
     def listdir(self, path):
         return self._get_client().listdir(path)
@@ -321,7 +320,9 @@ class GCSHandler:
             retry=retry_if_exception_type(PapermillRateLimitException),
             stop=stop_after_attempt(self.RATE_LIMIT_RETRIES),
             wait=wait_exponential(
-                multiplier=self.RETRY_MULTIPLIER, min=self.RETRY_DELAY, max=self.RETRY_MAX_DELAY
+                multiplier=self.RETRY_MULTIPLIER,
+                min=self.RETRY_DELAY,
+                max=self.RETRY_MAX_DELAY,
             ),
             reraise=True,
         )
@@ -333,7 +334,7 @@ class GCSHandler:
                 try:
                     message = e.message
                 except AttributeError:
-                    message = f"Generic exception {type(e)} raised"
+                    message = f'Generic exception {type(e)} raised'
                 if gs_is_retriable(e):
                     raise PapermillRateLimitException(message)
                 # Reraise the original exception without retries
@@ -351,7 +352,7 @@ class HDFSHandler:
 
     def _get_client(self):
         if self._client is None:
-            self._client = HadoopFileSystem(host="default")
+            self._client = HadoopFileSystem(host='default')
         return self._client
 
     def read(self, path):
@@ -403,7 +404,7 @@ class GithubHandler:
 
 
 class StreamHandler:
-    '''Handler for Stdin/Stdout streams'''
+    """Handler for Stdin/Stdout streams"""
 
     def read(self, path):
         return sys.stdin.read()
@@ -424,7 +425,7 @@ class StreamHandler:
 
 
 class NotebookNodeHandler:
-    '''Handler for input_path of nbformat.NotebookNode object'''
+    """Handler for input_path of nbformat.NotebookNode object"""
 
     def read(self, path):
         return nbformat.writes(path)
@@ -440,7 +441,7 @@ class NotebookNodeHandler:
 
 
 class NoIOHandler:
-    '''Handler for output_path of None - intended to not write anything'''
+    """Handler for output_path of None - intended to not write anything"""
 
     def read(self, path):
         raise PapermillException('read is not supported by NoIOHandler')
@@ -466,17 +467,17 @@ class NoDatesSafeLoader(yaml.SafeLoader):
 
 # Instantiate a PapermillIO instance and register Handlers.
 papermill_io = PapermillIO()
-papermill_io.register("local", LocalHandler())
-papermill_io.register("s3://", S3Handler)
-papermill_io.register("adl://", ADLHandler())
-papermill_io.register("abs://", ABSHandler())
-papermill_io.register("http://", HttpHandler)
-papermill_io.register("https://", HttpHandler)
-papermill_io.register("gs://", GCSHandler())
-papermill_io.register("hdfs://", HDFSHandler())
-papermill_io.register("http://github.com/", GithubHandler())
-papermill_io.register("https://github.com/", GithubHandler())
-papermill_io.register("-", StreamHandler())
+papermill_io.register('local', LocalHandler())
+papermill_io.register('s3://', S3Handler)
+papermill_io.register('adl://', ADLHandler())
+papermill_io.register('abs://', ABSHandler())
+papermill_io.register('http://', HttpHandler)
+papermill_io.register('https://', HttpHandler)
+papermill_io.register('gs://', GCSHandler())
+papermill_io.register('hdfs://', HDFSHandler())
+papermill_io.register('http://github.com/', GithubHandler())
+papermill_io.register('https://github.com/', GithubHandler())
+papermill_io.register('-', StreamHandler())
 papermill_io.register_entry_points()
 
 
@@ -539,14 +540,14 @@ def get_pretty_path(path):
 @contextmanager
 def local_file_io_cwd(path=None):
     try:
-        local_handler = papermill_io.get_handler("local")
+        local_handler = papermill_io.get_handler('local')
     except PapermillException:
-        logger.warning("No local file handler detected")
+        logger.warning('No local file handler detected')
     else:
         try:
             old_cwd = local_handler.cwd(path or os.getcwd())
         except AttributeError:
-            logger.warning("Local file handler does not support cwd assignment")
+            logger.warning('Local file handler does not support cwd assignment')
         else:
             try:
                 yield

@@ -1,8 +1,7 @@
 """Utilities for working with S3."""
 
-import os
-
 import logging
+import os
 import threading
 import zlib
 
@@ -10,7 +9,6 @@ from boto3.session import Session
 
 from .exceptions import AwsError
 from .utils import retry
-
 
 logger = logging.getLogger('papermill.s3')
 
@@ -34,9 +32,7 @@ class Bucket:
 
     def list(self, prefix='', delimiter=None):
         """Limits a list of Bucket's objects based on prefix and delimiter."""
-        return self.service._list(
-            bucket=self.name, prefix=prefix, delimiter=delimiter, objects=True
-        )
+        return self.service._list(bucket=self.name, prefix=prefix, delimiter=delimiter, objects=True)
 
 
 class Prefix:
@@ -213,7 +209,8 @@ class S3:
 
         for page in page_iterator:
             locations = sorted(
-                [i for i in page.get('Contents', []) + page.get('CommonPrefixes', [])], key=sort
+                [i for i in page.get('Contents', []) + page.get('CommonPrefixes', [])],
+                key=sort,
             )
 
             for item in locations:
@@ -234,7 +231,14 @@ class S3:
                     prefix = item['Key'] if 'Key' in item else item['Prefix']
                     yield f's3://{bucket}/{prefix}'
 
-    def _put(self, source, dest, num_callbacks=10, policy='bucket-owner-full-control', **kwargs):
+    def _put(
+        self,
+        source,
+        dest,
+        num_callbacks=10,
+        policy='bucket-owner-full-control',
+        **kwargs,
+    ):
         key = self._get_key(dest)
         obj = self.s3.Object(key.bucket.name, key.name)
 
@@ -247,7 +251,12 @@ class S3:
         return key
 
     def _put_string(
-        self, source, dest, num_callbacks=10, policy='bucket-owner-full-control', **kwargs
+        self,
+        source,
+        dest,
+        num_callbacks=10,
+        policy='bucket-owner-full-control',
+        **kwargs,
     ):
         key = self._get_key(dest)
         obj = self.s3.Object(key.bucket.name, key.name)
@@ -309,7 +318,7 @@ class S3:
                 if size == 0:
                     break
 
-                r = obj.get(Range=f"bytes={bytes_read}-")
+                r = obj.get(Range=f'bytes={bytes_read}-')
 
                 try:
                     while bytes_read < size:
@@ -339,7 +348,7 @@ class S3:
                         bytes_read += len(bytes)
 
                 except zlib.error:
-                    logger.error("Error while decompressing [%s]", key.name)
+                    logger.error('Error while decompressing [%s]', key.name)
                     raise
                 except UnicodeDecodeError:
                     raise
@@ -375,8 +384,8 @@ class S3:
             the s3 location
         """
 
-        assert isinstance(source, str), "source must be a string"
-        assert self._is_s3(dest), "Destination must be s3 location"
+        assert isinstance(source, str), 'source must be a string'
+        assert self._is_s3(dest), 'Destination must be s3 location'
 
         return self._put_string(source, dest, **kwargs)
 
@@ -399,7 +408,7 @@ class S3:
            if True return iterator rather than converting to list object
 
         """
-        assert self._is_s3(name), "name must be in form s3://bucket/key"
+        assert self._is_s3(name), 'name must be in form s3://bucket/key'
 
         it = self._list(bucket=self._bucket_name(name), prefix=self._key_name(name), **kwargs)
         return iter(it) if iterator else list(it)
@@ -423,10 +432,10 @@ class S3:
             files or prefixes that are encountered
 
         """
-        assert self._is_s3(name), "name must be in form s3://bucket/prefix/"
+        assert self._is_s3(name), 'name must be in form s3://bucket/prefix/'
 
         if not name.endswith('/'):
-            name += "/"
+            name += '/'
         return self.list(name, delimiter='/', **kwargs)
 
     def read(self, source, compressed=False, encoding='UTF-8'):

@@ -1,14 +1,14 @@
+from datetime import datetime
+from uuid import uuid4
+
 import nbformat
 
 from .engines import papermill_engines
-from .log import logger
 from .exceptions import PapermillMissingParameterException
 from .iorw import read_yaml_file
+from .log import logger
 from .translators import translate_parameters
 from .utils import find_first_tagged_cell_index
-
-from uuid import uuid4
-from datetime import datetime
 
 
 def add_builtin_parameters(parameters):
@@ -20,10 +20,10 @@ def add_builtin_parameters(parameters):
        Dictionary of parameters provided by the user
     """
     with_builtin_parameters = {
-        "pm": {
-            "run_uuid": str(uuid4()),
-            "current_datetime_local": datetime.now(),
-            "current_datetime_utc": datetime.utcnow(),
+        'pm': {
+            'run_uuid': str(uuid4()),
+            'current_datetime_local': datetime.now(),
+            'current_datetime_utc': datetime.utcnow(),
         }
     }
 
@@ -53,7 +53,7 @@ def parameterize_path(path, parameters):
     try:
         return path.format(**parameters)
     except KeyError as key_error:
-        raise PapermillMissingParameterException(f"Missing parameter {key_error}")
+        raise PapermillMissingParameterException(f'Missing parameter {key_error}')
 
 
 def parameterize_notebook(

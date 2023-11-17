@@ -1,16 +1,16 @@
 """Engines to perform different roles"""
-import sys
 import datetime
-import dateutil
-
+import sys
 from functools import wraps
+
+import dateutil
 import entrypoints
 
-from .log import logger
-from .exceptions import PapermillException
 from .clientwrap import PapermillNotebookClient
+from .exceptions import PapermillException
 from .iorw import write_ipynb
-from .utils import merge_kwargs, remove_args, nb_kernel_name, nb_language
+from .log import logger
+from .utils import merge_kwargs, nb_kernel_name, nb_language, remove_args
 
 
 class PapermillEngines:
@@ -33,7 +33,7 @@ class PapermillEngines:
 
         Load handlers provided by other packages
         """
-        for entrypoint in entrypoints.get_group_all("papermill.engine"):
+        for entrypoint in entrypoints.get_group_all('papermill.engine'):
             self.register(entrypoint.name, entrypoint.load())
 
     def get_engine(self, name=None):
@@ -90,13 +90,18 @@ class NotebookExecutionManager:
     shared manner.
     """
 
-    PENDING = "pending"
-    RUNNING = "running"
-    COMPLETED = "completed"
-    FAILED = "failed"
+    PENDING = 'pending'
+    RUNNING = 'running'
+    COMPLETED = 'completed'
+    FAILED = 'failed'
 
     def __init__(
-        self, nb, output_path=None, log_output=False, progress_bar=True, autosave_cell_every=30
+        self,
+        nb,
+        output_path=None,
+        log_output=False,
+        progress_bar=True,
+        autosave_cell_every=30,
     ):
         self.nb = nb
         self.output_path = output_path
@@ -111,7 +116,7 @@ class NotebookExecutionManager:
             # lazy import due to implict slow ipython import
             from tqdm.auto import tqdm
 
-            self.pbar = tqdm(total=len(self.nb.cells), unit="cell", desc="Executing")
+            self.pbar = tqdm(total=len(self.nb.cells), unit='cell', desc='Executing')
 
     def now(self):
         """Helper to return current UTC time"""
@@ -162,7 +167,7 @@ class NotebookExecutionManager:
                 # Autosave is taking too long, so exponentially back off.
                 self.autosave_cell_every *= 2
                 logger.warning(
-                    "Autosave too slow: {:.2f} sec, over {}% limit. Backing off to {} sec".format(
+                    'Autosave too slow: {:.2f} sec, over {}% limit. Backing off to {} sec'.format(
                         save_elapsed, self.max_autosave_pct, self.autosave_cell_every
                     )
                 )
@@ -187,7 +192,7 @@ class NotebookExecutionManager:
 
         for cell in self.nb.cells:
             # Reset the cell execution counts.
-            if cell.get("cell_type") == "code":
+            if cell.get('cell_type') == 'code':
                 cell.execution_count = None
 
             # Clear out the papermill metadata for each cell.
@@ -198,7 +203,7 @@ class NotebookExecutionManager:
                 duration=None,
                 status=self.PENDING,  # pending, running, completed
             )
-            if cell.get("cell_type") == "code":
+            if cell.get('cell_type') == 'code':
                 cell.outputs = []
 
         self.save()
@@ -216,13 +221,13 @@ class NotebookExecutionManager:
             logger.info(f'Executing Cell {ceel_num:-<40}')
 
         cell.metadata.papermill['start_time'] = self.now().isoformat()
-        cell.metadata.papermill["status"] = self.RUNNING
+        cell.metadata.papermill['status'] = self.RUNNING
         cell.metadata.papermill['exception'] = False
 
         # injects optional description of the current cell directly in the tqdm
         cell_description = self.get_cell_description(cell)
         if cell_description is not None and hasattr(self, 'pbar') and self.pbar:
-            self.pbar.set_description(f"Executing {cell_description}")
+            self.pbar.set_description(f'Executing {cell_description}')
 
         self.save()
 
@@ -278,9 +283,7 @@ class NotebookExecutionManager:
         self.end_time = self.now()
         self.nb.metadata.papermill['end_time'] = self.end_time.isoformat()
         if self.nb.metadata.papermill.get('start_time'):
-            self.nb.metadata.papermill['duration'] = (
-                self.end_time - self.start_time
-            ).total_seconds()
+            self.nb.metadata.papermill['duration'] = (self.end_time - self.start_time).total_seconds()
 
         # Cleanup cell statuses in case callbacks were never called
         for cell in self.nb.cells:
@@ -295,12 +298,12 @@ class NotebookExecutionManager:
         # Force a final sync
         self.save()
 
-    def get_cell_description(self, cell, escape_str="papermill_description="):
+    def get_cell_description(self, cell, escape_str='papermill_description='):
         """Fetches cell description if present"""
         if cell is None:
             return None
 
-        cell_code = cell["source"]
+        cell_code = cell['source']
         if cell_code is None or escape_str not in cell_code:
             return None
 

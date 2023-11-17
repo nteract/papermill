@@ -1,5 +1,5 @@
-import sys
 import asyncio
+import sys
 
 from nbclient import NotebookClient
 from nbclient.exceptions import CellExecutionError
@@ -41,7 +41,7 @@ class PapermillNotebookClient(NotebookClient):
             asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
         with self.setup_kernel(**kwargs):
-            self.log.info("Executing notebook with kernel: %s" % self.kernel_name)
+            self.log.info('Executing notebook with kernel: %s' % self.kernel_name)
             self.papermill_execute_cells()
             info_msg = self.wait_for_reply(self.kc.kernel_info())
             self.nb.metadata['language_info'] = info_msg['content']['language_info']
@@ -84,23 +84,23 @@ class PapermillNotebookClient(NotebookClient):
         :param output: nbformat.notebooknode.NotebookNode
         :return:
         """
-        if output.output_type == "stream":
-            content = "".join(output.text)
-            if output.name == "stdout":
+        if output.output_type == 'stream':
+            content = ''.join(output.text)
+            if output.name == 'stdout':
                 if self.log_output:
                     self.log.info(content)
                 if self.stdout_file:
                     self.stdout_file.write(content)
                     self.stdout_file.flush()
-            elif output.name == "stderr":
+            elif output.name == 'stderr':
                 if self.log_output:
                     # In case users want to redirect stderr differently, pipe to warning
                     self.log.warning(content)
                 if self.stderr_file:
                     self.stderr_file.write(content)
                     self.stderr_file.flush()
-        elif self.log_output and ("data" in output and "text/plain" in output.data):
-            self.log.info("".join(output.data['text/plain']))
+        elif self.log_output and ('data' in output and 'text/plain' in output.data):
+            self.log.info(''.join(output.data['text/plain']))
 
     def process_message(self, *arg, **kwargs):
         output = super().process_message(*arg, **kwargs)

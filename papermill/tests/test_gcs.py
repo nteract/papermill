@@ -92,9 +92,7 @@ class GCSTest(unittest.TestCase):
 
     @patch(
         'papermill.iorw.GCSFileSystem',
-        side_effect=mock_gcs_fs_wrapper(
-            GCSRateLimitException({"message": "test", "code": 429}), 10
-        ),
+        side_effect=mock_gcs_fs_wrapper(GCSRateLimitException({'message': 'test', 'code': 429}), 10),
     )
     def test_gcs_handle_exception(self, mock_gcs_filesystem):
         with patch.object(GCSHandler, 'RETRY_DELAY', 0):
@@ -105,47 +103,48 @@ class GCSTest(unittest.TestCase):
 
     @patch(
         'papermill.iorw.GCSFileSystem',
-        side_effect=mock_gcs_fs_wrapper(GCSRateLimitException({"message": "test", "code": 429}), 1),
+        side_effect=mock_gcs_fs_wrapper(GCSRateLimitException({'message': 'test', 'code': 429}), 1),
     )
     def test_gcs_retry(self, mock_gcs_filesystem):
         with patch.object(GCSHandler, 'RETRY_DELAY', 0):
             with patch.object(GCSHandler, 'RETRY_MULTIPLIER', 0):
                 with patch.object(GCSHandler, 'RETRY_MAX_DELAY', 0):
                     self.assertEqual(
-                        self.gcs_handler.write('raise_limit_exception', 'gs://bucket/test.ipynb'), 2
+                        self.gcs_handler.write('raise_limit_exception', 'gs://bucket/test.ipynb'),
+                        2,
                     )
 
     @patch(
         'papermill.iorw.GCSFileSystem',
-        side_effect=mock_gcs_fs_wrapper(GCSHttpError({"message": "test", "code": 429}), 1),
+        side_effect=mock_gcs_fs_wrapper(GCSHttpError({'message': 'test', 'code': 429}), 1),
     )
     def test_gcs_retry_older_exception(self, mock_gcs_filesystem):
         with patch.object(GCSHandler, 'RETRY_DELAY', 0):
             with patch.object(GCSHandler, 'RETRY_MULTIPLIER', 0):
                 with patch.object(GCSHandler, 'RETRY_MAX_DELAY', 0):
                     self.assertEqual(
-                        self.gcs_handler.write('raise_limit_exception', 'gs://bucket/test.ipynb'), 2
+                        self.gcs_handler.write('raise_limit_exception', 'gs://bucket/test.ipynb'),
+                        2,
                     )
 
     @patch('papermill.iorw.gs_is_retriable', side_effect=fallback_gs_is_retriable)
     @patch(
         'papermill.iorw.GCSFileSystem',
-        side_effect=mock_gcs_fs_wrapper(
-            GCSRateLimitException({"message": "test", "code": None}), 1
-        ),
+        side_effect=mock_gcs_fs_wrapper(GCSRateLimitException({'message': 'test', 'code': None}), 1),
     )
     def test_gcs_fallback_retry_unknown_failure_code(self, mock_gcs_filesystem, mock_gcs_retriable):
         with patch.object(GCSHandler, 'RETRY_DELAY', 0):
             with patch.object(GCSHandler, 'RETRY_MULTIPLIER', 0):
                 with patch.object(GCSHandler, 'RETRY_MAX_DELAY', 0):
                     self.assertEqual(
-                        self.gcs_handler.write('raise_limit_exception', 'gs://bucket/test.ipynb'), 2
+                        self.gcs_handler.write('raise_limit_exception', 'gs://bucket/test.ipynb'),
+                        2,
                     )
 
     @patch('papermill.iorw.gs_is_retriable', return_value=False)
     @patch(
         'papermill.iorw.GCSFileSystem',
-        side_effect=mock_gcs_fs_wrapper(GCSRateLimitException({"message": "test", "code": 500}), 1),
+        side_effect=mock_gcs_fs_wrapper(GCSRateLimitException({'message': 'test', 'code': 500}), 1),
     )
     def test_gcs_invalid_code(self, mock_gcs_filesystem, mock_gcs_retriable):
         with self.assertRaises(GCSRateLimitException):
@@ -154,7 +153,7 @@ class GCSTest(unittest.TestCase):
     @patch('papermill.iorw.gs_is_retriable', side_effect=fallback_gs_is_retriable)
     @patch(
         'papermill.iorw.GCSFileSystem',
-        side_effect=mock_gcs_fs_wrapper(GCSRateLimitException({"message": "test", "code": 500}), 1),
+        side_effect=mock_gcs_fs_wrapper(GCSRateLimitException({'message': 'test', 'code': 500}), 1),
     )
     def test_fallback_gcs_invalid_code(self, mock_gcs_filesystem, mock_gcs_retriable):
         with self.assertRaises(GCSRateLimitException):
@@ -162,7 +161,7 @@ class GCSTest(unittest.TestCase):
 
     @patch(
         'papermill.iorw.GCSFileSystem',
-        side_effect=mock_gcs_fs_wrapper(ValueError("not-a-retry"), 1),
+        side_effect=mock_gcs_fs_wrapper(ValueError('not-a-retry'), 1),
     )
     def test_gcs_unretryable(self, mock_gcs_filesystem):
         with self.assertRaises(ValueError):

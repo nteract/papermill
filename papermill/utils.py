@@ -1,7 +1,6 @@
-import os
 import logging
+import os
 import warnings
-
 from contextlib import contextmanager
 from functools import wraps
 
@@ -50,7 +49,7 @@ def nb_kernel_name(nb, name=None):
     """
     name = name or nb.metadata.get('kernelspec', {}).get('name')
     if not name:
-        raise ValueError("No kernel name found in notebook and no override provided.")
+        raise ValueError('No kernel name found in notebook and no override provided.')
     return name
 
 
@@ -79,7 +78,7 @@ def nb_language(nb, language=None):
         # v3 language path for old notebooks that didn't convert cleanly
         language = language or nb.metadata.get('kernelspec', {}).get('language')
     if not language:
-        raise ValueError("No language found in notebook and no override provided.")
+        raise ValueError('No language found in notebook and no override provided.')
     return language
 
 

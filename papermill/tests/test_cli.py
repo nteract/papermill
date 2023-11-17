@@ -2,35 +2,34 @@
 """ Test the command line interface """
 
 import os
-from pathlib import Path
-import sys
 import subprocess
+import sys
 import tempfile
-import uuid
-import nbclient
-
-import nbformat
 import unittest
+import uuid
+from pathlib import Path
 from unittest.mock import patch
 
+import nbclient
+import nbformat
 import pytest
 from click.testing import CliRunner
 
-from . import get_notebook_path, kernel_name
 from .. import cli
-from ..cli import papermill, _is_int, _is_float, _resolve_type
+from ..cli import _is_float, _is_int, _resolve_type, papermill
+from . import get_notebook_path, kernel_name
 
 
 @pytest.mark.parametrize(
-    "test_input,expected",
+    'test_input,expected',
     [
-        ("True", True),
-        ("False", False),
-        ("None", None),
-        ("12.51", 12.51),
-        ("10", 10),
-        ("hello world", "hello world"),
-        ("😍", "😍"),
+        ('True', True),
+        ('False', False),
+        ('None', None),
+        ('12.51', 12.51),
+        ('10', 10),
+        ('hello world', 'hello world'),
+        ('😍', '😍'),
     ],
 )
 def test_resolve_type(test_input, expected):
@@ -38,17 +37,17 @@ def test_resolve_type(test_input, expected):
 
 
 @pytest.mark.parametrize(
-    "value,expected",
+    'value,expected',
     [
         (13.71, True),
-        ("False", False),
-        ("None", False),
+        ('False', False),
+        ('None', False),
         (-8.2, True),
         (10, True),
-        ("10", True),
-        ("12.31", True),
-        ("hello world", False),
-        ("😍", False),
+        ('10', True),
+        ('12.31', True),
+        ('hello world', False),
+        ('😍', False),
     ],
 )
 def test_is_float(value, expected):
@@ -56,17 +55,17 @@ def test_is_float(value, expected):
 
 
 @pytest.mark.parametrize(
-    "value,expected",
+    'value,expected',
     [
         (13.71, True),
-        ("False", False),
-        ("None", False),
+        ('False', False),
+        ('None', False),
         (-8.2, True),
-        ("-23.2", False),
+        ('-23.2', False),
         (10, True),
-        ("13", True),
-        ("hello world", False),
-        ("😍", False),
+        ('13', True),
+        ('hello world', False),
+        ('😍', False),
     ],
 )
 def test_is_int(value, expected):
@@ -100,12 +99,8 @@ class TestCLI(unittest.TestCase):
             self.default_execute_kwargs['input_path'],
             self.default_execute_kwargs['output_path'],
         ]
-        self.sample_yaml_file = os.path.join(
-            os.path.dirname(__file__), 'parameters', 'example.yaml'
-        )
-        self.sample_json_file = os.path.join(
-            os.path.dirname(__file__), 'parameters', 'example.json'
-        )
+        self.sample_yaml_file = os.path.join(os.path.dirname(__file__), 'parameters', 'example.yaml')
+        self.sample_json_file = os.path.join(os.path.dirname(__file__), 'parameters', 'example.json')
 
     def augment_execute_kwargs(self, **new_kwargs):
         kwargs = self.default_execute_kwargs.copy()
@@ -115,24 +110,27 @@ class TestCLI(unittest.TestCase):
     @patch(cli.__name__ + '.execute_notebook')
     def test_parameters(self, execute_patch):
         self.runner.invoke(
-            papermill, self.default_args + ['-p', 'foo', 'bar', '--parameters', 'baz', '42']
+            papermill,
+            self.default_args + ['-p', 'foo', 'bar', '--parameters', 'baz', '42'],
         )
-        execute_patch.assert_called_with(
-            **self.augment_execute_kwargs(parameters={'foo': 'bar', 'baz': 42})
-        )
+        execute_patch.assert_called_with(**self.augment_execute_kwargs(parameters={'foo': 'bar', 'baz': 42}))
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_parameters_raw(self, execute_patch):
         self.runner.invoke(
-            papermill, self.default_args + ['-r', 'foo', 'bar', '--parameters_raw', 'baz', '42']
+            papermill,
+            self.default_args + ['-r', 'foo', 'bar', '--parameters_raw', 'baz', '42'],
         )
-        execute_patch.assert_called_with(
-            **self.augment_execute_kwargs(parameters={'foo': 'bar', 'baz': '42'})
-        )
+        execute_patch.assert_called_with(**self.augment_execute_kwargs(parameters={'foo': 'bar', 'baz': '42'}))
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_parameters_file(self, execute_patch):
-        extra_args = ['-f', self.sample_yaml_file, '--parameters_file', self.sample_json_file]
+        extra_args = [
+            '-f',
+            self.sample_yaml_file,
+            '--parameters_file',
+            self.sample_json_file,
+        ]
         self.runner.invoke(papermill, self.default_args + extra_args)
         execute_patch.assert_called_with(
             **self.augment_execute_kwargs(
@@ -152,16 +150,12 @@ class TestCLI(unittest.TestCase):
             papermill,
             self.default_args + ['-y', '{"foo": "bar"}', '--parameters_yaml', '{"foo2": ["baz"]}'],
         )
-        execute_patch.assert_called_with(
-            **self.augment_execute_kwargs(parameters={'foo': 'bar', 'foo2': ['baz']})
-        )
+        execute_patch.assert_called_with(**self.augment_execute_kwargs(parameters={'foo': 'bar', 'foo2': ['baz']}))
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_parameters_yaml_date(self, execute_patch):
         self.runner.invoke(papermill, self.default_args + ['-y', 'a_date: 2019-01-01'])
-        execute_patch.assert_called_with(
-            **self.augment_execute_kwargs(parameters={'a_date': '2019-01-01'})
-        )
+        execute_patch.assert_called_with(**self.augment_execute_kwargs(parameters={'a_date': '2019-01-01'}))
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_parameters_empty(self, execute_patch):
@@ -202,7 +196,8 @@ class TestCLI(unittest.TestCase):
         )
 
     @patch(
-        cli.__name__ + '.execute_notebook', side_effect=nbclient.exceptions.DeadKernelError("Fake")
+        cli.__name__ + '.execute_notebook',
+        side_effect=nbclient.exceptions.DeadKernelError('Fake'),
     )
     def test_parameters_dead_kernel(self, execute_patch):
         result = self.runner.invoke(
@@ -220,18 +215,15 @@ class TestCLI(unittest.TestCase):
             'eydmb28nOiAxfQ==',
         ]
         self.runner.invoke(papermill, self.default_args + extra_args)
-        execute_patch.assert_called_with(
-            **self.augment_execute_kwargs(parameters={'foo': 1, 'bar': 2})
-        )
+        execute_patch.assert_called_with(**self.augment_execute_kwargs(parameters={'foo': 1, 'bar': 2}))
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_parameters_base64_date(self, execute_patch):
         self.runner.invoke(
-            papermill, self.default_args + ['--parameters_base64', 'YV9kYXRlOiAyMDE5LTAxLTAx']
+            papermill,
+            self.default_args + ['--parameters_base64', 'YV9kYXRlOiAyMDE5LTAxLTAx'],
         )
-        execute_patch.assert_called_with(
-            **self.augment_execute_kwargs(parameters={'a_date': '2019-01-01'})
-        )
+        execute_patch.assert_called_with(**self.augment_execute_kwargs(parameters={'a_date': '2019-01-01'}))
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_inject_input_path(self, execute_patch):
@@ -262,9 +254,7 @@ class TestCLI(unittest.TestCase):
     @patch(cli.__name__ + '.execute_notebook')
     def test_engine(self, execute_patch):
         self.runner.invoke(papermill, self.default_args + ['--engine', 'engine-that-could'])
-        execute_patch.assert_called_with(
-            **self.augment_execute_kwargs(engine_name='engine-that-could')
-        )
+        execute_patch.assert_called_with(**self.augment_execute_kwargs(engine_name='engine-that-could'))
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_prepare_only(self, execute_patch):
@@ -309,9 +299,7 @@ class TestCLI(unittest.TestCase):
     @patch(cli.__name__ + '.execute_notebook')
     def test_log_output_plus_progress(self, execute_patch):
         self.runner.invoke(papermill, self.default_args + ['--log-output', '--progress-bar'])
-        execute_patch.assert_called_with(
-            **self.augment_execute_kwargs(log_output=True, progress_bar=True)
-        )
+        execute_patch.assert_called_with(**self.augment_execute_kwargs(log_output=True, progress_bar=True))
 
     @patch(cli.__name__ + '.execute_notebook')
     def test_no_log_output(self, execute_patch):
@@ -403,7 +391,7 @@ class TestCLI(unittest.TestCase):
                     'bar': 'value',
                     'baz': 'replace',
                     'yaml_foo': {'yaml_bar': 'yaml_baz'},
-                    "base64_foo": "base64_bar",
+                    'base64_foo': 'base64_bar',
                     'a_date': '2019-01-01',
                 },
                 engine_name='engine-that-could',
@@ -441,16 +429,20 @@ def papermill_version():
 
 @pytest.fixture()
 def notebook():
-    metadata = {'kernelspec': {'name': 'python3', 'language': 'python', 'display_name': 'python3'}}
+    metadata = {
+        'kernelspec': {
+            'name': 'python3',
+            'language': 'python',
+            'display_name': 'python3',
+        }
+    }
     return nbformat.v4.new_notebook(
         metadata=metadata,
         cells=[nbformat.v4.new_markdown_cell('This is a notebook with kernel: python3')],
     )
 
 
-require_papermill_installed = pytest.mark.skipif(
-    not papermill_version(), reason='papermill is not installed'
-)
+require_papermill_installed = pytest.mark.skipif(not papermill_version(), reason='papermill is not installed')
 
 
 @require_papermill_installed
