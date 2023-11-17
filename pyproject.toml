@@ -289,7 +289,8 @@ ignore = [
     # Assigning lambda expression
     "E731",
     # Do not use variables named ‘l’, ‘O’, or ‘I’
-    "E741"
+    "E741",
+    "B028"
 ]
 target-version = "py310"
 
@@ -297,7 +298,7 @@ target-version = "py310"
 "__init__.py" = ["F401"]
 "papermill/cli.py" = ["C408"]
 "papermill/engines.py" = ["C408"]
-"papermill/iorw.py" = ["B018", "B006","UP038","B904","C408"]
+"papermill/iorw.py" = ["B018", "B006","UP038","B904","C408","B028"]
 "papermill/parameterize.py" = ["B904"]
 "papermill/s3.py" = ["C416","UP038","B007","B028"]
 "papermill/tests/test_cli.py" = ["C408"]
