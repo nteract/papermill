@@ -19,14 +19,14 @@ from ..exceptions import PapermillParameterOverwriteWarning
 
 def test_no_tagged_cell():
     nb = new_notebook(
-        cells=[new_code_cell('a = 2', metadata={"tags": []})],
+        cells=[new_code_cell("a = 2", metadata={"tags": []})],
     )
     assert not any_tagged_cell(nb, "parameters")
 
 
 def test_tagged_cell():
     nb = new_notebook(
-        cells=[new_code_cell('a = 2', metadata={"tags": ["parameters"]})],
+        cells=[new_code_cell("a = 2", metadata={"tags": ["parameters"]})],
     )
     assert any_tagged_cell(nb, "parameters")
 
@@ -36,7 +36,10 @@ def test_merge_kwargs():
         assert merge_kwargs({"a": 1, "b": 2}, a=3) == {"a": 3, "b": 2}
         assert len(wrn) == 1
         assert issubclass(wrn[0].category, PapermillParameterOverwriteWarning)
-        assert wrn[0].message.__str__() == "Callee will overwrite caller's argument(s): a=3"
+        assert (
+            wrn[0].message.__str__()
+            == "Callee will overwrite caller's argument(s): a=3"
+        )
 
 
 def test_remove_args():
@@ -44,7 +47,9 @@ def test_remove_args():
 
 
 def test_retry():
-    m = Mock(side_effect=RuntimeError(), __name__="m", __module__="test_s3", __doc__="m")
+    m = Mock(
+        side_effect=RuntimeError(), __name__="m", __module__="test_s3", __doc__="m"
+    )
     wrapped_m = retry(3)(m)
     with pytest.raises(RuntimeError):
         wrapped_m("foo")

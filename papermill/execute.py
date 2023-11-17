@@ -6,7 +6,11 @@ from .exceptions import PapermillExecutionError
 from .iorw import get_pretty_path, local_file_io_cwd, load_notebook_node, write_ipynb
 from .engines import papermill_engines
 from .utils import chdir
-from .parameterize import add_builtin_parameters, parameterize_notebook, parameterize_path
+from .parameterize import (
+    add_builtin_parameters,
+    parameterize_notebook,
+    parameterize_path,
+)
 from .inspection import _infer_parameters
 
 
@@ -89,7 +93,9 @@ def execute_notebook(
 
         # Parameterize the Notebook.
         if parameters:
-            parameter_predefined = _infer_parameters(nb, name=kernel_name, language=language)
+            parameter_predefined = _infer_parameters(
+                nb, name=kernel_name, language=language
+            )
             parameter_predefined = {p.name for p in parameter_predefined}
             for p in parameters:
                 if p not in parameter_predefined:
@@ -109,7 +115,9 @@ def execute_notebook(
 
         if not prepare_only:
             # Dropdown to the engine to fetch the kernel name from the notebook document
-            kernel_name = papermill_engines.nb_kernel_name(engine_name=engine_name, nb=nb, name=kernel_name)
+            kernel_name = papermill_engines.nb_kernel_name(
+                engine_name=engine_name, nb=nb, name=kernel_name
+            )
             # Execute the Notebook in `cwd` if it is set
             with chdir(cwd):
                 nb = papermill_engines.execute_notebook_with_engine(
@@ -152,13 +160,13 @@ def prepare_notebook_metadata(nb, input_path, output_path, report_mode=False):
     # Hide input if report-mode is set to True.
     if report_mode:
         for cell in nb.cells:
-            if cell.cell_type == 'code':
-                cell.metadata['jupyter'] = cell.get('jupyter', {})
-                cell.metadata['jupyter']['source_hidden'] = True
+            if cell.cell_type == "code":
+                cell.metadata["jupyter"] = cell.get("jupyter", {})
+                cell.metadata["jupyter"]["source_hidden"] = True
 
     # Record specified environment variable values.
-    nb.metadata.papermill['input_path'] = input_path
-    nb.metadata.papermill['output_path'] = output_path
+    nb.metadata.papermill["input_path"] = input_path
+    nb.metadata.papermill["output_path"] = output_path
 
     return nb
 
@@ -168,20 +176,24 @@ ERROR_MARKER_TAG = "papermill-error-cell-tag"
 ERROR_STYLE = 'style="color:red; font-family:Helvetica Neue, Helvetica, Arial, sans-serif; font-size:2em;"'
 
 ERROR_MESSAGE_TEMPLATE = (
-    '<span ' + ERROR_STYLE + '>'
+    "<span " + ERROR_STYLE + ">"
     "An Exception was encountered at '<a href=\"#papermill-error-cell\">In [%s]</a>'."
-    '</span>'
+    "</span>"
 )
 
 ERROR_ANCHOR_MSG = (
-    '<span id="papermill-error-cell" ' + ERROR_STYLE + '>'
-    'Execution using papermill encountered an exception here and stopped:'
-    '</span>'
+    '<span id="papermill-error-cell" ' + ERROR_STYLE + ">"
+    "Execution using papermill encountered an exception here and stopped:"
+    "</span>"
 )
 
 
 def remove_error_markers(nb):
-    nb.cells = [cell for cell in nb.cells if ERROR_MARKER_TAG not in cell.metadata.get("tags", [])]
+    nb.cells = [
+        cell
+        for cell in nb.cells
+        if ERROR_MARKER_TAG not in cell.metadata.get("tags", [])
+    ]
     return nb
 
 
@@ -202,7 +214,9 @@ def raise_for_execution_errors(nb, output_path):
 
         for output in cell.outputs:
             if output.output_type == "error":
-                if output.ename == "SystemExit" and (output.evalue == "" or output.evalue == "0"):
+                if output.ename == "SystemExit" and (
+                    output.evalue == "" or output.evalue == "0"
+                ):
                     continue
                 error = PapermillExecutionError(
                     cell_index=index,
@@ -219,9 +233,9 @@ def raise_for_execution_errors(nb, output_path):
         # the relevant cell (by adding a note just before the failure with an HTML anchor)
         error_msg = ERROR_MESSAGE_TEMPLATE % str(error.exec_count)
         error_msg_cell = nbformat.v4.new_markdown_cell(error_msg)
-        error_msg_cell.metadata['tags'] = [ERROR_MARKER_TAG]
+        error_msg_cell.metadata["tags"] = [ERROR_MARKER_TAG]
         error_anchor_cell = nbformat.v4.new_markdown_cell(ERROR_ANCHOR_MSG)
-        error_anchor_cell.metadata['tags'] = [ERROR_MARKER_TAG]
+        error_anchor_cell.metadata["tags"] = [ERROR_MARKER_TAG]
 
         # Upgrade the Notebook to the latest v4 before writing into it
         nb = nbformat.v4.upgrade(nb)

@@ -27,12 +27,24 @@ def click_context():
         (_get_fullpath("no_parameters.ipynb"), {}),
         (
             _get_fullpath("simple_execute.ipynb"),
-            {"msg": {"name": "msg", "inferred_type_name": "None", "default": "None", "help": ""}},
+            {
+                "msg": {
+                    "name": "msg",
+                    "inferred_type_name": "None",
+                    "default": "None",
+                    "help": "",
+                }
+            },
         ),
         (
             _get_fullpath("complex_parameters.ipynb"),
             {
-                "msg": {"name": "msg", "inferred_type_name": "None", "default": "None", "help": ""},
+                "msg": {
+                    "name": "msg",
+                    "inferred_type_name": "None",
+                    "default": "None",
+                    "help": "",
+                },
                 "a": {
                     "name": "a",
                     "inferred_type_name": "float",
@@ -45,7 +57,12 @@ def click_context():
                     "default": "['Hello','World']",
                     "help": "Nice list",
                 },
-                "c": {"name": "c", "inferred_type_name": "NoneType", "default": "None", "help": ""},
+                "c": {
+                    "name": "c",
+                    "inferred_type_name": "NoneType",
+                    "default": "None",
+                    "help": "",
+                },
             },
         ),
         (_get_fullpath("notimplemented_translator.ipynb"), {}),
@@ -56,7 +73,14 @@ def test_inspect_notebook(name, expected):
 
 
 def test_str_path():
-    expected = {"msg": {"name": "msg", "inferred_type_name": "None", "default": "None", "help": ""}}
+    expected = {
+        "msg": {
+            "name": "msg",
+            "inferred_type_name": "None",
+            "default": "None",
+            "help": "",
+        }
+    }
     assert inspect_notebook(str(_get_fullpath("simple_execute.ipynb"))) == expected
 
 

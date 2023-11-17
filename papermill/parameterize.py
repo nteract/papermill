@@ -60,7 +60,7 @@ def parameterize_notebook(
     nb,
     parameters,
     report_mode=False,
-    comment='Parameters',
+    comment="Parameters",
     kernel_name=None,
     language=None,
     engine_name=None,
@@ -93,14 +93,14 @@ def parameterize_notebook(
     nb = nbformat.v4.upgrade(nb)
 
     newcell = nbformat.v4.new_code_cell(source=param_content)
-    newcell.metadata['tags'] = ['injected-parameters']
+    newcell.metadata["tags"] = ["injected-parameters"]
 
     if report_mode:
-        newcell.metadata['jupyter'] = newcell.get('jupyter', {})
-        newcell.metadata['jupyter']['source_hidden'] = True
+        newcell.metadata["jupyter"] = newcell.get("jupyter", {})
+        newcell.metadata["jupyter"]["source_hidden"] = True
 
-    param_cell_index = find_first_tagged_cell_index(nb, 'parameters')
-    injected_cell_index = find_first_tagged_cell_index(nb, 'injected-parameters')
+    param_cell_index = find_first_tagged_cell_index(nb, "parameters")
+    injected_cell_index = find_first_tagged_cell_index(nb, "injected-parameters")
     if injected_cell_index >= 0:
         # Replace the injected cell with a new version
         before = nb.cells[:injected_cell_index]
@@ -116,6 +116,6 @@ def parameterize_notebook(
         after = nb.cells
 
     nb.cells = before + [newcell] + after
-    nb.metadata.papermill['parameters'] = parameters
+    nb.metadata.papermill["parameters"] = parameters
 
     return nb

@@ -27,7 +27,9 @@ class PapermillNotebookClient(NotebookClient):
             Optional kernel manager. If none is provided, a kernel manager will
             be created.
         """
-        super().__init__(nb_man.nb, km=km, raise_on_iopub_timeout=raise_on_iopub_timeout, **kw)
+        super().__init__(
+            nb_man.nb, km=km, raise_on_iopub_timeout=raise_on_iopub_timeout, **kw
+        )
         self.nb_man = nb_man
 
     def execute(self, **kwargs):
@@ -37,14 +39,18 @@ class PapermillNotebookClient(NotebookClient):
         self.reset_execution_trackers()
 
         # See https://bugs.python.org/issue37373 :(
-        if sys.version_info[0] == 3 and sys.version_info[1] >= 8 and sys.platform.startswith('win'):
+        if (
+            sys.version_info[0] == 3
+            and sys.version_info[1] >= 8
+            and sys.platform.startswith("win")
+        ):
             asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
         with self.setup_kernel(**kwargs):
             self.log.info("Executing notebook with kernel: %s" % self.kernel_name)
             self.papermill_execute_cells()
             info_msg = self.wait_for_reply(self.kc.kernel_info())
-            self.nb.metadata['language_info'] = info_msg['content']['language_info']
+            self.nb.metadata["language_info"] = info_msg["content"]["language_info"]
             self.set_widgets_metadata()
 
         return self.nb
@@ -71,7 +77,9 @@ class PapermillNotebookClient(NotebookClient):
                 self.nb_man.cell_start(cell, index)
                 self.execute_cell(cell, index)
             except CellExecutionError as ex:
-                self.nb_man.cell_exception(self.nb.cells[index], cell_index=index, exception=ex)
+                self.nb_man.cell_exception(
+                    self.nb.cells[index], cell_index=index, exception=ex
+                )
                 break
             finally:
                 self.nb_man.cell_complete(self.nb.cells[index], cell_index=index)
@@ -100,7 +108,7 @@ class PapermillNotebookClient(NotebookClient):
                     self.stderr_file.write(content)
                     self.stderr_file.flush()
         elif self.log_output and ("data" in output and "text/plain" in output.data):
-            self.log.info("".join(output.data['text/plain']))
+            self.log.info("".join(output.data["text/plain"]))
 
     def process_message(self, *arg, **kwargs):
         output = super().process_message(*arg, **kwargs)

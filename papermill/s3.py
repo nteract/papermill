@@ -12,7 +12,7 @@ from .exceptions import AwsError
 from .utils import retry
 
 
-logger = logging.getLogger('papermill.s3')
+logger = logging.getLogger("papermill.s3")
 
 
 class Bucket:
@@ -32,9 +32,11 @@ class Bucket:
         self.name = name
         self.service = service
 
-    def list(self, prefix='', delimiter=None):
+    def list(self, prefix="", delimiter=None):
         """Limits a list of Bucket's objects based on prefix and delimiter."""
-        return self.service._list(bucket=self.name, prefix=prefix, delimiter=delimiter, objects=True)
+        return self.service._list(
+            bucket=self.name, prefix=prefix, delimiter=delimiter, objects=True
+        )
 
 
 class Prefix:
@@ -59,7 +61,7 @@ class Prefix:
         self.service = service
 
     def __str__(self):
-        return f's3://{self.bucket.name}/{self.name}'
+        return f"s3://{self.bucket.name}/{self.name}"
 
     def __repr__(self):
         return self.__str__()
@@ -104,7 +106,7 @@ class Key:
         self.etag = etag
         if last_modified:
             try:
-                self.last_modified = last_modified.isoformat().split('+')[0] + '.000Z'
+                self.last_modified = last_modified.isoformat().split("+")[0] + ".000Z"
             except ValueError:
                 self.last_modified = last_modified
         self.storage_class = storage_class
@@ -112,7 +114,7 @@ class Key:
         self.service = service
 
     def __str__(self):
-        return f's3://{self.bucket.name}/{self.name}'
+        return f"s3://{self.bucket.name}/{self.name}"
 
     def __repr__(self):
         return self.__str__()
@@ -144,45 +146,47 @@ class S3:
         with self.lock:
             if not all(S3.s3_session):
                 session = Session()
-                client = session.client('s3')
+                client = session.client("s3")
 
                 session_params = {}
-                endpoint_url = os.environ.get('BOTO3_ENDPOINT_URL', None)
+                endpoint_url = os.environ.get("BOTO3_ENDPOINT_URL", None)
                 if endpoint_url:
-                    session_params['endpoint_url'] = endpoint_url
+                    session_params["endpoint_url"] = endpoint_url
 
-                s3 = session.resource('s3', **session_params)
+                s3 = session.resource("s3", **session_params)
                 S3.s3_session = (session, client, s3)
 
         (self.session, self.client, self.s3) = S3.s3_session
 
     def _bucket_name(self, bucket):
-        return self._clean(bucket).split('/', 1)[0]
+        return self._clean(bucket).split("/", 1)[0]
 
     def _clean(self, name):
-        if name.startswith('s3n:'):
-            name = 's3:' + name[4:]
+        if name.startswith("s3n:"):
+            name = "s3:" + name[4:]
         if self._is_s3(name):
             return name[5:]
         return name
 
     def _clean_s3(self, name):
-        return 's3:' + name[4:] if name.startswith('s3n:') else name
+        return "s3:" + name[4:] if name.startswith("s3n:") else name
 
     def _get_key(self, name):
         if isinstance(name, Key):
             return name
 
-        return Key(bucket=self._bucket_name(name), name=self._key_name(name), service=self)
+        return Key(
+            bucket=self._bucket_name(name), name=self._key_name(name), service=self
+        )
 
     def _key_name(self, name):
-        cleaned = self._clean(name).split('/', 1)
+        cleaned = self._clean(name).split("/", 1)
         return cleaned[1] if len(cleaned) > 1 else None
 
     @retry(3)
     def _list(
         self,
-        prefix='',
+        prefix="",
         bucket=None,
         delimiter=None,
         keys=False,
@@ -190,64 +194,81 @@ class S3:
         page_size=1000,
         **kwargs,
     ):
-        assert bucket is not None, 'You must specify a bucket to list'
+        assert bucket is not None, "You must specify a bucket to list"
 
         bucket = self._bucket_name(bucket)
-        paginator = self.client.get_paginator('list_objects_v2')
+        paginator = self.client.get_paginator("list_objects_v2")
         operation_parameters = {
-            'Bucket': bucket,
-            'Prefix': prefix,
-            'PaginationConfig': {'PageSize': page_size},
+            "Bucket": bucket,
+            "Prefix": prefix,
+            "PaginationConfig": {"PageSize": page_size},
         }
         if delimiter:
-            operation_parameters['Delimiter'] = delimiter
+            operation_parameters["Delimiter"] = delimiter
 
         page_iterator = paginator.paginate(**operation_parameters)
 
         def sort(item):
-            if 'Key' in item:
-                return item['Key']
-            return item['Prefix']
+            if "Key" in item:
+                return item["Key"]
+            return item["Prefix"]
 
         for page in page_iterator:
-            locations = sorted([i for i in page.get('Contents', []) + page.get('CommonPrefixes', [])], key=sort)
+            locations = sorted(
+                [i for i in page.get("Contents", []) + page.get("CommonPrefixes", [])],
+                key=sort,
+            )
 
             for item in locations:
                 if objects or keys:
-                    if 'Key' in item:
+                    if "Key" in item:
                         yield Key(
                             bucket,
-                            item['Key'],
-                            size=item.get('Size'),
-                            etag=item.get('ETag'),
-                            last_modified=item.get('LastModified'),
-                            storage_class=item.get('StorageClass'),
+                            item["Key"],
+                            size=item.get("Size"),
+                            etag=item.get("ETag"),
+                            last_modified=item.get("LastModified"),
+                            storage_class=item.get("StorageClass"),
                             service=self,
                         )
                     elif objects:
-                        yield Prefix(bucket, item['Prefix'], service=self)
+                        yield Prefix(bucket, item["Prefix"], service=self)
                 else:
-                    prefix = item['Key'] if 'Key' in item else item['Prefix']
-                    yield f's3://{bucket}/{prefix}'
+                    prefix = item["Key"] if "Key" in item else item["Prefix"]
+                    yield f"s3://{bucket}/{prefix}"
 
-    def _put(self, source, dest, num_callbacks=10, policy='bucket-owner-full-control', **kwargs):
+    def _put(
+        self,
+        source,
+        dest,
+        num_callbacks=10,
+        policy="bucket-owner-full-control",
+        **kwargs,
+    ):
         key = self._get_key(dest)
         obj = self.s3.Object(key.bucket.name, key.name)
 
         # support passing in open file obj.  Why did we do this in the past?
 
         if not isinstance(source, str):
-            obj.upload_fileobj(source, ExtraArgs={'ACL': policy})
+            obj.upload_fileobj(source, ExtraArgs={"ACL": policy})
         else:
-            obj.upload_file(source, ExtraArgs={'ACL': policy})
+            obj.upload_file(source, ExtraArgs={"ACL": policy})
         return key
 
-    def _put_string(self, source, dest, num_callbacks=10, policy='bucket-owner-full-control', **kwargs):
+    def _put_string(
+        self,
+        source,
+        dest,
+        num_callbacks=10,
+        policy="bucket-owner-full-control",
+        **kwargs,
+    ):
         key = self._get_key(dest)
         obj = self.s3.Object(key.bucket.name, key.name)
 
         if isinstance(source, str):
-            source = source.encode('utf-8')
+            source = source.encode("utf-8")
         obj.put(Body=source, ACL=policy)
         return key
 
@@ -257,7 +278,7 @@ class S3:
             return False
 
         name = self._clean_s3(name)
-        return 's3://' in name
+        return "s3://" in name
 
     def cat(
         self,
@@ -265,7 +286,7 @@ class S3:
         buffersize=None,
         memsize=2**24,
         compressed=False,
-        encoding='UTF-8',
+        encoding="UTF-8",
         raw=False,
     ):
         """
@@ -275,17 +296,19 @@ class S3:
         skip encoding.
 
         """
-        assert self._is_s3(source) or isinstance(source, Key), 'source must be a valid s3 path'
+        assert self._is_s3(source) or isinstance(
+            source, Key
+        ), "source must be a valid s3 path"
 
         key = self._get_key(source) if not isinstance(source, Key) else source
-        compressed = (compressed or key.name.endswith('.gz')) and not raw
+        compressed = (compressed or key.name.endswith(".gz")) and not raw
         if compressed:
             decompress = zlib.decompressobj(16 + zlib.MAX_WBITS)
 
         size = 0
         bytes_read = 0
         err = None
-        undecoded = ''
+        undecoded = ""
         if key:
             # try to read the file multiple times
             for i in range(100):
@@ -295,7 +318,7 @@ class S3:
                 if not size:
                     size = obj.content_length
                 elif size != obj.content_length:
-                    raise AwsError('key size unexpectedly changed while reading')
+                    raise AwsError("key size unexpectedly changed while reading")
 
                 # For an empty file, 0 (first-bytes-pos) is equal to the length of the object
                 # hence the range is "unsatisfiable", and botocore correctly handles it by
@@ -310,9 +333,9 @@ class S3:
                         # this making this weird check because this call is
                         # about 100 times slower if the amt is too high
                         if size - bytes_read > buffersize:
-                            bytes = r['Body'].read(amt=buffersize)
+                            bytes = r["Body"].read(amt=buffersize)
                         else:
-                            bytes = r['Body'].read()
+                            bytes = r["Body"].read()
                         if compressed:
                             s = decompress.decompress(bytes)
                         else:
@@ -321,7 +344,7 @@ class S3:
                         if encoding and not raw:
                             try:
                                 decoded = undecoded + s.decode(encoding)
-                                undecoded = ''
+                                undecoded = ""
                                 yield decoded
                             except UnicodeDecodeError:
                                 undecoded += s
@@ -348,7 +371,7 @@ class S3:
                 if err:
                     raise Exception
                 else:
-                    raise AwsError('Failed to fully read [%s]' % source.name)
+                    raise AwsError("Failed to fully read [%s]" % source.name)
 
             if undecoded:
                 assert encoding is not None  # only time undecoded is set
@@ -395,7 +418,9 @@ class S3:
         """
         assert self._is_s3(name), "name must be in form s3://bucket/key"
 
-        it = self._list(bucket=self._bucket_name(name), prefix=self._key_name(name), **kwargs)
+        it = self._list(
+            bucket=self._bucket_name(name), prefix=self._key_name(name), **kwargs
+        )
         return iter(it) if iterator else list(it)
 
     def listdir(self, name, **kwargs):
@@ -419,25 +444,25 @@ class S3:
         """
         assert self._is_s3(name), "name must be in form s3://bucket/prefix/"
 
-        if not name.endswith('/'):
+        if not name.endswith("/"):
             name += "/"
-        return self.list(name, delimiter='/', **kwargs)
+        return self.list(name, delimiter="/", **kwargs)
 
-    def read(self, source, compressed=False, encoding='UTF-8'):
+    def read(self, source, compressed=False, encoding="UTF-8"):
         """
         Iterates over a file in s3 split on newline.
 
         Yields a line in file.
 
         """
-        buf = ''
+        buf = ""
         for block in self.cat(source, compressed=compressed, encoding=encoding):
             buf += block
-            if '\n' in buf:
-                ret, buf = buf.rsplit('\n', 1)
-                yield from ret.split('\n')
+            if "\n" in buf:
+                ret, buf = buf.rsplit("\n", 1)
+                yield from ret.split("\n")
 
-        lines = buf.split('\n')
+        lines = buf.split("\n")
         yield from lines[:-1]
 
         # only yield the last line if the line has content in it

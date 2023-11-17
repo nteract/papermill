@@ -10,7 +10,8 @@ from .. import exceptions
 @pytest.fixture
 def temp_file():
     """NamedTemporaryFile must be set in wb mode, closed without delete, opened with open(file, "rb"),
-    then manually deleted. Otherwise, file fails to be read due to permission error on Windows."""
+    then manually deleted. Otherwise, file fails to be read due to permission error on Windows.
+    """
     with tempfile.NamedTemporaryFile(mode="wb", delete=False) as f:
         yield f
         os.unlink(f.name)
@@ -23,7 +24,10 @@ def temp_file():
             exceptions.PapermillExecutionError,
             (1, 2, "TestSource", "Exception", Exception(), ["Traceback", "Message"]),
         ),
-        (exceptions.PapermillMissingParameterException, ("PapermillMissingParameterException",)),
+        (
+            exceptions.PapermillMissingParameterException,
+            ("PapermillMissingParameterException",),
+        ),
         (exceptions.AwsError, ("AwsError",)),
         (exceptions.FileExistsError, ("FileExistsError",)),
         (exceptions.PapermillException, ("PapermillException",)),

@@ -25,7 +25,7 @@ from ..iorw import (
 from ..exceptions import PapermillException
 from . import get_notebook_path
 
-FIXTURE_PATH = os.path.join(os.path.dirname(__file__), 'fixtures')
+FIXTURE_PATH = os.path.join(os.path.dirname(__file__), "fixtures")
 
 
 class TestPapermillIO(unittest.TestCase):
@@ -96,14 +96,20 @@ class TestPapermillIO(unittest.TestCase):
         self.assertIsInstance(self.papermill_io.get_handler(None), NoIOHandler)
 
     def test_get_notebook_node_handler(self):
-        test_nb = nbformat.read(get_notebook_path('test_notebooknode_io.ipynb'), as_version=4)
-        self.assertIsInstance(self.papermill_io.get_handler(test_nb), NotebookNodeHandler)
+        test_nb = nbformat.read(
+            get_notebook_path("test_notebooknode_io.ipynb"), as_version=4
+        )
+        self.assertIsInstance(
+            self.papermill_io.get_handler(test_nb), NotebookNodeHandler
+        )
 
     def test_entrypoint_register(self):
         fake_entrypoint = Mock(load=Mock())
         fake_entrypoint.name = "fake-from-entry-point://"
 
-        with patch("entrypoints.get_group_all", return_value=[fake_entrypoint]) as mock_get_group_all:
+        with patch(
+            "entrypoints.get_group_all", return_value=[fake_entrypoint]
+        ) as mock_get_group_all:
             self.papermill_io.register_entry_points()
             mock_get_group_all.assert_called_once_with("papermill.io")
             fake_ = self.papermill_io.get_handler("fake-from-entry-point://")
@@ -123,10 +129,16 @@ class TestPapermillIO(unittest.TestCase):
         self.assertEqual(self.papermill_io.get_handler("fake2/path"), self.fake2)
 
     def test_read(self):
-        self.assertEqual(self.papermill_io.read("fake/path"), "contents from fake/path for version 1")
+        self.assertEqual(
+            self.papermill_io.read("fake/path"), "contents from fake/path for version 1"
+        )
 
     def test_read_bytes(self):
-        self.assertIsNotNone(self.papermill_io_bytes.read("notebooks/gcs/gcs_in/gcs-simple_notebook.ipynb"))
+        self.assertIsNotNone(
+            self.papermill_io_bytes.read(
+                "notebooks/gcs/gcs_in/gcs-simple_notebook.ipynb"
+            )
+        )
 
     def test_read_with_no_file_extension(self):
         with pytest.warns(UserWarning):
@@ -150,8 +162,8 @@ class TestPapermillIO(unittest.TestCase):
             read_yaml_file("fake/path/fakeinputpath.ipynb")
 
     def test_read_stdin(self):
-        file_content = 'Τὴ γλῶσσα μοῦ ἔδωσαν ἑλληνικὴ'
-        with patch('sys.stdin', io.StringIO(file_content)):
+        file_content = "Τὴ γλῶσσα μοῦ ἔδωσαν ἑλληνικὴ"
+        with patch("sys.stdin", io.StringIO(file_content)):
             self.assertEqual(self.old_papermill_io.read("-"), file_content)
 
     def test_listdir(self):
@@ -165,21 +177,23 @@ class TestPapermillIO(unittest.TestCase):
             self.papermill_io.write("buffer", "fake/path")
 
     def test_write_with_path_of_none(self):
-        self.assertIsNone(self.papermill_io.write('buffer', None))
+        self.assertIsNone(self.papermill_io.write("buffer", None))
 
     def test_write_with_invalid_file_extension(self):
         with pytest.warns(UserWarning):
             self.papermill_io.write("buffer", "fake/path/fakeoutputpath.ipynb1")
 
     def test_write_stdout(self):
-        file_content = 'Τὴ γλῶσσα μοῦ ἔδωσαν ἑλληνικὴ'
+        file_content = "Τὴ γλῶσσα μοῦ ἔδωσαν ἑλληνικὴ"
         out = io.BytesIO()
-        with patch('sys.stdout', out):
+        with patch("sys.stdout", out):
             self.old_papermill_io.write(file_content, "-")
-            self.assertEqual(out.getvalue(), file_content.encode('utf-8'))
+            self.assertEqual(out.getvalue(), file_content.encode("utf-8"))
 
     def test_pretty_path(self):
-        self.assertEqual(self.papermill_io.pretty_path("fake/path"), "fake/path/pretty/1")
+        self.assertEqual(
+            self.papermill_io.pretty_path("fake/path"), "fake/path/pretty/1"
+        )
 
 
 class TestLocalHandler(unittest.TestCase):
@@ -188,21 +202,23 @@ class TestLocalHandler(unittest.TestCase):
     """
 
     def test_read_utf8(self):
-        self.assertEqual(LocalHandler().read(os.path.join(FIXTURE_PATH, 'rock.txt')).strip(), '✄')
+        self.assertEqual(
+            LocalHandler().read(os.path.join(FIXTURE_PATH, "rock.txt")).strip(), "✄"
+        )
 
     def test_write_utf8(self):
         with TemporaryDirectory() as temp_dir:
-            path = os.path.join(temp_dir, 'paper.txt')
-            LocalHandler().write('✄', path)
-            with open(path, encoding='utf-8') as f:
-                self.assertEqual(f.read().strip(), '✄')
+            path = os.path.join(temp_dir, "paper.txt")
+            LocalHandler().write("✄", path)
+            with open(path, encoding="utf-8") as f:
+                self.assertEqual(f.read().strip(), "✄")
 
     def test_write_no_directory_exists(self):
         with self.assertRaises(FileNotFoundError):
             LocalHandler().write("buffer", "fake/path/fakenb.ipynb")
 
     def test_write_local_directory(self):
-        with patch.object(io, 'open'):
+        with patch.object(io, "open"):
             # Shouldn't raise with missing directory
             LocalHandler().write("buffer", "local.ipynb")
 
@@ -211,11 +227,11 @@ class TestLocalHandler(unittest.TestCase):
             handler = LocalHandler()
 
             handler.cwd(temp_dir)
-            handler.write('✄', 'paper.txt')
+            handler.write("✄", "paper.txt")
 
-            path = os.path.join(temp_dir, 'paper.txt')
-            with open(path, encoding='utf-8') as f:
-                self.assertEqual(f.read().strip(), '✄')
+            path = os.path.join(temp_dir, "paper.txt")
+            with open(path, encoding="utf-8") as f:
+                self.assertEqual(f.read().strip(), "✄")
 
     def test_local_file_io_cwd(self):
         with TemporaryDirectory() as temp_dir:
@@ -228,13 +244,13 @@ class TestLocalHandler(unittest.TestCase):
                 papermill_io.register("local", local_handler)
 
                 with local_file_io_cwd(temp_dir):
-                    local_handler.write('✄', 'paper.txt')
-                    self.assertEqual(local_handler.read('paper.txt'), '✄')
+                    local_handler.write("✄", "paper.txt")
+                    self.assertEqual(local_handler.read("paper.txt"), "✄")
 
                 # Double check it used the tmpdir
-                path = os.path.join(temp_dir, 'paper.txt')
-                with open(path, encoding='utf-8') as f:
-                    self.assertEqual(f.read().strip(), '✄')
+                path = os.path.join(temp_dir, "paper.txt")
+                with open(path, encoding="utf-8") as f:
+                    self.assertEqual(f.read().strip(), "✄")
             finally:
                 papermill_io.handlers = handlers
 
@@ -260,10 +276,10 @@ class TestNoIOHandler(unittest.TestCase):
             NoIOHandler().listdir(None)
 
     def test_write_returns_none(self):
-        self.assertIsNone(NoIOHandler().write('buf', None))
+        self.assertIsNone(NoIOHandler().write("buf", None))
 
     def test_pretty_path(self):
-        expect = 'Notebook will not be saved'
+        expect = "Notebook will not be saved"
         self.assertEqual(NoIOHandler().pretty_path(None), expect)
 
 
@@ -302,32 +318,34 @@ class TestHttpHandler(unittest.TestCase):
         `listdir` function is not supported.
         """
         with self.assertRaises(PapermillException) as e:
-            HttpHandler.listdir('http://example.com')
+            HttpHandler.listdir("http://example.com")
 
-        self.assertEqual(f'{e.exception}', 'listdir is not supported by HttpHandler')
+        self.assertEqual(f"{e.exception}", "listdir is not supported by HttpHandler")
 
     def test_read(self):
         """
         Tests that the `read` function performs a request to the giving path
         and returns the response.
         """
-        path = 'http://example.com'
-        text = 'request test response'
+        path = "http://example.com"
+        text = "request test response"
 
-        with patch('papermill.iorw.requests.get') as mock_get:
+        with patch("papermill.iorw.requests.get") as mock_get:
             mock_get.return_value = Mock(text=text)
             self.assertEqual(HttpHandler.read(path), text)
-            mock_get.assert_called_once_with(path, headers={'Accept': 'application/json'})
+            mock_get.assert_called_once_with(
+                path, headers={"Accept": "application/json"}
+            )
 
     def test_write(self):
         """
         Tests that the `write` function performs a put request to the given
         path.
         """
-        path = 'http://example.com'
+        path = "http://example.com"
         buf = '{"papermill": true}'
 
-        with patch('papermill.iorw.requests.put') as mock_put:
+        with patch("papermill.iorw.requests.put") as mock_put:
             HttpHandler.write(buf, path)
             mock_put.assert_called_once_with(path, json=json.loads(buf))
 
@@ -335,7 +353,7 @@ class TestHttpHandler(unittest.TestCase):
         """
         Tests that the `write` function raises on failure to put the buffer.
         """
-        path = 'http://localhost:9999'
+        path = "http://localhost:9999"
         buf = '{"papermill": true}'
 
         with self.assertRaises(ConnectionError):
@@ -343,34 +361,36 @@ class TestHttpHandler(unittest.TestCase):
 
 
 class TestStreamHandler(unittest.TestCase):
-    @patch('sys.stdin', io.StringIO('mock stream'))
+    @patch("sys.stdin", io.StringIO("mock stream"))
     def test_read_from_stdin(self):
-        result = StreamHandler().read('foo')
-        self.assertEqual(result, 'mock stream')
+        result = StreamHandler().read("foo")
+        self.assertEqual(result, "mock stream")
 
     def test_raises_on_listdir(self):
         with self.assertRaises(PapermillException):
             StreamHandler().listdir(None)
 
-    @patch('sys.stdout')
+    @patch("sys.stdout")
     def test_write_to_stdout_buffer(self, mock_stdout):
         mock_stdout.buffer = io.BytesIO()
-        StreamHandler().write('mock stream', 'foo')
-        self.assertEqual(mock_stdout.buffer.getbuffer(), b'mock stream')
+        StreamHandler().write("mock stream", "foo")
+        self.assertEqual(mock_stdout.buffer.getbuffer(), b"mock stream")
 
-    @patch('sys.stdout', new_callable=io.BytesIO)
+    @patch("sys.stdout", new_callable=io.BytesIO)
     def test_write_to_stdout(self, mock_stdout):
-        StreamHandler().write('mock stream', 'foo')
-        self.assertEqual(mock_stdout.getbuffer(), b'mock stream')
+        StreamHandler().write("mock stream", "foo")
+        self.assertEqual(mock_stdout.getbuffer(), b"mock stream")
 
     def test_pretty_path_returns_input_path(self):
         '''Should return the input str, which often is the default registered schema "-"'''
-        self.assertEqual(StreamHandler().pretty_path('foo'), 'foo')
+        self.assertEqual(StreamHandler().pretty_path("foo"), "foo")
 
 
 class TestNotebookNodeHandler(unittest.TestCase):
     def test_read_notebook_node(self):
-        input_nb = nbformat.read(get_notebook_path('test_notebooknode_io.ipynb'), as_version=4)
+        input_nb = nbformat.read(
+            get_notebook_path("test_notebooknode_io.ipynb"), as_version=4
+        )
         result = NotebookNodeHandler().read(input_nb)
         expect = (
             '{\n "cells": [\n  {\n   "cell_type": "code",\n   "execution_count": null,'
@@ -383,12 +403,12 @@ class TestNotebookNodeHandler(unittest.TestCase):
 
     def test_raises_on_listdir(self):
         with self.assertRaises(PapermillException):
-            NotebookNodeHandler().listdir('foo')
+            NotebookNodeHandler().listdir("foo")
 
     def test_raises_on_write(self):
         with self.assertRaises(PapermillException):
-            NotebookNodeHandler().write('foo', 'bar')
+            NotebookNodeHandler().write("foo", "bar")
 
     def test_pretty_path(self):
-        expect = 'NotebookNode object'
-        self.assertEqual(NotebookNodeHandler().pretty_path('foo'), expect)
+        expect = "NotebookNode object"
+        self.assertEqual(NotebookNodeHandler().pretty_path("foo"), expect)

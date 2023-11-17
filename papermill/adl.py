@@ -21,7 +21,7 @@ class ADL:
 
     @classmethod
     def _split_url(cls, url):
-        match = re.match(r'adl://(.*)\.azuredatalakestore\.net\/(.*)$', url)
+        match = re.match(r"adl://(.*)\.azuredatalakestore\.net\/(.*)$", url)
         if not match:
             raise Exception(f"Invalid ADL url '{url}'")
         else:
@@ -60,5 +60,5 @@ class ADL:
         """Write buffer to storage at a given url"""
         (store_name, path) = self._split_url(url)
         adapter = self._create_adapter(store_name)
-        with adapter.open(path, 'wb') as f:
+        with adapter.open(path, "wb") as f:
             f.write(buf.encode())

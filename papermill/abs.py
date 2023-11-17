@@ -32,7 +32,9 @@ class AzureBlobStore:
         see: https://docs.microsoft.com/en-us/azure/storage/common/storage-dotnet-shared-access-signature-part-1  # noqa: E501
         abs://myaccount.blob.core.windows.net/sascontainer/sasblob.txt?sastoken
         """
-        match = re.match(r"abs://(.*)\.blob\.core\.windows\.net\/(.*?)\/([^\?]*)\??(.*)$", url)
+        match = re.match(
+            r"abs://(.*)\.blob\.core\.windows\.net\/(.*?)\/([^\?]*)\??(.*)$", url
+        )
         if not match:
             raise Exception(f"Invalid azure blob url '{url}'")
         else:
@@ -48,8 +50,12 @@ class AzureBlobStore:
         """Read storage at a given url"""
         params = self._split_url(url)
         output_stream = io.BytesIO()
-        blob_service_client = self._blob_service_client(params["account"], params["sas_token"])
-        blob_client = blob_service_client.get_blob_client(params['container'], params['blob'])
+        blob_service_client = self._blob_service_client(
+            params["account"], params["sas_token"]
+        )
+        blob_client = blob_service_client.get_blob_client(
+            params["container"], params["blob"]
+        )
         blob_client.download_blob().readinto(output_stream)
         output_stream.seek(0)
         return [line.decode("utf-8") for line in output_stream]
@@ -57,13 +63,19 @@ class AzureBlobStore:
     def listdir(self, url):
         """Returns a list of the files under the specified path"""
         params = self._split_url(url)
-        blob_service_client = self._blob_service_client(params["account"], params["sas_token"])
+        blob_service_client = self._blob_service_client(
+            params["account"], params["sas_token"]
+        )
         container_client = blob_service_client.get_container_client(params["container"])
         return list(container_client.list_blobs(params["blob"]))
 
     def write(self, buf, url):
         """Write buffer to storage at a given url"""
         params = self._split_url(url)
-        blob_service_client = self._blob_service_client(params["account"], params["sas_token"])
-        blob_client = blob_service_client.get_blob_client(params['container'], params['blob'])
+        blob_service_client = self._blob_service_client(
+            params["account"], params["sas_token"]
+        )
+        blob_client = blob_service_client.get_blob_client(
+            params["container"], params["blob"]
+        )
         blob_client.upload_blob(data=buf, overwrite=True)
