@@ -202,7 +202,7 @@ extra-dependencies = [
 ]
 
 [tool.hatch.envs.test.scripts]
-cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=hatch_init --cov=tests"
+cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=hatch_init --cov=tests papermill/tests"
 no-cov = "cov --no-cov"
 
 [tool.hatch.envs.docs]
