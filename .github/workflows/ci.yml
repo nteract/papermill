@@ -43,6 +43,7 @@ jobs:
           python -m site
           python -m pip install --upgrade pip
           pip install hatch
+          hatch env create test
 
       - name: "Run tests for ${{ matrix.python-version }}"
         run: hatch run test:no-cov
@@ -57,10 +58,13 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: 3.11
+
       - name: "Install doc dependencies"
         run: |
           set -xe
           python -m pip install --upgrade pip
           pip install hatch
+          hatch env create docs
+
       - name: "Build docs"
         run: hatch run docs:build-ci
