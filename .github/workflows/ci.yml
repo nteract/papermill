@@ -43,7 +43,7 @@ jobs:
         run: pip install hatch
 
       - name: "Run tests for ${{ matrix.python-version }}"
-        run: hatch run test:no-cov
+        run: hatch run test
 
   docs:
     name: Documentation
