@@ -62,8 +62,5 @@ repos:
   - repo: https://github.com/pycqa/flake8
     rev: 6.1.0
     hooks:
-      - id: flake8
-        arge:
-          - "--count"
-          - "--show-source"
-          - "--statistics"
+      - id: flake8p
+
