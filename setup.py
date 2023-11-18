@@ -43,7 +43,7 @@ azure_reqs = read_reqs('azure.txt', folder='requirements')
 gcs_reqs = read_reqs('gcs.txt', folder='requirements')
 hdfs_reqs = read_reqs('hdfs.txt', folder='requirements')
 github_reqs = read_reqs('github.txt', folder='requirements')
-docs_only_reqs = read_reqs('requirements.txt', folder='docs')
+docs_only_reqs = read_reqs('docs.txt', folder='requirements')
 black_reqs = ['black >= 19.3b0']
 all_reqs = s3_reqs + azure_reqs + gcs_reqs + hdfs_reqs + github_reqs + black_reqs
 docs_reqs = all_reqs + docs_only_reqs
