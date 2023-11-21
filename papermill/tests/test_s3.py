@@ -1,13 +1,13 @@
 # The following tests are purposely limited to the exposed interface by iorw.py
 
 import os.path
-import pytest
+
 import boto3
 import moto
-
+import pytest
 from moto import mock_s3
 
-from ..s3 import Bucket, Prefix, Key, S3
+from ..s3 import S3, Bucket, Key, Prefix
 
 
 @pytest.fixture
@@ -156,7 +156,7 @@ test_empty_file_path = 'notebooks/s3/s3_in/s3-empty.ipynb'
 with open(os.path.join(local_dir, test_file_path)) as f:
     test_nb_content = f.read()
 
-no_empty_lines = lambda s: "\n".join([l for l in s.split('\n') if len(l) > 0])
+no_empty_lines = lambda s: "\n".join([ln for ln in s.split('\n') if ln])
 test_clean_nb_content = no_empty_lines(test_nb_content)
 
 read_from_gen = lambda g: "\n".join(g)

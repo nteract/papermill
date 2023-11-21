@@ -1,16 +1,16 @@
 """Engines to perform different roles"""
-import sys
 import datetime
-import dateutil
-
+import sys
 from functools import wraps
+
+import dateutil
 import entrypoints
 
-from .log import logger
-from .exceptions import PapermillException
 from .clientwrap import PapermillNotebookClient
+from .exceptions import PapermillException
 from .iorw import write_ipynb
-from .utils import merge_kwargs, remove_args, nb_kernel_name, nb_language
+from .log import logger
+from .utils import merge_kwargs, nb_kernel_name, nb_language, remove_args
 
 
 class PapermillEngines:
@@ -108,7 +108,7 @@ class NotebookExecutionManager:
         self.last_save_time = self.now()  # Not exactly true, but simplifies testing logic
         self.pbar = None
         if progress_bar:
-            # lazy import due to implict slow ipython import
+            # lazy import due to implicit slow ipython import
             from tqdm.auto import tqdm
 
             self.pbar = tqdm(total=len(self.nb.cells), unit="cell", desc="Executing")

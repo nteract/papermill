@@ -1,5 +1,5 @@
-import sys
 import asyncio
+import sys
 
 from nbclient import NotebookClient
 from nbclient.exceptions import CellExecutionError

@@ -15,7 +15,6 @@ requests >= 2.21.0
 check-manifest
 attrs>=17.4.0
 pre-commit
-flake8
 tox
 bumpversion
 recommonmark

@@ -1,23 +1,21 @@
 """Main `papermill` interface."""
 
-import os
-import sys
-from stat import S_ISFIFO
-import nbclient
-import traceback
-
 import base64
 import logging
+import os
+import platform
+import sys
+import traceback
+from stat import S_ISFIFO
 
 import click
-
+import nbclient
 import yaml
-import platform
 
 from .execute import execute_notebook
-from .iorw import read_yaml_file, NoDatesSafeLoader
 from .inspection import display_notebook_help
-from . import __version__ as papermill_version
+from .iorw import NoDatesSafeLoader, read_yaml_file
+from .version import version as papermill_version
 
 click.disable_unicode_literals_warning = True
 

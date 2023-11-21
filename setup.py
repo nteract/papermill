@@ -9,8 +9,8 @@ https://github.com/pypa/sampleproject
 
 """
 import os
-from setuptools import setup
 
+from setuptools import setup
 
 local_path = os.path.dirname(__file__)
 # Fix for tox which manipulates execution pathing

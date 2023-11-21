@@ -12,19 +12,19 @@
 - Added “github” extra deps. to the “all” extra [PR #715](https://github.com/nteract/papermill/pull/715)
 - Github actions updated to latest version [PR #732](https://github.com/nteract/papermill/pull/732)
 - Added a warning if non set parameter is passed through CLI [PR #701](https://github.com/nteract/papermill/pull/701)
-- Skip black formatting when encounting attribute errors [PR #699](https://github.com/nteract/papermill/pull/699)
-- Removed fored deepcopy of notebook objects [PR #694](https://github.com/nteract/papermill/pull/694)
+- Skip black formatting when encountering attribute errors [PR #699](https://github.com/nteract/papermill/pull/699)
+- Removed forced deepcopy of notebook objects [PR #694](https://github.com/nteract/papermill/pull/694)
 - Always update notebook version on execute [PR #691](https://github.com/nteract/papermill/pull/691)
 - Set minimum version for tenacity [PR #682](https://github.com/nteract/papermill/pull/682)
 - Removed use of ansiwrap [PR #681](https://github.com/nteract/papermill/pull/681)
-- Added precommit hook [PR #678](https://github.com/nteract/papermill/pull/678)
+- Added pre-commit hook [PR #678](https://github.com/nteract/papermill/pull/678)
 - Added dependabot for GHA [PR #677](https://github.com/nteract/papermill/pull/677)
 
 ## 2.4.0
 
 - Add tracking cell executions with cell descriptions [PR #650](https://github.com/nteract/papermill/pull/650)
 - Fixed Azure Blob URI matching for prefixes [PR #654](https://github.com/nteract/papermill/pull/654)
-- Updates HDFS handler to use PyArrow.fs.HadoopFileSystm [PR #658](https://github.com/nteract/papermill/pull/658)
+- Updates HDFS handler to use `PyArrow.fs.HadoopFileSystm` [PR #658](https://github.com/nteract/papermill/pull/658)
 - Drop support for Python 3.6 [PR #666](https://github.com/nteract/papermill/pull/666)
 - CI Build fixes [PR #664](https://github.com/nteract/papermill/pull/664)
 - Updated mock references in tests [PR #668](https://github.com/nteract/papermill/pull/668)
@@ -224,7 +224,7 @@ pip install papermill[all]
 
 - Optional IO extensions are now separated into different dependencies.
 - Added gs:// optional dependency for google cloud storage support.
-- null json fields in parmaeters now translate correctly to equivilent fields in each supported language
+- null json fields in parameters now translate correctly to equivalent fields in each supported language
 
 ### Fixes
 
@@ -240,7 +240,7 @@ pip install papermill[all]
 ### Features
 
 - Log level can now be set with `--log-level`
-- The working directory of papermill can be set with the `--cwd` option. This will set the executing context of the kernel but not impact input/output paths. `papermill --cwd foo bar/input_nb.ipynb bar/output_nb.ipynb` would make the notebook able to reference files in the `foo` directoy without `../foo` but still save the output notebook in the `bar` directory.
+- The working directory of papermill can be set with the `--cwd` option. This will set the executing context of the kernel but not impact input/output paths. `papermill --cwd foo bar/input_nb.ipynb bar/output_nb.ipynb` would make the notebook able to reference files in the `foo` directory without `../foo` but still save the output notebook in the `bar` directory.
 - Tox has been added for testing papermill. This makes it easier to catch linting and manifest issues without waiting for a failed Travis build.
 
 ### Fixes
@@ -274,7 +274,7 @@ pip install papermill[all]
 - Added engines abstraction and command line argument
 - Moved some nbconvert wrappers out of papermill
 - Added Azure blob storage support
-- Fixed botocore upgrade comptability issue (all version of boto now supported again)
+- Fixed botocore upgrade compatibility issue (all version of boto now supported again)
 - Removed whitelisted environment variable assignment
 
 ## 0.15.1
@@ -286,7 +286,7 @@ pip install papermill[all]
 - Warnings added when an unexpected file extension is used
 - Papermill version is visible to the CLI
 - More messages us logging module now (and can be filtered accordingly)
-- Binder link from README was greatly improved to demostrate papermill features
+- Binder link from README was greatly improved to demonstrate papermill features
 
 ## 0.15.0
 
@@ -333,7 +333,7 @@ pip install papermill[all]
 ## 0.12.6
 
 - Changed CLI outputs from papermill messaging to stderr
-- Changed IOResolvers to perseve ordering of definition in resolving paths
+- Changed IOResolvers to persevere ordering of definition in resolving paths
 
 ## 0.12.5
 
