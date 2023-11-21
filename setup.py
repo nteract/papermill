@@ -48,9 +48,7 @@ black_reqs = ['black >= 19.3b0']
 all_reqs = s3_reqs + azure_reqs + gcs_reqs + hdfs_reqs + github_reqs + black_reqs
 docs_reqs = all_reqs + docs_only_reqs
 # Temporarily remove hdfs_reqs from dev deps until the pyarrow package is available for Python 3.12
-dev_reqs = (
-    read_reqs('dev.txt', folder='requirements') + s3_reqs + azure_reqs + gcs_reqs + black_reqs
-)  # all_reqs
+dev_reqs = read_reqs('dev.txt', folder='requirements') + s3_reqs + azure_reqs + gcs_reqs + black_reqs  # all_reqs
 extras_require = {
     "test": dev_reqs,
     "dev": dev_reqs,

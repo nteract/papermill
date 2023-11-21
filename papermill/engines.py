@@ -95,9 +95,7 @@ class NotebookExecutionManager:
     COMPLETED = "completed"
     FAILED = "failed"
 
-    def __init__(
-        self, nb, output_path=None, log_output=False, progress_bar=True, autosave_cell_every=30
-    ):
+    def __init__(self, nb, output_path=None, log_output=False, progress_bar=True, autosave_cell_every=30):
         self.nb = nb
         self.output_path = output_path
         self.log_output = log_output
@@ -278,9 +276,7 @@ class NotebookExecutionManager:
         self.end_time = self.now()
         self.nb.metadata.papermill['end_time'] = self.end_time.isoformat()
         if self.nb.metadata.papermill.get('start_time'):
-            self.nb.metadata.papermill['duration'] = (
-                self.end_time - self.start_time
-            ).total_seconds()
+            self.nb.metadata.papermill['duration'] = (self.end_time - self.start_time).total_seconds()
 
         # Cleanup cell statuses in case callbacks were never called
         for cell in self.nb.cells:

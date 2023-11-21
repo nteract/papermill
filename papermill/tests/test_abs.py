@@ -41,23 +41,17 @@ class ABSTest(unittest.TestCase):
     def test_split_url_raises_exception_on_invalid_url(self):
         with self.assertRaises(Exception) as context:
             AzureBlobStore._split_url("this_is_not_a_valid_url")
-        self.assertTrue(
-            "Invalid azure blob url 'this_is_not_a_valid_url'" in str(context.exception)
-        )
+        self.assertTrue("Invalid azure blob url 'this_is_not_a_valid_url'" in str(context.exception))
 
     def test_split_url_splits_valid_url(self):
-        params = AzureBlobStore._split_url(
-            "abs://myaccount.blob.core.windows.net/sascontainer/sasblob.txt?sastoken"
-        )
+        params = AzureBlobStore._split_url("abs://myaccount.blob.core.windows.net/sascontainer/sasblob.txt?sastoken")
         self.assertEqual(params["account"], "myaccount")
         self.assertEqual(params["container"], "sascontainer")
         self.assertEqual(params["blob"], "sasblob.txt")
         self.assertEqual(params["sas_token"], "sastoken")
 
     def test_split_url_splits_valid_url_no_sas(self):
-        params = AzureBlobStore._split_url(
-            "abs://myaccount.blob.core.windows.net/container/blob.txt"
-        )
+        params = AzureBlobStore._split_url("abs://myaccount.blob.core.windows.net/container/blob.txt")
         self.assertEqual(params["account"], "myaccount")
         self.assertEqual(params["container"], "container")
         self.assertEqual(params["blob"], "blob.txt")
@@ -74,9 +68,7 @@ class ABSTest(unittest.TestCase):
 
     def test_listdir_calls(self):
         self.assertEqual(
-            self.abs.listdir(
-                "abs://myaccount.blob.core.windows.net/sascontainer/sasblob.txt?sastoken"
-            ),
+            self.abs.listdir("abs://myaccount.blob.core.windows.net/sascontainer/sasblob.txt?sastoken"),
             ["foo", "bar", "baz"],
         )
         self._blob_service_client.get_container_client.assert_called_once_with("sascontainer")
@@ -85,23 +77,15 @@ class ABSTest(unittest.TestCase):
     @patch("papermill.abs.io.BytesIO", side_effect=MockBytesIO)
     def test_reads_file(self, mockBytesIO):
         self.assertEqual(
-            self.abs.read(
-                "abs://myaccount.blob.core.windows.net/sascontainer/sasblob.txt?sastoken"
-            ),
+            self.abs.read("abs://myaccount.blob.core.windows.net/sascontainer/sasblob.txt?sastoken"),
             ["hello", "world!"],
         )
-        self._blob_service_client.get_blob_client.assert_called_once_with(
-            "sascontainer", "sasblob.txt"
-        )
+        self._blob_service_client.get_blob_client.assert_called_once_with("sascontainer", "sasblob.txt")
         self.download_blob.assert_called_once_with()
 
     def test_write_file(self):
-        self.abs.write(
-            "hello world", "abs://myaccount.blob.core.windows.net/sascontainer/sasblob.txt?sastoken"
-        )
-        self._blob_service_client.get_blob_client.assert_called_once_with(
-            "sascontainer", "sasblob.txt"
-        )
+        self.abs.write("hello world", "abs://myaccount.blob.core.windows.net/sascontainer/sasblob.txt?sastoken")
+        self._blob_service_client.get_blob_client.assert_called_once_with("sascontainer", "sasblob.txt")
         self.upload_blob.assert_called_once_with(data="hello world", overwrite=True)
 
     def test_blob_service_client(self):

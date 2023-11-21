@@ -45,11 +45,7 @@ def _infer_parameters(nb, name=None, language=None):
     try:
         params = translator.inspect(parameter_cell)
     except NotImplementedError:
-        logger.warning(
-            "Translator for '{}' language does not support parameter introspection.".format(
-                language
-            )
-        )
+        logger.warning("Translator for '{}' language does not support parameter introspection.".format(language))
 
     return params
 
@@ -92,8 +88,7 @@ def display_notebook_help(ctx, notebook_path, parameters):
             click.echo(param_help)
     else:
         click.echo(
-            "\n  Can't infer anything about this notebook's parameters. "
-            "It may not have any parameter defined."
+            "\n  Can't infer anything about this notebook's parameters. " "It may not have any parameter defined."
         )
 
     return 0
