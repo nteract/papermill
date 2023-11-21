@@ -1,3 +1,10 @@
+# Migration to pyproject.toml is in progress
+
+# distutils is deprecated and removed in Python 3.12.
+# This block can be removed after the build parameters are added to this file
+[tool.distutils.bdist_wheel]
+universal = true
+
 # Example configuration for Black.
 
 # NOTE: you have to use single-quoted strings in TOML for regular expressions.
@@ -28,6 +35,23 @@ exclude = '''
 )/
 '''
 skip-string-normalization = true
+
+
+[tool.coverage.run]
+branch = false
+
+[tool.coverage.report]
+exclude_lines = [
+    "if self.debug:",
+    "pragma: no cover",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+]
+omit = [
+    "papermill/tests/*",
+    "papermill/version.py"
+]
 
 
 [tool.codespell]
