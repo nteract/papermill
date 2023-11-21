@@ -45,7 +45,7 @@ def _infer_parameters(nb, name=None, language=None):
     try:
         params = translator.inspect(parameter_cell)
     except NotImplementedError:
-        logger.warning("Translator for '{}' language does not support parameter introspection.".format(language))
+        logger.warning(f"Translator for '{language}' language does not support parameter introspection.")
 
     return params
 
