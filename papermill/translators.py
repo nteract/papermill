@@ -85,7 +85,7 @@ class Translator:
 
     @classmethod
     def translate(cls, val):
-        """Translate each of the standard json/yaml types to appropiate objects."""
+        """Translate each of the standard json/yaml types to appropriate objects."""
         if val is None:
             return cls.translate_none(val)
         elif isinstance(val, str):
