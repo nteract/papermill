@@ -1,8 +1,5 @@
 import os
 
-from io import StringIO
-
-
 kernel_name = 'python3'
 
 

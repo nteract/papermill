@@ -6,7 +6,6 @@ import shlex
 from .exceptions import PapermillException
 from .models import Parameter
 
-
 logger = logging.getLogger(__name__)
 
 

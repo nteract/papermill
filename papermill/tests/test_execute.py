@@ -3,20 +3,19 @@ import shutil
 import tempfile
 import unittest
 from copy import deepcopy
-from unittest.mock import patch, ANY
-
 from functools import partial
 from pathlib import Path
+from unittest.mock import ANY, patch
 
 import nbformat
 from nbformat import validate
 
 from .. import engines, translators
-from ..log import logger
-from ..iorw import load_notebook_node
-from ..utils import chdir
-from ..execute import execute_notebook
 from ..exceptions import PapermillExecutionError
+from ..execute import execute_notebook
+from ..iorw import load_notebook_node
+from ..log import logger
+from ..utils import chdir
 from . import get_notebook_path, kernel_name
 
 execute_notebook = partial(execute_notebook, kernel_name=kernel_name)

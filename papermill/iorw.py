@@ -1,18 +1,16 @@
+import fnmatch
+import json
 import os
 import sys
-import json
-import yaml
-import fnmatch
-import nbformat
-import requests
 import warnings
-import entrypoints
-
 from contextlib import contextmanager
 
+import entrypoints
+import nbformat
+import requests
+import yaml
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 
-from . import __version__
 from .exceptions import (
     PapermillException,
     PapermillRateLimitException,
@@ -21,6 +19,7 @@ from .exceptions import (
 )
 from .log import logger
 from .utils import chdir
+from .version import version as __version__
 
 try:
     from .s3 import S3
@@ -48,7 +47,7 @@ except ImportError:
     GCSFileSystem = missing_dependency_generator("gcsfs", "gcs")
 
 try:
-    from pyarrow.fs import HadoopFileSystem, FileSelector
+    from pyarrow.fs import FileSelector, HadoopFileSystem
 except ImportError:
     HadoopFileSystem = missing_dependency_generator("pyarrow", "hdfs")
 
