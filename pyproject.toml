@@ -1,6 +1,6 @@
 # Migration to pyproject.toml is in progress
 
-# disutils is deprecated and removed in Python 3.12. 
+# disutils is deprecated and removed in Python 3.12.
 # This block can be removed after the build parameters are added to this file
 [tool.distutils.bdist_wheel]
 universal = true
