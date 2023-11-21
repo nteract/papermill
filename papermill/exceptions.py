@@ -30,7 +30,7 @@ class PapermillExecutionError(PapermillException):
 
     def __str__(self):
         # Standard Behavior of an exception is to produce a string representation of its arguments
-        # when called with str(). In order to maintain compatability with previous versions which
+        # when called with str(). In order to maintain compatibility with previous versions which
         # passed only the message to the superclass constructor, __str__ method is implemented to
         # provide the same result as was produced in the past.
         message = "\n" + 75 * "-" + "\n"

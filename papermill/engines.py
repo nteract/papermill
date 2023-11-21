@@ -108,7 +108,7 @@ class NotebookExecutionManager:
         self.last_save_time = self.now()  # Not exactly true, but simplifies testing logic
         self.pbar = None
         if progress_bar:
-            # lazy import due to implict slow ipython import
+            # lazy import due to implicit slow ipython import
             from tqdm.auto import tqdm
 
             self.pbar = tqdm(total=len(self.nb.cells), unit="cell", desc="Executing")
