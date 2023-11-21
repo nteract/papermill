@@ -146,13 +146,8 @@ class PapermillIO:
 
         if extensions:
             if not fnmatch.fnmatch(os.path.basename(path).split('?')[0], '*.*'):
-                warnings.warn(
-                    "the file is not specified with any extension : " + os.path.basename(path)
-                )
-            elif not any(
-                fnmatch.fnmatch(os.path.basename(path).split('?')[0], '*' + ext)
-                for ext in extensions
-            ):
+                warnings.warn("the file is not specified with any extension : " + os.path.basename(path))
+            elif not any(fnmatch.fnmatch(os.path.basename(path).split('?')[0], '*' + ext) for ext in extensions):
                 warnings.warn(f"The specified file ({path}) does not end in one of {extensions}")
 
         local_handler = None
@@ -319,9 +314,7 @@ class GCSHandler:
         @retry(
             retry=retry_if_exception_type(PapermillRateLimitException),
             stop=stop_after_attempt(self.RATE_LIMIT_RETRIES),
-            wait=wait_exponential(
-                multiplier=self.RETRY_MULTIPLIER, min=self.RETRY_DELAY, max=self.RETRY_MAX_DELAY
-            ),
+            wait=wait_exponential(multiplier=self.RETRY_MULTIPLIER, min=self.RETRY_DELAY, max=self.RETRY_MAX_DELAY),
             reraise=True,
         )
         def retry_write():

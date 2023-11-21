@@ -32,9 +32,7 @@ class Bucket:
 
     def list(self, prefix='', delimiter=None):
         """Limits a list of Bucket's objects based on prefix and delimiter."""
-        return self.service._list(
-            bucket=self.name, prefix=prefix, delimiter=delimiter, objects=True
-        )
+        return self.service._list(bucket=self.name, prefix=prefix, delimiter=delimiter, objects=True)
 
 
 class Prefix:
@@ -210,9 +208,7 @@ class S3:
             return item['Prefix']
 
         for page in page_iterator:
-            locations = sorted(
-                [i for i in page.get('Contents', []) + page.get('CommonPrefixes', [])], key=sort
-            )
+            locations = sorted([i for i in page.get('Contents', []) + page.get('CommonPrefixes', [])], key=sort)
 
             for item in locations:
                 if objects or keys:
@@ -244,9 +240,7 @@ class S3:
             obj.upload_file(source, ExtraArgs={'ACL': policy})
         return key
 
-    def _put_string(
-        self, source, dest, num_callbacks=10, policy='bucket-owner-full-control', **kwargs
-    ):
+    def _put_string(self, source, dest, num_callbacks=10, policy='bucket-owner-full-control', **kwargs):
         key = self._get_key(dest)
         obj = self.s3.Object(key.bucket.name, key.name)
 

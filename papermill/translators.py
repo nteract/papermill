@@ -28,9 +28,7 @@ class PapermillTranslators:
         elif language in self._translators:
             return self._translators[language]
         raise PapermillException(
-            "No parameter translator functions specified for kernel '{}' or language '{}'".format(
-                kernel_name, language
-            )
+            f"No parameter translator functions specified for kernel '{kernel_name}' or language '{language}'"
         )
 
 
@@ -289,9 +287,7 @@ class RTranslator(Translator):
 
     @classmethod
     def translate_dict(cls, val):
-        escaped = ', '.join(
-            [f'{cls.translate_str(k)} = {cls.translate(v)}' for k, v in val.items()]
-        )
+        escaped = ', '.join([f'{cls.translate_str(k)} = {cls.translate(v)}' for k, v in val.items()])
         return f'list({escaped})'
 
     @classmethod
@@ -320,9 +316,7 @@ class ScalaTranslator(Translator):
     @classmethod
     def translate_dict(cls, val):
         """Translate dicts to scala Maps"""
-        escaped = ', '.join(
-            [f"{cls.translate_str(k)} -> {cls.translate(v)}" for k, v in val.items()]
-        )
+        escaped = ', '.join([f"{cls.translate_str(k)} -> {cls.translate(v)}" for k, v in val.items()])
         return f'Map({escaped})'
 
     @classmethod
@@ -347,9 +341,7 @@ class JuliaTranslator(Translator):
 
     @classmethod
     def translate_dict(cls, val):
-        escaped = ', '.join(
-            [f"{cls.translate_str(k)} => {cls.translate(v)}" for k, v in val.items()]
-        )
+        escaped = ', '.join([f"{cls.translate_str(k)} => {cls.translate(v)}" for k, v in val.items()])
         return f'Dict({escaped})'
 
     @classmethod
@@ -427,9 +419,7 @@ class CSharpTranslator(Translator):
     def translate_dict(cls, val):
         """Translate dicts to nontyped dictionary"""
 
-        kvps = ', '.join(
-            [f"{{ {cls.translate_str(k)} , {cls.translate(v)} }}" for k, v in val.items()]
-        )
+        kvps = ', '.join([f"{{ {cls.translate_str(k)} , {cls.translate(v)} }}" for k, v in val.items()])
         return f'new Dictionary<string,Object>{{ {kvps} }}'
 
     @classmethod
@@ -463,9 +453,7 @@ class FSharpTranslator(Translator):
 
     @classmethod
     def translate_dict(cls, val):
-        tuples = '; '.join(
-            [f"({cls.translate_str(k)}, {cls.translate(v)} :> IComparable)" for k, v in val.items()]
-        )
+        tuples = '; '.join([f"({cls.translate_str(k)}, {cls.translate(v)} :> IComparable)" for k, v in val.items()])
         return f'[ {tuples} ] |> Map.ofList'
 
     @classmethod

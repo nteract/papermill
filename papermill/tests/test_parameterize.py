@@ -9,9 +9,7 @@ from . import get_notebook_path
 
 class TestNotebookParametrizing(unittest.TestCase):
     def count_nb_injected_parameter_cells(self, nb):
-        return len(
-            [c for c in nb.cells if 'injected-parameters' in c.get('metadata', {}).get('tags', [])]
-        )
+        return len([c for c in nb.cells if 'injected-parameters' in c.get('metadata', {}).get('tags', [])])
 
     def test_no_tag_copying(self):
         # Test that injected cell does not copy other tags
@@ -77,9 +75,7 @@ class TestNotebookParametrizing(unittest.TestCase):
 
     def test_custom_comment(self):
         test_nb = load_notebook_node(get_notebook_path("simple_execute.ipynb"))
-        test_nb = parameterize_notebook(
-            test_nb, {'msg': 'Hello'}, comment='This is a custom comment'
-        )
+        test_nb = parameterize_notebook(test_nb, {'msg': 'Hello'}, comment='This is a custom comment')
 
         cell_one = test_nb.cells[1]
         first_line = cell_one['source'].split('\n')[0]
@@ -132,9 +128,7 @@ class TestPathParameterizing(unittest.TestCase):
         self.assertEqual(parameterize_path("foo/bar/{baz}", {"baz": False}), "foo/bar/False")
 
     def test_path_with_dict_parameter(self):
-        self.assertEqual(
-            parameterize_path("foo/{bar[baz]}/", {"bar": {"baz": "quux"}}), "foo/quux/"
-        )
+        self.assertEqual(parameterize_path("foo/{bar[baz]}/", {"bar": {"baz": "quux"}}), "foo/quux/")
 
     def test_path_with_list_parameter(self):
         self.assertEqual(parameterize_path("foo/{bar[0]}/", {"bar": [1, 2, 3]}), "foo/1/")
@@ -153,9 +147,7 @@ class TestPathParameterizing(unittest.TestCase):
         self.assertEqual(parameterize_path("foo/bar/{baz:.03f}", {"baz": 0.3}), "foo/bar/0.300")
 
     def test_path_with_multiple_parameter(self):
-        self.assertEqual(
-            parameterize_path("{foo}/{baz}", {"foo": "bar", "baz": "quux"}), "bar/quux"
-        )
+        self.assertEqual(parameterize_path("{foo}/{baz}", {"foo": "bar", "baz": "quux"}), "bar/quux")
 
     def test_parameterized_path_with_undefined_parameter(self):
         with self.assertRaises(PapermillMissingParameterException) as context:

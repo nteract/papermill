@@ -110,9 +110,7 @@ def execute_notebook(
 
         if not prepare_only:
             # Dropdown to the engine to fetch the kernel name from the notebook document
-            kernel_name = papermill_engines.nb_kernel_name(
-                engine_name=engine_name, nb=nb, name=kernel_name
-            )
+            kernel_name = papermill_engines.nb_kernel_name(engine_name=engine_name, nb=nb, name=kernel_name)
             # Execute the Notebook in `cwd` if it is set
             with chdir(cwd):
                 nb = papermill_engines.execute_notebook_with_engine(
@@ -168,9 +166,7 @@ def prepare_notebook_metadata(nb, input_path, output_path, report_mode=False):
 
 ERROR_MARKER_TAG = "papermill-error-cell-tag"
 
-ERROR_STYLE = (
-    'style="color:red; font-family:Helvetica Neue, Helvetica, Arial, sans-serif; font-size:2em;"'
-)
+ERROR_STYLE = 'style="color:red; font-family:Helvetica Neue, Helvetica, Arial, sans-serif; font-size:2em;"'
 
 ERROR_MESSAGE_TEMPLATE = (
     '<span ' + ERROR_STYLE + '>'

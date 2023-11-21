@@ -103,9 +103,7 @@ class TestPapermillIO(unittest.TestCase):
         fake_entrypoint = Mock(load=Mock())
         fake_entrypoint.name = "fake-from-entry-point://"
 
-        with patch(
-            "entrypoints.get_group_all", return_value=[fake_entrypoint]
-        ) as mock_get_group_all:
+        with patch("entrypoints.get_group_all", return_value=[fake_entrypoint]) as mock_get_group_all:
             self.papermill_io.register_entry_points()
             mock_get_group_all.assert_called_once_with("papermill.io")
             fake_ = self.papermill_io.get_handler("fake-from-entry-point://")
@@ -125,14 +123,10 @@ class TestPapermillIO(unittest.TestCase):
         self.assertEqual(self.papermill_io.get_handler("fake2/path"), self.fake2)
 
     def test_read(self):
-        self.assertEqual(
-            self.papermill_io.read("fake/path"), "contents from fake/path for version 1"
-        )
+        self.assertEqual(self.papermill_io.read("fake/path"), "contents from fake/path for version 1")
 
     def test_read_bytes(self):
-        self.assertIsNotNone(
-            self.papermill_io_bytes.read("notebooks/gcs/gcs_in/gcs-simple_notebook.ipynb")
-        )
+        self.assertIsNotNone(self.papermill_io_bytes.read("notebooks/gcs/gcs_in/gcs-simple_notebook.ipynb"))
 
     def test_read_with_no_file_extension(self):
         with pytest.warns(UserWarning):

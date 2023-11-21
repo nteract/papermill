@@ -60,9 +60,7 @@ def missing_dependency_generator(package, dep):
     def missing_dep():
         raise PapermillOptionalDependencyException(
             "The {package} optional dependency is missing. "
-            "Please run pip install papermill[{dep}] to install this dependency".format(
-                package=package, dep=dep
-            )
+            "Please run pip install papermill[{dep}] to install this dependency".format(package=package, dep=dep)
         )
 
     return missing_dep
