@@ -123,3 +123,7 @@ pip-wheel-metadata
 
 # VIM swap files
 *.swp
+
+
+# lint
+.ruff_cache/

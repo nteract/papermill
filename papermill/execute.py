@@ -1,13 +1,14 @@
-import nbformat
 from pathlib import Path
 
-from .log import logger
-from .exceptions import PapermillExecutionError
-from .iorw import get_pretty_path, local_file_io_cwd, load_notebook_node, write_ipynb
+import nbformat
+
 from .engines import papermill_engines
-from .utils import chdir
-from .parameterize import add_builtin_parameters, parameterize_notebook, parameterize_path
+from .exceptions import PapermillExecutionError
 from .inspection import _infer_parameters
+from .iorw import get_pretty_path, load_notebook_node, local_file_io_cwd, write_ipynb
+from .log import logger
+from .parameterize import add_builtin_parameters, parameterize_notebook, parameterize_path
+from .utils import chdir
 
 
 def execute_notebook(

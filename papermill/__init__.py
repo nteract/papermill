@@ -1,5 +1,4 @@
-from .version import version as __version__
-
-from .exceptions import PapermillException, PapermillExecutionError
-from .execute import execute_notebook
-from .inspection import inspect_notebook
+from .exceptions import PapermillException, PapermillExecutionError  # noqa: F401
+from .execute import execute_notebook  # noqa: F401
+from .inspection import inspect_notebook  # noqa: F401
+from .version import version as __version__  # noqa: F401
