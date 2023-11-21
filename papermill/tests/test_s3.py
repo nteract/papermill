@@ -1,13 +1,13 @@
 # The following tests are purposely limited to the exposed interface by iorw.py
 
 import os.path
-import pytest
+
 import boto3
 import moto
-
+import pytest
 from moto import mock_s3
 
-from ..s3 import Bucket, Prefix, Key, S3
+from ..s3 import S3, Bucket, Key, Prefix
 
 
 @pytest.fixture

@@ -2,23 +2,22 @@
 """ Test the command line interface """
 
 import os
-from pathlib import Path
-import sys
 import subprocess
+import sys
 import tempfile
-import uuid
-import nbclient
-
-import nbformat
 import unittest
+import uuid
+from pathlib import Path
 from unittest.mock import patch
 
+import nbclient
+import nbformat
 import pytest
 from click.testing import CliRunner
 
-from . import get_notebook_path, kernel_name
 from .. import cli
-from ..cli import papermill, _is_int, _is_float, _resolve_type
+from ..cli import _is_float, _is_int, _resolve_type, papermill
+from . import get_notebook_path, kernel_name
 
 
 @pytest.mark.parametrize(

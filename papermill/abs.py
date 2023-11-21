@@ -1,9 +1,9 @@
 """Utilities for working with Azure blob storage"""
-import re
 import io
+import re
 
-from azure.storage.blob import BlobServiceClient
 from azure.identity import EnvironmentCredential
+from azure.storage.blob import BlobServiceClient
 
 
 class AzureBlobStore:
