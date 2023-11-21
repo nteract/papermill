@@ -12,10 +12,10 @@ import click
 import nbclient
 import yaml
 
-from . import __version__ as papermill_version
 from .execute import execute_notebook
 from .inspection import display_notebook_help
 from .iorw import NoDatesSafeLoader, read_yaml_file
+from .version import version as papermill_version
 
 click.disable_unicode_literals_warning = True
 

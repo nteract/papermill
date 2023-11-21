@@ -11,7 +11,6 @@ import requests
 import yaml
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 
-from . import __version__
 from .exceptions import (
     PapermillException,
     PapermillRateLimitException,
@@ -20,6 +19,7 @@ from .exceptions import (
 )
 from .log import logger
 from .utils import chdir
+from .version import version as __version__
 
 try:
     from .s3 import S3
