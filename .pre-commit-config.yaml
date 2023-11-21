@@ -25,7 +25,7 @@ repos:
     rev: v3.15.0
     hooks:
       - id: pyupgrade
-        args: [--py37-plus]
+        args: ["--py38-plus"]
         name: Upgrade code
 
   #- repo: https://github.com/myint/docformatter
@@ -34,10 +34,12 @@ repos:
   #    - id: docformatter
   #      args: [--in-place, --wrap-summaries=120, --wrap-descriptions=120]
 
-  #- repo: https://github.com/PyCQA/isort
-  #  rev: 5.10.1
-  #  hooks:
-  #    - id: isort
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.2.6
+    hooks:
+      - id: codespell
+        additional_dependencies: [tomli]
+        #args: ["--write-changes"] # uncomment if you want to get automatic fixing
 
   - repo: https://github.com/psf/black
     rev: 23.11.0
@@ -58,11 +60,8 @@ repos:
     hooks:
       - id: yesqa
 
-  - repo: https://github.com/pycqa/flake8
-    rev: 6.1.0
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.4
     hooks:
-      - id: flake8
-        arge:
-          - "--count"
-          - "--show-source"
-          - "--statistics"
+        - id: ruff
+          args: ["--fix"]

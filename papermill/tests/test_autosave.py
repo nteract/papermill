@@ -1,15 +1,15 @@
-import nbformat
 import os
 import tempfile
 import time
 import unittest
 from unittest.mock import patch
 
-from . import get_notebook_path
+import nbformat
 
 from .. import engines
 from ..engines import NotebookExecutionManager
 from ..execute import execute_notebook
+from . import get_notebook_path
 
 
 class TestMidCellAutosave(unittest.TestCase):

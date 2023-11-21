@@ -1,17 +1,16 @@
 import copy
-import dateutil
 import unittest
-
 from abc import ABCMeta
-from unittest.mock import Mock, patch, call
+from unittest.mock import Mock, call, patch
+
+import dateutil
 from nbformat.notebooknode import NotebookNode
 
-from . import get_notebook_path
-
 from .. import engines, exceptions
-from ..log import logger
+from ..engines import Engine, NBClientEngine, NotebookExecutionManager
 from ..iorw import load_notebook_node
-from ..engines import NotebookExecutionManager, Engine, NBClientEngine
+from ..log import logger
+from . import get_notebook_path
 
 
 def AnyMock(cls):

@@ -1,7 +1,6 @@
-import os
 import logging
+import os
 import warnings
-
 from contextlib import contextmanager
 from functools import wraps
 

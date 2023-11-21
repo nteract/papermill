@@ -1,8 +1,9 @@
 import unittest
+from unittest.mock import MagicMock, Mock, patch
 
-from unittest.mock import Mock, MagicMock, patch
-
-from ..adl import ADL, core as adl_core, lib as adl_lib
+from ..adl import ADL
+from ..adl import core as adl_core
+from ..adl import lib as adl_lib
 
 
 class ADLTest(unittest.TestCase):

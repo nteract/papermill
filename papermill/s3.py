@@ -1,8 +1,7 @@
 """Utilities for working with S3."""
 
-import os
-
 import logging
+import os
 import threading
 import zlib
 
@@ -10,7 +9,6 @@ from boto3.session import Session
 
 from .exceptions import AwsError
 from .utils import retry
-
 
 logger = logging.getLogger('papermill.s3')
 

@@ -1,8 +1,7 @@
-import pytest
-
-from unittest.mock import Mock
 from collections import OrderedDict
+from unittest.mock import Mock
 
+import pytest
 from nbformat.v4 import new_code_cell
 
 from .. import translators

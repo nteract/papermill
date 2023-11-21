@@ -1,6 +1,7 @@
 """Deduce parameters of a notebook from the parameters cell."""
-import click
 from pathlib import Path
+
+import click
 
 from .iorw import get_pretty_path, load_notebook_node, local_file_io_cwd
 from .log import logger

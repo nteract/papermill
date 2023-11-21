@@ -6,7 +6,6 @@ from click import Context
 
 from papermill.inspection import display_notebook_help, inspect_notebook
 
-
 NOTEBOOKS_PATH = Path(__file__).parent / "notebooks"
 
 

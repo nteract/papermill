@@ -1,10 +1,10 @@
 import unittest
-
-from ..iorw import load_notebook_node
-from ..exceptions import PapermillMissingParameterException
-from ..parameterize import parameterize_notebook, parameterize_path, add_builtin_parameters
-from . import get_notebook_path
 from datetime import datetime
+
+from ..exceptions import PapermillMissingParameterException
+from ..iorw import load_notebook_node
+from ..parameterize import add_builtin_parameters, parameterize_notebook, parameterize_path
+from . import get_notebook_path
 
 
 class TestNotebookParametrizing(unittest.TestCase):

@@ -1,8 +1,9 @@
 import os
 import unittest
-
 from unittest.mock import Mock, patch
+
 from azure.identity import EnvironmentCredential
+
 from ..abs import AzureBlobStore
 
 
