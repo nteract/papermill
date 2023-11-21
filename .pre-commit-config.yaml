@@ -59,11 +59,8 @@ repos:
     hooks:
       - id: yesqa
 
-  - repo: https://github.com/pycqa/flake8
-    rev: 6.1.0
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.4
     hooks:
-      - id: flake8
-        arge:
-          - "--count"
-          - "--show-source"
-          - "--statistics"
+        - id: ruff
+          args: ["--fix"]
