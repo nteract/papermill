@@ -51,3 +51,28 @@ In `cli.py` you'll want to add an `@click.option` above the `papermill` method a
 Now in `execute.py`'s `execute_notebook` we want to add the appropriate argument and default it to something sane. Add the argument to the docstring as well. Then pass or use that argument where it's needed to achieve the desired effect. Usually these options get passed to `_execute_parameterized_notebook`.
 
 To update the tests you'll need both `test_cli.py` and `test_execute.py` to include the new option. Though the CLI tests need only check that the appropriate values get passed to `execute_notebook`.
+
+# Releasing
+
+## Prerequisites
+
+- First check that the CHANGELOG is up to date for the next release version
+- Ensure dev requirements are installed `pip install -r requirements/dev.txt`
+
+## Push to GitHub
+
+Change from patch to minor or major for appropriate version updates.
+
+```bash
+bumpversion patch
+git push upstream && git push upstream --tags
+```
+
+## Push to PyPI
+
+```bash
+rm -rf dist/*
+rm -rf build/*
+python setup.py sdist bdist_wheel
+twine upload dist/*
+```
