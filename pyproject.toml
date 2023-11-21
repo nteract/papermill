@@ -28,3 +28,12 @@ exclude = '''
 )/
 '''
 skip-string-normalization = true
+
+
+[tool.codespell]
+quiet-level = 3
+# comma separated list of words; waiting for:
+#  https://github.com/codespell-project/codespell/issues/2839#issuecomment-1731601603
+# also adding links until they ignored by its: nature
+#  https://github.com/codespell-project/codespell/issues/2243#issuecomment-1732019960
+#ignore-words-list = "te, compiletime"
