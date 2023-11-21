@@ -1,20 +1,19 @@
-import pytest
 import warnings
-
-from unittest.mock import Mock, call
-from tempfile import TemporaryDirectory
 from pathlib import Path
+from tempfile import TemporaryDirectory
+from unittest.mock import Mock, call
 
-from nbformat.v4 import new_notebook, new_code_cell
+import pytest
+from nbformat.v4 import new_code_cell, new_notebook
 
+from ..exceptions import PapermillParameterOverwriteWarning
 from ..utils import (
     any_tagged_cell,
-    retry,
     chdir,
     merge_kwargs,
     remove_args,
+    retry,
 )
-from ..exceptions import PapermillParameterOverwriteWarning
 
 
 def test_no_tagged_cell():

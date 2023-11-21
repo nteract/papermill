@@ -1,9 +1,9 @@
 """Utilities for working with Azure blob storage"""
-import re
 import io
+import re
 
-from azure.storage.blob import BlobServiceClient
 from azure.identity import EnvironmentCredential
+from azure.storage.blob import BlobServiceClient
 
 
 class AzureBlobStore:
@@ -29,7 +29,7 @@ class AzureBlobStore:
     @classmethod
     def _split_url(self, url):
         """
-        see: https://docs.microsoft.com/en-us/azure/storage/common/storage-dotnet-shared-access-signature-part-1  # noqa: E501
+        see: https://docs.microsoft.com/en-us/azure/storage/common/storage-dotnet-shared-access-signature-part-1
         abs://myaccount.blob.core.windows.net/sascontainer/sasblob.txt?sastoken
         """
         match = re.match(r"abs://(.*)\.blob\.core\.windows\.net\/(.*?)\/([^\?]*)\??(.*)$", url)
