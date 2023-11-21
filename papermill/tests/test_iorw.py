@@ -1,28 +1,28 @@
-import json
-import unittest
-import os
 import io
-import nbformat
-import pytest
-
-from requests.exceptions import ConnectionError
+import json
+import os
+import unittest
 from tempfile import TemporaryDirectory
 from unittest.mock import Mock, patch
 
+import nbformat
+import pytest
+from requests.exceptions import ConnectionError
+
 from .. import iorw
+from ..exceptions import PapermillException
 from ..iorw import (
+    ADLHandler,
     HttpHandler,
     LocalHandler,
     NoIOHandler,
-    ADLHandler,
     NotebookNodeHandler,
-    StreamHandler,
     PapermillIO,
-    read_yaml_file,
-    papermill_io,
+    StreamHandler,
     local_file_io_cwd,
+    papermill_io,
+    read_yaml_file,
 )
-from ..exceptions import PapermillException
 from . import get_notebook_path
 
 FIXTURE_PATH = os.path.join(os.path.dirname(__file__), 'fixtures')
