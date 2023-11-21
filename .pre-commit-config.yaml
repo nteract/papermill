@@ -44,7 +44,6 @@ repos:
     hooks:
       - id: black
         name: Black code
-        args: ["-S"]
 
   - repo: https://github.com/executablebooks/mdformat
     rev: 0.7.17
