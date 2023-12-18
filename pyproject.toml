@@ -47,6 +47,7 @@ select = [
     "I",  # isort
 #    "D",  # see: https://pypi.org/project/pydocstyle
 #    "N",  # see: https://pypi.org/project/pep8-naming
+    "RUF100",  # unnecessary noqa comment
 ]
 #extend-select = [
 #    "C4",  # see: https://pypi.org/project/flake8-comprehensions
