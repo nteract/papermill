@@ -311,7 +311,7 @@ class ScalaTranslator(Translator):
     @classmethod
     def translate_int(cls, val):
         strval = cls.translate_raw_str(val)
-        return strval + "L" if (val > 2147483647 or val < -2147483648) else strval
+        return f"{strval}L" if (val > 2147483647 or val < -2147483648) else strval
 
     @classmethod
     def translate_dict(cls, val):
@@ -413,7 +413,7 @@ class CSharpTranslator(Translator):
     @classmethod
     def translate_int(cls, val):
         strval = cls.translate_raw_str(val)
-        return strval + "L" if (val > 2147483647 or val < -2147483648) else strval
+        return f"{strval}L" if (val > 2147483647 or val < -2147483648) else strval
 
     @classmethod
     def translate_dict(cls, val):
@@ -449,7 +449,7 @@ class FSharpTranslator(Translator):
     @classmethod
     def translate_int(cls, val):
         strval = cls.translate_raw_str(val)
-        return strval + "L" if (val > 2147483647 or val < -2147483648) else strval
+        return f"{strval}L" if (val > 2147483647 or val < -2147483648) else strval
 
     @classmethod
     def translate_dict(cls, val):

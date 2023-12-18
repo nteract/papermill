@@ -33,8 +33,8 @@ class PapermillExecutionError(PapermillException):
         # when called with str(). In order to maintain compatibility with previous versions which
         # passed only the message to the superclass constructor, __str__ method is implemented to
         # provide the same result as was produced in the past.
-        message = "\n" + 75 * "-" + "\n"
-        message += 'Exception encountered at "In [%s]":\n' % str(self.exec_count)
+        message = f"\n{75 * '-'}\n"
+        message += f'Exception encountered at "In [{self.exec_count}]":\n'
         message += "\n".join(self.traceback)
         message += "\n"
         return message

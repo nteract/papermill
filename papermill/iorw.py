@@ -146,8 +146,8 @@ class PapermillIO:
 
         if extensions:
             if not fnmatch.fnmatch(os.path.basename(path).split('?')[0], '*.*'):
-                warnings.warn("the file is not specified with any extension : " + os.path.basename(path))
-            elif not any(fnmatch.fnmatch(os.path.basename(path).split('?')[0], '*' + ext) for ext in extensions):
+                warnings.warn(f"the file is not specified with any extension : {os.path.basename(path)}")
+            elif not any(fnmatch.fnmatch(os.path.basename(path).split('?')[0], f"*{ext}") for ext in extensions):
                 warnings.warn(f"The specified file ({path}) does not end in one of {extensions}")
 
         local_handler = None
@@ -380,7 +380,7 @@ class GithubHandler:
         repo_id = splits[4]
         ref_id = splits[6]
         sub_path = '/'.join(splits[7:])
-        repo = self._get_client().get_repo(org_id + '/' + repo_id)
+        repo = self._get_client().get_repo(f"{org_id}/{repo_id}")
         content = repo.get_contents(sub_path, ref=ref_id)
         return content.decoded_content
 

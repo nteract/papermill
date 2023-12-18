@@ -102,7 +102,7 @@ class Key:
         self.etag = etag
         if last_modified:
             try:
-                self.last_modified = last_modified.isoformat().split('+')[0] + '.000Z'
+                self.last_modified = f"{last_modified.isoformat().split('+')[0]}.000Z"
             except ValueError:
                 self.last_modified = last_modified
         self.storage_class = storage_class
@@ -158,14 +158,13 @@ class S3:
         return self._clean(bucket).split('/', 1)[0]
 
     def _clean(self, name):
-        if name.startswith('s3n:'):
-            name = 's3:' + name[4:]
+        name = self._clean_s3(name)
         if self._is_s3(name):
             return name[5:]
         return name
 
     def _clean_s3(self, name):
-        return 's3:' + name[4:] if name.startswith('s3n:') else name
+        return f"s3:{name[4:]}" if name.startswith('s3n:') else name
 
     def _get_key(self, name):
         if isinstance(name, Key):
@@ -346,7 +345,7 @@ class S3:
                 if err:
                     raise Exception
                 else:
-                    raise AwsError('Failed to fully read [%s]' % source.name)
+                    raise AwsError(f'Failed to fully read [{source.name}]')
 
             if undecoded:
                 assert encoding is not None  # only time undecoded is set

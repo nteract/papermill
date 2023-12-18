@@ -13,7 +13,7 @@ from .utils import any_tagged_cell, find_first_tagged_cell_index, nb_kernel_name
 def _open_notebook(notebook_path, parameters):
     path_parameters = add_builtin_parameters(parameters)
     input_path = parameterize_path(notebook_path, path_parameters)
-    logger.info("Input Notebook:  %s" % get_pretty_path(input_path))
+    logger.info(f"Input Notebook:  {get_pretty_path(input_path)}")
 
     with local_file_io_cwd():
         return load_notebook_node(input_path)
@@ -78,14 +78,14 @@ def display_notebook_help(ctx, notebook_path, parameters):
             if type_repr == "None":
                 type_repr = "Unknown type"
 
-            definition = "  {}: {} (default {})".format(p["name"], type_repr, p["default"])
+            definition = f"  {p['name']}: {type_repr} (default {p['default']})"
             if len(definition) > 30:
                 if len(p["help"]):
-                    param_help = "".join((definition, "\n", 34 * " ", p["help"]))
+                    param_help = f"{definition}\n{34 * ' '}{p['help']}"
                 else:
                     param_help = definition
             else:
-                param_help = "{:<34}{}".format(definition, p["help"])
+                param_help = f"{definition:<34}{p['help']}"
             click.echo(param_help)
     else:
         click.echo(

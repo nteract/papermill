@@ -31,7 +31,7 @@ class TestNotebookHelpers(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.test_dir)
 
-    @patch(engines.__name__ + '.PapermillNotebookClient')
+    @patch(f"{engines.__name__}.PapermillNotebookClient")
     def test_start_timeout(self, preproc_mock):
         execute_notebook(self.notebook_path, self.nb_test_executed_fname, start_timeout=123)
         args, kwargs = preproc_mock.call_args
@@ -47,7 +47,7 @@ class TestNotebookHelpers(unittest.TestCase):
             msg=f'Expected arguments {expected} are not a subset of actual {actual}',
         )
 
-    @patch(engines.__name__ + '.PapermillNotebookClient')
+    @patch(f"{engines.__name__}.PapermillNotebookClient")
     def test_default_start_timeout(self, preproc_mock):
         execute_notebook(self.notebook_path, self.nb_test_executed_fname)
         args, kwargs = preproc_mock.call_args
@@ -375,7 +375,7 @@ class TestExecuteWithCustomEngine(unittest.TestCase):
     def setUp(self):
         self.test_dir = tempfile.mkdtemp()
         self.notebook_path = get_notebook_path('simple_execute.ipynb')
-        self.nb_test_executed_fname = os.path.join(self.test_dir, 'output_{}'.format('simple_execute.ipynb'))
+        self.nb_test_executed_fname = os.path.join(self.test_dir, 'output_simple_execute.ipynb')
 
         self._orig_papermill_engines = deepcopy(engines.papermill_engines)
         self._orig_translators = deepcopy(translators.papermill_translators)

@@ -20,7 +20,7 @@ here = os.path.abspath(local_path)
 
 
 def version():
-    with open(here + '/papermill/version.py') as ver:
+    with open(f"{here}/papermill/version.py") as ver:
         for line in ver.readlines():
             if line.startswith('version ='):
                 return line.split(' = ')[-1].strip()[1:-1]
