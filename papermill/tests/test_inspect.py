@@ -94,7 +94,7 @@ def test_str_path():
             [
                 "Dummy usage",
                 "\nParameters inferred for notebook '{name}':",
-                "\n  Can't infer anything about this notebook's parameters. It may not have any parameter defined.",  # noqa
+                "\n  Can't infer anything about this notebook's parameters. It may not have any parameter defined.",
             ],
         ),
     ],

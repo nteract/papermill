@@ -87,7 +87,7 @@ def test_translate_comment_python(test_input, expected):
             [Parameter("a", "List[str]", "['this','is','a','string','list']", "Nice variable a")],
         ),
         (
-            "a: List[str] = [\n    'this',\n    'is',\n    'a',\n    'string',\n    'list'\n] # Nice variable a",  # noqa
+            "a: List[str] = [\n    'this',\n    'is',\n    'a',\n    'string',\n    'list'\n] # Nice variable a",
             [Parameter("a", "List[str]", "['this','is','a','string','list']", "Nice variable a")],
         ),
         (
