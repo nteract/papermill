@@ -59,8 +59,8 @@ class PapermillParameterOverwriteWarning(PapermillWarning):
 def missing_dependency_generator(package, dep):
     def missing_dep():
         raise PapermillOptionalDependencyException(
-            "The {package} optional dependency is missing. "
-            "Please run pip install papermill[{dep}] to install this dependency".format(package=package, dep=dep)
+            f"The {package} optional dependency is missing. "
+            f"Please run pip install papermill[{dep}] to install this dependency"
         )
 
     return missing_dep
@@ -69,9 +69,9 @@ def missing_dependency_generator(package, dep):
 def missing_environment_variable_generator(package, env_key):
     def missing_dep():
         raise PapermillOptionalDependencyException(
-            "The {package} optional dependency is present, but the environment "
-            "variable {env_key} is not set. Please set this variable as "
-            "required by {package} on your platform.".format(package=package, env_key=env_key)
+            f"The {package} optional dependency is present, but the environment "
+            f"variable {env_key} is not set. Please set this variable as "
+            f"required by {package} on your platform."
         )
 
     return missing_dep

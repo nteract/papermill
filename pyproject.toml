@@ -39,6 +39,7 @@ ignore-words-list = "dne, compiletime"
 
 
 [tool.ruff]
+target-version = "py38"
 line-length = 120
 # Enable Pyflakes `E` and `F` codes by default.
 select = [
@@ -48,6 +49,7 @@ select = [
 #    "D",  # see: https://pypi.org/project/pydocstyle
 #    "N",  # see: https://pypi.org/project/pep8-naming
     "RUF100",  # unnecessary noqa comment
+    "UP",  # pyupgrade
 ]
 #extend-select = [
 #    "C4",  # see: https://pypi.org/project/flake8-comprehensions

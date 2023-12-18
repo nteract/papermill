@@ -18,13 +18,6 @@ repos:
       - id: check-docstring-first
       - id: detect-private-key
 
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v3.15.0
-    hooks:
-      - id: pyupgrade
-        args: ["--py38-plus"]
-        name: Upgrade code
-
   #- repo: https://github.com/myint/docformatter
   #  rev: v1.5.0
   #  hooks:
@@ -53,7 +46,7 @@ repos:
           - mdformat_frontmatter
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.4
+    rev: v0.1.8
     hooks:
         - id: ruff
           args: ["--fix"]
