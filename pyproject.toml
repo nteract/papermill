@@ -1,10 +1,5 @@
 # Migration to pyproject.toml is in progress
 
-# distutils is deprecated and removed in Python 3.12.
-# This block can be removed after the build parameters are added to this file
-[tool.distutils.bdist_wheel]
-universal = true
-
 # Example configuration for Black.
 [tool.black]
 line-length = 120
