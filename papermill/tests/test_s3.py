@@ -108,12 +108,12 @@ def test_prefix_defaults():
 
 def test_prefix_str(bucket_sqs):
     p1 = Prefix(bucket_sqs, 'sqs_prefix_test', 'sqs')
-    assert str(p1) == 's3://' + str(bucket_sqs) + '/sqs_prefix_test'
+    assert str(p1) == f"s3://{str(bucket_sqs)}/sqs_prefix_test"
 
 
 def test_prefix_repr(bucket_sqs):
     p1 = Prefix(bucket_sqs, 'sqs_prefix_test', 'sqs')
-    assert repr(p1) == 's3://' + str(bucket_sqs) + '/sqs_prefix_test'
+    assert repr(p1) == f"s3://{str(bucket_sqs)}/sqs_prefix_test"
 
 
 def test_key_init():
@@ -174,7 +174,7 @@ def s3_client():
     yield S3()
     try:
         client.delete_object(Bucket=test_bucket_name, Key=test_file_path)
-        client.delete_object(Bucket=test_bucket_name, Key=test_file_path + '.txt')
+        client.delete_object(Bucket=test_bucket_name, Key=f"{test_file_path}.txt")
         client.delete_object(Bucket=test_bucket_name, Key=test_empty_file_path)
     except Exception:
         pass

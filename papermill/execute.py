@@ -80,8 +80,8 @@ def execute_notebook(
     input_path = parameterize_path(input_path, path_parameters)
     output_path = parameterize_path(output_path, path_parameters)
 
-    logger.info("Input Notebook:  %s" % get_pretty_path(input_path))
-    logger.info("Output Notebook: %s" % get_pretty_path(output_path))
+    logger.info(f"Input Notebook:  {get_pretty_path(input_path)}")
+    logger.info(f"Output Notebook: {get_pretty_path(output_path)}")
     with local_file_io_cwd():
         if cwd is not None:
             logger.info(f"Working directory: {get_pretty_path(cwd)}")
@@ -169,13 +169,11 @@ ERROR_MARKER_TAG = "papermill-error-cell-tag"
 ERROR_STYLE = 'style="color:red; font-family:Helvetica Neue, Helvetica, Arial, sans-serif; font-size:2em;"'
 
 ERROR_MESSAGE_TEMPLATE = (
-    '<span ' + ERROR_STYLE + '>'
-    "An Exception was encountered at '<a href=\"#papermill-error-cell\">In [%s]</a>'."
-    '</span>'
+    f"<span {ERROR_STYLE}>An Exception was encountered at '<a href=\"#papermill-error-cell\">In [%s]</a>'.</span>"
 )
 
 ERROR_ANCHOR_MSG = (
-    '<span id="papermill-error-cell" ' + ERROR_STYLE + '>'
+    f'<span id="papermill-error-cell" {ERROR_STYLE}>'
     'Execution using papermill encountered an exception here and stopped:'
     '</span>'
 )

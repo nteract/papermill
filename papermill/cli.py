@@ -26,11 +26,7 @@ OUTPUT_PIPED = not sys.stdout.isatty()
 def print_papermill_version(ctx, param, value):
     if not value:
         return
-    print(
-        "{version} from {path} ({pyver})".format(
-            version=papermill_version, path=__file__, pyver=platform.python_version()
-        )
-    )
+    print(f"{papermill_version} from {__file__} ({platform.python_version()})")
     ctx.exit()
 
 
