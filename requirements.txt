@@ -1,6 +1,6 @@
 click
 pyyaml
-nbformat >= 5.1.2
+nbformat >= 5.2.0
 nbclient >= 0.2.0
 tqdm >= 4.32.2
 requests
