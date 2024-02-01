@@ -6,4 +6,4 @@ tqdm >= 4.32.2
 requests
 entrypoints
 tenacity >= 5.0.2
-aiohttp==3.9.0;python_version=="3.12"
+aiohttp ==3.9.2; python_version=="3.12"
