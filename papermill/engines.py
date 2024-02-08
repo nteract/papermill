@@ -109,7 +109,16 @@ class NotebookExecutionManager:
             # lazy import due to implicit slow ipython import
             from tqdm.auto import tqdm
 
-            self.pbar = tqdm(total=len(self.nb.cells), unit="cell", desc="Executing")
+            if isinstance(progress_bar, bool):
+                self.pbar = tqdm(total=len(self.nb.cells), unit="cell", desc="Executing")
+            elif isinstance(progress_bar, dict):
+                _progress_bar = {"unit": "cell", "desc": "Executing"}
+                _progress_bar.update(progress_bar)
+                self.pbar = tqdm(total=len(self.nb.cells), **_progress_bar)
+            else:
+                raise TypeError(
+                    f"progress_bar must be instance of bool or dict, but actual type '{type(progress_bar)}'."
+                )
 
     def now(self):
         """Helper to return current UTC time"""
