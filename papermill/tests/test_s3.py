@@ -5,7 +5,7 @@ import os.path
 import boto3
 import moto
 import pytest
-from moto import mock_s3
+from moto import mock_aws
 
 from ..s3 import S3, Bucket, Key, Prefix
 
@@ -138,7 +138,7 @@ def test_key_defaults():
     assert k1.is_prefix is False
 
 
-@mock_s3
+@mock_aws
 def test_s3_defaults():
     s1 = S3()
     s2 = S3()
@@ -164,8 +164,8 @@ read_from_gen = lambda g: "\n".join(g)
 
 @pytest.fixture(scope="function")
 def s3_client():
-    mock_s3 = moto.mock_s3()
-    mock_s3.start()
+    mock_aws = moto.mock_aws()
+    mock_aws.start()
 
     client = boto3.client('s3')
     client.create_bucket(Bucket=test_bucket_name, CreateBucketConfiguration={'LocationConstraint': 'us-west-2'})
@@ -178,7 +178,7 @@ def s3_client():
         client.delete_object(Bucket=test_bucket_name, Key=test_empty_file_path)
     except Exception:
         pass
-    mock_s3.stop()
+    mock_aws.stop()
 
 
 def test_s3_read(s3_client):
