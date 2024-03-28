@@ -2,9 +2,9 @@ import io
 import json
 import os
 import unittest
+import warnings
 from tempfile import TemporaryDirectory
 from unittest.mock import Mock, patch
-import warnings
 
 import nbformat
 import pytest
