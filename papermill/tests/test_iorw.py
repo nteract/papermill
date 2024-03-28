@@ -4,6 +4,7 @@ import os
 import unittest
 from tempfile import TemporaryDirectory
 from unittest.mock import Mock, patch
+import warnings
 
 import nbformat
 import pytest
@@ -137,9 +138,9 @@ class TestPapermillIO(unittest.TestCase):
             self.papermill_io.read("fake/path/fakeinputpath.ipynb1")
 
     def test_read_with_valid_file_extension(self):
-        with pytest.warns(None) as warns:
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
             self.papermill_io.read("fake/path/fakeinputpath.ipynb")
-        self.assertEqual(len(warns), 0)
 
     def test_read_yaml_with_no_file_extension(self):
         with pytest.warns(UserWarning):
