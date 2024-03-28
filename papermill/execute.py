@@ -196,22 +196,35 @@ def raise_for_execution_errors(nb, output_path):
     """
     error = None
     for index, cell in enumerate(nb.cells):
-        if cell.get("outputs") is None:
-            continue
+        has_sys_exit = False
+        # check if there is any cell error output
+        if "outputs" in cell:
+            for output in cell.outputs:
+                if output.output_type == "error":
+                    if output.ename == "SystemExit" and (output.evalue == "" or output.evalue == "0"):
+                        has_sys_exit = True
+                        continue
+                    error = PapermillExecutionError(
+                        cell_index=index,
+                        exec_count=cell.execution_count,
+                        source=cell.source,
+                        ename=output.ename,
+                        evalue=output.evalue,
+                        traceback=output.traceback,
+                    )
+                    break
 
-        for output in cell.outputs:
-            if output.output_type == "error":
-                if output.ename == "SystemExit" and (output.evalue == "" or output.evalue == "0"):
-                    continue
-                error = PapermillExecutionError(
-                    cell_index=index,
-                    exec_count=cell.execution_count,
-                    source=cell.source,
-                    ename=output.ename,
-                    evalue=output.evalue,
-                    traceback=output.traceback,
-                )
-                break
+        # handle the CellExecutionError exceptions raised that didn't produce a cell error output
+        if not has_sys_exit and cell.get("metadata", {}).get("papermill", {}).get("exception") is True:
+            error = PapermillExecutionError(
+                cell_index=index,
+                exec_count=cell.execution_count,
+                source=cell.source,
+                ename="CellExecutionError",
+                evalue="",
+                traceback="",
+            )
+            break
 
     if error:
         # Write notebook back out with the Error Message at the top of the Notebook, and a link to

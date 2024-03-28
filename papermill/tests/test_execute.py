@@ -327,6 +327,19 @@ class TestSysExit(unittest.TestCase):
         self.assertEqual(nb.cells[1].outputs[0].evalue, '')
         self.assertEqual(nb.cells[2].execution_count, None)
 
+    def test_line_magic_error(self):
+        notebook_name = 'line_magic_error.ipynb'
+        result_path = os.path.join(self.test_dir, f'output_{notebook_name}')
+        with self.assertRaises(PapermillExecutionError):
+            execute_notebook(get_notebook_path(notebook_name), result_path)
+        nb = load_notebook_node(result_path)
+        self.assertEqual(nb.cells[0].cell_type, "markdown")
+        self.assertRegex(nb.cells[0].source, r'^<span .*<a href="#papermill-error-cell".*In \[1\].*</span>$')
+        self.assertEqual(nb.cells[0].metadata["tags"], ["papermill-error-cell-tag"])
+        self.assertEqual(nb.cells[2].cell_type, "code")
+        self.assertEqual(nb.cells[2].execution_count, 1)
+        self.assertEqual(nb.cells[3].execution_count, None)
+
 
 class TestNotebookValidation(unittest.TestCase):
     def setUp(self):
