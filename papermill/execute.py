@@ -215,7 +215,11 @@ def raise_for_execution_errors(nb, output_path):
                     break
 
         # handle the CellExecutionError exceptions raised that didn't produce a cell error output
-        if error is None and not has_sys_exit and cell.get("metadata", {}).get("papermill", {}).get("exception") is True:
+        if (
+            error is None
+            and not has_sys_exit
+            and cell.get("metadata", {}).get("papermill", {}).get("exception") is True
+        ):
             error = PapermillExecutionError(
                 cell_index=index,
                 exec_count=cell.execution_count,
