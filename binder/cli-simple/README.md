@@ -10,4 +10,4 @@ This example uses three notebooks:
 
 1. Begin executing the cells.
 
-1. One cell demonstrates running papermill from the the command line.
+1. One cell demonstrates running papermill from the command line.
