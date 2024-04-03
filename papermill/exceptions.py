@@ -79,6 +79,7 @@ def missing_environment_variable_generator(package, env_key):
 
     return missing_dep
 
+
 # copied from https://github.com/jonathaneunice/ansiwrap/blob/master/ansiwrap/core.py
 # papermill used to use strip_color from ansiwrap package, but removed due to dependency
 # resolution issues (ref: https://github.com/nteract/papermill/pull/681)

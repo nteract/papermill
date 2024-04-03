@@ -430,6 +430,7 @@ class TestNotebookNodeInput(unittest.TestCase):
         test_nb = nbformat.read(self.result_path, as_version=4)
         self.assertEqual(test_nb.metadata.papermill.parameters, {'msg': 'Hello'})
 
+
 class TestOutputFormatting(unittest.TestCase):
     def setUp(self):
         self.test_dir = tempfile.mkdtemp()
