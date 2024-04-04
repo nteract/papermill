@@ -8,6 +8,7 @@ from pathlib import Path
 from unittest.mock import ANY, patch
 
 import nbformat
+from colors import strip_color
 from nbformat import validate
 
 from .. import engines, translators
@@ -429,3 +430,34 @@ class TestNotebookNodeInput(unittest.TestCase):
         execute_notebook(input_nb, self.result_path, {'msg': 'Hello'})
         test_nb = nbformat.read(self.result_path, as_version=4)
         self.assertEqual(test_nb.metadata.papermill.parameters, {'msg': 'Hello'})
+
+
+class TestOutputFormatting(unittest.TestCase):
+    def setUp(self):
+        self.test_dir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        shutil.rmtree(self.test_dir)
+
+    def test_output_formatting(self):
+        notebook_name = 'sysexit1.ipynb'
+        result_path = os.path.join(self.test_dir, f'output_{notebook_name}')
+        try:
+            execute_notebook(get_notebook_path(notebook_name), result_path)
+            # exception should be thrown by now
+            self.assertFalse(True)
+        except PapermillExecutionError as ex:
+            self.assertEqual(ex.traceback[1], "\x1b[0;31mSystemExit\x1b[0m\x1b[0;31m:\x1b[0m 1\n")
+            self.assertEqual(strip_color(ex.traceback[1]), "SystemExit: 1\n")
+
+        nb = load_notebook_node(result_path)
+        self.assertEqual(nb.cells[0].cell_type, "markdown")
+        self.assertRegex(nb.cells[0].source, r'^<span .*<a href="#papermill-error-cell".*In \[2\].*</span>$')
+        self.assertEqual(nb.cells[1].execution_count, 1)
+
+        self.assertEqual(nb.cells[2].cell_type, "markdown")
+        self.assertRegex(nb.cells[2].source, '<span id="papermill-error-cell" .*</span>')
+        self.assertEqual(nb.cells[3].execution_count, 2)
+        self.assertEqual(nb.cells[3].outputs[0].output_type, 'error')
+
+        self.assertEqual(nb.cells[4].execution_count, None)

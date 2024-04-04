@@ -3,3 +3,4 @@ pandas
 matplotlib
 ipywidgets
 ipykernel
+ansicolors

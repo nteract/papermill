@@ -1,3 +1,6 @@
+from colors import strip_color
+
+
 class AwsError(Exception):
     """Raised when an AWS Exception is encountered."""
 
@@ -35,7 +38,7 @@ class PapermillExecutionError(PapermillException):
         # provide the same result as was produced in the past.
         message = f"\n{75 * '-'}\n"
         message += f'Exception encountered at "In [{self.exec_count}]":\n'
-        message += "\n".join(self.traceback)
+        message += strip_color("\n".join(self.traceback))
         message += "\n"
         return message
 
