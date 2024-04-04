@@ -6,12 +6,13 @@ from copy import deepcopy
 from functools import partial
 from pathlib import Path
 from unittest.mock import ANY, patch
+from colors import strip_color
 
 import nbformat
 from nbformat import validate
 
 from .. import engines, translators
-from ..exceptions import PapermillExecutionError, strip_color
+from ..exceptions import PapermillExecutionError
 from ..execute import execute_notebook
 from ..iorw import load_notebook_node
 from ..log import logger
