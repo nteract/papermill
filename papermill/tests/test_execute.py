@@ -6,9 +6,9 @@ from copy import deepcopy
 from functools import partial
 from pathlib import Path
 from unittest.mock import ANY, patch
-from colors import strip_color
 
 import nbformat
+from colors import strip_color
 from nbformat import validate
 
 from .. import engines, translators
