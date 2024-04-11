@@ -1,0 +1,2 @@
+[papermill.tests.fake]
+foo = bar
