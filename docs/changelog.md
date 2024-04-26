@@ -4,6 +4,18 @@
 
 - Changed parameter inspection to raise the same error messages as other pathways for missing kernel name and language
 
+## 2.6.0
+
+- bring back strip_color and remove ANSI color codes from exception traceback [#791](https://github.com/nteract/papermill/pull/791)
+- cleaned up documentation [#790](https://github.com/nteract/papermill/pull/790)
+- prevent error override, fix traceback type [#788](https://github.com/nteract/papermill/pull/788)
+- Upgrade tests to moto v5 [#779](https://github.com/nteract/papermill/pull/779)
+- raise PapermillExecutionError when CellExecutionError is raised without cell error output [#786](https://github.com/nteract/papermill/pull/786)
+- make progress_bar param accept a dict [#778](https://github.com/nteract/papermill/pull/778)
+- Fix nbformat to 5.2.0 to cell None type [#770](https://github.com/nteract/papermill/pull/770)
+- Use f-strings where possible [#762](https://github.com/nteract/papermill/pull/762)
+- Unmark wheel as universal [#764](https://github.com/nteract/papermill/pull/764)
+
 ## 2.5.0
 
 - Added support for python 3.11 and 3.12 [PR #733](https://github.com/nteract/papermill/pull/733)
