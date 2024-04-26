@@ -5,6 +5,7 @@
 - Changed parameter inspection to raise the same error messages as other pathways for missing kernel name and language
 
 ## 2.6.0
+
 - bring back strip_color and remove ANSI color codes from exception traceback [#791](https://github.com/nteract/papermill/pull/791)
 - cleaned up documentation [#790](https://github.com/nteract/papermill/pull/790)
 - prevent error override, fix traceback type [#788](https://github.com/nteract/papermill/pull/788)
