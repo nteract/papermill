@@ -6,7 +6,7 @@ ci:
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v4.6.0
     hooks:
       - id: end-of-file-fixer
       - id: trailing-whitespace
@@ -25,14 +25,14 @@ repos:
   #      args: [--in-place, --wrap-summaries=120, --wrap-descriptions=120]
 
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.2.6
+    rev: v2.3.0
     hooks:
       - id: codespell
         additional_dependencies: [tomli]
         #args: ["--write-changes"] # uncomment if you want to get automatic fixing
 
   - repo: https://github.com/psf/black
-    rev: 23.12.1
+    rev: 24.4.2
     hooks:
       - id: black
         name: Black code
@@ -46,7 +46,7 @@ repos:
           - mdformat_frontmatter
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.9
+    rev: v0.5.0
     hooks:
         - id: ruff
           args: ["--fix"]

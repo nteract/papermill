@@ -1,4 +1,5 @@
 """Deduce parameters of a notebook from the parameters cell."""
+
 from pathlib import Path
 
 import click
