@@ -4,7 +4,6 @@ nbformat >= 5.2.0
 nbclient >= 0.2.0
 tqdm >= 4.32.2
 requests
-entrypoints
 tenacity >= 5.0.2
 aiohttp >=3.9.0; python_version=="3.12"
 ansicolors

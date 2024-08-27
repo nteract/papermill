@@ -20,6 +20,9 @@ include *.toml
 
 include .bumpversion.cfg
 
+include papermill/tests/fixtures/foo-0.0.1.dist-info/METADATA
+include papermill/tests/fixtures/foo-0.0.1.dist-info/entry_points.txt
+
 # Documentation
 prune docs
 

@@ -1,3 +1,4 @@
+import sys
 import warnings
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -10,6 +11,7 @@ from ..exceptions import PapermillParameterOverwriteWarning
 from ..utils import (
     any_tagged_cell,
     chdir,
+    get_entrypoints_group,
     merge_kwargs,
     remove_args,
     retry,
@@ -58,3 +60,14 @@ def test_chdir():
             assert Path.cwd() == Path(temp_dir)
 
     assert Path.cwd() == old_cwd
+
+
+def test_get_entrypoints_group():
+    # We don't need to mock anything here, there is just enough metadata
+    # present to give us one entry point.
+    sys.path.insert(0, Path(__file__).parent / "fixtures")
+    # We need to cast to a list here, 3.8/3.9 and 3.10+ return different
+    # types.
+    eps = list(get_entrypoints_group("papermill.tests.fake"))
+    sys.path.pop()
+    assert eps[0].name == "foo"

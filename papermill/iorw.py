@@ -5,7 +5,6 @@ import sys
 import warnings
 from contextlib import contextmanager
 
-import entrypoints
 import nbformat
 import requests
 import yaml
@@ -18,7 +17,7 @@ from .exceptions import (
     missing_environment_variable_generator,
 )
 from .log import logger
-from .utils import chdir
+from .utils import chdir, get_entrypoints_group
 from .version import version as __version__
 
 try:
@@ -116,7 +115,7 @@ class PapermillIO:
 
     def register_entry_points(self):
         # Load handlers provided by other packages
-        for entrypoint in entrypoints.get_group_all("papermill.io"):
+        for entrypoint in get_entrypoints_group("papermill.io"):
             self.register(entrypoint.name, entrypoint.load())
 
     def get_handler(self, path, extensions=None):

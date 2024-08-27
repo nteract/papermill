@@ -492,7 +492,8 @@ class TestEngineRegistration(unittest.TestCase):
         fake_entrypoint = Mock(load=Mock())
         fake_entrypoint.name = "fake-engine"
 
-        with patch("entrypoints.get_group_all", return_value=[fake_entrypoint]) as mock_get_group_all:
+        entry_points = {"papermill.engine": [fake_entrypoint]}
+        with patch("papermill.utils.entry_points", return_value=entry_points) as mock_entry_points:
             self.papermill_engines.register_entry_points()
-            mock_get_group_all.assert_called_once_with("papermill.engine")
+            mock_entry_points.assert_called_once()
             self.assertEqual(self.papermill_engines.get_engine("fake-engine"), fake_entrypoint.load.return_value)

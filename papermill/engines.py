@@ -4,13 +4,12 @@ import sys
 from functools import wraps
 
 import dateutil
-import entrypoints
 
 from .clientwrap import PapermillNotebookClient
 from .exceptions import PapermillException
 from .iorw import write_ipynb
 from .log import logger
-from .utils import merge_kwargs, nb_kernel_name, nb_language, remove_args
+from .utils import get_entrypoints_group, merge_kwargs, nb_kernel_name, nb_language, remove_args
 
 
 class PapermillEngines:
@@ -33,7 +32,7 @@ class PapermillEngines:
 
         Load handlers provided by other packages
         """
-        for entrypoint in entrypoints.get_group_all("papermill.engine"):
+        for entrypoint in get_entrypoints_group("papermill.engine"):
             self.register(entrypoint.name, entrypoint.load())
 
     def get_engine(self, name=None):
