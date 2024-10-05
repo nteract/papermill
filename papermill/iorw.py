@@ -1,18 +1,16 @@
+import fnmatch
+import json
 import os
 import sys
-import json
-import yaml
-import fnmatch
-import nbformat
-import requests
 import warnings
-import entrypoints
-
 from contextlib import contextmanager
 
+import entrypoints
+import nbformat
+import requests
+import yaml
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 
-from . import __version__
 from .exceptions import (
     PapermillException,
     PapermillRateLimitException,
@@ -21,6 +19,7 @@ from .exceptions import (
 )
 from .log import logger
 from .utils import chdir
+from .version import version as __version__
 
 try:
     from .s3 import S3
@@ -48,7 +47,7 @@ except ImportError:
     GCSFileSystem = missing_dependency_generator("gcsfs", "gcs")
 
 try:
-    from pyarrow.fs import HadoopFileSystem, FileSelector
+    from pyarrow.fs import FileSelector, HadoopFileSystem
 except ImportError:
     HadoopFileSystem = missing_dependency_generator("pyarrow", "hdfs")
 
@@ -147,13 +146,8 @@ class PapermillIO:
 
         if extensions:
             if not fnmatch.fnmatch(os.path.basename(path).split('?')[0], '*.*'):
-                warnings.warn(
-                    "the file is not specified with any extension : " + os.path.basename(path)
-                )
-            elif not any(
-                fnmatch.fnmatch(os.path.basename(path).split('?')[0], '*' + ext)
-                for ext in extensions
-            ):
+                warnings.warn(f"the file is not specified with any extension : {os.path.basename(path)}")
+            elif not any(fnmatch.fnmatch(os.path.basename(path).split('?')[0], f"*{ext}") for ext in extensions):
                 warnings.warn(f"The specified file ({path}) does not end in one of {extensions}")
 
         local_handler = None
@@ -320,9 +314,7 @@ class GCSHandler:
         @retry(
             retry=retry_if_exception_type(PapermillRateLimitException),
             stop=stop_after_attempt(self.RATE_LIMIT_RETRIES),
-            wait=wait_exponential(
-                multiplier=self.RETRY_MULTIPLIER, min=self.RETRY_DELAY, max=self.RETRY_MAX_DELAY
-            ),
+            wait=wait_exponential(multiplier=self.RETRY_MULTIPLIER, min=self.RETRY_DELAY, max=self.RETRY_MAX_DELAY),
             reraise=True,
         )
         def retry_write():
@@ -388,7 +380,7 @@ class GithubHandler:
         repo_id = splits[4]
         ref_id = splits[6]
         sub_path = '/'.join(splits[7:])
-        repo = self._get_client().get_repo(org_id + '/' + repo_id)
+        repo = self._get_client().get_repo(f"{org_id}/{repo_id}")
         content = repo.get_contents(sub_path, ref=ref_id)
         return content.decoded_content
 

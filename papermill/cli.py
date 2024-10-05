@@ -1,23 +1,21 @@
 """Main `papermill` interface."""
 
-import os
-import sys
-from stat import S_ISFIFO
-import nbclient
-import traceback
-
 import base64
 import logging
+import os
+import platform
+import sys
+import traceback
+from stat import S_ISFIFO
 
 import click
-
+import nbclient
 import yaml
-import platform
 
 from .execute import execute_notebook
-from .iorw import read_yaml_file, NoDatesSafeLoader
 from .inspection import display_notebook_help
-from . import __version__ as papermill_version
+from .iorw import NoDatesSafeLoader, read_yaml_file
+from .version import version as papermill_version
 
 click.disable_unicode_literals_warning = True
 
@@ -28,11 +26,7 @@ OUTPUT_PIPED = not sys.stdout.isatty()
 def print_papermill_version(ctx, param, value):
     if not value:
         return
-    print(
-        "{version} from {path} ({pyver})".format(
-            version=papermill_version, path=__file__, pyver=platform.python_version()
-        )
-    )
+    print(f"{papermill_version} from {__file__} ({platform.python_version()})")
     ctx.exit()
 
 
@@ -46,21 +40,11 @@ def print_papermill_version(ctx, param, value):
     default=False,
     help='Display parameters information for the given notebook path.',
 )
-@click.option(
-    '--parameters', '-p', nargs=2, multiple=True, help='Parameters to pass to the parameters cell.'
-)
-@click.option(
-    '--parameters_raw', '-r', nargs=2, multiple=True, help='Parameters to be read as raw string.'
-)
-@click.option(
-    '--parameters_file', '-f', multiple=True, help='Path to YAML file containing parameters.'
-)
-@click.option(
-    '--parameters_yaml', '-y', multiple=True, help='YAML string to be used as parameters.'
-)
-@click.option(
-    '--parameters_base64', '-b', multiple=True, help='Base64 encoded YAML string as parameters.'
-)
+@click.option('--parameters', '-p', nargs=2, multiple=True, help='Parameters to pass to the parameters cell.')
+@click.option('--parameters_raw', '-r', nargs=2, multiple=True, help='Parameters to be read as raw string.')
+@click.option('--parameters_file', '-f', multiple=True, help='Path to YAML file containing parameters.')
+@click.option('--parameters_yaml', '-y', multiple=True, help='YAML string to be used as parameters.')
+@click.option('--parameters_base64', '-b', multiple=True, help='Base64 encoded YAML string as parameters.')
 @click.option(
     '--remove-tagged-cells', type=str, help='Remove cells with the specified tag before execution.'
 )
@@ -113,9 +97,7 @@ def print_papermill_version(ctx, param, value):
     help='Language for notebook execution. Ignores language in the notebook document metadata.',
 )
 @click.option('--cwd', default=None, help='Working directory to run notebook in.')
-@click.option(
-    '--progress-bar/--no-progress-bar', default=None, help="Flag for turning on the progress bar."
-)
+@click.option('--progress-bar/--no-progress-bar', default=None, help="Flag for turning on the progress bar.")
 @click.option(
     '--log-output/--no-log-output',
     default=False,

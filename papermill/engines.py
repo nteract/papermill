@@ -1,16 +1,16 @@
 """Engines to perform different roles"""
-import sys
 import datetime
-import dateutil
-
+import sys
 from functools import wraps
+
+import dateutil
 import entrypoints
 
-from .log import logger
-from .exceptions import PapermillException
 from .clientwrap import PapermillNotebookClient
+from .exceptions import PapermillException
 from .iorw import write_ipynb
-from .utils import merge_kwargs, remove_args, nb_kernel_name, nb_language
+from .log import logger
+from .utils import merge_kwargs, nb_kernel_name, nb_language, remove_args
 
 
 class PapermillEngines:
@@ -95,9 +95,7 @@ class NotebookExecutionManager:
     COMPLETED = "completed"
     FAILED = "failed"
 
-    def __init__(
-        self, nb, output_path=None, log_output=False, progress_bar=True, autosave_cell_every=30
-    ):
+    def __init__(self, nb, output_path=None, log_output=False, progress_bar=True, autosave_cell_every=30):
         self.nb = nb
         self.output_path = output_path
         self.log_output = log_output
@@ -108,10 +106,19 @@ class NotebookExecutionManager:
         self.last_save_time = self.now()  # Not exactly true, but simplifies testing logic
         self.pbar = None
         if progress_bar:
-            # lazy import due to implict slow ipython import
+            # lazy import due to implicit slow ipython import
             from tqdm.auto import tqdm
 
-            self.pbar = tqdm(total=len(self.nb.cells), unit="cell", desc="Executing")
+            if isinstance(progress_bar, bool):
+                self.pbar = tqdm(total=len(self.nb.cells), unit="cell", desc="Executing")
+            elif isinstance(progress_bar, dict):
+                _progress_bar = {"unit": "cell", "desc": "Executing"}
+                _progress_bar.update(progress_bar)
+                self.pbar = tqdm(total=len(self.nb.cells), **_progress_bar)
+            else:
+                raise TypeError(
+                    f"progress_bar must be instance of bool or dict, but actual type '{type(progress_bar)}'."
+                )
 
     def now(self):
         """Helper to return current UTC time"""
@@ -278,9 +285,7 @@ class NotebookExecutionManager:
         self.end_time = self.now()
         self.nb.metadata.papermill['end_time'] = self.end_time.isoformat()
         if self.nb.metadata.papermill.get('start_time'):
-            self.nb.metadata.papermill['duration'] = (
-                self.end_time - self.start_time
-            ).total_seconds()
+            self.nb.metadata.papermill['duration'] = (self.end_time - self.start_time).total_seconds()
 
         # Cleanup cell statuses in case callbacks were never called
         for cell in self.nb.cells:

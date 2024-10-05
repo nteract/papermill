@@ -1,30 +1,66 @@
+# Migration to pyproject.toml is in progress
+
 # Example configuration for Black.
-
-# NOTE: you have to use single-quoted strings in TOML for regular expressions.
-# It's the equivalent of r-strings in Python.  Multiline strings are treated as
-# verbose regular expressions by Black.  Use [ ] to denote a significant space
-# character.
-
 [tool.black]
-line-length = 100
-target-version = ['py312']
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-
-  # The following are specific to Black, you probably don't want those.
-  | blib2to3
-  | tests/data
-  | profiling
-)/
-'''
+line-length = 120
+target-version = ['py311']
 skip-string-normalization = true
+
+
+[tool.coverage.run]
+branch = false
+
+[tool.coverage.report]
+exclude_lines = [
+    "if self.debug:",
+    "pragma: no cover",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+]
+omit = [
+    "papermill/tests/*",
+    "papermill/version.py"
+]
+
+
+[tool.codespell]
+quiet-level = 3
+# comma separated list of words; waiting for:
+#  https://github.com/codespell-project/codespell/issues/2839#issuecomment-1731601603
+# also adding links until they ignored by its: nature
+#  https://github.com/codespell-project/codespell/issues/2243#issuecomment-1732019960
+ignore-words-list = "dne, compiletime"
+
+
+[tool.ruff]
+target-version = "py38"
+line-length = 120
+# Enable Pyflakes `E` and `F` codes by default.
+select = [
+    "E", "W",  # see: https://pypi.org/project/pycodestyle
+    "F",  # see: https://pypi.org/project/pyflakes
+    "I",  # isort
+#    "D",  # see: https://pypi.org/project/pydocstyle
+#    "N",  # see: https://pypi.org/project/pep8-naming
+    "RUF100",  # unnecessary noqa comment
+    "UP",  # pyupgrade
+]
+#extend-select = [
+#    "C4",  # see: https://pypi.org/project/flake8-comprehensions
+#    "SIM",  # see: https://pypi.org/project/flake8-simplify
+#    "RET",  # see: https://pypi.org/project/flake8-return
+#    "PT",  # see: https://pypi.org/project/flake8-pytest-style
+#]
+ignore = [
+    "E731",  # Do not assign a lambda expression, use a def
+]
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    "docs"
+]
+ignore-init-module-imports = true
+
+[tool.ruff.pydocstyle]
+# Use Google-style docstrings.
+convention = "google"

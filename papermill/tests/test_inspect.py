@@ -6,7 +6,6 @@ from click import Context
 
 from papermill.inspection import display_notebook_help, inspect_notebook
 
-
 NOTEBOOKS_PATH = Path(__file__).parent / "notebooks"
 
 
@@ -95,7 +94,7 @@ def test_str_path():
             [
                 "Dummy usage",
                 "\nParameters inferred for notebook '{name}':",
-                "\n  Can't infer anything about this notebook's parameters. It may not have any parameter defined.",  # noqa
+                "\n  Can't infer anything about this notebook's parameters. It may not have any parameter defined.",
             ],
         ),
     ],

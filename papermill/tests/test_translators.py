@@ -1,8 +1,7 @@
-import pytest
-
-from unittest.mock import Mock
 from collections import OrderedDict
+from unittest.mock import Mock
 
+import pytest
 from nbformat.v4 import new_code_cell
 
 from .. import translators
@@ -59,9 +58,7 @@ def test_translate_codify_python(parameters, expected):
     assert translators.PythonTranslator.codify(parameters) == expected
 
 
-@pytest.mark.parametrize(
-    "test_input,expected", [("", '#'), ("foo", '# foo'), ("['best effort']", "# ['best effort']")]
-)
+@pytest.mark.parametrize("test_input,expected", [("", '#'), ("foo", '# foo'), ("['best effort']", "# ['best effort']")])
 def test_translate_comment_python(test_input, expected):
     assert translators.PythonTranslator.comment(test_input) == expected
 
@@ -83,18 +80,14 @@ def test_translate_comment_python(test_input, expected):
         ),
         (
             "a: List[str] = ['this', 'is', 'a', 'string', 'list'] # Nice variable a",
-            [
-                Parameter(
-                    "a", "List[str]", "['this', 'is', 'a', 'string', 'list']", "Nice variable a"
-                )
-            ],
+            [Parameter("a", "List[str]", "['this', 'is', 'a', 'string', 'list']", "Nice variable a")],
         ),
         (
             "a: List[str] = [\n    'this', # First\n    'is',\n    'a',\n    'string',\n    'list' # Last\n] # Nice variable a",  # noqa
             [Parameter("a", "List[str]", "['this','is','a','string','list']", "Nice variable a")],
         ),
         (
-            "a: List[str] = [\n    'this',\n    'is',\n    'a',\n    'string',\n    'list'\n] # Nice variable a",  # noqa
+            "a: List[str] = [\n    'this',\n    'is',\n    'a',\n    'string',\n    'list'\n] # Nice variable a",
             [Parameter("a", "List[str]", "['this','is','a','string','list']", "Nice variable a")],
         ),
         (
@@ -148,9 +141,7 @@ def test_translate_type_r(test_input, expected):
     assert translators.RTranslator.translate(test_input) == expected
 
 
-@pytest.mark.parametrize(
-    "test_input,expected", [("", '#'), ("foo", '# foo'), ("['best effort']", "# ['best effort']")]
-)
+@pytest.mark.parametrize("test_input,expected", [("", '#'), ("foo", '# foo'), ("['best effort']", "# ['best effort']")])
 def test_translate_comment_r(test_input, expected):
     assert translators.RTranslator.comment(test_input) == expected
 
@@ -361,9 +352,7 @@ def test_translate_assign_powershell(input_name, input_value, expected):
     assert translators.PowershellTranslator.assign(input_name, input_value) == expected
 
 
-@pytest.mark.parametrize(
-    "test_input,expected", [("", '#'), ("foo", '# foo'), ("['best effort']", "# ['best effort']")]
-)
+@pytest.mark.parametrize("test_input,expected", [("", '#'), ("foo", '# foo'), ("['best effort']", "# ['best effort']")])
 def test_translate_comment_powershell(test_input, expected):
     assert translators.PowershellTranslator.comment(test_input) == expected
 
@@ -473,9 +462,7 @@ def test_translate_codify_julia(parameters, expected):
     assert translators.JuliaTranslator.codify(parameters) == expected
 
 
-@pytest.mark.parametrize(
-    "test_input,expected", [("", '#'), ("foo", '# foo'), ('["best effort"]', '# ["best effort"]')]
-)
+@pytest.mark.parametrize("test_input,expected", [("", '#'), ("foo", '# foo'), ('["best effort"]', '# ["best effort"]')])
 def test_translate_comment_julia(test_input, expected):
     assert translators.JuliaTranslator.comment(test_input) == expected
 
@@ -536,9 +523,7 @@ def test_translate_codify_matlab(parameters, expected):
     assert translators.MatlabTranslator.codify(parameters) == expected
 
 
-@pytest.mark.parametrize(
-    "test_input,expected", [("", '%'), ("foo", '% foo'), ("['best effort']", "% ['best effort']")]
-)
+@pytest.mark.parametrize("test_input,expected", [("", '%'), ("foo", '% foo'), ("['best effort']", "% ['best effort']")])
 def test_translate_comment_matlab(test_input, expected):
     assert translators.MatlabTranslator.comment(test_input) == expected
 
@@ -565,9 +550,7 @@ def test_find_translator_with_exact_language():
 
 def test_find_translator_with_no_such_kernel_or_language():
     with pytest.raises(PapermillException):
-        translators.papermill_translators.find_translator(
-            "unregistered_kernel", "unregistered_language"
-        )
+        translators.papermill_translators.find_translator("unregistered_kernel", "unregistered_language")
 
 
 def test_translate_uses_str_representation_of_unknown_types():
@@ -624,9 +607,7 @@ def test_translate_type_sh(test_input, expected):
     assert translators.BashTranslator.translate(test_input) == expected
 
 
-@pytest.mark.parametrize(
-    "test_input,expected", [("", '#'), ("foo", '# foo'), ("['best effort']", "# ['best effort']")]
-)
+@pytest.mark.parametrize("test_input,expected", [("", '#'), ("foo", '# foo'), ("['best effort']", "# ['best effort']")])
 def test_translate_comment_sh(test_input, expected):
     assert translators.BashTranslator.comment(test_input) == expected
 

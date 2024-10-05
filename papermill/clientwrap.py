@@ -1,5 +1,5 @@
-import sys
 import asyncio
+import sys
 
 from nbclient import NotebookClient
 from nbclient.exceptions import CellExecutionError
@@ -41,7 +41,7 @@ class PapermillNotebookClient(NotebookClient):
             asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
         with self.setup_kernel(**kwargs):
-            self.log.info("Executing notebook with kernel: %s" % self.kernel_name)
+            self.log.info(f"Executing notebook with kernel: {self.kernel_name}")
             self.papermill_execute_cells()
             info_msg = self.wait_for_reply(self.kc.kernel_info())
             self.nb.metadata['language_info'] = info_msg['content']['language_info']

@@ -1,0 +1,49 @@
+# https://github.com/marketplace/stale
+# https://github.com/probot/stale
+
+issues:
+  # Number of days of inactivity before an issue becomes stale
+  daysUntilStale: 365
+  # Number of days of inactivity before a stale issue is closed
+  daysUntilClose: 60
+  # Issues with these labels will never be considered stale
+  #exemptLabels:
+  #  - "priority: 0"
+  #  - "priority: 1"
+  # Comment to post when marking an issue as stale. Set to `false` to disable
+  markComment: >
+    This issue has been automatically marked as stale because it has been inactive for 365 days.
+    This issue will be automatically closed in 60 days if no further activity occurs.
+    Thank you for your contributions and using Papermill!
+  # Comment to post when closing a stale issue. Set to `false` to disable
+  closeComment: false
+
+pulls:
+  # Number of days of inactivity before an pulls becomes stale
+  daysUntilStale: 180
+  # Number of days of inactivity before a stale pull is closed
+  daysUntilClose: 30
+  # Label to use when marking an issue as stale
+  staleLabel: "stale"
+  # Comment to post when marking an issue as stale. Set to `false` to disable
+  markComment: >
+    This pull request has been automatically marked as stale because it has been inactive for 180 days.
+    It will be closed in 30 days if no further activity occurs. If you need further help see our docs:
+    https://github.com/nteract/papermill/blob/main/CONTRIBUTING.md
+    or ask the assistance. Thank you for your contributions.
+  # Comment to post when closing a stale issue. Set to `false` to disable
+  closeComment: >
+    This pull request is going to be closed. Please feel free to reopen it or create a new one based on top of the
+    'main' branch.
+
+# Label to use when marking an issue as stale
+staleLabel: "stale"
+# Limit the number of actions per hour, from 1-30. Default is 30
+limitPerRun: 2
+
+# Set to true to ignore issues in a project (defaults to false)
+exemptProjects: true
+# Set to true to ignore issues in a milestone (defaults to false)
+exemptMilestones: true
+# Set to true to ignore issues with an assignee (defaults to false)
+exemptAssignees: true

@@ -1,8 +1,9 @@
 import unittest
+from unittest.mock import MagicMock, Mock, patch
 
-from unittest.mock import Mock, MagicMock, patch
-
-from ..adl import ADL, core as adl_core, lib as adl_lib
+from ..adl import ADL
+from ..adl import core as adl_core
+from ..adl import lib as adl_lib
 
 
 class ADLTest(unittest.TestCase):
@@ -11,9 +12,7 @@ class ADLTest(unittest.TestCase):
     """
 
     def setUp(self):
-        self.ls = Mock(
-            return_value=["path/to/directory/foo", "path/to/directory/bar", "path/to/directory/baz"]
-        )
+        self.ls = Mock(return_value=["path/to/directory/foo", "path/to/directory/bar", "path/to/directory/baz"])
         self.fakeFile = MagicMock()
         self.fakeFile.__iter__.return_value = [b"a", b"b", b"c"]
         self.fakeFile.__enter__.return_value = self.fakeFile
@@ -44,9 +43,7 @@ class ADLTest(unittest.TestCase):
         self.ls.assert_called_once_with("path/to/directory")
 
     def test_read_opens_and_reads_file(self):
-        self.assertEqual(
-            self.adl.read("adl://foo_store.azuredatalakestore.net/path/to/file"), ["a", "b", "c"]
-        )
+        self.assertEqual(self.adl.read("adl://foo_store.azuredatalakestore.net/path/to/file"), ["a", "b", "c"])
         self.fakeFile.__iter__.assert_called_once_with()
 
     def test_write_opens_file_and_writes_to_it(self):

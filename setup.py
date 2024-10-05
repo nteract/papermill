@@ -9,8 +9,8 @@ https://github.com/pypa/sampleproject
 
 """
 import os
-from setuptools import setup
 
+from setuptools import setup
 
 local_path = os.path.dirname(__file__)
 # Fix for tox which manipulates execution pathing
@@ -20,7 +20,7 @@ here = os.path.abspath(local_path)
 
 
 def version():
-    with open(here + '/papermill/version.py') as ver:
+    with open(f"{here}/papermill/version.py") as ver:
         for line in ver.readlines():
             if line.startswith('version ='):
                 return line.split(' = ')[-1].strip()[1:-1]
@@ -43,14 +43,12 @@ azure_reqs = read_reqs('azure.txt', folder='requirements')
 gcs_reqs = read_reqs('gcs.txt', folder='requirements')
 hdfs_reqs = read_reqs('hdfs.txt', folder='requirements')
 github_reqs = read_reqs('github.txt', folder='requirements')
-docs_only_reqs = read_reqs('requirements.txt', folder='docs')
+docs_only_reqs = read_reqs('docs.txt', folder='requirements')
 black_reqs = ['black >= 19.3b0']
 all_reqs = s3_reqs + azure_reqs + gcs_reqs + hdfs_reqs + github_reqs + black_reqs
 docs_reqs = all_reqs + docs_only_reqs
 # Temporarily remove hdfs_reqs from dev deps until the pyarrow package is available for Python 3.12
-dev_reqs = (
-    read_reqs('dev.txt', folder='requirements') + s3_reqs + azure_reqs + gcs_reqs + black_reqs
-)  # all_reqs
+dev_reqs = read_reqs('dev.txt', folder='requirements') + s3_reqs + azure_reqs + gcs_reqs + black_reqs  # all_reqs
 extras_require = {
     "test": dev_reqs,
     "dev": dev_reqs,

@@ -1,8 +1,7 @@
 """Utilities for working with S3."""
 
-import os
-
 import logging
+import os
 import threading
 import zlib
 
@@ -10,7 +9,6 @@ from boto3.session import Session
 
 from .exceptions import AwsError
 from .utils import retry
-
 
 logger = logging.getLogger('papermill.s3')
 
@@ -34,9 +32,7 @@ class Bucket:
 
     def list(self, prefix='', delimiter=None):
         """Limits a list of Bucket's objects based on prefix and delimiter."""
-        return self.service._list(
-            bucket=self.name, prefix=prefix, delimiter=delimiter, objects=True
-        )
+        return self.service._list(bucket=self.name, prefix=prefix, delimiter=delimiter, objects=True)
 
 
 class Prefix:
@@ -106,7 +102,7 @@ class Key:
         self.etag = etag
         if last_modified:
             try:
-                self.last_modified = last_modified.isoformat().split('+')[0] + '.000Z'
+                self.last_modified = f"{last_modified.isoformat().split('+')[0]}.000Z"
             except ValueError:
                 self.last_modified = last_modified
         self.storage_class = storage_class
@@ -162,14 +158,13 @@ class S3:
         return self._clean(bucket).split('/', 1)[0]
 
     def _clean(self, name):
-        if name.startswith('s3n:'):
-            name = 's3:' + name[4:]
+        name = self._clean_s3(name)
         if self._is_s3(name):
             return name[5:]
         return name
 
     def _clean_s3(self, name):
-        return 's3:' + name[4:] if name.startswith('s3n:') else name
+        return f"s3:{name[4:]}" if name.startswith('s3n:') else name
 
     def _get_key(self, name):
         if isinstance(name, Key):
@@ -212,9 +207,7 @@ class S3:
             return item['Prefix']
 
         for page in page_iterator:
-            locations = sorted(
-                [i for i in page.get('Contents', []) + page.get('CommonPrefixes', [])], key=sort
-            )
+            locations = sorted([i for i in page.get('Contents', []) + page.get('CommonPrefixes', [])], key=sort)
 
             for item in locations:
                 if objects or keys:
@@ -246,9 +239,7 @@ class S3:
             obj.upload_file(source, ExtraArgs={'ACL': policy})
         return key
 
-    def _put_string(
-        self, source, dest, num_callbacks=10, policy='bucket-owner-full-control', **kwargs
-    ):
+    def _put_string(self, source, dest, num_callbacks=10, policy='bucket-owner-full-control', **kwargs):
         key = self._get_key(dest)
         obj = self.s3.Object(key.bucket.name, key.name)
 
@@ -354,7 +345,7 @@ class S3:
                 if err:
                     raise Exception
                 else:
-                    raise AwsError('Failed to fully read [%s]' % source.name)
+                    raise AwsError(f'Failed to fully read [{source.name}]')
 
             if undecoded:
                 assert encoding is not None  # only time undecoded is set

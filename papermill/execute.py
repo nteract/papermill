@@ -1,14 +1,15 @@
-import nbformat
 from pathlib import Path
 from copy import deepcopy
 
-from .log import logger
-from .exceptions import PapermillExecutionError
-from .iorw import get_pretty_path, local_file_io_cwd, load_notebook_node, write_ipynb
+import nbformat
+
 from .engines import papermill_engines
-from .utils import chdir
-from .parameterize import add_builtin_parameters, parameterize_notebook, parameterize_path
+from .exceptions import PapermillExecutionError
 from .inspection import _infer_parameters
+from .iorw import get_pretty_path, load_notebook_node, local_file_io_cwd, write_ipynb
+from .log import logger
+from .parameterize import add_builtin_parameters, parameterize_notebook, parameterize_path
+from .utils import chdir
 
 
 def execute_notebook(
@@ -84,8 +85,8 @@ def execute_notebook(
     input_path = parameterize_path(input_path, path_parameters)
     output_path = parameterize_path(output_path, path_parameters)
 
-    logger.info("Input Notebook:  %s" % get_pretty_path(input_path))
-    logger.info("Output Notebook: %s" % get_pretty_path(output_path))
+    logger.info(f"Input Notebook:  {get_pretty_path(input_path)}")
+    logger.info(f"Output Notebook: {get_pretty_path(output_path)}")
     with local_file_io_cwd():
         if cwd is not None:
             logger.info(f"Working directory: {get_pretty_path(cwd)}")
@@ -116,9 +117,7 @@ def execute_notebook(
 
         if not prepare_only:
             # Dropdown to the engine to fetch the kernel name from the notebook document
-            kernel_name = papermill_engines.nb_kernel_name(
-                engine_name=engine_name, nb=nb, name=kernel_name
-            )
+            kernel_name = papermill_engines.nb_kernel_name(engine_name=engine_name, nb=nb, name=kernel_name)
             # Execute the Notebook in `cwd` if it is set
             with chdir(cwd):
                 nb = papermill_engines.execute_notebook_with_engine(
@@ -201,18 +200,14 @@ def remove_tagged_cells_from_notebook(nb, tag):
 
 ERROR_MARKER_TAG = "papermill-error-cell-tag"
 
-ERROR_STYLE = (
-    'style="color:red; font-family:Helvetica Neue, Helvetica, Arial, sans-serif; font-size:2em;"'
-)
+ERROR_STYLE = 'style="color:red; font-family:Helvetica Neue, Helvetica, Arial, sans-serif; font-size:2em;"'
 
 ERROR_MESSAGE_TEMPLATE = (
-    '<span ' + ERROR_STYLE + '>'
-    "An Exception was encountered at '<a href=\"#papermill-error-cell\">In [%s]</a>'."
-    '</span>'
+    f"<span {ERROR_STYLE}>An Exception was encountered at '<a href=\"#papermill-error-cell\">In [%s]</a>'.</span>"
 )
 
 ERROR_ANCHOR_MSG = (
-    '<span id="papermill-error-cell" ' + ERROR_STYLE + '>'
+    f'<span id="papermill-error-cell" {ERROR_STYLE}>'
     'Execution using papermill encountered an exception here and stopped:'
     '</span>'
 )
@@ -235,22 +230,39 @@ def raise_for_execution_errors(nb, output_path):
     """
     error = None
     for index, cell in enumerate(nb.cells):
-        if cell.get("outputs") is None:
-            continue
+        has_sys_exit = False
+        # check if there is any cell error output
+        if "outputs" in cell:
+            for output in cell.outputs:
+                if output.output_type == "error":
+                    if output.ename == "SystemExit" and (output.evalue == "" or output.evalue == "0"):
+                        has_sys_exit = True
+                        continue
+                    error = PapermillExecutionError(
+                        cell_index=index,
+                        exec_count=cell.execution_count,
+                        source=cell.source,
+                        ename=output.ename,
+                        evalue=output.evalue,
+                        traceback=output.traceback,
+                    )
+                    break
 
-        for output in cell.outputs:
-            if output.output_type == "error":
-                if output.ename == "SystemExit" and (output.evalue == "" or output.evalue == "0"):
-                    continue
-                error = PapermillExecutionError(
-                    cell_index=index,
-                    exec_count=cell.execution_count,
-                    source=cell.source,
-                    ename=output.ename,
-                    evalue=output.evalue,
-                    traceback=output.traceback,
-                )
-                break
+        # handle the CellExecutionError exceptions raised that didn't produce a cell error output
+        if (
+            error is None
+            and not has_sys_exit
+            and cell.get("metadata", {}).get("papermill", {}).get("exception") is True
+        ):
+            error = PapermillExecutionError(
+                cell_index=index,
+                exec_count=cell.execution_count,
+                source=cell.source,
+                ename="CellExecutionError",
+                evalue="",
+                traceback=[],
+            )
+            break
 
     if error:
         # Write notebook back out with the Error Message at the top of the Notebook, and a link to

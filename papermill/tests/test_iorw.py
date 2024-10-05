@@ -1,28 +1,29 @@
-import json
-import unittest
-import os
 import io
-import nbformat
-import pytest
-
-from requests.exceptions import ConnectionError
+import json
+import os
+import unittest
+import warnings
 from tempfile import TemporaryDirectory
 from unittest.mock import Mock, patch
 
+import nbformat
+import pytest
+from requests.exceptions import ConnectionError
+
 from .. import iorw
+from ..exceptions import PapermillException
 from ..iorw import (
+    ADLHandler,
     HttpHandler,
     LocalHandler,
     NoIOHandler,
-    ADLHandler,
     NotebookNodeHandler,
-    StreamHandler,
     PapermillIO,
-    read_yaml_file,
-    papermill_io,
+    StreamHandler,
     local_file_io_cwd,
+    papermill_io,
+    read_yaml_file,
 )
-from ..exceptions import PapermillException
 from . import get_notebook_path
 
 FIXTURE_PATH = os.path.join(os.path.dirname(__file__), 'fixtures')
@@ -103,9 +104,7 @@ class TestPapermillIO(unittest.TestCase):
         fake_entrypoint = Mock(load=Mock())
         fake_entrypoint.name = "fake-from-entry-point://"
 
-        with patch(
-            "entrypoints.get_group_all", return_value=[fake_entrypoint]
-        ) as mock_get_group_all:
+        with patch("entrypoints.get_group_all", return_value=[fake_entrypoint]) as mock_get_group_all:
             self.papermill_io.register_entry_points()
             mock_get_group_all.assert_called_once_with("papermill.io")
             fake_ = self.papermill_io.get_handler("fake-from-entry-point://")
@@ -125,14 +124,10 @@ class TestPapermillIO(unittest.TestCase):
         self.assertEqual(self.papermill_io.get_handler("fake2/path"), self.fake2)
 
     def test_read(self):
-        self.assertEqual(
-            self.papermill_io.read("fake/path"), "contents from fake/path for version 1"
-        )
+        self.assertEqual(self.papermill_io.read("fake/path"), "contents from fake/path for version 1")
 
     def test_read_bytes(self):
-        self.assertIsNotNone(
-            self.papermill_io_bytes.read("notebooks/gcs/gcs_in/gcs-simple_notebook.ipynb")
-        )
+        self.assertIsNotNone(self.papermill_io_bytes.read("notebooks/gcs/gcs_in/gcs-simple_notebook.ipynb"))
 
     def test_read_with_no_file_extension(self):
         with pytest.warns(UserWarning):
@@ -143,9 +138,9 @@ class TestPapermillIO(unittest.TestCase):
             self.papermill_io.read("fake/path/fakeinputpath.ipynb1")
 
     def test_read_with_valid_file_extension(self):
-        with pytest.warns(None) as warns:
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
             self.papermill_io.read("fake/path/fakeinputpath.ipynb")
-        self.assertEqual(len(warns), 0)
 
     def test_read_yaml_with_no_file_extension(self):
         with pytest.warns(UserWarning):

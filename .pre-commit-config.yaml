@@ -1,6 +1,3 @@
-default_language_version:
-  python: python3.8
-
 ci:
   autofix_prs: true
   autoupdate_commit_msg: '[pre-commit.ci] pre-commit suggestions'
@@ -21,30 +18,24 @@ repos:
       - id: check-docstring-first
       - id: detect-private-key
 
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v3.15.0
-    hooks:
-      - id: pyupgrade
-        args: [--py37-plus]
-        name: Upgrade code
-
   #- repo: https://github.com/myint/docformatter
   #  rev: v1.5.0
   #  hooks:
   #    - id: docformatter
   #      args: [--in-place, --wrap-summaries=120, --wrap-descriptions=120]
 
-  #- repo: https://github.com/PyCQA/isort
-  #  rev: 5.10.1
-  #  hooks:
-  #    - id: isort
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.2.6
+    hooks:
+      - id: codespell
+        additional_dependencies: [tomli]
+        #args: ["--write-changes"] # uncomment if you want to get automatic fixing
 
   - repo: https://github.com/psf/black
-    rev: 23.11.0
+    rev: 23.12.1
     hooks:
       - id: black
         name: Black code
-        args: ["-S"]
 
   - repo: https://github.com/executablebooks/mdformat
     rev: 0.7.17
@@ -54,16 +45,8 @@ repos:
           - mdformat-gfm
           - mdformat_frontmatter
 
-  - repo: https://github.com/asottile/yesqa
-    rev: v1.5.0
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.9
     hooks:
-      - id: yesqa
-
-  - repo: https://github.com/pycqa/flake8
-    rev: 6.1.0
-    hooks:
-      - id: flake8
-        arge:
-          - "--count"
-          - "--show-source"
-          - "--statistics"
+        - id: ruff
+          args: ["--fix"]

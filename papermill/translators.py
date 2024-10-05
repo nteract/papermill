@@ -6,7 +6,6 @@ import shlex
 from .exceptions import PapermillException
 from .models import Parameter
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -29,9 +28,7 @@ class PapermillTranslators:
         elif language in self._translators:
             return self._translators[language]
         raise PapermillException(
-            "No parameter translator functions specified for kernel '{}' or language '{}'".format(
-                kernel_name, language
-            )
+            f"No parameter translator functions specified for kernel '{kernel_name}' or language '{language}'"
         )
 
 
@@ -85,7 +82,7 @@ class Translator:
 
     @classmethod
     def translate(cls, val):
-        """Translate each of the standard json/yaml types to appropiate objects."""
+        """Translate each of the standard json/yaml types to appropriate objects."""
         if val is None:
             return cls.translate_none(val)
         elif isinstance(val, str):
@@ -146,7 +143,7 @@ class Translator:
 class PythonTranslator(Translator):
     # Pattern to capture parameters within cell input
     PARAMETER_PATTERN = re.compile(
-        r"^(?P<target>\w[\w_]*)\s*(:\s*[\"']?(?P<annotation>\w[\w_\[\],\s]*)[\"']?\s*)?=\s*(?P<value>.*?)(\s*#\s*(type:\s*(?P<type_comment>[^\s]*)\s*)?(?P<help>.*))?$"  # noqa
+        r"^(?P<target>\w[\w_]*)\s*(:\s*[\"']?(?P<annotation>\w[\w_\[\],\s]*)[\"']?\s*)?=\s*(?P<value>.*?)(\s*#\s*(type:\s*(?P<type_comment>[^\s]*)\s*)?(?P<help>.*))?$"
     )
 
     @classmethod
@@ -290,9 +287,7 @@ class RTranslator(Translator):
 
     @classmethod
     def translate_dict(cls, val):
-        escaped = ', '.join(
-            [f'{cls.translate_str(k)} = {cls.translate(v)}' for k, v in val.items()]
-        )
+        escaped = ', '.join([f'{cls.translate_str(k)} = {cls.translate(v)}' for k, v in val.items()])
         return f'list({escaped})'
 
     @classmethod
@@ -316,14 +311,12 @@ class ScalaTranslator(Translator):
     @classmethod
     def translate_int(cls, val):
         strval = cls.translate_raw_str(val)
-        return strval + "L" if (val > 2147483647 or val < -2147483648) else strval
+        return f"{strval}L" if (val > 2147483647 or val < -2147483648) else strval
 
     @classmethod
     def translate_dict(cls, val):
         """Translate dicts to scala Maps"""
-        escaped = ', '.join(
-            [f"{cls.translate_str(k)} -> {cls.translate(v)}" for k, v in val.items()]
-        )
+        escaped = ', '.join([f"{cls.translate_str(k)} -> {cls.translate(v)}" for k, v in val.items()])
         return f'Map({escaped})'
 
     @classmethod
@@ -348,9 +341,7 @@ class JuliaTranslator(Translator):
 
     @classmethod
     def translate_dict(cls, val):
-        escaped = ', '.join(
-            [f"{cls.translate_str(k)} => {cls.translate(v)}" for k, v in val.items()]
-        )
+        escaped = ', '.join([f"{cls.translate_str(k)} => {cls.translate(v)}" for k, v in val.items()])
         return f'Dict({escaped})'
 
     @classmethod
@@ -422,15 +413,13 @@ class CSharpTranslator(Translator):
     @classmethod
     def translate_int(cls, val):
         strval = cls.translate_raw_str(val)
-        return strval + "L" if (val > 2147483647 or val < -2147483648) else strval
+        return f"{strval}L" if (val > 2147483647 or val < -2147483648) else strval
 
     @classmethod
     def translate_dict(cls, val):
         """Translate dicts to nontyped dictionary"""
 
-        kvps = ', '.join(
-            [f"{{ {cls.translate_str(k)} , {cls.translate(v)} }}" for k, v in val.items()]
-        )
+        kvps = ', '.join([f"{{ {cls.translate_str(k)} , {cls.translate(v)} }}" for k, v in val.items()])
         return f'new Dictionary<string,Object>{{ {kvps} }}'
 
     @classmethod
@@ -460,13 +449,11 @@ class FSharpTranslator(Translator):
     @classmethod
     def translate_int(cls, val):
         strval = cls.translate_raw_str(val)
-        return strval + "L" if (val > 2147483647 or val < -2147483648) else strval
+        return f"{strval}L" if (val > 2147483647 or val < -2147483648) else strval
 
     @classmethod
     def translate_dict(cls, val):
-        tuples = '; '.join(
-            [f"({cls.translate_str(k)}, {cls.translate(v)} :> IComparable)" for k, v in val.items()]
-        )
+        tuples = '; '.join([f"({cls.translate_str(k)}, {cls.translate(v)} :> IComparable)" for k, v in val.items()])
         return f'[ {tuples} ] |> Map.ofList'
 
     @classmethod

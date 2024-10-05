@@ -3,20 +3,20 @@ import shutil
 import tempfile
 import unittest
 from copy import deepcopy
-from unittest.mock import patch, ANY
-
 from functools import partial
 from pathlib import Path
+from unittest.mock import ANY, patch
 
 import nbformat
+from colors import strip_color
 from nbformat import validate
 
 from .. import engines, translators
-from ..log import logger
-from ..iorw import load_notebook_node
-from ..utils import chdir
-from ..execute import execute_notebook
 from ..exceptions import PapermillExecutionError
+from ..execute import execute_notebook
+from ..iorw import load_notebook_node
+from ..log import logger
+from ..utils import chdir
 from . import get_notebook_path, kernel_name
 
 execute_notebook = partial(execute_notebook, kernel_name=kernel_name)
@@ -32,7 +32,7 @@ class TestNotebookHelpers(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.test_dir)
 
-    @patch(engines.__name__ + '.PapermillNotebookClient')
+    @patch(f"{engines.__name__}.PapermillNotebookClient")
     def test_start_timeout(self, preproc_mock):
         execute_notebook(self.notebook_path, self.nb_test_executed_fname, start_timeout=123)
         args, kwargs = preproc_mock.call_args
@@ -48,7 +48,7 @@ class TestNotebookHelpers(unittest.TestCase):
             msg=f'Expected arguments {expected} are not a subset of actual {actual}',
         )
 
-    @patch(engines.__name__ + '.PapermillNotebookClient')
+    @patch(f"{engines.__name__}.PapermillNotebookClient")
     def test_default_start_timeout(self, preproc_mock):
         execute_notebook(self.notebook_path, self.nb_test_executed_fname)
         args, kwargs = preproc_mock.call_args
@@ -67,9 +67,7 @@ class TestNotebookHelpers(unittest.TestCase):
     def test_cell_insertion(self):
         execute_notebook(self.notebook_path, self.nb_test_executed_fname, {'msg': 'Hello'})
         test_nb = load_notebook_node(self.nb_test_executed_fname)
-        self.assertListEqual(
-            test_nb.cells[1].get('source').split('\n'), ['# Parameters', 'msg = "Hello"', '']
-        )
+        self.assertListEqual(test_nb.cells[1].get('source').split('\n'), ['# Parameters', 'msg = "Hello"', ''])
         self.assertEqual(test_nb.metadata.papermill.parameters, {'msg': 'Hello'})
 
     def test_no_tags(self):
@@ -77,23 +75,17 @@ class TestNotebookHelpers(unittest.TestCase):
         nb_test_executed_fname = os.path.join(self.test_dir, f'output_{notebook_name}')
         execute_notebook(get_notebook_path(notebook_name), nb_test_executed_fname, {'msg': 'Hello'})
         test_nb = load_notebook_node(nb_test_executed_fname)
-        self.assertListEqual(
-            test_nb.cells[0].get('source').split('\n'), ['# Parameters', 'msg = "Hello"', '']
-        )
+        self.assertListEqual(test_nb.cells[0].get('source').split('\n'), ['# Parameters', 'msg = "Hello"', ''])
         self.assertEqual(test_nb.metadata.papermill.parameters, {'msg': 'Hello'})
 
     def test_quoted_params(self):
         execute_notebook(self.notebook_path, self.nb_test_executed_fname, {'msg': '"Hello"'})
         test_nb = load_notebook_node(self.nb_test_executed_fname)
-        self.assertListEqual(
-            test_nb.cells[1].get('source').split('\n'), ['# Parameters', r'msg = "\"Hello\""', '']
-        )
+        self.assertListEqual(test_nb.cells[1].get('source').split('\n'), ['# Parameters', r'msg = "\"Hello\""', ''])
         self.assertEqual(test_nb.metadata.papermill.parameters, {'msg': '"Hello"'})
 
     def test_backslash_params(self):
-        execute_notebook(
-            self.notebook_path, self.nb_test_executed_fname, {'foo': r'do\ not\ crash'}
-        )
+        execute_notebook(self.notebook_path, self.nb_test_executed_fname, {'foo': r'do\ not\ crash'})
         test_nb = load_notebook_node(self.nb_test_executed_fname)
         self.assertListEqual(
             test_nb.cells[1].get('source').split('\n'),
@@ -199,9 +191,7 @@ class TestBrokenNotebook1(unittest.TestCase):
             execute_notebook(path, result_path)
         nb = load_notebook_node(result_path)
         self.assertEqual(nb.cells[0].cell_type, "markdown")
-        self.assertRegex(
-            nb.cells[0].source, r'^<span .*<a href="#papermill-error-cell".*In \[2\].*</span>$'
-        )
+        self.assertRegex(nb.cells[0].source, r'^<span .*<a href="#papermill-error-cell".*In \[2\].*</span>$')
         self.assertEqual(nb.cells[0].metadata["tags"], ["papermill-error-cell-tag"])
 
         self.assertEqual(nb.cells[1].cell_type, "markdown")
@@ -218,9 +208,7 @@ class TestBrokenNotebook1(unittest.TestCase):
         self.assertEqual(nb.cells[7].execution_count, None)
 
         # double check the removal (the new cells above should be the only two tagged ones)
-        self.assertEqual(
-            sum("papermill-error-cell-tag" in cell.metadata.get("tags", []) for cell in nb.cells), 2
-        )
+        self.assertEqual(sum("papermill-error-cell-tag" in cell.metadata.get("tags", []) for cell in nb.cells), 2)
 
 
 class TestBrokenNotebook2(unittest.TestCase):
@@ -237,9 +225,7 @@ class TestBrokenNotebook2(unittest.TestCase):
             execute_notebook(path, result_path)
         nb = load_notebook_node(result_path)
         self.assertEqual(nb.cells[0].cell_type, "markdown")
-        self.assertRegex(
-            nb.cells[0].source, r'^<span .*<a href="#papermill-error-cell">.*In \[2\].*</span>$'
-        )
+        self.assertRegex(nb.cells[0].source, r'^<span .*<a href="#papermill-error-cell">.*In \[2\].*</span>$')
         self.assertEqual(nb.cells[1].execution_count, 1)
 
         self.assertEqual(nb.cells[2].cell_type, "markdown")
@@ -262,9 +248,7 @@ class TestReportMode(unittest.TestCase):
         shutil.rmtree(self.test_dir)
 
     def test_report_mode(self):
-        nb = execute_notebook(
-            self.notebook_path, self.nb_test_executed_fname, {'a': 0}, report_mode=True
-        )
+        nb = execute_notebook(self.notebook_path, self.nb_test_executed_fname, {'a': 0}, report_mode=True)
         for cell in nb.cells:
             if cell.cell_type == 'code':
                 self.assertEqual(cell.metadata.get('jupyter', {}).get('source_hidden'), True)
@@ -304,22 +288,14 @@ class TestCWD(unittest.TestCase):
     def test_local_save_ignores_cwd_assignment(self):
         with chdir(self.base_test_dir):
             # Both paths are relative
-            execute_notebook(
-                self.simple_notebook_name, self.nb_test_executed_fname, cwd=self.test_dir
-            )
-        self.assertTrue(
-            os.path.isfile(os.path.join(self.base_test_dir, self.nb_test_executed_fname))
-        )
+            execute_notebook(self.simple_notebook_name, self.nb_test_executed_fname, cwd=self.test_dir)
+        self.assertTrue(os.path.isfile(os.path.join(self.base_test_dir, self.nb_test_executed_fname)))
 
     def test_execution_respects_cwd_assignment(self):
         with chdir(self.base_test_dir):
             # Both paths are relative
-            execute_notebook(
-                self.check_notebook_name, self.nb_test_executed_fname, cwd=self.test_dir
-            )
-        self.assertTrue(
-            os.path.isfile(os.path.join(self.base_test_dir, self.nb_test_executed_fname))
-        )
+            execute_notebook(self.check_notebook_name, self.nb_test_executed_fname, cwd=self.test_dir)
+        self.assertTrue(os.path.isfile(os.path.join(self.base_test_dir, self.nb_test_executed_fname)))
 
     def test_pathlib_paths(self):
         # Copy of test_execution_respects_cwd_assignment but with `Path`s
@@ -372,9 +348,7 @@ class TestSysExit(unittest.TestCase):
             execute_notebook(get_notebook_path(notebook_name), result_path)
         nb = load_notebook_node(result_path)
         self.assertEqual(nb.cells[0].cell_type, "markdown")
-        self.assertRegex(
-            nb.cells[0].source, r'^<span .*<a href="#papermill-error-cell".*In \[2\].*</span>$'
-        )
+        self.assertRegex(nb.cells[0].source, r'^<span .*<a href="#papermill-error-cell".*In \[2\].*</span>$')
         self.assertEqual(nb.cells[1].execution_count, 1)
 
         self.assertEqual(nb.cells[2].cell_type, "markdown")
@@ -396,6 +370,19 @@ class TestSysExit(unittest.TestCase):
         self.assertEqual(nb.cells[1].outputs[0].ename, 'SystemExit')
         self.assertEqual(nb.cells[1].outputs[0].evalue, '')
         self.assertEqual(nb.cells[2].execution_count, None)
+
+    def test_line_magic_error(self):
+        notebook_name = 'line_magic_error.ipynb'
+        result_path = os.path.join(self.test_dir, f'output_{notebook_name}')
+        with self.assertRaises(PapermillExecutionError):
+            execute_notebook(get_notebook_path(notebook_name), result_path)
+        nb = load_notebook_node(result_path)
+        self.assertEqual(nb.cells[0].cell_type, "markdown")
+        self.assertRegex(nb.cells[0].source, r'^<span .*<a href="#papermill-error-cell".*In \[1\].*</span>$')
+        self.assertEqual(nb.cells[0].metadata["tags"], ["papermill-error-cell-tag"])
+        self.assertEqual(nb.cells[2].cell_type, "code")
+        self.assertEqual(nb.cells[2].execution_count, 1)
+        self.assertEqual(nb.cells[3].execution_count, None)
 
 
 class TestNotebookValidation(unittest.TestCase):
@@ -445,25 +432,19 @@ class TestExecuteWithCustomEngine(unittest.TestCase):
     def setUp(self):
         self.test_dir = tempfile.mkdtemp()
         self.notebook_path = get_notebook_path('simple_execute.ipynb')
-        self.nb_test_executed_fname = os.path.join(
-            self.test_dir, 'output_{}'.format('simple_execute.ipynb')
-        )
+        self.nb_test_executed_fname = os.path.join(self.test_dir, 'output_simple_execute.ipynb')
 
         self._orig_papermill_engines = deepcopy(engines.papermill_engines)
         self._orig_translators = deepcopy(translators.papermill_translators)
         engines.papermill_engines.register("custom_engine", self.CustomEngine)
-        translators.papermill_translators.register(
-            "my_custom_language", translators.PythonTranslator()
-        )
+        translators.papermill_translators.register("my_custom_language", translators.PythonTranslator())
 
     def tearDown(self):
         shutil.rmtree(self.test_dir)
         engines.papermill_engines = self._orig_papermill_engines
         translators.papermill_translators = self._orig_translators
 
-    @patch.object(
-        CustomEngine, "execute_managed_notebook", wraps=CustomEngine.execute_managed_notebook
-    )
+    @patch.object(CustomEngine, "execute_managed_notebook", wraps=CustomEngine.execute_managed_notebook)
     @patch("papermill.parameterize.translate_parameters", wraps=translators.translate_parameters)
     def test_custom_kernel_name_and_language(self, translate_parameters, execute_managed_notebook):
         """Tests execute against engine with custom implementations to fetch
@@ -476,9 +457,7 @@ class TestExecuteWithCustomEngine(unittest.TestCase):
             parameters={"msg": "fake msg"},
         )
         self.assertEqual(execute_managed_notebook.call_args[0], (ANY, "my_custom_kernel"))
-        self.assertEqual(
-            translate_parameters.call_args[0], (ANY, 'my_custom_language', {"msg": "fake msg"}, ANY)
-        )
+        self.assertEqual(translate_parameters.call_args[0], (ANY, 'my_custom_language', {"msg": "fake msg"}, ANY))
 
 
 class TestNotebookNodeInput(unittest.TestCase):
@@ -494,3 +473,34 @@ class TestNotebookNodeInput(unittest.TestCase):
         execute_notebook(input_nb, self.result_path, {'msg': 'Hello'})
         test_nb = nbformat.read(self.result_path, as_version=4)
         self.assertEqual(test_nb.metadata.papermill.parameters, {'msg': 'Hello'})
+
+
+class TestOutputFormatting(unittest.TestCase):
+    def setUp(self):
+        self.test_dir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        shutil.rmtree(self.test_dir)
+
+    def test_output_formatting(self):
+        notebook_name = 'sysexit1.ipynb'
+        result_path = os.path.join(self.test_dir, f'output_{notebook_name}')
+        try:
+            execute_notebook(get_notebook_path(notebook_name), result_path)
+            # exception should be thrown by now
+            self.assertFalse(True)
+        except PapermillExecutionError as ex:
+            self.assertEqual(ex.traceback[1], "\x1b[0;31mSystemExit\x1b[0m\x1b[0;31m:\x1b[0m 1\n")
+            self.assertEqual(strip_color(ex.traceback[1]), "SystemExit: 1\n")
+
+        nb = load_notebook_node(result_path)
+        self.assertEqual(nb.cells[0].cell_type, "markdown")
+        self.assertRegex(nb.cells[0].source, r'^<span .*<a href="#papermill-error-cell".*In \[2\].*</span>$')
+        self.assertEqual(nb.cells[1].execution_count, 1)
+
+        self.assertEqual(nb.cells[2].cell_type, "markdown")
+        self.assertRegex(nb.cells[2].source, '<span id="papermill-error-cell" .*</span>')
+        self.assertEqual(nb.cells[3].execution_count, 2)
+        self.assertEqual(nb.cells[3].outputs[0].output_type, 'error')
+
+        self.assertEqual(nb.cells[4].execution_count, None)
