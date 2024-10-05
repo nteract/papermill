@@ -45,6 +45,7 @@ def print_papermill_version(ctx, param, value):
 @click.option('--parameters_file', '-f', multiple=True, help='Path to YAML file containing parameters.')
 @click.option('--parameters_yaml', '-y', multiple=True, help='YAML string to be used as parameters.')
 @click.option('--parameters_base64', '-b', multiple=True, help='Base64 encoded YAML string as parameters.')
+@click.option('--remove-tagged-cells', type=str, help='Remove cells with the specified tag before execution.')
 @click.option(
     '--inject-input-path',
     is_flag=True,
@@ -147,6 +148,7 @@ def papermill(
     parameters_file,
     parameters_yaml,
     parameters_base64,
+    remove_tagged_cells,
     inject_input_path,
     inject_output_path,
     inject_paths,
@@ -240,6 +242,7 @@ def papermill(
             request_save_on_cell_execute=request_save_on_cell_execute,
             autosave_cell_every=autosave_cell_every,
             prepare_only=prepare_only,
+            remove_tagged_cells=remove_tagged_cells,
             kernel_name=kernel,
             language=language,
             progress_bar=progress_bar,
