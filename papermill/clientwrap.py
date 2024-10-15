@@ -88,7 +88,8 @@ class PapermillNotebookClient(NotebookClient):
             content = "".join(output.text)
             if output.name == "stdout":
                 if self.log_output:
-                    self.log.info(content)
+                    sys.stdout.write(content)
+                    sys.stdout.flush()
                 if self.stdout_file:
                     self.stdout_file.write(content)
                     self.stdout_file.flush()
