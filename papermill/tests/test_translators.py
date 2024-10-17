@@ -658,7 +658,7 @@ def test_translate_comment_stata(test_input, expected):
 @pytest.mark.parametrize(
     "parameters,expected",
     [
-        ({"foo": "bar"}, '* Parameters\nglobal foo = `"bar"'\n'),
+        ({"foo": "bar"}, '''* Parameters\nglobal foo = `"bar"'\n'''),
         ({"foo": True}, '* Parameters\nglobal foo = 1\n'),
         ({"foo": 5}, '* Parameters\nglobal foo = 5\n'),
         ({"foo": 1.1}, '* Parameters\nglobal foo = 1.1\n'),
