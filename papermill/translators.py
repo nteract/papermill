@@ -548,7 +548,6 @@ class BashTranslator(Translator):
 class StataTranslator(Translator):
     @classmethod
     def translate_escaped_str(cls, str_val):
-        """Reusable by most interpreters"""
         if isinstance(str_val, str):
             str_val = str_val.encode('unicode_escape')
             str_val = str_val.decode('utf-8')
