@@ -646,23 +646,23 @@ def test_translate_codify_sh(parameters, expected):
         (None, '""'),
     ],
 )
-def test_translate_type_r(test_input, expected):
+def test_translate_type_stata(test_input, expected):
     assert translators.StataTranslator.translate(test_input) == expected
 
 
 @pytest.mark.parametrize("test_input,expected", [("", '*'), ("foo", '* foo'), ("['best effort']", "* ['best effort']")])
-def test_translate_comment_r(test_input, expected):
+def test_translate_comment_stata(test_input, expected):
     assert translators.StataTranslator.comment(test_input) == expected
 
 
 @pytest.mark.parametrize(
     "parameters,expected",
     [
-        ({"foo": "bar"}, '* Parameters\nglobal foo = "bar"\n'),
+        ({"foo": "bar"}, '* Parameters\nglobal foo = `"bar"'\n'),
         ({"foo": True}, '* Parameters\nglobal foo = 1\n'),
         ({"foo": 5}, '* Parameters\nglobal foo = 5\n'),
         ({"foo": 1.1}, '* Parameters\nglobal foo = 1.1\n'),
     ],
 )
-def test_translate_codify_r(parameters, expected):
+def test_translate_codify_stata(parameters, expected):
     assert translators.StataTranslator.codify(parameters) == expected
