@@ -553,7 +553,7 @@ class StataTranslator(Translator):
             str_val = str_val.encode('unicode_escape')
             str_val = str_val.decode('utf-8')
         return f"""`"{str_val}"'"""
-    
+
     @classmethod
     def translate_none(cls, val):
         return '""'
