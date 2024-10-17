@@ -545,6 +545,32 @@ class BashTranslator(Translator):
         return f'{name}={str_val}'
 
 
+class StataTranslator(Translator):
+    @classmethod
+    def translate_escaped_str(cls, str_val):
+        """Reusable by most interpreters"""
+        if isinstance(str_val, str):
+            str_val = str_val.encode('unicode_escape')
+            str_val = str_val.decode('utf-8')
+        return f"""`"{str_val}"'"""
+    
+    @classmethod
+    def translate_none(cls, val):
+        return '""'
+
+    @classmethod
+    def translate_bool(cls, val):
+        return '1' if val else '0'
+
+    @classmethod
+    def comment(cls, cmt_str):
+        return f'* {cmt_str}'.strip()
+
+    @classmethod
+    def assign(cls, name, str_val):
+        return f'global {name} = {str_val}'
+
+
 # Instantiate a PapermillIO instance and register Handlers.
 papermill_translators = PapermillTranslators()
 papermill_translators.register("python", PythonTranslator)
@@ -559,6 +585,7 @@ papermill_translators.register("pysparkkernel", PythonTranslator)
 papermill_translators.register("sparkkernel", ScalaTranslator)
 papermill_translators.register("sparkrkernel", RTranslator)
 papermill_translators.register("bash", BashTranslator)
+papermill_translators.register("stata", StataTranslator)
 
 
 def translate_parameters(kernel_name, language, parameters, comment='Parameters'):
