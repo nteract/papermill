@@ -32,7 +32,7 @@ class PapermillNotebookClient(NotebookClient):
         """
         super().__init__(nb_man.nb, km=km, raise_on_iopub_timeout=raise_on_iopub_timeout, **kw)
         self.nb_man = nb_man
-        self.log_cell = log_cell if log_cell is not None else kw['log']
+        self.log_cell = log_cell if log_cell is not None else self.log
 
     def execute(self, **kwargs):
         """

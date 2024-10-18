@@ -1,6 +1,5 @@
 import unittest
 from unittest.mock import call, patch
-import logging
 
 import nbformat
 

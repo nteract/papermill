@@ -8,7 +8,7 @@ Logger for notebook output. Is automatically reconfigured on init to
 not auto insert newline characters.
 """
 
-class CustomStreamHandler(logging.StreamHandler):
+class NbOutputStreamHandler(logging.StreamHandler):
     def emit(self, record):
         try:
             msg = self.format(record)
@@ -23,7 +23,7 @@ class CustomStreamHandler(logging.StreamHandler):
 
 def _reconfigure_notebook_logger(l: logging.Logger):
     l.handlers = []
-    custom_handler = CustomStreamHandler()
+    custom_handler = NbOutputStreamHandler()
     l.addHandler(custom_handler)
     formatter = logging.Formatter('%(message)s')
     custom_handler.setFormatter(formatter)
