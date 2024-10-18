@@ -9,7 +9,6 @@ from ..log import logger, notebook_logger
 from . import get_notebook_path
 
 
-
 class TestPapermillClientWrapper(unittest.TestCase):
     def setUp(self):
         self.nb = nbformat.read(get_notebook_path('test_logging.ipynb'), as_version=4)

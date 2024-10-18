@@ -8,6 +8,7 @@ Logger for notebook output. Is automatically reconfigured on init to
 not auto insert newline characters.
 """
 
+
 class NbOutputStreamHandler(logging.StreamHandler):
     def emit(self, record):
         try:
@@ -19,7 +20,8 @@ class NbOutputStreamHandler(logging.StreamHandler):
         except RecursionError:  # See issue 36272
             raise
         except Exception:
-            self.handleError(record) 
+            self.handleError(record)
+
 
 def _reconfigure_notebook_logger(l: logging.Logger):
     l.handlers = []
@@ -29,5 +31,5 @@ def _reconfigure_notebook_logger(l: logging.Logger):
     custom_handler.setFormatter(formatter)
     l.propagate = False
 
-_reconfigure_notebook_logger(notebook_logger)
 
+_reconfigure_notebook_logger(notebook_logger)
