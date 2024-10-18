@@ -23,13 +23,13 @@ class NbOutputStreamHandler(logging.StreamHandler):
             self.handleError(record)
 
 
-def _reconfigure_notebook_logger(l: logging.Logger):
-    l.handlers = []
+def _reconfigure_notebook_logger(log: logging.Logger):
+    log.handlers = []
     custom_handler = NbOutputStreamHandler()
-    l.addHandler(custom_handler)
+    log.addHandler(custom_handler)
     formatter = logging.Formatter('%(message)s')
     custom_handler.setFormatter(formatter)
-    l.propagate = False
+    log.propagate = False
 
 
 _reconfigure_notebook_logger(notebook_logger)
