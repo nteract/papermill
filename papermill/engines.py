@@ -9,7 +9,7 @@ import entrypoints
 from .clientwrap import PapermillNotebookClient
 from .exceptions import PapermillException
 from .iorw import write_ipynb
-from .log import logger
+from .log import logger, notebook_logger
 from .utils import merge_kwargs, nb_kernel_name, nb_language, remove_args
 
 
@@ -435,6 +435,7 @@ class NBClientEngine(Engine):
             startup_timeout=start_timeout,
             kernel_name=kernel_name,
             log=logger,
+            log_cell=notebook_logger,
             log_output=log_output,
             stdout_file=stdout_file,
             stderr_file=stderr_file,
