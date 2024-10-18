@@ -3,10 +3,6 @@ import logging
 
 logger = logging.getLogger('papermill')
 notebook_logger = logging.getLogger('papermill.notebook')
-"""
-Logger for notebook output. Is automatically reconfigured on init to
-not auto insert newline characters.
-"""
 
 
 class NbOutputStreamHandler(logging.StreamHandler):
