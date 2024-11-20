@@ -166,8 +166,26 @@ class PapermillIO:
 
 class HttpHandler:
     @classmethod
+    def _get_auth_kwargs(cls):
+        username = os.environ.get('PAPERMILL_HTTP_AUTH_USERNAME', None)
+        password = os.environ.get('PAPERMILL_HTTP_AUTH_PASSWORD', None)
+        if username or password:
+            return {'auth': requests.auth.HTTPBasicAuth(username or '', password or '')}
+        return {}
+
+    @classmethod
+    def _get_read_kwargs(cls):
+        kwargs = {}
+        kwargs['headers'] = {
+            'Accept': os.environ.get('PAPERMILL_HTTP_ACCEPT_TYPE', 'application/json')
+        }
+        return kwargs | cls._get_auth_kwargs()
+
+
+    @classmethod
     def read(cls, path):
-        return requests.get(path, headers={'Accept': 'application/json'}).text
+        r =  requests.get(path, **cls._get_read_kwargs())
+        return r.text
 
     @classmethod
     def listdir(cls, path):
@@ -175,7 +193,7 @@ class HttpHandler:
 
     @classmethod
     def write(cls, buf, path):
-        result = requests.put(path, json=json.loads(buf))
+        result = requests.put(path, json=json.loads(buf), **cls._get_auth_kwargs())
         result.raise_for_status()
 
     @classmethod
