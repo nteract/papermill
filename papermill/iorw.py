@@ -167,20 +167,20 @@ class PapermillIO:
 class HttpHandler:
     @classmethod
     def _get_auth_kwargs(cls):
-        username = os.environ.get('PAPERMILL_HTTP_AUTH_USERNAME', None)
-        password = os.environ.get('PAPERMILL_HTTP_AUTH_PASSWORD', None)
-        if username or password:
-            return {'auth': requests.auth.HTTPBasicAuth(username or '', password or '')}
+        """Gets the Authorization header from PAPERMILL_HTTP_AUTH_HEADER.
+        A valid value could be Basic dW5hbWU6cGFzc3dvcmQK"""
+        auth_header = os.environ.get('PAPERMILL_HTTP_AUTH_HEADER', None)
+        if auth_header:
+            return {'headers': {'Authorization': auth_header}}
         return {}
 
     @classmethod
     def _get_read_kwargs(cls):
-        kwargs = {}
-        kwargs['headers'] = {
-            'Accept': os.environ.get('PAPERMILL_HTTP_ACCEPT_TYPE', 'application/json')
+        kwargs = cls._get_auth_kwargs() or {'headers': {}}
+        kwargs['headers'] |= {
+            'Accept': os.environ.get('PAPERMILL_HTTP_ACCEPT_HEADER', 'application/json')
         }
-        return kwargs | cls._get_auth_kwargs()
-
+        return kwargs
 
     @classmethod
     def read(cls, path):

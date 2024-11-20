@@ -327,45 +327,17 @@ class TestHttpHandler(unittest.TestCase):
         """
         path = 'http://example.com'
         text = 'request test response'
-        username = 'testusername'
-        password = 'testpassword'
-        auth_token = 'token'
+        auth = 'Basic dW5hbWU6cGFzc3dvcmQK'
 
-        with patch('papermill.iorw.requests.auth.HTTPBasicAuth') as mock_auth,\
-             patch.dict(os.environ, clear=True) as env,\
+        with patch.dict(os.environ, clear=True) as env,\
              patch('papermill.iorw.requests.get') as mock_get:
-            mock_auth.return_value = auth_token
-            env['PAPERMILL_HTTP_AUTH_USERNAME'] = username
-            env['PAPERMILL_HTTP_AUTH_PASSWORD'] = password
+            env['PAPERMILL_HTTP_AUTH_HEADER'] = auth
             mock_get.return_value = Mock(text=text)
 
             self.assertEqual(HttpHandler.read(path), text)
-            mock_auth.assert_called_once_with(username, password)
-            mock_get.assert_called_once_with(path, headers={'Accept': 'application/json'}, auth=auth_token)
+            mock_get.assert_called_once_with(path, headers={'Accept': 'application/json', 'Authorization': auth})
 
-    def test_read_with_token(self):
-        """
-        Tests that the `read` function performs a request to the giving path
-        with just a password as authentication and returns the response.
-        """
-        path = 'http://example.com'
-        text = 'request test response'
-        password = 'testpassword'
-        auth_token = 'token'
-
-        with patch('papermill.iorw.requests.auth.HTTPBasicAuth') as mock_auth,\
-             patch.dict(os.environ, clear=True) as env,\
-             patch('papermill.iorw.requests.get') as mock_get:
-            mock_auth.return_value = auth_token
-            env['PAPERMILL_HTTP_AUTH_PASSWORD'] = password
-            mock_get.return_value = Mock(text=text)
-
-            self.assertEqual(HttpHandler.read(path), text)
-            mock_auth.assert_called_once_with('', password)
-            mock_get.assert_called_once_with(path, headers={'Accept': 'application/json'}, auth=auth_token)
-
-
-    def test_read_with_accept_type(self):
+    def test_read_with_accept_header(self):
         """
         Tests that the `read` function performs a request to the giving path
         with an accept type from env variables and returns the response.
@@ -376,7 +348,7 @@ class TestHttpHandler(unittest.TestCase):
 
         with patch.dict(os.environ, clear=True) as env,\
              patch('papermill.iorw.requests.get') as mock_get:
-            env['PAPERMILL_HTTP_ACCEPT_TYPE'] = accept_type
+            env['PAPERMILL_HTTP_ACCEPT_HEADER'] = accept_type
             mock_get.return_value = Mock(text=text)
 
             self.assertEqual(HttpHandler.read(path), text)
@@ -394,25 +366,21 @@ class TestHttpHandler(unittest.TestCase):
             HttpHandler.write(buf, path)
             mock_put.assert_called_once_with(path, json=json.loads(buf))
 
-    def test_write_with_username(self):
+    def test_write_with_auth(self):
         """
         Tests that the `write` function performs a put request to the given
-        path with just a username as authentication from env variables.
+        path with authentication from env variables.
         """
         path = 'http://example.com'
         buf = '{"papermill": true}'
-        username = 'testusername'
-        auth_token = 'token'
+        auth = 'token'
 
-        with patch('papermill.iorw.requests.auth.HTTPBasicAuth') as mock_auth,\
-             patch.dict(os.environ, clear=True) as env,\
+        with patch.dict(os.environ, clear=True) as env,\
              patch('papermill.iorw.requests.put') as mock_put:
-            mock_auth.return_value = auth_token
-            env['PAPERMILL_HTTP_AUTH_USERNAME'] = username
+            env['PAPERMILL_HTTP_AUTH_HEADER'] = auth
 
             HttpHandler.write(buf, path)
-            mock_auth.assert_called_once_with(username, '')
-            mock_put.assert_called_once_with(path, json=json.loads(buf), auth=auth_token)
+            mock_put.assert_called_once_with(path, json=json.loads(buf), headers={'Authorization': auth})
 
     def test_write_failure(self):
         """
