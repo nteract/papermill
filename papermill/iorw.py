@@ -177,9 +177,7 @@ class HttpHandler:
     @classmethod
     def _get_read_kwargs(cls):
         kwargs = cls._get_auth_kwargs() or {'headers': {}}
-        kwargs['headers'] |= {
-            'Accept': os.environ.get('PAPERMILL_HTTP_ACCEPT_HEADER', 'application/json')
-        }
+        kwargs['headers']['Accept'] = os.environ.get('PAPERMILL_HTTP_ACCEPT_HEADER', 'application/json')
         return kwargs
 
     @classmethod
