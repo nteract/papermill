@@ -184,7 +184,7 @@ class HttpHandler:
 
     @classmethod
     def read(cls, path):
-        return requests.get(path, **cls._get_read_kwargs())
+        return requests.get(path, **cls._get_read_kwargs()).text
 
     @classmethod
     def listdir(cls, path):
