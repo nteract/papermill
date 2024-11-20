@@ -168,7 +168,7 @@ class HttpHandler:
     @classmethod
     def _get_auth_kwargs(cls):
         """Gets the Authorization header from PAPERMILL_HTTP_AUTH_HEADER.
-        A valid value could be Basic dW5hbWU6cGFzc3dvcmQK"""
+        A valid example value Basic dW5hbWU6cGFzc3dvcmQK"""
         auth_header = os.environ.get('PAPERMILL_HTTP_AUTH_HEADER', None)
         if auth_header:
             return {'headers': {'Authorization': auth_header}}
