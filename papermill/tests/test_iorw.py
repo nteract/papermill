@@ -329,8 +329,7 @@ class TestHttpHandler(unittest.TestCase):
         text = 'request test response'
         auth = 'Basic dW5hbWU6cGFzc3dvcmQK'
 
-        with patch.dict(os.environ, clear=True) as env,\
-             patch('papermill.iorw.requests.get') as mock_get:
+        with patch.dict(os.environ, clear=True) as env, patch('papermill.iorw.requests.get') as mock_get:
             env['PAPERMILL_HTTP_AUTH_HEADER'] = auth
             mock_get.return_value = Mock(text=text)
 
@@ -346,8 +345,7 @@ class TestHttpHandler(unittest.TestCase):
         text = 'request test response'
         accept_type = 'test accept type'
 
-        with patch.dict(os.environ, clear=True) as env,\
-             patch('papermill.iorw.requests.get') as mock_get:
+        with patch.dict(os.environ, clear=True) as env, patch('papermill.iorw.requests.get') as mock_get:
             env['PAPERMILL_HTTP_ACCEPT_HEADER'] = accept_type
             mock_get.return_value = Mock(text=text)
 
@@ -375,8 +373,7 @@ class TestHttpHandler(unittest.TestCase):
         buf = '{"papermill": true}'
         auth = 'token'
 
-        with patch.dict(os.environ, clear=True) as env,\
-             patch('papermill.iorw.requests.put') as mock_put:
+        with patch.dict(os.environ, clear=True) as env, patch('papermill.iorw.requests.put') as mock_put:
             env['PAPERMILL_HTTP_AUTH_HEADER'] = auth
 
             HttpHandler.write(buf, path)
