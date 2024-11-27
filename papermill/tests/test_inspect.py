@@ -49,13 +49,15 @@ def click_context():
                     "name": "d",
                     "inferred_type_name": "None",
                     "default": "\"a = 3\"",
-                    "help": "str value with '=' character",
+                    "help": ""
                 },
-                "e": {
-                    "name": "e",
+                "e": {"name": "e", "inferred_type_name": "None", "default": "1", "help": "comment with '=' character",
+                },
+                "f": {
+                    "name": "f",
                     "inferred_type_name": "None",
                     "default": "(a != 3 and 2 <= a <= 3) or a == 1",
-                    "help": "bool value with logical operators",
+                    "help": "",
                 },
             },
         ),
@@ -99,8 +101,9 @@ def test_str_path():
                 "  a: float (default 2.25)         Variable a",
                 "  b: List[str] (default ['Hello','World'])\n                                  Nice list",
                 "  c: NoneType (default None)      ",
-                "  d: Unknown type (default \"a = 3\")\n                                  str value with '=' character",
-                "  e: Unknown type (default (a != 3 and 2 <= a <= 3) or a == 1)\n                                  bool value with logical operators",
+                "  d: Unknown type (default \"a = 3\")",
+                "  e: Unknown type (default 1)     comment with '=' character",
+                "  f: Unknown type (default (a != 3 and 2 <= a <= 3) or a == 1)",
             ],
         ),
         (
