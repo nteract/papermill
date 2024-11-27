@@ -45,13 +45,12 @@ def click_context():
                     "help": "Nice list",
                 },
                 "c": {"name": "c", "inferred_type_name": "NoneType", "default": "None", "help": ""},
-                "d": {
-                    "name": "d",
+                "d": {"name": "d", "inferred_type_name": "None", "default": "\"a = 3\"", "help": ""},
+                "e": {
+                    "name": "e",
                     "inferred_type_name": "None",
-                    "default": "\"a = 3\"",
-                    "help": ""
-                },
-                "e": {"name": "e", "inferred_type_name": "None", "default": "1", "help": "comment with '=' character",
+                    "default": "1",
+                    "help": "comment with '=' character",
                 },
                 "f": {
                     "name": "f",
