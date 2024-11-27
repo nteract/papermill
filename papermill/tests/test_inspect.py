@@ -45,12 +45,17 @@ def click_context():
                     "help": "Nice list",
                 },
                 "c": {"name": "c", "inferred_type_name": "NoneType", "default": "None", "help": ""},
-                "d": {"name": "d", "inferred_type_name": "None", "default": "\"a = 3\"", "help": "str value with '=' character"},
+                "d": {
+                    "name": "d",
+                    "inferred_type_name": "None",
+                    "default": "\"a = 3\"",
+                    "help": "str value with '=' character",
+                },
                 "e": {
                     "name": "e",
                     "inferred_type_name": "None",
                     "default": "(a != 3 and 2 <= a <= 3) or a == 1",
-                    "help": "bool value with logical operators"
+                    "help": "bool value with logical operators",
                 },
             },
         ),
