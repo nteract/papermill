@@ -45,6 +45,13 @@ def click_context():
                     "help": "Nice list",
                 },
                 "c": {"name": "c", "inferred_type_name": "NoneType", "default": "None", "help": ""},
+                "d": {"name": "d", "inferred_type_name": "None", "default": "\"a = 3\"", "help": "str value with '=' character"},
+                "e": {
+                    "name": "e",
+                    "inferred_type_name": "None",
+                    "default": "(a != 3 and 2 <= a <= 3) or a == 1",
+                    "help": "bool value with logical operators"
+                },
             },
         ),
         (_get_fullpath("notimplemented_translator.ipynb"), {}),
@@ -87,6 +94,8 @@ def test_str_path():
                 "  a: float (default 2.25)         Variable a",
                 "  b: List[str] (default ['Hello','World'])\n                                  Nice list",
                 "  c: NoneType (default None)      ",
+                "  d: Unknown type (default \"a = 3\")\n                                  str value with '=' character",
+                "  e: Unknown type (default (a != 3 and 2 <= a <= 3) or a == 1)\n                                  bool value with logical operators",
             ],
         ),
         (
