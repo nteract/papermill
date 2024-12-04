@@ -206,6 +206,7 @@ class TestLocalHandler(unittest.TestCase):
         with patch.object(io, 'open'):
             # Shouldn't raise with missing directory
             LocalHandler().write("buffer", "local.ipynb")
+            os.unlink("local.ipynb")
 
     def test_write_passed_cwd(self):
         with TemporaryDirectory() as temp_dir:
