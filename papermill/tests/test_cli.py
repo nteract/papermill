@@ -591,6 +591,7 @@ def test_obfuscated_output():
     assert output_notebook.cells[1].outputs[0].output_type == 'stream'
     assert output_notebook.cells[1].outputs[0].text == f'Test = {secret}\n'
 
+
 @require_papermill_installed
 def test_disable_output_obfuscation():
     metadata = {'kernelspec': {'name': 'python3', 'language': 'python', 'display_name': 'python3'}}
@@ -642,6 +643,7 @@ def test_disable_output_obfuscation():
     assert len(output_notebook.cells[1].outputs) == 1
     assert output_notebook.cells[1].outputs[0].output_type == 'stream'
     assert output_notebook.cells[1].outputs[0].text == f'Test = {secret}\n'
+
 
 @require_papermill_installed
 def test_custom_output_obfuscation():

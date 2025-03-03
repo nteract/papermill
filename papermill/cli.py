@@ -15,7 +15,6 @@ import yaml
 from .execute import execute_notebook
 from .inspection import display_notebook_help
 from .iorw import NoDatesSafeLoader, read_yaml_file
-from .utils import SENSITIVE_PARAMETER_PATTERNS
 from .version import version as papermill_version
 
 click.disable_unicode_literals_warning = True

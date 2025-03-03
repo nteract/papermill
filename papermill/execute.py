@@ -8,7 +8,7 @@ from .inspection import _infer_parameters
 from .iorw import get_pretty_path, load_notebook_node, local_file_io_cwd, write_ipynb
 from .log import logger
 from .parameterize import add_builtin_parameters, parameterize_notebook, parameterize_path
-from .utils import chdir, obfuscate_parameters
+from .utils import chdir
 
 
 def execute_notebook(

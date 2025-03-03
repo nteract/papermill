@@ -132,8 +132,10 @@ def parameterize_notebook(
         after = nb.cells
 
     nb.cells = before + [newcell] + after
-    nb.metadata.papermill['parameters'] = parameters \
-        if not obfuscate_sensitive_parameters \
+    nb.metadata.papermill['parameters'] = (
+        parameters
+        if not obfuscate_sensitive_parameters
         else obfuscate_parameters(parameters, sensitive_parameter_patterns)
+    )
 
     return nb

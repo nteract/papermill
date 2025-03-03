@@ -209,6 +209,7 @@ def chdir(path):
         finally:
             os.chdir(old_dir)
 
+
 def obfuscate_parameter(
     name,
     value,
@@ -245,6 +246,7 @@ def obfuscate_parameter(
         return obfuscated_value
     return value
 
+
 def obfuscate_parameters(params, name_patterns=None, obfuscated_value="********"):
     """Obfuscate parameters if they are sensitive.
 
@@ -262,7 +264,4 @@ def obfuscate_parameters(params, name_patterns=None, obfuscated_value="********"
     dict
         The obfuscated parameters
     """
-    return {
-        name: obfuscate_parameter(name, value, name_patterns, obfuscated_value)
-        for name, value in params.items()
-    }
+    return {name: obfuscate_parameter(name, value, name_patterns, obfuscated_value) for name, value in params.items()}

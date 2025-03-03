@@ -11,9 +11,9 @@ from ..utils import (
     any_tagged_cell,
     chdir,
     merge_kwargs,
+    obfuscate_parameter,
     remove_args,
     retry,
-    obfuscate_parameter,
 )
 
 
