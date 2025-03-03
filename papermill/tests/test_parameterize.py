@@ -81,6 +81,29 @@ class TestNotebookParametrizing(unittest.TestCase):
         first_line = cell_one['source'].split('\n')[0]
         self.assertEqual(first_line, '# This is a custom comment')
 
+    def test_sensitive_parameters_obfuscation(self):
+        test_nb = load_notebook_node(get_notebook_path("simple_execute.ipynb"))
+        test_nb = parameterize_notebook(test_nb, {'msg': 'Hello', 'password': 'secret'}, obfuscate_sensitive_parameters=True)
+
+        cell_one = test_nb.cells[1]
+        self.assertIn('password', cell_one['source'])
+        self.assertIn('secret', cell_one['source'])
+
+        self.assertIn('papermill-obfuscated-source', cell_one['metadata'])
+        obfuscated_output = cell_one['metadata']['papermill-obfuscated-source']
+        self.assertIn('password', obfuscated_output)
+        self.assertNotIn('secret', obfuscated_output)
+        self.assertIn('********', obfuscated_output)
+
+    def test_sensitive_parameters_obfuscation_disabled(self):
+        test_nb = load_notebook_node(get_notebook_path("simple_execute.ipynb"))
+        test_nb = parameterize_notebook(test_nb, {'msg': 'Hello', 'password': 'secret'}, obfuscate_sensitive_parameters=False)
+
+        cell_one = test_nb.cells[1]
+        self.assertIn('password', cell_one['source'])
+        self.assertIn('secret', cell_one['source'])
+
+        self.assertNotIn('papermill-obfuscated-source', cell_one['metadata'])
 
 class TestBuiltinParameters(unittest.TestCase):
     def test_add_builtin_parameters_keeps_provided_parameters(self):

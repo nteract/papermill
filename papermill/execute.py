@@ -8,7 +8,7 @@ from .inspection import _infer_parameters
 from .iorw import get_pretty_path, load_notebook_node, local_file_io_cwd, write_ipynb
 from .log import logger
 from .parameterize import add_builtin_parameters, parameterize_notebook, parameterize_path
-from .utils import chdir
+from .utils import chdir, obfuscate_parameters
 
 
 def execute_notebook(
@@ -27,6 +27,8 @@ def execute_notebook(
     start_timeout=60,
     report_mode=False,
     cwd=None,
+    obfuscate_sensitive_parameters=True,
+    sensitive_parameter_patterns=None,
     **engine_kwargs,
 ):
     """Executes a single notebook locally.
@@ -61,6 +63,11 @@ def execute_notebook(
         Flag for whether or not to hide input.
     cwd : str or Path, optional
         Working directory to use when executing the notebook
+    obfuscate_sensitive_parameters : bool, optional
+        Obfuscate sensitive parameters in the notebook, Defaults to True
+    sensitive_parameter_patterns : list, optional
+        List of parameter patterns to obfuscate in the notebook.
+        Defaults to `utils.SENSITIVE_PARAMETER_PATTERNS`
     **kwargs
         Arbitrary keyword arguments to pass to the notebook engine
 
@@ -102,6 +109,8 @@ def execute_notebook(
                 kernel_name=kernel_name,
                 language=language,
                 engine_name=engine_name,
+                obfuscate_sensitive_parameters=obfuscate_sensitive_parameters,
+                sensitive_parameter_patterns=sensitive_parameter_patterns,
             )
 
         nb = prepare_notebook_metadata(nb, input_path, output_path, report_mode)

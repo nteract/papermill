@@ -372,6 +372,14 @@ class Engine:
             nb_man.cleanup_pbar()
             nb_man.notebook_complete()
 
+        # Replace the source with the obfuscated content if it is in the metadata.
+        for cell in nb_man.nb.cells:
+            if cell.get('cell_type') != 'code':
+                continue
+            if 'papermill-obfuscated-source' not in cell.metadata:
+                continue
+            cell.source = cell.metadata['papermill-obfuscated-source']
+            del cell.metadata['papermill-obfuscated-source']
         return nb_man.nb
 
     @classmethod

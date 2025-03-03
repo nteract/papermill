@@ -13,6 +13,7 @@ from ..utils import (
     merge_kwargs,
     remove_args,
     retry,
+    obfuscate_parameter,
 )
 
 
@@ -58,3 +59,32 @@ def test_chdir():
             assert Path.cwd() == Path(temp_dir)
 
     assert Path.cwd() == old_cwd
+
+
+def test_obfuscate_parameter():
+    # *password*
+    assert obfuscate_parameter("password", "string_to_be_obfuscated") == "********"
+    assert obfuscate_parameter("sample_password", "string_to_be_obfuscated") == "********"
+    assert obfuscate_parameter("password_for_test", "string_to_be_obfuscated") == "********"
+    assert obfuscate_parameter("password", "") == ""
+
+    # *token*
+    assert obfuscate_parameter("token", "string_to_be_obfuscated") == "********"
+    assert obfuscate_parameter("sample_token", "string_to_be_obfuscated") == "********"
+    assert obfuscate_parameter("token_for_test", "string_to_be_obfuscated") == "********"
+    assert obfuscate_parameter("token", "") == ""
+
+    # *key*
+    assert obfuscate_parameter("key", "string_to_be_obfuscated") == "********"
+    assert obfuscate_parameter("sample_key", "string_to_be_obfuscated") == "********"
+    assert obfuscate_parameter("keyword", "string_not_to_be_obfuscated") == "string_not_to_be_obfuscated"
+    assert obfuscate_parameter("key", "") == ""
+
+
+def test_obfuscate_parameter_custom_pattern():
+    # *secret*
+    assert obfuscate_parameter("secret", "string_to_be_obfuscated", [".*secret"]) == "********"
+    assert obfuscate_parameter("sample_secret", "string_to_be_obfuscated", [".*secret"]) == "********"
+    assert obfuscate_parameter("secret_for_test", "string_to_be_obfuscated", [".*secret"]) == "********"
+    # If the custom pattern are set, the default pattern should not be applied
+    assert obfuscate_parameter("token", "string_to_be_obfuscated", [".*secret"]) == "string_to_be_obfuscated"

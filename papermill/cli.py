@@ -15,6 +15,7 @@ import yaml
 from .execute import execute_notebook
 from .inspection import display_notebook_help
 from .iorw import NoDatesSafeLoader, read_yaml_file
+from .utils import SENSITIVE_PARAMETER_PATTERNS
 from .version import version as papermill_version
 
 click.disable_unicode_literals_warning = True
@@ -130,6 +131,19 @@ def print_papermill_version(ctx, param, value):
 )
 @click.option('--report-mode/--no-report-mode', default=False, help="Flag for hiding input.")
 @click.option(
+    '--obfuscate-sensitive-parameters/--no-obfuscate-sensitive-parameters',
+    default=True,
+    help="Flag for obfuscating sensitive parameters.",
+)
+@click.option(
+    '--sensitive-parameter-patterns',
+    multiple=True,
+    help=(
+        "List of patterns for obfuscating parameter names in notebooks."
+        "If not provided, defaults to papermill.utils.SENSITIVE_PARAMETER_PATTERNS."
+    ),
+)
+@click.option(
     '--version',
     is_flag=True,
     callback=print_papermill_version,
@@ -163,6 +177,8 @@ def papermill(
     start_timeout,
     execution_timeout,
     report_mode,
+    obfuscate_sensitive_parameters,
+    sensitive_parameter_patterns,
     stdout_file,
     stderr_file,
 ):
@@ -228,6 +244,10 @@ def papermill(
     for name, value in parameters_raw or []:
         parameters_final[name] = value
 
+    if sensitive_parameter_patterns is not None and len(sensitive_parameter_patterns) == 0:
+        # If the user does not provide any patterns, we should use the default patterns
+        sensitive_parameter_patterns = None
+
     if help_notebook:
         sys.exit(display_notebook_help(click_ctx, notebook_path, parameters_final))
 
@@ -248,6 +268,8 @@ def papermill(
             stderr_file=stderr_file,
             start_timeout=start_timeout,
             report_mode=report_mode,
+            obfuscate_sensitive_parameters=obfuscate_sensitive_parameters,
+            sensitive_parameter_patterns=sensitive_parameter_patterns,
             cwd=cwd,
             execution_timeout=execution_timeout,
         )

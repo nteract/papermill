@@ -8,7 +8,7 @@ from .exceptions import PapermillMissingParameterException
 from .iorw import read_yaml_file
 from .log import logger
 from .translators import translate_parameters
-from .utils import find_first_tagged_cell_index
+from .utils import find_first_tagged_cell_index, obfuscate_parameters
 
 
 def add_builtin_parameters(parameters):
@@ -64,6 +64,8 @@ def parameterize_notebook(
     kernel_name=None,
     language=None,
     engine_name=None,
+    obfuscate_sensitive_parameters=True,
+    sensitive_parameter_patterns=None,
 ):
     """Assigned parameters into the appropriate place in the input notebook
 
@@ -77,6 +79,11 @@ def parameterize_notebook(
        Flag to set report mode
     comment : str, optional
         Comment added to the injected cell
+    obfuscate_sensitive_parameters : bool, optional
+        Obfuscate sensitive parameters in the notebook, Defaults to True
+    sensitive_parameter_patterns : list, optional
+        List of parameter patterns to obfuscate in the notebook.
+        Defaults to `utils.SENSITIVE_PARAMETER_PATTERNS`
     """
     # Load from a file if 'parameters' is a string.
     if isinstance(parameters, str):
@@ -94,6 +101,15 @@ def parameterize_notebook(
 
     newcell = nbformat.v4.new_code_cell(source=param_content)
     newcell.metadata['tags'] = ['injected-parameters']
+
+    if obfuscate_sensitive_parameters:
+        obfuscated_param_content = translate_parameters(
+            kernel_name,
+            language,
+            obfuscate_parameters(parameters, sensitive_parameter_patterns),
+            comment,
+        )
+        newcell.metadata['papermill-obfuscated-source'] = obfuscated_param_content
 
     if report_mode:
         newcell.metadata['jupyter'] = newcell.get('jupyter', {})
@@ -116,6 +132,8 @@ def parameterize_notebook(
         after = nb.cells
 
     nb.cells = before + [newcell] + after
-    nb.metadata.papermill['parameters'] = parameters
+    nb.metadata.papermill['parameters'] = parameters \
+        if not obfuscate_sensitive_parameters \
+        else obfuscate_parameters(parameters, sensitive_parameter_patterns)
 
     return nb

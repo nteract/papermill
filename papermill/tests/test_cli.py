@@ -89,6 +89,8 @@ class TestCLI(unittest.TestCase):
         execution_timeout=None,
         report_mode=False,
         cwd=None,
+        obfuscate_sensitive_parameters=True,
+        sensitive_parameter_patterns=None,
         stdout_file=None,
         stderr_file=None,
     )
@@ -536,3 +538,161 @@ def test_stdout_file(tmpdir):
 
     with open(str(stdout_file)) as fp:
         assert fp.read() == f"{secret}\n"
+
+
+@require_papermill_installed
+def test_obfuscated_output():
+    metadata = {'kernelspec': {'name': 'python3', 'language': 'python', 'display_name': 'python3'}}
+    secret = str(uuid.uuid4())
+    notebook = nbformat.v4.new_notebook(
+        metadata=metadata,
+        cells=[
+            nbformat.v4.new_code_cell('print(safe_text, "=", token)'),
+        ],
+    )
+    process = papermill_cli(
+        [
+            '-',
+            '-',
+            '-p',
+            'token',
+            secret,
+            '-p',
+            'safe_text',
+            'Test',
+        ],
+        stdout=subprocess.PIPE,
+        stdin=subprocess.PIPE,
+    )
+    text = nbformat.writes(notebook)
+    out, err = process.communicate(input=text.encode('utf-8'))
+
+    # Test no message on std error
+    assert not err
+
+    # Test that secrets in the output are obfuscated
+    output_notebook = nbformat.reads(out.decode('utf-8'), as_version=4)
+
+    # secret in the notebook metadata should be obfuscated
+    assert output_notebook.metadata['papermill']['parameters'] == {
+        'safe_text': 'Test',
+        'token': '********',
+    }
+
+    assert len(output_notebook.cells) == 2
+
+    # secret in the injected parameters cell should be obfuscated
+    assert output_notebook.cells[0].cell_type == 'code'
+    assert output_notebook.cells[0].source == '# Parameters\ntoken = "********"\nsafe_text = "Test"\n'
+
+    # secret in the output cell will be printed as is
+    assert output_notebook.cells[1].cell_type == 'code'
+    assert len(output_notebook.cells[1].outputs) == 1
+    assert output_notebook.cells[1].outputs[0].output_type == 'stream'
+    assert output_notebook.cells[1].outputs[0].text == f'Test = {secret}\n'
+
+@require_papermill_installed
+def test_disable_output_obfuscation():
+    metadata = {'kernelspec': {'name': 'python3', 'language': 'python', 'display_name': 'python3'}}
+    secret = str(uuid.uuid4())
+    notebook = nbformat.v4.new_notebook(
+        metadata=metadata,
+        cells=[
+            nbformat.v4.new_code_cell('print(safe_text, "=", token)'),
+        ],
+    )
+    process = papermill_cli(
+        [
+            '-',
+            '-',
+            '-p',
+            'token',
+            secret,
+            '-p',
+            'safe_text',
+            'Test',
+            '--no-obfuscate-sensitive-parameters',
+        ],
+        stdout=subprocess.PIPE,
+        stdin=subprocess.PIPE,
+    )
+    text = nbformat.writes(notebook)
+    out, err = process.communicate(input=text.encode('utf-8'))
+
+    # Test no message on std error
+    assert not err
+
+    # Test that secrets in the output are not obfuscated
+    output_notebook = nbformat.reads(out.decode('utf-8'), as_version=4)
+
+    # secret in the notebook metadata should not be obfuscated
+    assert output_notebook.metadata['papermill']['parameters'] == {
+        'safe_text': 'Test',
+        'token': secret,
+    }
+
+    assert len(output_notebook.cells) == 2
+
+    # secret in the injected parameters cell should be obfuscated
+    assert output_notebook.cells[0].cell_type == 'code'
+    assert output_notebook.cells[0].source == f'# Parameters\ntoken = "{secret}"\nsafe_text = "Test"\n'
+
+    # secret in the output cell will be printed as is
+    assert output_notebook.cells[1].cell_type == 'code'
+    assert len(output_notebook.cells[1].outputs) == 1
+    assert output_notebook.cells[1].outputs[0].output_type == 'stream'
+    assert output_notebook.cells[1].outputs[0].text == f'Test = {secret}\n'
+
+@require_papermill_installed
+def test_custom_output_obfuscation():
+    metadata = {'kernelspec': {'name': 'python3', 'language': 'python', 'display_name': 'python3'}}
+    secret = str(uuid.uuid4())
+    notebook = nbformat.v4.new_notebook(
+        metadata=metadata,
+        cells=[
+            nbformat.v4.new_code_cell('print(safe_text, "=", token)'),
+        ],
+    )
+    process = papermill_cli(
+        [
+            '-',
+            '-',
+            '-p',
+            'token',
+            secret,
+            '-p',
+            'safe_text',
+            'Test',
+            '--sensitive-parameter-patterns',
+            'safe_text',
+        ],
+        stdout=subprocess.PIPE,
+        stdin=subprocess.PIPE,
+    )
+    text = nbformat.writes(notebook)
+    out, err = process.communicate(input=text.encode('utf-8'))
+
+    # Test no message on std error
+    assert not err
+
+    # Test that secrets in the output are obfuscated
+    output_notebook = nbformat.reads(out.decode('utf-8'), as_version=4)
+
+    # secret in the notebook metadata should be obfuscated
+    # --sensitive-parameter-patterns should be set to obfuscate 'safe_text' and not 'token'
+    assert output_notebook.metadata['papermill']['parameters'] == {
+        'safe_text': '********',
+        'token': secret,
+    }
+
+    assert len(output_notebook.cells) == 2
+
+    # secret in the injected parameters cell should be obfuscated
+    assert output_notebook.cells[0].cell_type == 'code'
+    assert output_notebook.cells[0].source == f'# Parameters\ntoken = "{secret}"\nsafe_text = "********"\n'
+
+    # secret in the output cell will be printed as is
+    assert output_notebook.cells[1].cell_type == 'code'
+    assert len(output_notebook.cells[1].outputs) == 1
+    assert output_notebook.cells[1].outputs[0].output_type == 'stream'
+    assert output_notebook.cells[1].outputs[0].text == f'Test = {secret}\n'
