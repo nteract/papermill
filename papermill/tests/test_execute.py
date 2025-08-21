@@ -8,11 +8,10 @@ from pathlib import Path
 from unittest.mock import ANY, patch
 
 import nbformat
-from colors import strip_color
 from nbformat import validate
 
 from .. import engines, translators
-from ..exceptions import PapermillExecutionError
+from ..exceptions import PapermillExecutionError, strip_color
 from ..execute import execute_notebook
 from ..iorw import load_notebook_node
 from ..log import logger

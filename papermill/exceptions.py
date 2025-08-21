@@ -1,4 +1,4 @@
-from colors import strip_color
+import re
 
 
 class AwsError(Exception):
@@ -57,6 +57,23 @@ class PapermillWarning(Warning):
 
 class PapermillParameterOverwriteWarning(PapermillWarning):
     """Callee overwrites caller argument to pass down the stream."""
+
+
+def strip_color(text):
+    """Remove most ANSI color and style sequences from a string
+
+    Based on https://pypi.org/project/ansicolors/."""
+
+    # The regular expression is copied from:
+    # https://github.com/jonathaneunice/colors/blob/
+    #    c965f5b9103c5bd32a1572adb8024ebe83278fb0/colors/colors.py#L122-L131
+    #
+    # The original docstring notes that this does not strip all possible ANSI
+    # escape sequences related to color and style, but it attempts to cover the
+    # most common ones and a few known oddities produced by actual
+    # colorization libraries, including \x1b[K (EL, erase to end of line) and
+    # \x1b[m (more commonly expressed as \x1b[0m).
+    return re.sub("\x1b\\[(K|.*?m)", "", text)
 
 
 def missing_dependency_generator(package, dep):
