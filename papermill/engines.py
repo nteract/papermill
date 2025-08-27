@@ -122,7 +122,7 @@ class NotebookExecutionManager:
 
     def now(self):
         """Helper to return current UTC time"""
-        return datetime.datetime.now(datetime.UTC)
+        return datetime.datetime.now(datetime.timezone.utc)
 
     def set_timer(self):
         """
