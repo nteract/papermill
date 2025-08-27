@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, UTC
 from uuid import uuid4
 
 import nbformat
@@ -23,7 +23,7 @@ def add_builtin_parameters(parameters):
         "pm": {
             "run_uuid": str(uuid4()),
             "current_datetime_local": datetime.now(),
-            "current_datetime_utc": datetime.utcnow(),
+            "current_datetime_utc": datetime.now(UTC),
         }
     }
 
