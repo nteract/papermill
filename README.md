@@ -47,7 +47,7 @@ pip install papermill
 ```
 
 For all optional io dependencies, you can specify individual bundles
-like `s3`, or `azure` -- or use `all`. To use Black to format parameters you can add as an extra requires \['black'\].
+like `s3`, or `azure` -- or use `all`. To use Black to format parameters you can add as an extra requires ['black'].
 
 ```{.sourceCode .bash}
 pip install papermill[all]
@@ -100,7 +100,7 @@ $ papermill local/input.ipynb s3://bkt/output.ipynb -p alpha 0.6 -p l1_ratio 0.1
 ```
 
 **NOTE:**
-If you use multiple AWS accounts, and you have [properly configured your AWS  credentials](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/configuration.html), then you can specify which account to use by setting the `AWS_PROFILE` environment variable at the command-line. For example:
+If you use multiple AWS accounts, and you have [properly configured your AWS credentials](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/configuration.html), then you can specify which account to use by setting the `AWS_PROFILE` environment variable at the command-line. For example:
 
 ```{.sourceCode .bash}
 $ AWS_PROFILE=dev_account papermill local/input.ipynb s3://bkt/output.ipynb -p alpha 0.6 -p l1_ratio 0.1
@@ -154,7 +154,7 @@ Papermill supports the following name handlers for input and output paths during
 
 - Local file system: `local`
 
-- HTTP, HTTPS protocol:  `http://, https://`
+- HTTP, HTTPS protocol: `http://, https://`
 
 - Amazon Web Services: [AWS S3](https://aws.amazon.com/s3/) `s3://`
 

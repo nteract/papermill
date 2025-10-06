@@ -1,4 +1,5 @@
 """Engines to perform different roles"""
+
 import datetime
 import sys
 from functools import wraps
@@ -169,9 +170,7 @@ class NotebookExecutionManager:
                 # Autosave is taking too long, so exponentially back off.
                 self.autosave_cell_every *= 2
                 logger.warning(
-                    "Autosave too slow: {:.2f} sec, over {}% limit. Backing off to {} sec".format(
-                        save_elapsed, self.max_autosave_pct, self.autosave_cell_every
-                    )
+                    f"Autosave too slow: {save_elapsed:.2f} sec, over {self.max_autosave_pct}% limit. Backing off to {self.autosave_cell_every} sec"
                 )
 
     @catch_nb_assignment

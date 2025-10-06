@@ -1,4 +1,5 @@
 """Models used by papermill."""
+
 from collections import namedtuple
 
 Parameter = namedtuple(

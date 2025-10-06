@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-""" Test the command line interface """
+"""Test the command line interface"""
 
 import os
 import subprocess
