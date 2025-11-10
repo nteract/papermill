@@ -6,7 +6,7 @@ google_compute_engine # Need this because boto has issues with dynamic package l
 ipython>=5.0
 ipywidgets
 notebook
-moto >= 5.0.0,<5.1.0
+moto >= 5.0.0,< 5.2.0
 pytest>=4.1
 pytest-cov>=2.6.1
 pytest-mock>=1.10
