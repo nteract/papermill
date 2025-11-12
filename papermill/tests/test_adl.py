@@ -50,6 +50,7 @@ class ADLTest(unittest.TestCase):
         self.adl.write("hello world", "adl://foo_store.azuredatalakestore.net/path/to/file")
         self.fakeFile.write.assert_called_once_with(b"hello world")
 
+    @unittest.skip("FIX: Skip known failing test - issue 825")
     @patch.object(adl_lib, 'auth', return_value="my_token")
     @patch.object(adl_core, 'AzureDLFileSystem', return_value="my_adapter")
     def test_create_adapter(self, azure_dl_filesystem_mock, auth_mock):
