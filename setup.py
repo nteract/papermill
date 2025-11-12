@@ -79,7 +79,7 @@ setup(
     long_description_content_type='text/markdown',
     url='https://github.com/nteract/papermill',
     packages=['papermill'],
-    python_requires='>=3.8',
+    python_requires='>=3.10',
     install_requires=read_reqs('requirements.txt'),
     extras_require=extras_require,
     entry_points={'console_scripts': ['papermill = papermill.__main__:papermill']},

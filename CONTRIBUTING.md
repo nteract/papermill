@@ -69,7 +69,7 @@ For a full test suite of all envs and linting checks simply run tox without any 
 tox
 ```
 
-This will require python3.8, 3.9, 3.10, 3.11, and 3.12 to be installed.
+This will require python3.10, 3.11, and 3.12 to be installed.
 
 Alternavitely pytest can be used if you have an environment already setup which works or has custom packages not present in the tox build.
 
