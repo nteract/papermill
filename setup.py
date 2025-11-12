@@ -88,7 +88,7 @@ setup(
         'Funding': 'https://nteract.io',
         'Source': 'https://github.com/nteract/papermill/',
         'Tracker': 'https://github.com/nteract/papermill/issues',
-    },g
+    },
     classifiers=[
         'Intended Audience :: Developers',
         'Intended Audience :: System Administrators',
