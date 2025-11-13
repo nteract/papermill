@@ -3,7 +3,7 @@ ci:
   autoupdate_commit_msg: '[pre-commit.ci] pre-commit suggestions'
   autoupdate_schedule: quarterly
 
-exclude: '\\.ipynb$'
+exclude: '\.ipynb$'
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
