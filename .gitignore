@@ -127,3 +127,4 @@ pip-wheel-metadata
 
 # lint
 .ruff_cache/
+local.ipynb
