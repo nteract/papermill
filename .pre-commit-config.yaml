@@ -4,7 +4,7 @@ ci:
   autoupdate_schedule: quarterly
 
 # exclude notebook files and markdown issue templates
-exclude: '\.ipynb$|\.github/ISSUE_TEMPLATE/.*
+exclude: '\.ipynb$|^\.github/'
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
