@@ -53,6 +53,7 @@ exclude = [
     "docs"
 ]
 ignore-init-module-imports = true
+format.quote-style = "preserve"
 
 [tool.ruff.pydocstyle]
 # Use Google-style docstrings.
