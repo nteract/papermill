@@ -3,7 +3,8 @@ ci:
   autoupdate_commit_msg: '[pre-commit.ci] pre-commit suggestions'
   autoupdate_schedule: quarterly
 
-exclude: '\.ipynb$'
+# exclude notebook files and markdown issue templates
+exclude: '\.ipynb$|\.github/ISSUE_TEMPLATE/.*
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
