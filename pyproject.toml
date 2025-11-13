@@ -274,8 +274,9 @@ commands = python -c "import glob; import papermill as pm; [pm.execute_notebook(
 # Distro
 [testenv:dist]
 skip_install = true
+deps = build
 commands =
-    python setup.py sdist --dist-dir={distdir} bdist_wheel --dist-dir={distdir}
+    python -m build --outdir {distdir}
     /bin/bash -c 'python -m pip install -U --force-reinstall {distdir}/papermill*.tar.gz'
     /bin/bash -c 'python -m pip install -U --force-reinstall {distdir}/papermill*.whl'
 
