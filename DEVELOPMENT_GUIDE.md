@@ -73,6 +73,6 @@ git push upstream && git push upstream --tags
 ```bash
 rm -rf dist/*
 rm -rf build/*
-python setup.py sdist bdist_wheel
+python -m build
 twine upload dist/*
 ```
