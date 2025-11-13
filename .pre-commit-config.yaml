@@ -3,6 +3,8 @@ ci:
   autoupdate_commit_msg: '[pre-commit.ci] pre-commit suggestions'
   autoupdate_schedule: quarterly
 
+exclude: '\\.ipynb$'
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
@@ -35,7 +37,6 @@ repos:
       - id: mdformat
         additional_dependencies:
           - mdformat-gfm
-        exclude: workflows
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.14.5
