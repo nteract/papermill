@@ -30,6 +30,7 @@ repos:
     hooks:
       - id: black
         name: Black code
+        args: [--skip-string-normalization]
 
   - repo: https://github.com/executablebooks/mdformat
     rev: 1.0.0
@@ -45,3 +46,4 @@ repos:
       - id: ruff-check
       # Run the formatter.
       - id: ruff-format
+        args: [--skip-string-normalization]
