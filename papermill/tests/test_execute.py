@@ -136,7 +136,7 @@ class TestBrokenNotebook1(unittest.TestCase):
         path = get_notebook_path('broken1.ipynb')
 
         # check that the notebook has two existing marker cells, so that this test is sure to be
-        # validating the removal logic (the markers are simulatin an error in the first code cell
+        # validating the removal logic (the markers are simulating an error in the first code cell
         # that has since been fixed)
         original_nb = load_notebook_node(path)
         self.assertEqual(original_nb.cells[0].metadata["tags"], ["papermill-error-cell-tag"])

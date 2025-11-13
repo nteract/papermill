@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-""""
+""" "
 setup.py
 
 See:

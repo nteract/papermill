@@ -1,4 +1,5 @@
 """Utilities for working with Azure blob storage"""
+
 import io
 import re
 
