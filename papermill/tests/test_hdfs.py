@@ -1,8 +1,6 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
-import pytest
-
 from ..iorw import HDFSHandler
 
 
@@ -40,7 +38,6 @@ class MockFileInfo:
         self.path = path
 
 
-@pytest.mark.skip(reason="No valid dep package for python 3.12 yet")
 @patch('papermill.iorw.HadoopFileSystem', side_effect=MockHadoopFileSystem())
 class HDFSTest(unittest.TestCase):
     def setUp(self):
@@ -59,5 +56,5 @@ class HDFSTest(unittest.TestCase):
 
     def test_hdfs_write(self, mock_hdfs_filesystem):
         client = self.hdfs_handler._get_client()
-        self.assertEqual(self.hdfs_handler.write("hdfs:///Projects/test1.ipynb", b'New content'), 1)
+        self.assertEqual(self.hdfs_handler.write('New content', "hdfs:///Projects/test1.ipynb"), 1)
         self.assertIs(client, self.hdfs_handler._get_client())
