@@ -203,6 +203,16 @@ quiet-level = 3
 ignore-words-list = "dne, compiletime"
 
 
+[tool.pytest.ini_options]
+env = [
+    "AWS_SECRET_ACCESS_KEY=foobar_secret",
+    "AWS_ACCESS_KEY_ID=foobar_key"
+]
+filterwarnings = [
+    "ignore:.*imp module is deprecated.*:DeprecationWarning",
+]
+
+
 [tool.ruff]
 target-version = "py310"
 line-length = 120
