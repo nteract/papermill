@@ -69,6 +69,7 @@ dev = [
     "coverage",
     "gcsfs>=0.2.0",
     "google_compute_engine",
+    "hatch",
     "ipython>=5.0,<9.0.0",
     "ipywidgets",
     "moto >= 5.0.0,<5.1.0",
