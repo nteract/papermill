@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
 
 [project]
@@ -187,8 +187,9 @@ Homepage = "https://github.com/nteract/papermill"
 Source = "https://github.com/nteract/papermill/"
 Tracker = "https://github.com/nteract/papermill/issues"
 
-[tool.hatch.version]
-path = "papermill/__init__.py"
+[tool.hatch]
+version.source = "vcs"
+build.hooks.vcs.version-file = "papermill/version.py"
 
 [tool.hatch.build.targets.sdist]
 include = [
