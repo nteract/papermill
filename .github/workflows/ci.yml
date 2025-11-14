@@ -35,7 +35,7 @@ jobs:
         run: python -m tox
 
       - name: "Generate coverage XML"
-        if: "contains(env.USING_COVERAGE, matrix.python-version)"
+        if: contains(env.USING_COVERAGE, matrix.python-version)
         run: python -m coverage xml
 
       - name: "Upload coverage to Codecov"
