@@ -1,11 +1,17 @@
 # Migration to pyproject.toml is in progress
 
-# Example configuration for Black.
 [tool.black]
 line-length = 120
 target-version = ['py310']
 skip-string-normalization = true
 
+[tool.codespell]
+quiet-level = 3
+# comma separated list of words; waiting for:
+#  https://github.com/codespell-project/codespell/issues/2839#issuecomment-1731601603
+# also adding links until they ignored by its: nature
+#  https://github.com/codespell-project/codespell/issues/2243#issuecomment-1732019960
+ignore-words-list = "dne, compiletime"
 
 [tool.coverage.run]
 branch = false
@@ -23,20 +29,9 @@ omit = [
     "papermill/version.py"
 ]
 
-
-[tool.codespell]
-quiet-level = 3
-# comma separated list of words; waiting for:
-#  https://github.com/codespell-project/codespell/issues/2839#issuecomment-1731601603
-# also adding links until they ignored by its: nature
-#  https://github.com/codespell-project/codespell/issues/2243#issuecomment-1732019960
-ignore-words-list = "dne, compiletime"
-
-
 [tool.ruff]
 target-version = "py310"
 line-length = 120
-# Enable Pyflakes `E` and `F` codes by default.
 lint.select = [
     "E", "W",  # see: https://pypi.org/project/pycodestyle
     "F",  # see: https://pypi.org/project/pyflakes
