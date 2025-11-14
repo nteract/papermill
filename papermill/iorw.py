@@ -166,8 +166,23 @@ class PapermillIO:
 
 class HttpHandler:
     @classmethod
+    def _get_auth_kwargs(cls):
+        """Gets the Authorization header from PAPERMILL_HTTP_AUTH_HEADER.
+        A valid example value Basic dW5hbWU6cGFzc3dvcmQK"""
+        auth_header = os.environ.get('PAPERMILL_HTTP_AUTH_HEADER', None)
+        if auth_header:
+            return {'headers': {'Authorization': auth_header}}
+        return {}
+
+    @classmethod
+    def _get_read_kwargs(cls):
+        kwargs = cls._get_auth_kwargs() or {'headers': {}}
+        kwargs['headers']['Accept'] = os.environ.get('PAPERMILL_HTTP_ACCEPT_HEADER', 'application/json')
+        return kwargs
+
+    @classmethod
     def read(cls, path):
-        return requests.get(path, headers={'Accept': 'application/json'}).text
+        return requests.get(path, **cls._get_read_kwargs()).text
 
     @classmethod
     def listdir(cls, path):
@@ -175,7 +190,7 @@ class HttpHandler:
 
     @classmethod
     def write(cls, buf, path):
-        result = requests.put(path, json=json.loads(buf))
+        result = requests.put(path, json=json.loads(buf), **cls._get_auth_kwargs())
         result.raise_for_status()
 
     @classmethod
