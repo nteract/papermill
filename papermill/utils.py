@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 import warnings
 from contextlib import contextmanager
 from functools import wraps
@@ -7,6 +8,23 @@ from functools import wraps
 from .exceptions import PapermillParameterOverwriteWarning
 
 logger = logging.getLogger('papermill.utils')
+
+
+SENSITIVE_PARAMETER_PATTERNS = [
+    r"(?i)pass(word|wd)",
+    r"(?i)pwd$",
+    # A short keyword that may match many keywords unintentionally
+    # is only targeted when placed at the end of the string.
+    r"(?i)pass$",
+    r"(?i)token",
+    r"(?i)secret",
+    r"(?i)authorization",
+    r"(?i)auth$",
+    r"(?i)key$",
+    r"(?i)access_key",
+    r"(?i)secret_key",
+    r"(?i)private_key",
+]
 
 
 def any_tagged_cell(nb, tag):
@@ -190,3 +208,60 @@ def chdir(path):
             yield
         finally:
             os.chdir(old_dir)
+
+
+def obfuscate_parameter(
+    name,
+    value,
+    name_patterns=None,
+    obfuscated_value="********",
+):
+    """Obfuscate parameter if it is sensitive.
+
+    Parameters
+    ----------
+    name : str
+        The name of the parameter
+    value : str
+        The value of the parameter
+    name_patterns : list, optional
+        List of patterns to obfuscate in the notebook. Defaults to `DEFAULT_OBFUSCATE_PATTERNS`
+    obfuscated_value : str, optional
+        The value to replace the sensitive parameter with. Defaults to "********"
+
+    Returns
+    -------
+    str
+        The obfuscated value if the parameter is sensitive, otherwise the original value
+    """
+    if name_patterns is None:
+        name_patterns = SENSITIVE_PARAMETER_PATTERNS
+
+    if len(name_patterns) == 0:
+        raise ValueError("No name patterns provided to obfuscate")
+    if not value:
+        # Return empty string if value is empty to show that the parameter is empty
+        return value
+    if any(re.search(pattern, name) for pattern in name_patterns):
+        return obfuscated_value
+    return value
+
+
+def obfuscate_parameters(params, name_patterns=None, obfuscated_value="********"):
+    """Obfuscate parameters if they are sensitive.
+
+    Parameters
+    ----------
+    params : dict
+        The parameters to obfuscate
+    name_patterns : list, optional
+        List of patterns to obfuscate in the notebook. Defaults to `DEFAULT_OBFUSCATE_PATTERNS`
+    obfuscated_value : str, optional
+        The value to replace the sensitive parameter with. Defaults to "********"
+
+    Returns
+    -------
+    dict
+        The obfuscated parameters
+    """
+    return {name: obfuscate_parameter(name, value, name_patterns, obfuscated_value) for name, value in params.items()}
