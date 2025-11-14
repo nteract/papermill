@@ -47,8 +47,7 @@ docs_only_reqs = read_reqs('docs.txt', folder='requirements')
 black_reqs = ['black >= 19.3b0']
 all_reqs = s3_reqs + azure_reqs + gcs_reqs + hdfs_reqs + github_reqs + black_reqs
 docs_reqs = all_reqs + docs_only_reqs
-# Temporarily remove hdfs_reqs from dev deps until the pyarrow package is available for Python 3.12
-dev_reqs = read_reqs('dev.txt', folder='requirements') + s3_reqs + azure_reqs + gcs_reqs + black_reqs  # all_reqs
+dev_reqs = read_reqs('dev.txt', folder='requirements') + all_reqs
 extras_require = {
     "test": dev_reqs,
     "dev": dev_reqs,
@@ -79,7 +78,7 @@ setup(
     long_description_content_type='text/markdown',
     url='https://github.com/nteract/papermill',
     packages=['papermill'],
-    python_requires='>=3.8',
+    python_requires='>=3.10',
     install_requires=read_reqs('requirements.txt'),
     extras_require=extras_require,
     entry_points={'console_scripts': ['papermill = papermill.__main__:papermill']},
@@ -96,10 +95,9 @@ setup(
         'License :: OSI Approved :: BSD License',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3.12',
+        'Programming Language :: Python :: 3.13',
     ],
 )
