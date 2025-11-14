@@ -3,7 +3,7 @@
 # Example configuration for Black.
 [tool.black]
 line-length = 120
-target-version = ['py312']
+target-version = ['py310']
 skip-string-normalization = true
 
 
@@ -34,7 +34,7 @@ ignore-words-list = "dne, compiletime"
 
 
 [tool.ruff]
-target-version = "py312"
+target-version = "py310"
 line-length = 120
 # Enable Pyflakes `E` and `F` codes by default.
 lint.select = [
