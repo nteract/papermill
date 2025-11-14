@@ -41,6 +41,7 @@ lint.select = [
     "E", "W",  # see: https://pypi.org/project/pycodestyle
     "F",  # see: https://pypi.org/project/pyflakes
     "I",  # isort
+    "B",  # bugbear
     "RUF100",  # unnecessary noqa comment
     "UP",  # pyupgrade
 ]
