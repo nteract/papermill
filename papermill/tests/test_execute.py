@@ -174,7 +174,6 @@ class TestBrokenNotebook2(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.test_dir)
 
-    @unittest.skip("FIX: Test is broken")
     def test(self):
         path = get_notebook_path('broken2.ipynb')
         result_path = os.path.join(self.test_dir, 'broken2.ipynb')
@@ -439,7 +438,6 @@ class TestOutputFormatting(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.test_dir)
 
-    @unittest.skip("FIX: Test is broken")
     def test_output_formatting(self):
         notebook_name = 'sysexit1.ipynb'
         result_path = os.path.join(self.test_dir, f'output_{notebook_name}')
