@@ -3,6 +3,7 @@ import os
 import warnings
 from contextlib import contextmanager
 from functools import wraps
+from importlib.metadata import entry_points
 
 from .exceptions import PapermillParameterOverwriteWarning
 
@@ -190,3 +191,20 @@ def chdir(path):
             yield
         finally:
             os.chdir(old_dir)
+
+
+def get_entrypoints_group(group):
+    """Return a given group of entrypoints.
+
+    Since the importlib.metadata entry points API is very simple in 3.8 and
+    more complete in 3.10+, we need to support both. This function can be
+    removed when 3.10 is the minimum supported version, and replaced
+    with ``entry_points(group=group)``.
+    """
+    eps = entry_points()
+    if hasattr(eps, "select"):
+        # New and shiny Python 3.10+ API
+        return eps.select(group=group)
+    else:
+        # Python 3.8 and 3.9
+        return eps.get(group, [])
