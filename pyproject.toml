@@ -37,14 +37,14 @@ ignore-words-list = "dne, compiletime"
 target-version = "py312"
 line-length = 120
 # Enable Pyflakes `E` and `F` codes by default.
-select = [
+lint.select = [
     "E", "W",  # see: https://pypi.org/project/pycodestyle
     "F",  # see: https://pypi.org/project/pyflakes
     "I",  # isort
     "RUF100",  # unnecessary noqa comment
     "UP",  # pyupgrade
 ]
-ignore = [
+lint.ignore = [
     "E731",  # Do not assign a lambda expression, use a def
     "Q"      # Ignore quotes
 ]
@@ -52,9 +52,9 @@ ignore = [
 exclude = [
     "docs"
 ]
-ignore-init-module-imports = true
+lint.ignore-init-module-imports = true
 format.quote-style = "preserve"
 
-[tool.ruff.pydocstyle]
+[tool.ruff.lint.pydocstyle]
 # Use Google-style docstrings.
 convention = "google"
