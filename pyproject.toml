@@ -204,6 +204,11 @@ ignore-words-list = "dne, compiletime"
 
 
 [tool.pytest.ini_options]
+minversion = "9"
+testpaths = ["papermill/tests"]
+log_level = "INFO"
+strict_xfail = true
+addopts = ["-ra", "--strict-config", "--strict-markers"]
 env = [
     "AWS_SECRET_ACCESS_KEY=foobar_secret",
     "AWS_ACCESS_KEY_ID=foobar_key"
