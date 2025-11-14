@@ -1,6 +1,6 @@
 # So You Want to Contribute to Papermill!
 
-We welcome all contributions to Papermill both large and small. We encourage you to join our community.
+We welcome all contributions to Papermill, both large and small. We encourage you to join our community.
 
 ## Our Community Values
 
@@ -14,11 +14,11 @@ Please read our entire [Code of Conduct](https://github.com/nteract/nteract/blob
 
 ## Setting up Your Development Environment
 
-Following these instructions should give you an efficient path to opening your first pull-request.
+Following these instructions should give you an efficient path to opening your first pull request.
 
 ### Cloning the Papermill Repository
 
-Fork the repository to your local Github account. Clone this repository to your local development machine.
+Fork the repository to your local GitHub account. Clone this repository to your local development machine.
 
 ```bash
 git clone https://github.com/<your_account>/papermill
@@ -27,7 +27,7 @@ cd papermill
 
 ### Install an Editable Version
 
-We prefer to use native venv to manage the development environment.
+We prefer to use a native virtual environment (venv) to manage the development environment.
 
 ```bash
 python3 -m venv dev
@@ -47,31 +47,31 @@ conda create -n dev
 . activate dev
 ```
 
-_Note: When you are finished you can use `source deactivate` to go back to your base environment._
+_Note: When you are finished, you can use `source deactivate` to go back to your base environment._
 
 ### Running Tests Locally
 
-If you are contributing with documentation please jump to [building documentation.](#Building-Documentation)
+If you are contributing to documentation, please jump to [building documentation.](#Building-Documentation)
 
-We need to install the development package before we can run the tests. If anything is confusing below, always resort to the relevant documentation.
+We need to install the development package before running the tests. If anything is unclear below, please refer to the relevant documentation.
 
-For the most basic test runs against python 3.12 use this tox subset (callable after `pip install tox`):
+For the most basic test runs against Python 3.12, use this tox subset (callable after `pip install tox`):
 
 ```bash
 tox -e py312
 ```
 
-This will just execute the unittests against python 3.8 in a new virtual env. The first run will take longer to setup the virtualenv, but will be fast after that point.
+This will execute the unittests against Python 3.12 in a new virtual environment. The first run will take longer to set up the virtualenv, but will be fast after that point.
 
-For a full test suite of all envs and linting checks simply run tox without any arguments
+To run the full test suite for all environments and linting checks, use the 'tox' command without any arguments.
 
 ```bash
 tox
 ```
 
-This will require python3.8, 3.9, 3.10, 3.11, and 3.12 to be installed.
+This will require Python 3.10, 3.11, 3.12, and 3.13 to be installed.
 
-Alternavitely pytest can be used if you have an environment already setup which works or has custom packages not present in the tox build.
+Alternatively, pytest can be used if you have an environment already set up that works or has custom packages not present in the tox build.
 
 ```bash
 pytest
@@ -89,7 +89,7 @@ Once you are done editing, to generate the documentation, use tox and the follow
 tox -e docs
 ```
 
-This will generate `.html` files in the `/.tox/docs_out/` directory. Once you are satisfied, feel free to jump to the next section.
+This will generate `.html` files in the `/.tox/docs_out/` directory. Once you are satisfied, you can just jump to the next section.
 
 ## So You're Ready to Pull Request
 
@@ -111,7 +111,7 @@ Run check manifest to ensure all files are accounted for in the repository.
 check-manifest
 ```
 
-This commands read the `MANIFEST.in` file and explicitly specify the files to include in the source distribution. You can read more about how this works [here](https://docs.python.org/3/distutils/sourcedist.html).
+This command read the `MANIFEST.in` file and explicitly specify the files to include in the source distribution. You can read more about how this works [here](https://docs.python.org/3/distutils/sourcedist.html).
 
 ### Push Changes to Forked Repo
 
@@ -139,7 +139,7 @@ and ensure the remotes point to your GitHub. Don't work on the main branch!
 
 ### Create Pull Request
 
-Follow [these](https://help.github.com/articles/creating-a-pull-request-from-a-fork/) instrucutions to create a pull request from a forked repository. If you are submitting a bug-fix for a specific issue make sure to reference the issue in the pull request.
+Follow [these](https://help.github.com/articles/creating-a-pull-request-from-a-fork/) instructions to create a pull request from a forked repository. If you are submitting a bug fix for a specific issue, ensure that you reference the issue in the pull request.
 
 There are good references to the [Git documentation](https://git-scm.com/doc) and [Git workflows](https://docs.scipy.org/doc/numpy/dev/gitwash/development_workflow.html) for more information if any of this is unfamiliar.
 
