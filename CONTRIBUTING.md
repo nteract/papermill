@@ -160,6 +160,6 @@ Discretion, good judgment, and critical thinking are the foundation of all good 
 
 *Adapted from the [Python developer guide](https://devguide.python.org/getting-started/generative-ai/).*
 
----
+______________________________________________________________________
 
 :rocket: Happy hacking on Papermill! 💐
