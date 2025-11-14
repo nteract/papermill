@@ -7,7 +7,8 @@ name = "papermill"
 dynamic = ["version"]
 description = "Parameterize and run Jupyter and nteract Notebooks"
 readme = "README.md"
-license = "BSD-3-Clause"
+license.expression = "BSD-3-Clause"
+license.file = "LICENSE"
 requires-python = ">=3.10"
 authors = [
     { name = "nteract contributors", email = "nteract@googlegroups.com" },
@@ -23,7 +24,6 @@ classifiers = [
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
     "Intended Audience :: System Administrators",
-    "License :: OSI Approved :: BSD License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.13",
