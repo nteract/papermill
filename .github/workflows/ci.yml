@@ -29,7 +29,7 @@ jobs:
           set -xe
           python -VV
           python -m site
-          python -m pip install --upgrade pip setuptools wheel coverage[toml] virtualenv tox tox-gh-actions
+          python -m pip install --upgrade pip wheel coverage[toml] virtualenv tox tox-gh-actions
 
       - name: "Run tox targets for ${{ matrix.python-version }}"
         run: python -m tox
