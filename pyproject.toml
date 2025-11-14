@@ -213,7 +213,7 @@ env = [
     "AWS_ACCESS_KEY_ID=foobar_key"
 ]
 filterwarnings = [
-    "ignore:.*imp module is deprecated.*:DeprecationWarning",
+    "error",  # turn all warnings into errors
 ]
 
 
