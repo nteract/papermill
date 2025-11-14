@@ -7,12 +7,16 @@ recursive-include papermill *.keep
 recursive-include papermill *.txt
 
 include requirements.txt
-recursive-include requirements *.txt
+include tox.ini
+include pytest.ini
 include README.md
 include LICENSE
 include MANIFEST.in
 include *.md
 include *.toml
+include *.in
+include *.txt
+recursive-include requirements *.txt
 
 # Documentation
 prune docs
