@@ -52,7 +52,6 @@ lint.ignore = [
 exclude = [
     "docs"
 ]
-lint.ignore-init-module-imports = true
 format.quote-style = "preserve"
 
 [tool.ruff.lint.pydocstyle]
