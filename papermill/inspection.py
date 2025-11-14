@@ -1,4 +1,5 @@
 """Deduce parameters of a notebook from the parameters cell."""
+
 from pathlib import Path
 
 import click
@@ -88,9 +89,7 @@ def display_notebook_help(ctx, notebook_path, parameters):
                 param_help = f"{definition:<34}{p['help']}"
             click.echo(param_help)
     else:
-        click.echo(
-            "\n  Can't infer anything about this notebook's parameters. " "It may not have any parameter defined."
-        )
+        click.echo("\n  Can't infer anything about this notebook's parameters. It may not have any parameter defined.")
 
     return 0
 

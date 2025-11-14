@@ -3,7 +3,7 @@
 # Example configuration for Black.
 [tool.black]
 line-length = 120
-target-version = ['py311']
+target-version = ['py310']
 skip-string-normalization = true
 
 
@@ -34,33 +34,27 @@ ignore-words-list = "dne, compiletime"
 
 
 [tool.ruff]
-target-version = "py38"
+target-version = "py310"
 line-length = 120
 # Enable Pyflakes `E` and `F` codes by default.
-select = [
+lint.select = [
     "E", "W",  # see: https://pypi.org/project/pycodestyle
     "F",  # see: https://pypi.org/project/pyflakes
     "I",  # isort
-#    "D",  # see: https://pypi.org/project/pydocstyle
-#    "N",  # see: https://pypi.org/project/pep8-naming
     "RUF100",  # unnecessary noqa comment
     "UP",  # pyupgrade
 ]
-#extend-select = [
-#    "C4",  # see: https://pypi.org/project/flake8-comprehensions
-#    "SIM",  # see: https://pypi.org/project/flake8-simplify
-#    "RET",  # see: https://pypi.org/project/flake8-return
-#    "PT",  # see: https://pypi.org/project/flake8-pytest-style
-#]
-ignore = [
+lint.ignore = [
     "E731",  # Do not assign a lambda expression, use a def
+    "Q",      # Ignore quotes
+    "UP032"  # Ignore Use f-string instead of `format` call
 ]
 # Exclude a variety of commonly ignored directories.
 exclude = [
     "docs"
 ]
-ignore-init-module-imports = true
+format.quote-style = "preserve"
 
-[tool.ruff.pydocstyle]
+[tool.ruff.lint.pydocstyle]
 # Use Google-style docstrings.
 convention = "google"
