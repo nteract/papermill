@@ -33,7 +33,7 @@ repos:
         name: Black code
         args: [--skip-string-normalization]
 
-  - repo: https://github.com/executablebooks/mdformat
+  - repo: https://github.com/hukkin/mdformat
     rev: 1.0.0
     hooks:
       - id: mdformat
