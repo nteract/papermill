@@ -282,7 +282,7 @@ class S3:
         size = 0
         bytes_read = 0
         err = None
-        undecoded = ''
+        undecoded = b''
         if key:
             # try to read the file multiple times
             for i in range(100):
@@ -317,8 +317,8 @@ class S3:
 
                         if encoding and not raw:
                             try:
-                                decoded = undecoded + s.decode(encoding)
-                                undecoded = ''
+                                decoded = (undecoded + s).decode(encoding)
+                                undecoded = b''
                                 yield decoded
                             except UnicodeDecodeError:
                                 undecoded += s
