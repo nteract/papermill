@@ -1,9 +1,6 @@
 Extending papermill through entry points
 ========================================
 
-*Note: setuptools is no longer used in this project. This document should be
-updated to reflect the use of pyproject.toml and other modern packaging tools.*
-
 What are entry points?
 ----------------------
 
