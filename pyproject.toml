@@ -25,10 +25,10 @@ classifiers = [
     "Intended Audience :: System Administrators",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
     "aiohttp >=3.9.0; python_version==\"3.12\"",
