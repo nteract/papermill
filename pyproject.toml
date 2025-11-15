@@ -44,13 +44,20 @@ dependencies = [
 
 [project.optional-dependencies]
 all = [
-    "papermill[azure,dev,docs,gcs,github,hdfs,s3,test]"
+    "papermill[azure,binder,dev,docs,gcs,github,hdfs,s3,test]"
 ]
 azure = [
     "azure-datalake-store >= 0.0.30,<1.0.0a0",  # newer versions require auth changes see https://github.com/nteract/papermill/issues/825
     "azure-identity>=1.3.1",
     "azure-storage-blob >= 12.1.0",
     "requests >= 2.21.0",
+]
+binder = [
+    "nteract-scrapbook",
+    "pandas",
+    "matplotlib",
+    "ipywidgets",
+    "ipykernel",
 ]
 dev = [
     "attrs>=17.4.0",
@@ -110,7 +117,6 @@ test = [
     "azure-storage-blob >= 12.1.0",
     "black >= 19.3b0",
     "boto3",
-    "boto3",
     "botocore",
     "check-manifest",
     "codecov",
@@ -130,7 +136,6 @@ test = [
     "pytest-mock>=1.10",
     "pytest>=4.1",
     "recommonmark",
-    "requests >= 2.21.0",
     "requests >= 2.21.0",
     "tox",
     "twine>=1.11.0",
@@ -259,9 +264,11 @@ commands =
 # Binder
 [testenv:binder]
 description = ensure /binder/*ipynb are runnable
-deps =
-    -r binder/requirements.txt
-commands = python -c "import glob; import papermill as pm; [pm.execute_notebook(input, '{toxworkdir}/out.ipynb', parameters=\\{'binder_dir':'binder'\\}) for input in glob.glob('binder/**/*.ipynb')]"
+extras = binder
+changedir = binder
+commands =
+    python -m ipykernel install --user --name=python3
+    python -c "import papermill as pm; pm.execute_notebook('cli-simple/simple_input.ipynb', '{toxworkdir}/out.ipynb', parameters=\\{'msg': 'test'\\})"
 
 # Distro
 [testenv:dist]
