@@ -44,7 +44,7 @@ dependencies = [
 
 [project.optional-dependencies]
 all = [
-    "papermill[azure,binder,dev,docs,gcs,github,hdfs,s3,test]"
+    "papermill[azure,binder,gcs,github,hdfs,s3]"
 ]
 azure = [
     "azure-datalake-store >= 0.0.30,<1.0.0a0",  # newer versions require auth changes see https://github.com/nteract/papermill/issues/825
