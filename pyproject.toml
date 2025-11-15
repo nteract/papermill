@@ -250,7 +250,7 @@ python =
 [testenv:docs]
 description = invoke sphinx-build to build the HTML docs
 deps =
-    .[docs]
+    .[docs,azure]
 extras = docs
 commands =
     sphinx-build -d "{toxworkdir}/docs_doctree" docs "{toxworkdir}/docs_out" --color -W -bhtml {posargs}
