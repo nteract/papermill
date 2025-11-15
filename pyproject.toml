@@ -35,7 +35,6 @@ dependencies = [
     "entrypoints",
     "tenacity>=5.0.2",
     "aiohttp>=3.9.0; python_version=='3.12'",
-    "ansicolors",
 ]
 
 [project.urls]
@@ -99,6 +98,8 @@ dev = [
     "azure-storage-blob>=12.1.0",
     "azure-identity>=1.3.1",
     "gcsfs>=0.2.0",
+    "pyarrow>=2.0",
+    "PyGithub>=1.55",
     "black>=19.3b0",
 ]
 test = [
@@ -130,6 +131,8 @@ test = [
     "azure-storage-blob>=12.1.0",
     "azure-identity>=1.3.1",
     "gcsfs>=0.2.0",
+    "pyarrow>=2.0",
+    "PyGithub>=1.55",
     "black>=19.3b0",
 ]
 docs = [
