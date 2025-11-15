@@ -157,7 +157,6 @@ version.source = "vcs"
 build.hooks.vcs.version-file = "papermill/version.py"
 
 [tool.hatch.build.targets.sdist]
-ignore-vcs = true
 include = [
     "/papermill",
 ]
