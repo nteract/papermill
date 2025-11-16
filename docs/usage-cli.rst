@@ -78,5 +78,11 @@ options:
 
       --report-mode / --no-report-mode
                                       Flag for hiding input.
+      --obfuscate-sensitive-parameters / --no-obfuscate-sensitive-parameters
+                                      Flag for obfuscating sensitive parameters.
+      --sensitive-parameter-patterns TEXT...
+                                      List of patterns for obfuscating parameter
+                                      names in notebooks. If not provided, defaults
+                                      to papermill.utils.SENSITIVE_PARAMETER_PATTERNS.
       --version                       Flag for displaying the version.
       -h, --help                      Show this message and exit.
