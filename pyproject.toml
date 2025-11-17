@@ -1,22 +1,28 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
 
 [project]
 name = "papermill"
 dynamic = ["version"]
 description = "Parameterize and run Jupyter and nteract Notebooks"
 readme = "README.md"
-license = {text = "BSD"}
+license = {text = "BSD-3-Clause"}
+requires-python = ">=3.10"
 authors = [
-    {name = "nteract contributors", email = "nteract@googlegroups.com"}
+    { name = "nteract contributors", email = "nteract@googlegroups.com" },
 ]
-keywords = ["jupyter", "mapreduce", "nteract", "pipeline", "notebook"]
+keywords = [
+    "jupyter",
+    "mapreduce",
+    "notebook",
+    "nteract",
+    "pipeline",
+]
 classifiers = [
     "Intended Audience :: Developers",
-    "Intended Audience :: System Administrators",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: BSD License",
+    "Intended Audience :: System Administrators",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
@@ -24,142 +30,141 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
 ]
-requires-python = ">=3.10"
 dependencies = [
+    "aiohttp >=3.9.0; python_version == '3.12'",
     "click",
-    "pyyaml",
-    "nbformat>=5.2.0",
-    "nbclient>=0.2.0",
-    "tqdm>=4.32.2",
-    "requests",
     "entrypoints",
-    "tenacity>=5.0.2",
-    "aiohttp>=3.9.0; python_version=='3.12'",
+    "nbclient >= 0.2.0",
+    "nbformat >= 5.2.0",
+    "pyyaml",
+    "requests",
+    "tenacity >= 5.0.2",
+    "tqdm >= 4.32.2",
 ]
 
-[project.urls]
-Documentation = "https://papermill.readthedocs.io"
-Funding = "https://nteract.io"
-Source = "https://github.com/nteract/papermill/"
-Tracker = "https://github.com/nteract/papermill/issues"
+[project.optional-dependencies]
+all = [
+    "papermill[azure,binder,gcs,github,hdfs,s3]"
+]
+azure = [
+    "azure-datalake-store >= 0.0.30,<1.0.0a0",  # newer versions require auth changes see https://github.com/nteract/papermill/issues/825
+    "azure-identity>=1.3.1",
+    "azure-storage-blob >= 12.1.0",
+    "requests >= 2.21.0",
+]
+binder = [
+    "nteract-scrapbook",
+    "pandas",
+    "matplotlib",
+    "ipywidgets",
+    "ipykernel",
+]
+dev = [
+    "attrs>=17.4.0",
+    "azure-datalake-store >= 0.0.30,<1.0.0a0",
+    "azure-identity>=1.3.1",
+    "azure-storage-blob >= 12.1.0",
+    "black >= 19.3b0",
+    "boto3",
+    "botocore",
+    "check-manifest",
+    "codecov",
+    "coverage",
+    "gcsfs>=0.2.0",
+    "google_compute_engine",
+    "hatch",
+    "ipython>=5.0,<9.0.0",
+    "ipywidgets",
+    "moto >= 5.0.0,<5.1.0",
+    "notebook",
+    "pip>=18.1",
+    "pre-commit",
+    "pyarrow >= 2.0",
+    "PyGithub >= 1.55",
+    "pytest-cov>=2.6.1",
+    "pytest-env>=0.6.2",
+    "pytest-mock>=1.10",
+    "pytest>=4.1",
+    "recommonmark",
+    "requests >= 2.21.0",
+    "tox",
+    "twine>=1.11.0",
+    "wheel>=0.31.0",
+]
+docs = [
+    "furo>=2023.9.10",
+    "moto>=4.2.8",
+    "myst-parser>=2.0.0",
+    "sphinx-copybutton>=0.5.2",
+    "Sphinx>=7.2.6",
+]
+gcs = [
+    "gcsfs>=0.2.0",
+]
+github = [
+    "PyGithub >= 1.55",
+]
+hdfs = [
+    "pyarrow >= 2.0",
+]
+s3 = [
+    "boto3",
+]
+test = [
+    "attrs>=17.4.0",
+    "azure-datalake-store >= 0.0.30,<1.0.0a0",
+    "azure-identity>=1.3.1",
+    "azure-storage-blob >= 12.1.0",
+    "black >= 19.3b0",
+    "boto3",
+    "botocore",
+    "check-manifest",
+    "codecov",
+    "coverage",
+    "gcsfs>=0.2.0",
+    "google_compute_engine",
+    "ipython>=5.0,<9.0.0",
+    "ipywidgets",
+    "moto >= 5.0.0,<5.1.0",
+    "notebook",
+    "pip>=18.1",
+    "pre-commit",
+    "pyarrow >= 2.0",
+    "PyGithub >= 1.55",
+    "pytest-cov>=2.6.1",
+    "pytest-env>=0.6.2",
+    "pytest-mock>=1.10",
+    "pytest>=4.1",
+    "recommonmark",
+    "requests >= 2.21.0",
+    "tox",
+    "twine>=1.11.0",
+    "wheel>=0.31.0",
+]
 
 [project.scripts]
 papermill = "papermill.__main__:papermill"
 
-[project.optional-dependencies]
-s3 = ["boto3"]
-azure = [
-    "azure-datalake-store>=0.0.30,<1.0.0a0",
-    "azure-storage-blob>=12.1.0",
-    "requests>=2.21.0",
-    "azure-identity>=1.3.1",
+[project.urls]
+Documentation = "https://papermill.readthedocs.io"
+Funding = "https://nteract.io"
+Homepage = "https://github.com/nteract/papermill"
+Source = "https://github.com/nteract/papermill/"
+Tracker = "https://github.com/nteract/papermill/issues"
+
+[tool.hatch]
+version.source = "vcs"
+build.hooks.vcs.version-file = "papermill/version.py"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/papermill",
 ]
-gcs = ["gcsfs>=0.2.0"]
-hdfs = ["pyarrow>=2.0"]
-github = ["PyGithub>=1.55"]
-black = ["black>=19.3b0"]
-all = [
-    "boto3",
-    "azure-datalake-store>=0.0.30,<1.0.0a0",
-    "azure-storage-blob>=12.1.0",
-    "requests>=2.21.0",
-    "azure-identity>=1.3.1",
-    "gcsfs>=0.2.0",
-    "pyarrow>=2.0",
-    "PyGithub>=1.55",
-    "black>=19.3b0",
-]
-dev = [
-    "boto3",
-    "botocore",
-    "codecov",
-    "coverage",
-    "google_compute_engine",
-    "ipython>=5.0,<9.0.0",
-    "ipywidgets",
-    "notebook",
-    "moto>=5.0.0,<5.1.0",
-    "pytest>=4.1",
-    "pytest-cov>=2.6.1",
-    "pytest-mock>=1.10",
-    "pytest-env>=0.6.2",
-    "requests>=2.21.0",
-    "check-manifest",
-    "attrs>=17.4.0",
-    "pre-commit",
-    "tox",
-    "bumpversion",
-    "recommonmark",
-    "pip>=18.1",
-    "wheel>=0.31.0",
-    "setuptools>=38.6.0",
-    "twine>=1.11.0",
-    "azure-datalake-store>=0.0.30,<1.0.0a0",
-    "azure-storage-blob>=12.1.0",
-    "azure-identity>=1.3.1",
-    "gcsfs>=0.2.0",
-    "pyarrow>=2.0",
-    "PyGithub>=1.55",
-    "black>=19.3b0",
-]
-test = [
-    "boto3",
-    "botocore",
-    "codecov",
-    "coverage",
-    "google_compute_engine",
-    "ipython>=5.0,<9.0.0",
-    "ipywidgets",
-    "notebook",
-    "moto>=5.0.0,<5.1.0",
-    "pytest>=4.1",
-    "pytest-cov>=2.6.1",
-    "pytest-mock>=1.10",
-    "pytest-env>=0.6.2",
-    "requests>=2.21.0",
-    "check-manifest",
-    "attrs>=17.4.0",
-    "pre-commit",
-    "tox",
-    "bumpversion",
-    "recommonmark",
-    "pip>=18.1",
-    "wheel>=0.31.0",
-    "setuptools>=38.6.0",
-    "twine>=1.11.0",
-    "azure-datalake-store>=0.0.30,<1.0.0a0",
-    "azure-storage-blob>=12.1.0",
-    "azure-identity>=1.3.1",
-    "gcsfs>=0.2.0",
-    "pyarrow>=2.0",
-    "PyGithub>=1.55",
-    "black>=19.3b0",
-]
-docs = [
-    "boto3",
-    "azure-datalake-store>=0.0.30,<1.0.0a0",
-    "azure-storage-blob>=12.1.0",
-    "requests>=2.21.0",
-    "azure-identity>=1.3.1",
-    "gcsfs>=0.2.0",
-    "pyarrow>=2.0",
-    "PyGithub>=1.55",
-    "black>=19.3b0",
-    "Sphinx>=7.2.6",
-    "furo>=2023.9.10",
-    "myst-parser>=2.0.0",
-    "moto>=4.2.8",
-    "sphinx-copybutton>=0.5.2",
+exclude = [
+    "binder/*",
 ]
 
-[tool.setuptools]
-packages = ["papermill"]
-include-package-data = true
 
-[tool.setuptools.dynamic]
-version = {attr = "papermill.version.version"}
-
-# Example configuration for Black.
 [tool.black]
 line-length = 120
 target-version = ['py310']
@@ -192,8 +197,22 @@ quiet-level = 3
 ignore-words-list = "dne, compiletime"
 
 
+[tool.pytest.ini_options]
+minversion = "9"
+testpaths = ["papermill/tests"]
+log_level = "INFO"
+strict_xfail = true
+addopts = ["-ra", "--strict-config", "--strict-markers"]
+env = [
+    "AWS_SECRET_ACCESS_KEY=foobar_secret",
+    "AWS_ACCESS_KEY_ID=foobar_key"
+]
+filterwarnings = [
+    "error",  # turn all warnings into errors
+]
+
+
 [tool.ruff]
-target-version = "py310"
 line-length = 120
 # Enable Pyflakes `E` and `F` codes by default.
 lint.select = [
@@ -218,29 +237,11 @@ format.quote-style = "preserve"
 # Use Google-style docstrings.
 convention = "google"
 
-[tool.pytest.ini_options]
-env = [
-    "AWS_SECRET_ACCESS_KEY=foobar_secret",
-    "AWS_ACCESS_KEY_ID=foobar_key",
-]
-filterwarnings = [
-    "ignore:.*imp module is deprecated.*:DeprecationWarning",
-]
-
-[tool.bumpversion]
-current_version = "2.6.0"
-commit = true
-tag = true
-tag_name = "{new_version}"
-
-[[tool.bumpversion.files]]
-filename = "papermill/version.py"
-
 [tool.tox]
 legacy_tox_ini = """
 [tox]
 skipsdist = true
-envlist = py{310,311,312,313}, dist, manifest, docs, binder
+envlist = py{310,311,312,313}, dist, docs, binder
 
 [gh-actions]
 python =
@@ -249,19 +250,11 @@ python =
     3.12: py312
     3.13: py313, docs, dist
 
-# Manifest
-[testenv:manifest]
-skip_install = true
-deps = check-manifest
-commands = check-manifest
-ignore =
-    .readthedocs.yaml
-
 # Docs
 [testenv:docs]
 description = invoke sphinx-build to build the HTML docs
 deps =
-    .[docs]
+    .[docs,azure]
 extras = docs
 commands =
     sphinx-build -d "{toxworkdir}/docs_doctree" docs "{toxworkdir}/docs_out" --color -W -bhtml {posargs}
@@ -270,9 +263,11 @@ commands =
 # Binder
 [testenv:binder]
 description = ensure /binder/*ipynb are runnable
-deps =
-    -r binder/requirements.txt
-commands = python -c "import glob; import papermill as pm; [pm.execute_notebook(input, '{toxworkdir}/out.ipynb', parameters=\\{'binder_dir':'binder'\\}) for input in glob.glob('binder/**/*.ipynb')]"
+extras = binder
+changedir = binder
+commands =
+    python -m ipykernel install --user --name=python3
+    python -c "import papermill as pm; pm.execute_notebook('cli-simple/simple_input.ipynb', '{toxworkdir}/out.ipynb', parameters=\\{'msg': 'test'\\})"
 
 # Distro
 [testenv:dist]
@@ -295,7 +290,6 @@ basepython =
     py311: python3.11
     py312: python3.12
     py313: python3.13
-    manifest: python3.13
     dist: python3.13
     docs: python3.13
     binder: python3.13

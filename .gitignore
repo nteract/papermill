@@ -128,3 +128,6 @@ pip-wheel-metadata
 # lint
 .ruff_cache/
 local.ipynb
+
+# hatch build
+papermill/version.py
