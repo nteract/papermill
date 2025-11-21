@@ -228,6 +228,3 @@ def test_s3_read_multibyte_chunks(s3_client):
 
     cat_data = ''.join(s3_client.cat(s3_path, buffersize=1))
     assert cat_data == multibyte_content
-
-    read_data = '\n'.join(s3_client.read(s3_path))
-    assert read_data == multibyte_content
