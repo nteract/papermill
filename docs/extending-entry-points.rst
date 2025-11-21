@@ -51,18 +51,15 @@ Ensuring your handler is found by papermill
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Once you have developed a new handler, you need to declare papermill entry
-points in your ``setup.py`` file.
+points in your ``pyproject.toml`` file.
 
-This is done by including the ``entry_points`` key-word argument to ``setup``
-in your setup.py file:
+This is done by including the ``[project.entry-points."papermill.io"]`` section
+in your pyproject.toml file:
 
-.. code-block:: python
+.. code-block:: toml
 
-    from setuptools import setup, find_packages
-    setup(
-        # all the normal setup.py arguments...
-        entry_points={"papermill.io": ["sftp://=papermill_sftp:SFTPHandler"]},
-    )
+    [project.entry-points."papermill.io"]
+    "sftp://" = "papermill_sftp:SFTPHandler"
 
 This indicates to papermill that when a file path begins with ``sftp://``, it
 should use the class ``papermill_sftp.SFTPHandler`` to handle reading or writing
@@ -84,7 +81,7 @@ from an sftp server and writes back to it, so we could do the following::
 Our project structure will look like this::
 
     papermill_sftp
-        |- setup.py
+        |- pyproject.toml
         |- src
             |- papermill_sftp
                 |- __init__.py
@@ -153,24 +150,32 @@ implement a listdir option for now.
             raise NotImplementedError
 
 
-The ``setup.py`` file contains the following code:
+The ``pyproject.toml`` file contains the following code:
 
-.. code-block:: python
+.. code-block:: toml
 
-    from setuptools import setup, find_packages
+    [build-system]
+    requires = ["setuptools>=61.0", "wheel"]
+    build-backend = "setuptools.build_meta"
 
-    setup(
-        name="papermill_sftp",
-        version="0.1",
-        url="https://github.com/my_username/papermill_sftp.git",
-        author="My Name",
-        author_email="my.email@gmail.com",
-        description="An SFTP I/O handler for papermill.",
-        packages=find_packages("./src"),
-        package_dir={"": "src"},
-        install_requires=["pysftp"],
-        entry_points={"papermill.io": ["sftp://=papermill_sftp:SFTPHandler"]},
-    )
+    [project]
+    name = "papermill_sftp"
+    version = "0.1"
+    description = "An SFTP I/O handler for papermill."
+    authors = [
+        {name = "My Name", email = "my.email@gmail.com"}
+    ]
+    dependencies = ["pysftp"]
+
+    [project.urls]
+    Repository = "https://github.com/my_username/papermill_sftp.git"
+
+    [project.entry-points."papermill.io"]
+    "sftp://" = "papermill_sftp:SFTPHandler"
+
+    [tool.setuptools]
+    packages = ["papermill_sftp"]
+    package-dir = {"" = "src"}
 
 When executing, papermill will check if the input or output path begin with
 ``sftp://``, and if so, use the SFTPHandler from the papermill_sftp project.
@@ -214,7 +219,7 @@ time it took to execute each cell as additional output after every code cell.
 The project structure is::
 
     papermill_timing
-        |- setup.py
+        |- pyproject.toml
         |- src
             |- papermill_timing
                 |- __init__.py
@@ -249,7 +254,7 @@ library to create a `notebook node object`_.
                     cell.outputs = [output_node] + cell.outputs
 
 Once this is in place, we need to add our engine as an entry point to our
-``setup.py`` script - for this, see the following section.
+``pyproject.toml`` file - for this, see the following section.
 
 Ensuring your engine is found by papermill
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -257,25 +262,33 @@ Ensuring your engine is found by papermill
 Custom engines can be specified as `entry points`_, under the
 ``papermill.engine`` prefix. The entry point needs to reference the class that
 we have just implemented. For example, if you write an engine called
-TimingEngine in a package called papermill_timing, then in the ``setup.py``
+TimingEngine in a package called papermill_timing, then in the ``pyproject.toml``
 file, you should specify:
 
-.. code-block:: python
+.. code-block:: toml
 
-    from setuptools import setup, find_packages
+    [build-system]
+    requires = ["setuptools>=61.0", "wheel"]
+    build-backend = "setuptools.build_meta"
 
-    setup(
-        name="papermill_timing",
-        version="0.1",
-        url="https://github.com/my_username/papermill_timing.git",
-        author="My Name",
-        author_email="my.email@gmail.com",
-        description="A papermill engine that logs additional timing information about code.",
-        packages=find_packages("./src"),
-        package_dir={"": "src"},
-        install_requires=["papermill", "nbformat"],
-        entry_points={"papermill.engine": ["timer_engine=papermill_timing:CustomEngine"]},
-    )
+    [project]
+    name = "papermill_timing"
+    version = "0.1"
+    description = "A papermill engine that logs additional timing information about code."
+    authors = [
+        {name = "My Name", email = "my.email@gmail.com"}
+    ]
+    dependencies = ["papermill", "nbformat"]
+
+    [project.urls]
+    Repository = "https://github.com/my_username/papermill_timing.git"
+
+    [project.entry-points."papermill.engine"]
+    timer_engine = "papermill_timing:CustomEngine"
+
+    [tool.setuptools]
+    packages = ["papermill_timing"]
+    package-dir = {"" = "src"}
 
 This allows users to specify the engine from ``papermill_timing`` by passing the
 command line argument ``--engine timer_engine``.
