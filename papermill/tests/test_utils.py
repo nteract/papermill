@@ -54,7 +54,7 @@ def test_chdir():
     old_cwd = Path.cwd()
     with TemporaryDirectory() as temp_dir:
         with chdir(temp_dir):
-            assert Path.cwd() != old_cwd
-            assert Path.cwd() == Path(temp_dir)
+            assert Path.cwd().resolve() != old_cwd.resolve()
+            assert Path.cwd().resolve() == Path(temp_dir).resolve()
 
     assert Path.cwd() == old_cwd
