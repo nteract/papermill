@@ -217,7 +217,7 @@ def test_s3_listdir(s3_client):
     s3_dir = f"s3://{test_bucket_name}/{dir_name}"
     s3_path = f"s3://{test_bucket_name}/{test_file_path}"
     dir_listings = s3_client.listdir(s3_dir)
-    assert len(dir_listings) == 2
+    assert len(dir_listings) == 3
     assert s3_path in dir_listings
 
 
