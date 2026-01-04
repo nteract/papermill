@@ -21,7 +21,7 @@ jobs:
 
     steps:
       - uses: "actions/checkout@v4"
-      - uses: "actions/setup-python@v5"
+      - uses: "actions/setup-python@v6"
         with:
           python-version: ${{ matrix.python-version }}
       - name: "Install dependencies"
@@ -39,7 +39,7 @@ jobs:
         run: python -m coverage xml
 
       - name: "Upload coverage to Codecov"
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
 
   others:
     runs-on: ubuntu-24.04
@@ -51,7 +51,7 @@ jobs:
       TOXENV: ${{ matrix.toxenv }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: 3.13
       - name: "Install dependencies"

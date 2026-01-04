@@ -151,4 +151,15 @@ git remote add upstream https://github.com/nteract/papermill
 
 It's possible you will have conflicts between your repository and main. Here, `main` is meant to be synchronized with the `upstream` repository. GitHub has some good [documentation](https://help.github.com/articles/resolving-a-merge-conflict-using-the-command-line/) on merging pull requests from the command line.
 
-Happy hacking on Papermill!
+## Use of Generative AI Tools
+
+Generative AI tools have evolved rapidly, and their suggested results can be helpful.
+As with using any tool, the resulting contribution is the responsibility of the contributor.
+We value good code, concise and accurate documentation, and avoiding unnecessary code churn.
+Discretion, good judgment, and critical thinking are the foundation of all good contributions, regardless of the tools used in their creation.
+
+*Adapted from the [Python developer guide](https://devguide.python.org/getting-started/generative-ai/).*
+
+______________________________________________________________________
+
+:rocket: Happy hacking on Papermill! 💐

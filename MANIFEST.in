@@ -6,18 +6,13 @@ recursive-include papermill *.yml
 recursive-include papermill *.keep
 recursive-include papermill *.txt
 
-include setup.py
 include requirements.txt
 recursive-include requirements *.txt
-include tox.ini
-include pytest.ini
 include README.md
 include LICENSE
 include MANIFEST.in
 include *.md
 include *.toml
-
-include .bumpversion.cfg
 
 # Documentation
 prune docs
