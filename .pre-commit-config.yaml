@@ -47,3 +47,13 @@ repos:
       - id: ruff-check
       # Run the formatter.
       - id: ruff-format
+
+  - repo: https://github.com/tox-dev/pyproject-fmt
+    rev: v2.6.0
+    hooks:
+      - id: pyproject-fmt
+        additional_dependencies: [tox]
+  - repo: https://github.com/abravalheri/validate-pyproject
+    rev: v0.24.1
+    hooks:
+      - id: validate-pyproject
