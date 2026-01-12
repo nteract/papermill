@@ -29,7 +29,6 @@ dynamic = [ "version" ]
 dependencies = [
   "aiohttp>=3.9; python_version=='3.12'",
   "click",
-  "entrypoints",
   "nbclient>=0.2",
   "nbformat>=5.2",
   "pyyaml",
