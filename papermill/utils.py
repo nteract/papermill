@@ -40,17 +40,9 @@ def nb_kernel_name(nb, name=None):
     Returns
     -------
     str
-        The name of the kernel
-
-    Raises
-    ------
-    ValueError
-        If no kernel name is found or provided
+        The name of the kernel or an empty string if none is found
     """
-    name = name or nb.metadata.get('kernelspec', {}).get('name')
-    if not name:
-        raise ValueError("No kernel name found in notebook and no override provided.")
-    return name
+    return name or nb.metadata.get('kernelspec', {}).get('name', '')
 
 
 def nb_language(nb, language=None):
