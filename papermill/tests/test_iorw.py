@@ -320,6 +320,38 @@ class TestHttpHandler(unittest.TestCase):
             self.assertEqual(HttpHandler.read(path), text)
             mock_get.assert_called_once_with(path, headers={'Accept': 'application/json'})
 
+    def test_read_with_auth(self):
+        """
+        Tests that the `read` function performs a request to the giving path
+        with authentication from the environment variables and returns the response.
+        """
+        path = 'http://example.com'
+        text = 'request test response'
+        auth = 'Basic dW5hbWU6cGFzc3dvcmQK'
+
+        with patch.dict(os.environ, clear=True) as env, patch('papermill.iorw.requests.get') as mock_get:
+            env['PAPERMILL_HTTP_AUTH_HEADER'] = auth
+            mock_get.return_value = Mock(text=text)
+
+            self.assertEqual(HttpHandler.read(path), text)
+            mock_get.assert_called_once_with(path, headers={'Accept': 'application/json', 'Authorization': auth})
+
+    def test_read_with_accept_header(self):
+        """
+        Tests that the `read` function performs a request to the giving path
+        with an accept type from env variables and returns the response.
+        """
+        path = 'http://example.com'
+        text = 'request test response'
+        accept_type = 'test accept type'
+
+        with patch.dict(os.environ, clear=True) as env, patch('papermill.iorw.requests.get') as mock_get:
+            env['PAPERMILL_HTTP_ACCEPT_HEADER'] = accept_type
+            mock_get.return_value = Mock(text=text)
+
+            self.assertEqual(HttpHandler.read(path), text)
+            mock_get.assert_called_once_with(path, headers={'Accept': accept_type})
+
     def test_write(self):
         """
         Tests that the `write` function performs a put request to the given
@@ -331,6 +363,21 @@ class TestHttpHandler(unittest.TestCase):
         with patch('papermill.iorw.requests.put') as mock_put:
             HttpHandler.write(buf, path)
             mock_put.assert_called_once_with(path, json=json.loads(buf))
+
+    def test_write_with_auth(self):
+        """
+        Tests that the `write` function performs a put request to the given
+        path with authentication from env variables.
+        """
+        path = 'http://example.com'
+        buf = '{"papermill": true}'
+        auth = 'token'
+
+        with patch.dict(os.environ, clear=True) as env, patch('papermill.iorw.requests.put') as mock_put:
+            env['PAPERMILL_HTTP_AUTH_HEADER'] = auth
+
+            HttpHandler.write(buf, path)
+            mock_put.assert_called_once_with(path, json=json.loads(buf), headers={'Authorization': auth})
 
     def test_write_failure(self):
         """
