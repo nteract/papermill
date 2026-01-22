@@ -16,7 +16,7 @@ class PapermillNotebookClient(NotebookClient):
     stdout_file = Instance(object, default_value=None).tag(config=True)
     stderr_file = Instance(object, default_value=None).tag(config=True)
 
-    def __init__(self, nb_man, km=None, raise_on_iopub_timeout=True, **kw):
+    def __init__(self, nb_man, km=None, log_cell=None, raise_on_iopub_timeout=True, **kw):
         """Initializes the execution manager.
 
         Parameters
@@ -26,9 +26,13 @@ class PapermillNotebookClient(NotebookClient):
         km : KernerlManager (optional)
             Optional kernel manager. If none is provided, a kernel manager will
             be created.
+        log_cell : logging.Logger (optional)
+            Optional logger to use for logging cell output. If not provided, the `log` argument
+            will be used for cell output.
         """
         super().__init__(nb_man.nb, km=km, raise_on_iopub_timeout=raise_on_iopub_timeout, **kw)
         self.nb_man = nb_man
+        self.log_cell = log_cell if log_cell is not None else self.log
 
     def execute(self, **kwargs):
         """
@@ -88,19 +92,20 @@ class PapermillNotebookClient(NotebookClient):
             content = "".join(output.text)
             if output.name == "stdout":
                 if self.log_output:
-                    self.log.info(content)
+                    self.log_cell.info(content)
                 if self.stdout_file:
                     self.stdout_file.write(content)
                     self.stdout_file.flush()
             elif output.name == "stderr":
                 if self.log_output:
                     # In case users want to redirect stderr differently, pipe to warning
-                    self.log.warning(content)
+                    self.log_cell.warning(content)
                 if self.stderr_file:
                     self.stderr_file.write(content)
                     self.stderr_file.flush()
         elif self.log_output and ("data" in output and "text/plain" in output.data):
-            self.log.info("".join(output.data['text/plain']))
+            self.log_cell.info("".join(output.data['text/plain']))
+            # self.log.info("".join(output.data['text/plain']))
 
     def process_message(self, *arg, **kwargs):
         output = super().process_message(*arg, **kwargs)
