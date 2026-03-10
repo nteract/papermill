@@ -9,7 +9,7 @@ from nbformat.notebooknode import NotebookNode
 from .. import engines, exceptions
 from ..engines import Engine, NBClientEngine, NotebookExecutionManager
 from ..iorw import load_notebook_node
-from ..log import logger
+from ..log import logger, notebook_logger
 from . import get_notebook_path
 
 
@@ -434,39 +434,50 @@ class TestNBClientEngine(unittest.TestCase):
     def test_nb_convert_log_outputs(self):
         with patch.object(logger, 'info') as info_mock:
             with patch.object(logger, 'warning') as warning_mock:
-                with patch.object(NotebookExecutionManager, 'save'):
-                    NBClientEngine.execute_notebook(
-                        self.nb,
-                        'python',
-                        output_path='foo.ipynb',
-                        progress_bar=False,
-                        log_output=True,
-                    )
-                    info_mock.assert_has_calls(
-                        [
-                            call('Executing notebook with kernel: python'),
-                            call('Executing Cell 1---------------------------------------'),
-                            call('Ending Cell 1------------------------------------------'),
-                            call('Executing Cell 2---------------------------------------'),
-                            call('None\n'),
-                            call('Ending Cell 2------------------------------------------'),
-                        ]
-                    )
-                    warning_mock.is_not_called()
+                with patch.object(notebook_logger, 'info') as notebook_info_mock:
+                    with patch.object(notebook_logger, 'warning') as notebook_warning_mock:
+                        with patch.object(NotebookExecutionManager, 'save'):
+                            NBClientEngine.execute_notebook(
+                                self.nb,
+                                'python',
+                                output_path='foo.ipynb',
+                                progress_bar=False,
+                                log_output=True,
+                            )
+                            info_mock.assert_has_calls(
+                                [
+                                    call('Executing notebook with kernel: python'),
+                                    call('Executing Cell 1---------------------------------------'),
+                                    call('Ending Cell 1------------------------------------------'),
+                                    call('Executing Cell 2---------------------------------------'),
+                                    call('Ending Cell 2------------------------------------------'),
+                                ]
+                            )
+                            notebook_info_mock.assert_has_calls(
+                                [
+                                    call('None\n'),
+                                ]
+                            )
+                            warning_mock.is_not_called()
+                            notebook_warning_mock.is_not_called()
 
     def test_nb_convert_no_log_outputs(self):
         with patch.object(logger, 'info') as info_mock:
             with patch.object(logger, 'warning') as warning_mock:
-                with patch.object(NotebookExecutionManager, 'save'):
-                    NBClientEngine.execute_notebook(
-                        self.nb,
-                        'python',
-                        output_path='foo.ipynb',
-                        progress_bar=False,
-                        log_output=False,
-                    )
-                    info_mock.is_not_called()
-                    warning_mock.is_not_called()
+                with patch.object(notebook_logger, 'info') as notebook_info_mock:
+                    with patch.object(notebook_logger, 'warning') as notebook_warning_mock:
+                        with patch.object(NotebookExecutionManager, 'save'):
+                            NBClientEngine.execute_notebook(
+                                self.nb,
+                                'python',
+                                output_path='foo.ipynb',
+                                progress_bar=False,
+                                log_output=False,
+                            )
+                            info_mock.is_not_called()
+                            warning_mock.is_not_called()
+                            notebook_info_mock.is_not_called()
+                            notebook_warning_mock.is_not_called()
 
 
 class TestEngineRegistration(unittest.TestCase):
