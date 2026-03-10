@@ -4,8 +4,8 @@ import os
 import sys
 import warnings
 from contextlib import contextmanager
+from importlib.metadata import entry_points
 
-import entrypoints
 import nbformat
 import requests
 import yaml
@@ -116,7 +116,7 @@ class PapermillIO:
 
     def register_entry_points(self):
         # Load handlers provided by other packages
-        for entrypoint in entrypoints.get_group_all("papermill.io"):
+        for entrypoint in entry_points(group="papermill.io"):
             self.register(entrypoint.name, entrypoint.load())
 
     def get_handler(self, path, extensions=None):

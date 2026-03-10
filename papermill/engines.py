@@ -3,9 +3,9 @@
 import datetime
 import sys
 from functools import wraps
+from importlib.metadata import entry_points
 
 import dateutil
-import entrypoints
 
 from .clientwrap import PapermillNotebookClient
 from .exceptions import PapermillException
@@ -34,7 +34,7 @@ class PapermillEngines:
 
         Load handlers provided by other packages
         """
-        for entrypoint in entrypoints.get_group_all("papermill.engine"):
+        for entrypoint in entry_points(group="papermill.engine"):
             self.register(entrypoint.name, entrypoint.load())
 
     def get_engine(self, name=None):
