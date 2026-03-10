@@ -31,7 +31,7 @@ dependencies = [
   "click",
   "entrypoints",
   "nbclient>=0.2",
-  "nbformat>=5.2",
+  "nbformat>=5.10.4",
   "pyyaml",
   "requests",
   "tenacity>=5.0.2",
