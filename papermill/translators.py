@@ -246,9 +246,6 @@ class PythonTranslator(Translator):
             if nequal > 0:
                 grouped_variable.append(flatten_accumulator(accumulator))
                 accumulator = []
-                if nequal > 1:
-                    logger.warning(f"Unable to parse line {iline + 1} '{line}'.")
-                    continue
 
             accumulator.append(line)
         grouped_variable.append(flatten_accumulator(accumulator))
