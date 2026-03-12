@@ -159,7 +159,9 @@ class TestBrokenNotebook1(unittest.TestCase):
         self.assertRegex(nb.cells[5].source, '<span id="papermill-error-cell" .*</span>')
         self.assertEqual(nb.cells[5].metadata["tags"], ["papermill-error-cell-tag"])
         self.assertEqual(nb.cells[6].execution_count, 2)
-        self.assertEqual(nb.cells[6].outputs[0].output_type, 'error')
+        # Python 3.14+ emits a stderr stream before the error output for assertion errors
+        output_types = [o.output_type for o in nb.cells[6].outputs]
+        self.assertIn('error', output_types)
 
         self.assertEqual(nb.cells[7].execution_count, None)
 
@@ -187,8 +189,10 @@ class TestBrokenNotebook2(unittest.TestCase):
         self.assertEqual(nb.cells[2].cell_type, "markdown")
         self.assertRegex(nb.cells[2].source, '<span id="papermill-error-cell" .*</span>')
         self.assertEqual(nb.cells[3].execution_count, 2)
-        self.assertEqual(nb.cells[3].outputs[0].output_type, 'display_data')
-        self.assertEqual(nb.cells[3].outputs[1].output_type, 'error')
+        # Python 3.14+ may insert a stderr stream between display_data and error outputs
+        output_types = [o.output_type for o in nb.cells[3].outputs]
+        self.assertIn('display_data', output_types)
+        self.assertIn('error', output_types)
 
         self.assertEqual(nb.cells[4].execution_count, None)
 
@@ -279,9 +283,12 @@ class TestSysExit(unittest.TestCase):
         self.assertEqual(nb.cells[0].cell_type, "code")
         self.assertEqual(nb.cells[0].execution_count, 1)
         self.assertEqual(nb.cells[1].execution_count, 2)
-        self.assertEqual(nb.cells[1].outputs[0].output_type, 'error')
-        self.assertEqual(nb.cells[1].outputs[0].ename, 'SystemExit')
-        self.assertEqual(nb.cells[1].outputs[0].evalue, '')
+        # Python 3.14+ may emit a stderr stream before the error output
+        output_types = [o.output_type for o in nb.cells[1].outputs]
+        self.assertIn('error', output_types)
+        error_output = next(o for o in nb.cells[1].outputs if o.output_type == 'error')
+        self.assertEqual(error_output.ename, 'SystemExit')
+        self.assertEqual(error_output.evalue, '')
         self.assertEqual(nb.cells[2].execution_count, None)
 
     def test_sys_exit0(self):
@@ -292,9 +299,12 @@ class TestSysExit(unittest.TestCase):
         self.assertEqual(nb.cells[0].cell_type, "code")
         self.assertEqual(nb.cells[0].execution_count, 1)
         self.assertEqual(nb.cells[1].execution_count, 2)
-        self.assertEqual(nb.cells[1].outputs[0].output_type, 'error')
-        self.assertEqual(nb.cells[1].outputs[0].ename, 'SystemExit')
-        self.assertEqual(nb.cells[1].outputs[0].evalue, '0')
+        # Python 3.14+ may emit a stderr stream before the error output
+        output_types = [o.output_type for o in nb.cells[1].outputs]
+        self.assertIn('error', output_types)
+        error_output = next(o for o in nb.cells[1].outputs if o.output_type == 'error')
+        self.assertEqual(error_output.ename, 'SystemExit')
+        self.assertEqual(error_output.evalue, '0')
         self.assertEqual(nb.cells[2].execution_count, None)
 
     def test_sys_exit1(self):
@@ -310,7 +320,9 @@ class TestSysExit(unittest.TestCase):
         self.assertEqual(nb.cells[2].cell_type, "markdown")
         self.assertRegex(nb.cells[2].source, '<span id="papermill-error-cell" .*</span>')
         self.assertEqual(nb.cells[3].execution_count, 2)
-        self.assertEqual(nb.cells[3].outputs[0].output_type, 'error')
+        # Python 3.14+ may emit a stderr stream before the error output
+        output_types = [o.output_type for o in nb.cells[3].outputs]
+        self.assertIn('error', output_types)
 
         self.assertEqual(nb.cells[4].execution_count, None)
 
@@ -322,9 +334,12 @@ class TestSysExit(unittest.TestCase):
         self.assertEqual(nb.cells[0].cell_type, "code")
         self.assertEqual(nb.cells[0].execution_count, 1)
         self.assertEqual(nb.cells[1].execution_count, 2)
-        self.assertEqual(nb.cells[1].outputs[0].output_type, 'error')
-        self.assertEqual(nb.cells[1].outputs[0].ename, 'SystemExit')
-        self.assertEqual(nb.cells[1].outputs[0].evalue, '')
+        # Python 3.14+ may emit a stderr stream before the error output
+        output_types = [o.output_type for o in nb.cells[1].outputs]
+        self.assertIn('error', output_types)
+        error_output = next(o for o in nb.cells[1].outputs if o.output_type == 'error')
+        self.assertEqual(error_output.ename, 'SystemExit')
+        self.assertEqual(error_output.evalue, '')
         self.assertEqual(nb.cells[2].execution_count, None)
 
     def test_line_magic_error(self):
@@ -456,6 +471,8 @@ class TestOutputFormatting(unittest.TestCase):
         self.assertEqual(nb.cells[2].cell_type, "markdown")
         self.assertRegex(nb.cells[2].source, '<span id="papermill-error-cell" .*</span>')
         self.assertEqual(nb.cells[3].execution_count, 2)
-        self.assertEqual(nb.cells[3].outputs[0].output_type, 'error')
+        # Python 3.14+ may emit a stderr stream before the error output
+        output_types = [o.output_type for o in nb.cells[3].outputs]
+        self.assertIn('error', output_types)
 
         self.assertEqual(nb.cells[4].execution_count, None)
