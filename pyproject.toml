@@ -8,7 +8,7 @@ name = "papermill"
 description = "Parameterize and run Jupyter and nteract Notebooks"
 readme = "README.md"
 keywords = [ "jupyter", "mapreduce", "notebook", "nteract", "pipeline" ]
-license = { text = "BSD" }
+license = "BSD-3-Clause"
 authors = [
   { name = "nteract contributors", email = "nteract@googlegroups.com" },
 ]
@@ -17,7 +17,6 @@ classifiers = [
   "Intended Audience :: Developers",
   "Intended Audience :: Science/Research",
   "Intended Audience :: System Administrators",
-  "License :: OSI Approved :: BSD License",
   "Programming Language :: Python",
   "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3.10",
