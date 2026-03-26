@@ -211,6 +211,7 @@ def raise_for_execution_errors(nb, output_path):
                         ename=output.ename,
                         evalue=output.evalue,
                         traceback=output.traceback,
+                        output_notebook=nb,
                     )
                     break
 
