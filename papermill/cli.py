@@ -42,7 +42,7 @@ def print_papermill_version(ctx, param, value):
 )
 @click.option('--parameters', '-p', nargs=2, multiple=True, help='Parameters to pass to the parameters cell.')
 @click.option('--parameters_raw', '-r', nargs=2, multiple=True, help='Parameters to be read as raw string.')
-@click.option('--parameters_file', '-f', multiple=True, help='Path to YAML file containing parameters.')
+@click.option('--parameters_file', '-f', multiple=True, help='Path to YAML or TOML file containing parameters.')
 @click.option('--parameters_yaml', '-y', multiple=True, help='YAML string to be used as parameters.')
 @click.option('--parameters_base64', '-b', multiple=True, help='Base64 encoded YAML string as parameters.')
 @click.option(
