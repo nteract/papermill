@@ -83,6 +83,10 @@ def test_translate_comment_python(test_input, expected):
             [Parameter("a", "List[str]", "['this', 'is', 'a', 'string', 'list']", "Nice variable a")],
         ),
         (
+            "a: datetime.date = '2024-01-01' # Nice variable a",
+            [Parameter("a", "datetime.date", "'2024-01-01'", "Nice variable a")],
+        ),
+        (
             "a: List[str] = [\n    'this', # First\n    'is',\n    'a',\n    'string',\n    'list' # Last\n] # Nice variable a",  # noqa
             [Parameter("a", "List[str]", "['this','is','a','string','list']", "Nice variable a")],
         ),
