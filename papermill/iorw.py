@@ -49,6 +49,7 @@ except ImportError:
 try:
     from pyarrow.fs import FileSelector, HadoopFileSystem
 except ImportError:
+    FileSelector = missing_dependency_generator("pyarrow", "hdfs")
     HadoopFileSystem = missing_dependency_generator("pyarrow", "hdfs")
 
 try:
