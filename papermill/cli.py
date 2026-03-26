@@ -84,6 +84,11 @@ def print_papermill_version(ctx, param, value):
     help="Flag for outputting the notebook without execution, but with parameters applied.",
 )
 @click.option(
+    '--raise-on-unknown-parameters/--no-raise-on-unknown-parameters',
+    default=False,
+    help='Flag for whether or not to raise when unknown parameters are passed.',
+)
+@click.option(
     '--kernel',
     '-k',
     help='Name of kernel to run. Ignores kernel name in the notebook document metadata.',
@@ -154,6 +159,7 @@ def papermill(
     request_save_on_cell_execute,
     autosave_cell_every,
     prepare_only,
+    raise_on_unknown_parameters,
     kernel,
     language,
     cwd,
@@ -240,6 +246,7 @@ def papermill(
             request_save_on_cell_execute=request_save_on_cell_execute,
             autosave_cell_every=autosave_cell_every,
             prepare_only=prepare_only,
+            raise_on_unknown_parameters=raise_on_unknown_parameters,
             kernel_name=kernel,
             language=language,
             progress_bar=progress_bar,
