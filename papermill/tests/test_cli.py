@@ -81,6 +81,7 @@ class TestCLI(unittest.TestCase):
         request_save_on_cell_execute=True,
         autosave_cell_every=30,
         prepare_only=False,
+        raise_on_unknown_parameters=False,
         kernel_name=None,
         language=None,
         log_output=False,
@@ -111,6 +112,11 @@ class TestCLI(unittest.TestCase):
     def test_parameters(self, execute_patch):
         self.runner.invoke(papermill, self.default_args + ['-p', 'foo', 'bar', '--parameters', 'baz', '42'])
         execute_patch.assert_called_with(**self.augment_execute_kwargs(parameters={'foo': 'bar', 'baz': 42}))
+
+    @patch(f"{cli.__name__}.execute_notebook")
+    def test_raise_on_unknown_parameters(self, execute_patch):
+        self.runner.invoke(papermill, self.default_args + ['--raise-on-unknown-parameters'])
+        execute_patch.assert_called_with(**self.augment_execute_kwargs(raise_on_unknown_parameters=True))
 
     @patch(f"{cli.__name__}.execute_notebook")
     def test_parameters_raw(self, execute_patch):
