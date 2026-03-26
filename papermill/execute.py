@@ -11,6 +11,17 @@ from .parameterize import add_builtin_parameters, parameterize_notebook, paramet
 from .utils import chdir
 
 
+def _override_kernel_name_in_metadata(nb, kernel_name):
+    if not kernel_name:
+        return nb
+
+    kernelspec = nb.metadata.get('kernelspec', {})
+    kernelspec['name'] = kernel_name
+    kernelspec['display_name'] = kernel_name
+    nb.metadata['kernelspec'] = kernelspec
+    return nb
+
+
 def execute_notebook(
     input_path,
     output_path,
@@ -104,7 +115,7 @@ def execute_notebook(
                 engine_name=engine_name,
             )
 
-        nb = prepare_notebook_metadata(nb, input_path, output_path, report_mode)
+        nb = prepare_notebook_metadata(nb, input_path, output_path, report_mode, kernel_name=kernel_name)
         # clear out any existing error markers from previous papermill runs
         nb = remove_error_markers(nb)
 
@@ -136,7 +147,7 @@ def execute_notebook(
         return nb
 
 
-def prepare_notebook_metadata(nb, input_path, output_path, report_mode=False):
+def prepare_notebook_metadata(nb, input_path, output_path, report_mode=False, kernel_name=None):
     """Prepare metadata associated with a notebook and its cells
 
     Parameters
@@ -149,6 +160,8 @@ def prepare_notebook_metadata(nb, input_path, output_path, report_mode=False):
        Path to write executed notebook
     report_mode : bool, optional
        Flag to set report mode
+    kernel_name : str, optional
+       Name of kernel to persist in notebook metadata
     """
     # Hide input if report-mode is set to True.
     if report_mode:
@@ -156,6 +169,8 @@ def prepare_notebook_metadata(nb, input_path, output_path, report_mode=False):
             if cell.cell_type == 'code':
                 cell.metadata['jupyter'] = cell.get('jupyter', {})
                 cell.metadata['jupyter']['source_hidden'] = True
+
+    nb = _override_kernel_name_in_metadata(nb, kernel_name)
 
     # Record specified environment variable values.
     nb.metadata.papermill['input_path'] = input_path
