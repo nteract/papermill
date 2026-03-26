@@ -1,6 +1,7 @@
 import os
 
 kernel_name = 'python3'
+override_kernel_name = 'papermill-kernel-override'
 
 
 def get_notebook_path(*args):
