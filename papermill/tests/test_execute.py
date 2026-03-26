@@ -31,6 +31,13 @@ class TestNotebookHelpers(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.test_dir)
 
+    def test_execution_error_includes_output_notebook(self):
+        notebook_name = 'broken.ipynb'
+        nb_test_executed_fname = os.path.join(self.test_dir, f'output_{notebook_name}')
+        with self.assertRaises(PapermillExecutionError) as err:
+            execute_notebook(get_notebook_path(notebook_name), nb_test_executed_fname)
+        self.assertIsInstance(err.exception.output_notebook, nbformat.NotebookNode)
+
     @patch(f"{engines.__name__}.PapermillNotebookClient")
     def test_start_timeout(self, preproc_mock):
         execute_notebook(self.notebook_path, self.nb_test_executed_fname, start_timeout=123)
