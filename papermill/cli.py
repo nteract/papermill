@@ -76,7 +76,7 @@ def print_papermill_version(ctx, param, value):
     '--autosave-cell-every',
     default=30,
     type=int,
-    help='How often in seconds to autosave the notebook during long cell executions (0 to disable)',
+    help='How often in seconds to autosave the notebook during long cell executions (0 to disable). Forwarded to the execution engine.',
 )
 @click.option(
     '--prepare-only/--prepare-execute',
