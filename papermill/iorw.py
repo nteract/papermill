@@ -5,6 +5,14 @@ import sys
 import warnings
 from contextlib import contextmanager
 
+try:
+    import tomllib
+except ModuleNotFoundError:
+    try:
+        import tomli as tomllib
+    except ModuleNotFoundError:
+        tomllib = None
+
 import entrypoints
 import nbformat
 import requests
