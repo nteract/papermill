@@ -43,8 +43,6 @@ def execute_notebook(
         Name of execution engine to use
     request_save_on_cell_execute : bool, optional
         Request save notebook after each cell execution
-    autosave_cell_every : int, optional
-        How often in seconds to save in the middle of long cell executions
     prepare_only : bool, optional
         Flag to determine if execution should occur or not
     kernel_name : str, optional
@@ -55,14 +53,21 @@ def execute_notebook(
         Flag for whether or not to show the progress bar.
     log_output : bool, optional
         Flag for whether or not to write notebook output to the configured logger
+    stdout_file : str or file-like, optional
+        File path or buffer used to write notebook stdout
+    stderr_file : str or file-like, optional
+        File path or buffer used to write notebook stderr
     start_timeout : int, optional
         Duration in seconds to wait for kernel start-up
     report_mode : bool, optional
         Flag for whether or not to hide input.
     cwd : str or Path, optional
         Working directory to use when executing the notebook
-    **kwargs
-        Arbitrary keyword arguments to pass to the notebook engine
+    **engine_kwargs
+        Arbitrary keyword arguments forwarded to the selected execution engine
+        (and underlying nbclient execution). Common options include
+        ``execution_timeout`` and ``autosave_cell_every``. Supported options
+        may vary by engine
 
     Returns
     -------
