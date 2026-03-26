@@ -17,7 +17,7 @@ from click.testing import CliRunner
 
 from .. import cli
 from ..cli import _is_float, _is_int, _resolve_type, papermill
-from . import get_notebook_path, kernel_name
+from . import get_notebook_path, kernel_name, override_kernel_name
 
 
 @pytest.mark.parametrize(
@@ -70,6 +70,20 @@ def test_is_float(value, expected):
 )
 def test_is_int(value, expected):
     assert (_is_int(value)) == expected
+
+
+def test_kernel_override_updates_output_metadata():
+    runner = CliRunner()
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        output_path = os.path.join(tmp_dir, f"{uuid.uuid4().hex}.ipynb")
+        result = runner.invoke(
+            papermill,
+            [get_notebook_path('blank-vscode.ipynb'), output_path, '--prepare-only', '-k', override_kernel_name],
+        )
+        assert result.exit_code == 0
+        output_nb = nbformat.read(output_path, as_version=4)
+        assert output_nb.metadata.kernelspec.name == override_kernel_name
+        assert output_nb.metadata.kernelspec.display_name == override_kernel_name
 
 
 class TestCLI(unittest.TestCase):
