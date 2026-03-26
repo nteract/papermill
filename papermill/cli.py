@@ -86,7 +86,7 @@ def print_papermill_version(ctx, param, value):
 @click.option(
     '--kernel',
     '-k',
-    help='Name of kernel to run. Ignores kernel name in the notebook document metadata.',
+    help='Name of kernel to run. Overrides kernel name in the notebook document metadata.',
 )
 @click.option(
     '--language',
