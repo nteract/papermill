@@ -3,7 +3,7 @@ from pathlib import Path
 import nbformat
 
 from .engines import papermill_engines
-from .exceptions import PapermillExecutionError
+from .exceptions import PapermillException, PapermillExecutionError
 from .inspection import _infer_parameters
 from .iorw import get_pretty_path, load_notebook_node, local_file_io_cwd, write_ipynb
 from .log import logger
@@ -15,6 +15,7 @@ def execute_notebook(
     input_path,
     output_path,
     parameters=None,
+    raise_on_unknown_parameters=False,
     engine_name=None,
     request_save_on_cell_execute=True,
     prepare_only=False,
@@ -39,6 +40,8 @@ def execute_notebook(
         Path to save executed notebook. If None, no file will be saved
     parameters : dict, optional
         Arbitrary keyword arguments to pass to the notebook parameters
+    raise_on_unknown_parameters : bool, optional
+        Flag for whether or not to raise when parameters are passed that are not declared in the notebook
     engine_name : str, optional
         Name of execution engine to use
     request_save_on_cell_execute : bool, optional
@@ -92,8 +95,12 @@ def execute_notebook(
         if parameters:
             parameter_predefined = _infer_parameters(nb, name=kernel_name, language=language)
             parameter_predefined = {p.name for p in parameter_predefined}
-            for p in parameters:
-                if p not in parameter_predefined:
+            unknown_parameters = [p for p in parameters if p not in parameter_predefined]
+            if unknown_parameters:
+                if raise_on_unknown_parameters:
+                    unknown_parameters_message = ", ".join(str(p) for p in sorted(unknown_parameters, key=str))
+                    raise PapermillException(f"Passed unknown parameters: {unknown_parameters_message}")
+                for p in unknown_parameters:
                     logger.warning(f"Passed unknown parameter: {p}")
             nb = parameterize_notebook(
                 nb,
