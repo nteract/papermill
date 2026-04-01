@@ -39,7 +39,7 @@ jobs:
         run: python -m coverage xml
 
       - name: "Upload coverage to Codecov"
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
 
   others:
     runs-on: ubuntu-24.04
