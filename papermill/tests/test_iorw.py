@@ -108,7 +108,8 @@ class TestPapermillIO(unittest.TestCase):
         mock_entry_points = Mock()
         mock_entry_points.select.return_value = [fake_entrypoint]
 
-        with patch("papermill.iorw.entry_points", return_value=mock_entry_points):            self.papermill_io.register_entry_points()
+        with patch("papermill.iorw.entry_points", return_value=mock_entry_points):
+            self.papermill_io.register_entry_points()
             mock_entry_points.select.assert_called_once_with(group="papermill.io")
             fake_ = self.papermill_io.get_handler("fake-from-entry-point://")
             assert fake_ == fake_entrypoint.load.return_value
