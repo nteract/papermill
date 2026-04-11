@@ -1,9 +1,10 @@
 import unittest
 from datetime import datetime
 
-from ..exceptions import PapermillMissingParameterException
-from ..iorw import load_notebook_node
-from ..parameterize import add_builtin_parameters, parameterize_notebook, parameterize_path
+
+from papermill.exceptions import PapermillMissingParameterException
+from papermill.iorw import load_notebook_node
+from papermill.parameterize import add_builtin_parameters, parameterize_notebook, parameterize_path
 from . import get_notebook_path
 
 

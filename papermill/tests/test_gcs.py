@@ -1,8 +1,8 @@
 import unittest
 from unittest.mock import patch
 
-from ..exceptions import PapermillRateLimitException
-from ..iorw import GCSHandler, fallback_gs_is_retriable
+from papermill.exceptions import PapermillRateLimitException
+from papermill.iorw import GCSHandler, fallback_gs_is_retriable
 
 try:
     try:

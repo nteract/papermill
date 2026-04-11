@@ -7,7 +7,7 @@ import moto
 import pytest
 from moto import mock_aws
 
-from ..s3 import S3, Bucket, Key, Prefix
+from papermill.s3 import S3, Bucket, Key, Prefix
 
 
 @pytest.fixture

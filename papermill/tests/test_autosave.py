@@ -6,10 +6,9 @@ from unittest.mock import patch
 
 import nbformat
 
-from .. import engines
-from ..engines import NotebookExecutionManager
-from ..execute import execute_notebook
-from . import get_notebook_path
+from papermill import engines
+from papermill.engines import NotebookExecutionManager
+from papermill.execute import execute_notebook
 
 
 class TestMidCellAutosave(unittest.TestCase):

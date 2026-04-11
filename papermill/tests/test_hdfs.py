@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
-from ..iorw import HDFSHandler
+from papermill.iorw import HDFSHandler
 
 
 class MockHadoopFileSystem(MagicMock):
