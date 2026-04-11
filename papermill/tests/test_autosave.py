@@ -10,6 +10,8 @@ from papermill import engines
 from papermill.engines import NotebookExecutionManager
 from papermill.execute import execute_notebook
 
+from . import get_notebook_path
+
 
 class TestMidCellAutosave(unittest.TestCase):
     def setUp(self):
