@@ -11,7 +11,7 @@ import nbformat
 from nbformat import validate
 
 from papermill import engines, translators
-from papermill.exceptions import PapermillExecutionError
+from papermill.exceptions import PapermillExecutionError, strip_color
 from papermill.execute import execute_notebook
 from papermill.iorw import load_notebook_node
 from papermill.log import logger
