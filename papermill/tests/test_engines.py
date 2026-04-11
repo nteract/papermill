@@ -490,6 +490,7 @@ class TestEngineRegistration(unittest.TestCase):
 
     def test_registering_entry_points(self):
         fake_entrypoint = Mock()
+        fake_entrypoint.name = "fake-engine"
         fake_entrypoint.load.return_value = Mock()
 
         mock_entry_points = Mock()
