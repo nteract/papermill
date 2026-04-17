@@ -102,7 +102,7 @@ class TestPapermillIO(unittest.TestCase):
 
     def test_entrypoint_register(self):
         fake_entrypoint = Mock()
-        fake_entrypoint.name =  "fake-from-entry-point://"
+        fake_entrypoint.name = "fake-from-entry-point://"
         fake_entrypoint.load.return_value = Mock()
 
         mock_entry_points = Mock()

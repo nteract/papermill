@@ -168,9 +168,7 @@ def s3_client():
     mock_aws.start()
 
     client = boto3.client('s3')
-    client.create_bucket(Bucket=test_bucket_name,
-                         CreateBucketConfiguration={'LocationConstraint':
-                                                    'eu-central-1'})
+    client.create_bucket(Bucket=test_bucket_name, CreateBucketConfiguration={'LocationConstraint': 'eu-central-1'})
     client.put_object(Bucket=test_bucket_name, Key=test_file_path, Body=test_nb_content)
     client.put_object(Bucket=test_bucket_name, Key=test_empty_file_path, Body='')
     yield S3()

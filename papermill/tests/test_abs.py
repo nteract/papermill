@@ -6,6 +6,7 @@ from azure.identity import EnvironmentCredential
 
 from papermill.abs import AzureBlobStore
 
+
 class MockBytesIO:
     def __init__(self):
         self.list = [b"hello", b"world!"]
