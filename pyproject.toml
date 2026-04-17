@@ -197,6 +197,7 @@ quiet-level = 3
 ignore-words-list = "dne, compiletime"
 
 [tool.pytest.ini_options]
+testpaths = ["papermill/tests"]
 env = [
   "AWS_SECRET_ACCESS_KEY=foobar_secret",
   "AWS_ACCESS_KEY_ID=foobar_key",
