@@ -107,6 +107,10 @@ def test_translate_comment_python(test_input, expected):
                 Parameter("b", "float", "-2.3432", "My b variable"),
             ],
         ),
+        (
+            's = "a=b"',
+            [Parameter("s", "None", '"a=b"', "")],
+        ),
     ],
 )
 def test_inspect_python(test_input, expected):
