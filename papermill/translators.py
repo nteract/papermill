@@ -1,12 +1,29 @@
+import io
 import logging
 import math
 import re
 import shlex
+import tokenize
 
 from .exceptions import PapermillException
 from .models import Parameter
 
 logger = logging.getLogger(__name__)
+
+
+def _count_assignment_operators(line):
+    """Count top-level assignment operators in a Python source line.
+
+    Uses ``tokenize`` so that ``=`` characters appearing inside string
+    literals (e.g. ``s = "a=b"``) are not counted as assignment
+    operators. Falls back to a naive ``line.count('=')`` if tokenization
+    fails (e.g. for incomplete multiline definitions).
+    """
+    try:
+        tokens = tokenize.tokenize(io.BytesIO(line.encode("utf-8")).readline)
+        return sum(1 for tok in tokens if tok.type == tokenize.OP and tok.string == "=")
+    except (tokenize.TokenError, SyntaxError):
+        return line.count("=")
 
 
 class PapermillTranslators:
@@ -242,7 +259,7 @@ class PythonTranslator(Translator):
             if len(line.strip()) == 0 or line.strip().startswith('#'):
                 continue  # Skip blank and comment
 
-            nequal = line.count("=")
+            nequal = _count_assignment_operators(line)
             if nequal > 0:
                 grouped_variable.append(flatten_accumulator(accumulator))
                 accumulator = []

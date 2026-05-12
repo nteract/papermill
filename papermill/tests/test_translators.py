@@ -107,6 +107,9 @@ def test_translate_comment_python(test_input, expected):
                 Parameter("b", "float", "-2.3432", "My b variable"),
             ],
         ),
+        # Regression test for #864: '=' inside string literals shouldn't trip parsing.
+        ('s = "a=b"', [Parameter("s", "None", '"a=b"', "")]),
+        ("s = 'a=b'", [Parameter("s", "None", "'a=b'", "")]),
     ],
 )
 def test_inspect_python(test_input, expected):
