@@ -12,7 +12,7 @@ pytest>=4.1
 pytest-cov>=2.6.1
 pytest-mock>=1.10
 pytest-env>=0.6.2
-requests >= 2.21.0
+requests >= 2.34.0
 check-manifest
 attrs>=17.4.0
 pre-commit
