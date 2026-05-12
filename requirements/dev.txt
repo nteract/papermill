@@ -20,6 +20,6 @@ tox
 bumpversion
 recommonmark
 pip>=18.1
-wheel>=0.31.0
+wheel>=0.47.0
 setuptools>=38.6.0
 twine>=1.11.0
