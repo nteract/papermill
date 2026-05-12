@@ -21,9 +21,7 @@ def _count_assignment_operators(line):
     """
     try:
         tokens = tokenize.tokenize(io.BytesIO(line.encode("utf-8")).readline)
-        return sum(
-            1 for tok in tokens if tok.type == tokenize.OP and tok.string == "="
-        )
+        return sum(1 for tok in tokens if tok.type == tokenize.OP and tok.string == "=")
     except (tokenize.TokenError, SyntaxError):
         return line.count("=")
 
