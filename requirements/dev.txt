@@ -8,7 +8,7 @@ ipython>=5.0,<10.0.0
 ipywidgets
 notebook
 moto >= 5.0.0,< 5.2.0
-pytest>=4.1
+pytest>=9.0.3
 pytest-cov>=2.6.1
 pytest-mock>=1.10
 pytest-env>=0.6.2
