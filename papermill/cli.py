@@ -15,6 +15,7 @@ import yaml
 from .execute import execute_notebook
 from .inspection import display_notebook_help
 from .iorw import NoDatesSafeLoader, read_yaml_file
+from .profile import profile_notebook
 from .version import version as papermill_version
 
 click.disable_unicode_literals_warning = True
@@ -96,6 +97,14 @@ def print_papermill_version(ctx, param, value):
 @click.option('--cwd', default=None, help='Working directory to run notebook in.')
 @click.option('--progress-bar/--no-progress-bar', default=None, help="Flag for turning on the progress bar.")
 @click.option(
+    '--live-tree/--no-live-tree',
+    default=False,
+    help=(
+        "Show a live Rich tree of notebook sections and per-cell timing during execution, "
+        "replacing the tqdm progress bar. Requires: pip install 'papermill[rich]'."
+    ),
+)
+@click.option(
     '--log-output/--no-log-output',
     default=False,
     help="Flag for writing notebook output to the configured logger.",
@@ -158,6 +167,7 @@ def papermill(
     language,
     cwd,
     progress_bar,
+    live_tree,
     log_output,
     log_level,
     start_timeout,
@@ -250,11 +260,60 @@ def papermill(
             report_mode=report_mode,
             cwd=cwd,
             execution_timeout=execution_timeout,
+            live_tree=live_tree,
         )
     except nbclient.exceptions.DeadKernelError:
         # Exiting with a special exit code for dead kernels
         traceback.print_exc()
         sys.exit(138)
+
+
+@click.command('profile', context_settings=dict(help_option_names=['-h', '--help']))
+@click.argument('notebook_path')
+@click.option(
+    '--output',
+    '-o',
+    default=None,
+    help='Path to write profile JSON (default: <notebook>.profile.json).',
+)
+def papermill_profile(notebook_path, output):
+    """Profile an already-executed notebook and print a timing summary.
+
+    NOTEBOOK_PATH must be an executed .ipynb file that contains papermill
+    timing metadata (i.e. it was run via ``papermill`` or
+    ``execute_notebook``).
+
+    Writes a JSON report with per-section and per-cell durations, output
+    types, bottleneck identification, and the five slowest cells.
+    """
+    import json
+    from pathlib import Path
+
+    out_path = output or str(Path(notebook_path).with_suffix('.profile.json'))
+    profile = profile_notebook(notebook_path, output=out_path)
+
+    click.echo(f"\nNotebook  : {profile['notebook']}")
+    click.echo(f"Total     : {profile.get('total_duration_s', '—')}s")
+    click.echo(f"Cells     : {profile['n_code_cells']} code  |  Errors: {profile['n_errors']}")
+
+    if profile.get('bottleneck'):
+        b = profile['bottleneck']
+        click.echo(f"Bottleneck: [{b['cell_index']}] in «{b['section']}» — {b['duration_s']}s ({b['pct_of_total']}%)")
+
+    click.echo("\nSections:")
+    for s in profile['sections']:
+        indent = "  " * s['level']
+        click.echo(f"  {indent}{s['label']:<40} {s['duration_s']:.3f}s")
+
+    if profile.get('slowest_cells'):
+        click.echo("\nSlowest cells:")
+        for c in profile['slowest_cells']:
+            click.echo(
+                f"  [{c['index']}] {c['source_preview'][:50]:<52} "
+                f"{c['duration_s']}s  {','.join(c['output_types']) or '—'}"
+            )
+
+    click.echo(f"\nProfile written to: {out_path}")
 
 
 def _resolve_type(value):

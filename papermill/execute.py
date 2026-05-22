@@ -27,6 +27,7 @@ def execute_notebook(
     start_timeout=60,
     report_mode=False,
     cwd=None,
+    live_tree=False,
     **engine_kwargs,
 ):
     """Executes a single notebook locally.
@@ -61,6 +62,9 @@ def execute_notebook(
         Flag for whether or not to hide input.
     cwd : str or Path, optional
         Working directory to use when executing the notebook
+    live_tree : bool, optional
+        Show a Rich live tree of sections and per-cell timing instead of the
+        default tqdm progress bar. Requires ``pip install 'papermill[rich]'``.
     **kwargs
         Arbitrary keyword arguments to pass to the notebook engine
 
@@ -111,21 +115,46 @@ def execute_notebook(
         if not prepare_only:
             # Dropdown to the engine to fetch the kernel name from the notebook document
             kernel_name = papermill_engines.nb_kernel_name(engine_name=engine_name, nb=nb, name=kernel_name)
+
+            # Resolve live_tree: if requested, disable tqdm and attach the Rich display
+            _live_display = None
+            if live_tree:
+                from .live_tree import LiveTreeDisplay, is_available as _rich_ok
+
+                if _rich_ok():
+                    import os
+
+                    nb_name = os.path.basename(input_path) if isinstance(input_path, str) else "notebook.ipynb"
+                    _live_display = LiveTreeDisplay(nb, nb_name)
+                    progress_bar = False  # Rich tree replaces tqdm
+                else:
+                    logger.warning(
+                        "live_tree=True requested but 'rich' is not installed. "
+                        "Falling back to tqdm. Install with: pip install 'papermill[rich]'"
+                    )
+
             # Execute the Notebook in `cwd` if it is set
             with chdir(cwd):
-                nb = papermill_engines.execute_notebook_with_engine(
-                    engine_name,
-                    nb,
-                    input_path=input_path,
-                    output_path=output_path if request_save_on_cell_execute else None,
-                    kernel_name=kernel_name,
-                    progress_bar=progress_bar,
-                    log_output=log_output,
-                    start_timeout=start_timeout,
-                    stdout_file=stdout_file,
-                    stderr_file=stderr_file,
-                    **engine_kwargs,
-                )
+                if _live_display is not None:
+                    _live_display.start()
+                try:
+                    nb = papermill_engines.execute_notebook_with_engine(
+                        engine_name,
+                        nb,
+                        input_path=input_path,
+                        output_path=output_path if request_save_on_cell_execute else None,
+                        kernel_name=kernel_name,
+                        progress_bar=progress_bar,
+                        log_output=log_output,
+                        start_timeout=start_timeout,
+                        stdout_file=stdout_file,
+                        stderr_file=stderr_file,
+                        live_display=_live_display,
+                        **engine_kwargs,
+                    )
+                finally:
+                    if _live_display is not None:
+                        _live_display.stop()
 
             # Check for errors first (it saves on error before raising)
             raise_for_execution_errors(nb, output_path)
