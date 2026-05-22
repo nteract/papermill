@@ -96,7 +96,8 @@ class NotebookExecutionManager:
     COMPLETED = "completed"
     FAILED = "failed"
 
-    def __init__(self, nb, output_path=None, log_output=False, progress_bar=True, autosave_cell_every=30):
+    def __init__(self, nb, output_path=None, log_output=False, progress_bar=True, autosave_cell_every=30,
+                 live_display=None):
         self.nb = nb
         self.output_path = output_path
         self.log_output = log_output
@@ -105,6 +106,7 @@ class NotebookExecutionManager:
         self.autosave_cell_every = autosave_cell_every
         self.max_autosave_pct = 25
         self.last_save_time = self.now()  # Not exactly true, but simplifies testing logic
+        self.live_display = live_display  # optional LiveTreeDisplay — replaces tqdm when set
         self.pbar = None
         if progress_bar:
             # lazy import due to implicit slow ipython import
@@ -227,10 +229,14 @@ class NotebookExecutionManager:
         cell.metadata.papermill["status"] = self.RUNNING
         cell.metadata.papermill['exception'] = False
 
-        # injects optional description of the current cell directly in the tqdm
-        cell_description = self.get_cell_description(cell)
-        if cell_description is not None and hasattr(self, 'pbar') and self.pbar:
-            self.pbar.set_description(f"Executing {cell_description}")
+        if self.live_display is not None:
+            if cell_index is not None:
+                self.live_display.on_cell_start(cell_index)
+        else:
+            # injects optional description of the current cell directly in the tqdm
+            cell_description = self.get_cell_description(cell)
+            if cell_description is not None and hasattr(self, 'pbar') and self.pbar:
+                self.pbar.set_description(f"Executing {cell_description}")
 
         self.save()
 
@@ -246,6 +252,8 @@ class NotebookExecutionManager:
         cell.metadata.papermill['exception'] = True
         cell.metadata.papermill['status'] = self.FAILED
         self.nb.metadata.papermill['exception'] = True
+        if self.live_display is not None and cell_index is not None:
+            self.live_display.on_cell_exception(cell_index)
 
     @catch_nb_assignment
     def cell_complete(self, cell, cell_index=None, **kwargs):
@@ -272,7 +280,10 @@ class NotebookExecutionManager:
             cell.metadata.papermill['status'] = self.COMPLETED
 
         self.save()
-        if self.pbar:
+        if self.live_display is not None:
+            if cell_index is not None:
+                self.live_display.on_cell_complete(self.nb.cells[cell_index], cell_index)
+        elif self.pbar:
             self.pbar.update(1)
 
     @catch_nb_assignment
@@ -348,6 +359,7 @@ class Engine:
         progress_bar=True,
         log_output=False,
         autosave_cell_every=30,
+        live_display=None,
         **kwargs,
     ):
         """
@@ -364,6 +376,7 @@ class Engine:
             progress_bar=progress_bar,
             log_output=log_output,
             autosave_cell_every=autosave_cell_every,
+            live_display=live_display,
         )
 
         nb_man.notebook_start()

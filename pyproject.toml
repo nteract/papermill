@@ -108,6 +108,7 @@ optional-dependencies.docs = [
 optional-dependencies.gcs = [ "gcsfs>=0.2" ]
 optional-dependencies.github = [ "pygithub>=1.55" ]
 optional-dependencies.hdfs = [ "pyarrow>=2" ]
+optional-dependencies.rich = [ "rich>=13.0" ]
 optional-dependencies.s3 = [ "boto3" ]
 optional-dependencies.test = [
   "attrs>=17.4",
@@ -147,6 +148,7 @@ urls.Funding = "https://nteract.io"
 urls.Source = "https://github.com/nteract/papermill/"
 urls.Tracker = "https://github.com/nteract/papermill/issues"
 scripts.papermill = "papermill.__main__:papermill"
+scripts.papermill-profile = "papermill.cli:papermill_profile"
 
 [tool.setuptools]
 packages = [ "papermill" ]
