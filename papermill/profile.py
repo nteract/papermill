@@ -132,7 +132,7 @@ class CellProfile:
 class SectionProfile:
     """A section of cells bounded by a markdown heading."""
 
-    title: str     # original markdown heading text
+    title: str  # original markdown heading text
     level: int
     number: str = ""  # e.g. "1", "1.2", "1.2.3"
     cells: list = field(default_factory=list)
@@ -331,9 +331,7 @@ def build_profile(notebook_path: str, nb: nbformat.NotebookNode) -> dict:
     n_errors = sum(1 for c in all_code if c.exception)
 
     def _label(idx: int) -> str:
-        return next(
-            (s.display_label for s in sections if any(x.index == idx for x in s.cells)), "?"
-        )
+        return next((s.display_label for s in sections if any(x.index == idx for x in s.cells)), "?")
 
     slowest = [{**c.to_dict(), "section": _label(c.index)} for c in sorted_dur[:5]]
 

@@ -108,7 +108,7 @@ optional-dependencies.docs = [
 optional-dependencies.gcs = [ "gcsfs>=0.2" ]
 optional-dependencies.github = [ "pygithub>=1.55" ]
 optional-dependencies.hdfs = [ "pyarrow>=2" ]
-optional-dependencies.rich = [ "rich>=13.0" ]
+optional-dependencies.rich = [ "rich>=13" ]
 optional-dependencies.s3 = [ "boto3" ]
 optional-dependencies.test = [
   "attrs>=17.4",

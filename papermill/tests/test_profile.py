@@ -15,6 +15,7 @@ from papermill.profile import (
 
 # ── Fixtures ──────────────────────────────────────────────────────────────────
 
+
 def _make_nb(cells):
     """Build a minimal NotebookNode from a list of (type, source, pm_meta) tuples."""
     nb = nbformat.v4.new_notebook()
@@ -25,8 +26,11 @@ def _make_nb(cells):
         else:
             cell = nbformat.v4.new_code_cell(source)
             cell.metadata["papermill"] = pm_meta or {
-                "start_time": None, "end_time": None,
-                "duration": None, "status": "pending", "exception": False,
+                "start_time": None,
+                "end_time": None,
+                "duration": None,
+                "status": "pending",
+                "exception": False,
             }
         nb.cells.append(cell)
     return nb
@@ -44,6 +48,7 @@ def _executed_cell_meta(duration, status="completed", exception=False):
 
 # ── build_sections ────────────────────────────────────────────────────────────
 
+
 class TestBuildSections:
     def test_no_headings_creates_preamble(self):
         nb = _make_nb([("code", "x = 1", None), ("code", "y = 2", None)])
@@ -54,54 +59,75 @@ class TestBuildSections:
         assert len(sections[0].cells) == 2
 
     def test_single_heading(self):
-        nb = _make_nb([
-            ("markdown", "# Data Loading", None),
-            ("code", "import pandas", None),
-        ])
+        nb = _make_nb(
+            [
+                ("markdown", "# Data Loading", None),
+                ("code", "import pandas", None),
+            ]
+        )
         sections = build_sections(nb)
         assert len(sections) == 1
         assert sections[0].number == "1"
         assert sections[0].display_label == "Section 1"
 
     def test_sequential_numbering(self):
-        nb = _make_nb([
-            ("markdown", "# First", None), ("code", "a=1", None),
-            ("markdown", "# Second", None), ("code", "b=2", None),
-            ("markdown", "# Third", None), ("code", "c=3", None),
-        ])
+        nb = _make_nb(
+            [
+                ("markdown", "# First", None),
+                ("code", "a=1", None),
+                ("markdown", "# Second", None),
+                ("code", "b=2", None),
+                ("markdown", "# Third", None),
+                ("code", "c=3", None),
+            ]
+        )
         sections = build_sections(nb)
         assert [s.number for s in sections] == ["1", "2", "3"]
         assert [s.display_label for s in sections] == ["Section 1", "Section 2", "Section 3"]
 
     def test_nested_sub_sections(self):
-        nb = _make_nb([
-            ("markdown", "# Analysis", None), ("code", "x=1", None),
-            ("markdown", "## Cleaning", None), ("code", "y=2", None),
-            ("markdown", "## Feature Engineering", None), ("code", "z=3", None),
-            ("markdown", "# Results", None), ("code", "w=4", None),
-        ])
+        nb = _make_nb(
+            [
+                ("markdown", "# Analysis", None),
+                ("code", "x=1", None),
+                ("markdown", "## Cleaning", None),
+                ("code", "y=2", None),
+                ("markdown", "## Feature Engineering", None),
+                ("code", "z=3", None),
+                ("markdown", "# Results", None),
+                ("code", "w=4", None),
+            ]
+        )
         sections = build_sections(nb)
         labels = [s.display_label for s in sections]
         assert labels == ["Section 1", "Sub-section 1.1", "Sub-section 1.2", "Section 2"]
 
     def test_sub_section_counter_resets_across_top_sections(self):
-        nb = _make_nb([
-            ("markdown", "# A", None), ("code", "a=1", None),
-            ("markdown", "## A1", None), ("code", "b=2", None),
-            ("markdown", "# B", None), ("code", "c=3", None),
-            ("markdown", "## B1", None), ("code", "d=4", None),
-        ])
+        nb = _make_nb(
+            [
+                ("markdown", "# A", None),
+                ("code", "a=1", None),
+                ("markdown", "## A1", None),
+                ("code", "b=2", None),
+                ("markdown", "# B", None),
+                ("code", "c=3", None),
+                ("markdown", "## B1", None),
+                ("code", "d=4", None),
+            ]
+        )
         sections = build_sections(nb)
         numbers = [s.number for s in sections]
         # After # B the sub-counter resets, so ## B1 becomes 2.1 not 1.2
         assert numbers == ["1", "1.1", "2", "2.1"]
 
     def test_heading_cells_not_added_to_cell_list(self):
-        nb = _make_nb([
-            ("markdown", "# Title", None),
-            ("markdown", "Some prose (no heading)", None),
-            ("code", "x=1", None),
-        ])
+        nb = _make_nb(
+            [
+                ("markdown", "# Title", None),
+                ("markdown", "Some prose (no heading)", None),
+                ("code", "x=1", None),
+            ]
+        )
         sections = build_sections(nb)
         assert len(sections) == 1
         # Only the prose markdown + code cell should be in cells
@@ -109,6 +135,7 @@ class TestBuildSections:
 
 
 # ── SectionProfile ────────────────────────────────────────────────────────────
+
 
 class TestSectionProfile:
     def test_display_label_preamble(self):
@@ -149,16 +176,19 @@ class TestSectionProfile:
 
 # ── build_profile ─────────────────────────────────────────────────────────────
 
+
 class TestBuildProfile:
     def _make_executed_nb(self):
-        nb = _make_nb([
-            ("markdown", "# Imports", None),
-            ("code", "import numpy as np", _executed_cell_meta(0.1)),
-            ("markdown", "## Heavy computation", None),
-            ("code", "result = np.sum(range(1000))", _executed_cell_meta(5.0)),
-            ("markdown", "# Results", None),
-            ("code", "print(result)", _executed_cell_meta(0.05)),
-        ])
+        nb = _make_nb(
+            [
+                ("markdown", "# Imports", None),
+                ("code", "import numpy as np", _executed_cell_meta(0.1)),
+                ("markdown", "## Heavy computation", None),
+                ("code", "result = np.sum(range(1000))", _executed_cell_meta(5.0)),
+                ("markdown", "# Results", None),
+                ("code", "print(result)", _executed_cell_meta(0.05)),
+            ]
+        )
         nb.metadata["papermill"] = {
             "start_time": "2026-01-01T00:00:00+00:00",
             "end_time": "2026-01-01T00:00:06+00:00",
@@ -203,6 +233,7 @@ class TestBuildProfile:
 
 # ── profile_notebook ──────────────────────────────────────────────────────────
 
+
 class TestProfileNotebook:
     def test_returns_dict(self, tmp_path):
         nb = nbformat.v4.new_notebook()
@@ -236,7 +267,9 @@ class TestProfileNotebook:
 
 # ── live_tree availability guard ──────────────────────────────────────────────
 
+
 class TestLiveTreeAvailability:
     def test_is_available_returns_bool(self):
         from papermill.live_tree import is_available
+
         assert isinstance(is_available(), bool)

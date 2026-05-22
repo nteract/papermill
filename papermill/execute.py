@@ -120,8 +120,10 @@ def execute_notebook(
             _live_display = None
             if live_tree:
                 from .live_tree import LiveTreeDisplay, is_available as _rich_ok
+
                 if _rich_ok():
                     import os
+
                     nb_name = os.path.basename(input_path) if isinstance(input_path, str) else "notebook.ipynb"
                     _live_display = LiveTreeDisplay(nb, nb_name)
                     progress_bar = False  # Rich tree replaces tqdm

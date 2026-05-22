@@ -271,7 +271,9 @@ def papermill(
 @click.command('profile', context_settings=dict(help_option_names=['-h', '--help']))
 @click.argument('notebook_path')
 @click.option(
-    '--output', '-o', default=None,
+    '--output',
+    '-o',
+    default=None,
     help='Path to write profile JSON (default: <notebook>.profile.json).',
 )
 def papermill_profile(notebook_path, output):
@@ -296,10 +298,7 @@ def papermill_profile(notebook_path, output):
 
     if profile.get('bottleneck'):
         b = profile['bottleneck']
-        click.echo(
-            f"Bottleneck: [{b['cell_index']}] in «{b['section']}» "
-            f"— {b['duration_s']}s ({b['pct_of_total']}%)"
-        )
+        click.echo(f"Bottleneck: [{b['cell_index']}] in «{b['section']}» — {b['duration_s']}s ({b['pct_of_total']}%)")
 
     click.echo("\nSections:")
     for s in profile['sections']:

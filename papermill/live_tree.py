@@ -45,6 +45,7 @@ def is_available() -> bool:
     """Return True if the ``rich`` package is installed."""
     try:
         import rich  # noqa: F401
+
         return True
     except ImportError:
         return False
@@ -53,11 +54,11 @@ def is_available() -> bool:
 # ── Glyph / colour helpers ────────────────────────────────────────────────────
 
 _GLYPH = {
-    "pending":   ("·", "dim"),
-    "running":   ("⟳", "yellow bold"),
+    "pending": ("·", "dim"),
+    "running": ("⟳", "yellow bold"),
     "completed": ("✓", "green"),
-    "failed":    ("✗", "red bold"),
-    "skipped":   ("—", "dim"),
+    "failed": ("✗", "red bold"),
+    "skipped": ("—", "dim"),
 }
 
 
@@ -86,16 +87,13 @@ class LiveTreeDisplay:
     def __init__(self, nb: "nbformat.NotebookNode", nb_name: str, refresh_per_second: int = 4):
         if not is_available():
             raise ImportError(
-                "The 'rich' package is required for live tree display. "
-                "Install it with: pip install 'papermill[rich]'"
+                "The 'rich' package is required for live tree display. Install it with: pip install 'papermill[rich]'"
             )
         from rich.console import Console
         from rich.live import Live
 
         self._sections: list[SectionProfile] = build_sections(nb)
-        self._cell_map: dict[int, CellProfile] = {
-            cp.index: cp for sec in self._sections for cp in sec.cells
-        }
+        self._cell_map: dict[int, CellProfile] = {cp.index: cp for sec in self._sections for cp in sec.cells}
         self._nb_name = nb_name
         self._n_total = sum(1 for c in nb.cells if c.cell_type == "code")
         self._n_done = 0
@@ -111,10 +109,7 @@ class LiveTreeDisplay:
         from rich.tree import Tree
 
         pct = 100 * self._n_done / self._n_total if self._n_total else 0
-        header = (
-            f"[bold]{self._nb_name}[/]  "
-            f"[dim]{self._n_done}/{self._n_total} cells  {pct:.0f}%[/]"
-        )
+        header = f"[bold]{self._nb_name}[/]  [dim]{self._n_done}/{self._n_total} cells  {pct:.0f}%[/]"
         root = Tree(header, guide_style="dim")
         level_nodes: dict = {0: root}
 
@@ -125,10 +120,14 @@ class LiveTreeDisplay:
             code_cells = [c for c in sec.cells if c.cell_type == "code"]
             sec_status = sec.status
             is_running = sec_status == "running"
-            live_start = next(
-                (c._live_start for c in code_cells if getattr(c, "_live_start", None) and c.status == "running"),
-                None,
-            ) if is_running else None
+            live_start = (
+                next(
+                    (c._live_start for c in code_cells if getattr(c, "_live_start", None) and c.status == "running"),
+                    None,
+                )
+                if is_running
+                else None
+            )
 
             glyph_ch, glyph_style = _GLYPH.get(sec_status, ("?", "dim"))
             glyph = Text(glyph_ch, style=glyph_style)
@@ -163,6 +162,7 @@ class LiveTreeDisplay:
     @staticmethod
     def _dur_text(dur, running: bool = False, live_start=None):
         from rich.text import Text
+
         if running and live_start is not None:
             elapsed = time.monotonic() - live_start
             return Text(f"{elapsed:.1f}s…", style="yellow")

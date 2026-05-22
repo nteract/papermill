@@ -96,8 +96,9 @@ class NotebookExecutionManager:
     COMPLETED = "completed"
     FAILED = "failed"
 
-    def __init__(self, nb, output_path=None, log_output=False, progress_bar=True, autosave_cell_every=30,
-                 live_display=None):
+    def __init__(
+        self, nb, output_path=None, log_output=False, progress_bar=True, autosave_cell_every=30, live_display=None
+    ):
         self.nb = nb
         self.output_path = output_path
         self.log_output = log_output
