@@ -24,6 +24,7 @@ from papermill.iorw import (
     papermill_io,
     read_yaml_file,
 )
+
 from . import get_notebook_path
 
 FIXTURE_PATH = os.path.join(os.path.dirname(__file__), 'fixtures')

@@ -17,6 +17,7 @@ from click.testing import CliRunner
 
 from papermill import cli
 from papermill.cli import _is_float, _is_int, _resolve_type, papermill
+
 from . import get_notebook_path, kernel_name
 
 

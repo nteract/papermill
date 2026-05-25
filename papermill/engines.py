@@ -3,9 +3,9 @@
 import datetime
 import sys
 from functools import wraps
+from importlib.metadata import entry_points
 
 import dateutil
-from importlib.metadata import entry_points
 
 from .clientwrap import PapermillNotebookClient
 from .exceptions import PapermillException
