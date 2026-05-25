@@ -4,7 +4,7 @@ from unittest.mock import Mock, patch
 
 from azure.identity import EnvironmentCredential
 
-from ..abs import AzureBlobStore
+from papermill.abs import AzureBlobStore
 
 
 class MockBytesIO:

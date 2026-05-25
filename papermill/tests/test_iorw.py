@@ -10,9 +10,9 @@ import nbformat
 import pytest
 from requests.exceptions import ConnectionError
 
-from .. import iorw
-from ..exceptions import PapermillException
-from ..iorw import (
+from papermill import iorw
+from papermill.exceptions import PapermillException
+from papermill.iorw import (
     ADLHandler,
     HttpHandler,
     LocalHandler,
@@ -24,6 +24,7 @@ from ..iorw import (
     papermill_io,
     read_yaml_file,
 )
+
 from . import get_notebook_path
 
 FIXTURE_PATH = os.path.join(os.path.dirname(__file__), 'fixtures')
@@ -101,12 +102,16 @@ class TestPapermillIO(unittest.TestCase):
         self.assertIsInstance(self.papermill_io.get_handler(test_nb), NotebookNodeHandler)
 
     def test_entrypoint_register(self):
-        fake_entrypoint = Mock(load=Mock())
+        fake_entrypoint = Mock()
         fake_entrypoint.name = "fake-from-entry-point://"
+        fake_entrypoint.load.return_value = Mock()
 
-        with patch("entrypoints.get_group_all", return_value=[fake_entrypoint]) as mock_get_group_all:
+        mock_entry_points = Mock()
+        mock_entry_points.select.return_value = [fake_entrypoint]
+
+        with patch("papermill.iorw.entry_points", return_value=mock_entry_points):
             self.papermill_io.register_entry_points()
-            mock_get_group_all.assert_called_once_with("papermill.io")
+            mock_entry_points.select.assert_called_once_with(group="papermill.io")
             fake_ = self.papermill_io.get_handler("fake-from-entry-point://")
             assert fake_ == fake_entrypoint.load.return_value
 
@@ -206,6 +211,7 @@ class TestLocalHandler(unittest.TestCase):
         with patch.object(io, 'open'):
             # Shouldn't raise with missing directory
             LocalHandler().write("buffer", "local.ipynb")
+            os.unlink("local.ipynb")
 
     def test_write_passed_cwd(self):
         with TemporaryDirectory() as temp_dir:

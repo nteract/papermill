@@ -6,8 +6,8 @@ from unittest.mock import Mock, call
 import pytest
 from nbformat.v4 import new_code_cell, new_notebook
 
-from ..exceptions import PapermillParameterOverwriteWarning
-from ..utils import (
+from papermill.exceptions import PapermillParameterOverwriteWarning
+from papermill.utils import (
     any_tagged_cell,
     chdir,
     merge_kwargs,

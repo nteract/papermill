@@ -6,10 +6,11 @@ from unittest.mock import Mock, call, patch
 import dateutil
 from nbformat.notebooknode import NotebookNode
 
-from .. import engines, exceptions
-from ..engines import Engine, NBClientEngine, NotebookExecutionManager
-from ..iorw import load_notebook_node
-from ..log import logger
+from papermill import engines, exceptions
+from papermill.engines import Engine, NBClientEngine, NotebookExecutionManager
+from papermill.iorw import load_notebook_node
+from papermill.log import logger
+
 from . import get_notebook_path
 
 
@@ -489,10 +490,14 @@ class TestEngineRegistration(unittest.TestCase):
         self.assertRaises(exceptions.PapermillException, self.papermill_engines.get_engine, "non-existent")
 
     def test_registering_entry_points(self):
-        fake_entrypoint = Mock(load=Mock())
+        fake_entrypoint = Mock()
         fake_entrypoint.name = "fake-engine"
+        fake_entrypoint.load.return_value = Mock()
 
-        with patch("entrypoints.get_group_all", return_value=[fake_entrypoint]) as mock_get_group_all:
+        mock_entry_points = Mock()
+        mock_entry_points.select.return_value = [fake_entrypoint]
+
+        with patch("papermill.engines.entry_points", return_value=mock_entry_points):
             self.papermill_engines.register_entry_points()
-            mock_get_group_all.assert_called_once_with("papermill.engine")
+            mock_entry_points.select.assert_called_once_with(group="papermill.engine")
             self.assertEqual(self.papermill_engines.get_engine("fake-engine"), fake_entrypoint.load.return_value)

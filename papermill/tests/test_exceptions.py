@@ -4,7 +4,7 @@ import tempfile
 
 import pytest
 
-from .. import exceptions
+from papermill import exceptions
 
 
 @pytest.fixture

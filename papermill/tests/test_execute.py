@@ -10,12 +10,13 @@ from unittest.mock import ANY, patch
 import nbformat
 from nbformat import validate
 
-from .. import engines, translators
-from ..exceptions import PapermillExecutionError, strip_color
-from ..execute import execute_notebook
-from ..iorw import load_notebook_node
-from ..log import logger
-from ..utils import chdir
+from papermill import engines, translators
+from papermill.exceptions import PapermillExecutionError, strip_color
+from papermill.execute import execute_notebook
+from papermill.iorw import load_notebook_node
+from papermill.log import logger
+from papermill.utils import chdir
+
 from . import get_notebook_path, kernel_name
 
 execute_notebook = partial(execute_notebook, kernel_name=kernel_name)
