@@ -38,6 +38,17 @@ This library currently supports python 3.10+ versions. As minor python
 versions are officially sunset by the python org papermill will similarly
 drop support in the future.
 
+Citing Papermill
+----------------
+
+If Papermill supports your research, please cite it as software in your
+publication and include the version that you used. For example:
+
+.. code-block:: text
+
+   nteract contributors. Papermill: parameterize and execute Jupyter notebooks.
+   Version X.Y.Z. https://github.com/nteract/papermill
+
 Documentation
 -------------
 
