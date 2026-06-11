@@ -30,7 +30,7 @@ pulls:
     This pull request has been automatically marked as stale because it has been inactive for 180 days.
     It will be closed in 30 days if no further activity occurs. If you need further help see our docs:
     https://github.com/nteract/papermill/blob/main/CONTRIBUTING.md
-    or ask the assistance. Thank you for your contributions.
+    or ask for assistance. Thank you for your contributions.
   # Comment to post when closing a stale issue. Set to `false` to disable
   closeComment: >
     This pull request is going to be closed. Please feel free to reopen it or create a new one based on top of the
