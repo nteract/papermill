@@ -19,6 +19,7 @@ from ..models import Parameter
         ({"foo": ["bar"]}, '{"foo": ["bar"]}'),
         ({"foo": {"bar": "baz"}}, '{"foo": {"bar": "baz"}}'),
         ({"foo": {"bar": '"baz"'}}, '{"foo": {"bar": "\\"baz\\""}}'),
+        ({"foo": (0.05, "<")}, '{"foo": [0.05, "<"]}'),
         (["foo"], '["foo"]'),
         (["foo", '"bar"'], '["foo", "\\"bar\\""]'),
         ([{"foo": "bar"}], '[{"foo": "bar"}]'),

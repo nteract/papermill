@@ -96,7 +96,7 @@ class Translator:
             return cls.translate_float(val)
         elif isinstance(val, dict):
             return cls.translate_dict(val)
-        elif isinstance(val, list):
+        elif isinstance(val, (list, tuple)):
             return cls.translate_list(val)
         # Use this generic translation as a last resort
         return cls.translate_escaped_str(val)
