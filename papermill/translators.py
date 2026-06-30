@@ -615,9 +615,8 @@ class QTranslator(Translator):
     def assign(cls, name, str_val):
         return f"{name}: {str_val};"
 
-    PARAMETER_PATTERN = re.compile(
-        r"^(?P<target>\w[\w_]*)\s*:\s*(?P<value>.*?);?(\s\/+(?P<help>.*))?$"
-    )
+    PARAMETER_PATTERN = re.compile(r"^(?P<target>\w[\w_]*)\s*:\s*(?P<value>.*?);?(\s\/+(?P<help>.*))?$")
+
     @classmethod
     def inspect(cls, parameters_cell):
         params = []
