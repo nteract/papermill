@@ -545,6 +545,117 @@ class BashTranslator(Translator):
         return f'{name}={str_val}'
 
 
+class QTranslator(Translator):
+    @classmethod
+    def translate_none(cls, val):
+        return "::"
+
+    @classmethod
+    def translate_bool(cls, val):
+        return "1b" if val else "0b"
+
+    @classmethod
+    def translate_dict(cls, val):
+        keys = ""
+        vals = []
+        for key, value in val.items():
+            keys += f"`{key}"
+            if not isinstance(s := cls.translate(value), str):
+                raise NotImplementedError(
+                    f"Couldn't translate dict '{value}' to q.\nvalue at key {key} couldn't be translated"
+                )
+            vals.append(s)
+        if len(val.keys()) > 1:
+            return f"({keys})!({';'.join(vals)})"
+        return f"enlist[{keys}]!enlist[{vals[0]}]"
+
+    @classmethod
+    def translate_list(cls, val):
+        return f'({";".join(map(cls.translate, val))})'
+
+    month_re = re.compile(r"\d{4}\.[0-1]\dm")
+    date_re = re.compile(r"\d{4}\.[0-1]\d\.[0-3]\d")
+    time_re = re.compile(r"\d{2}:[0-5]\d(:[0-5]\d(\.\d{1,9})?)?")  # covers all the times
+    datetime_re = re.compile(f"{date_re}(D|T){time_re}")
+
+    @classmethod
+    def translate(cls, val):
+        """Translate each of the standard json/yaml types to appropriate objects."""
+        if val is None:
+            return cls.translate_none(val)
+        elif isinstance(val, str):
+            if (
+                cls.date_re.match(val)
+                or cls.datetime_re.match(val)
+                or cls.time_re.match(val)
+                or cls.month_re.match(val)
+            ):
+                return cls.translate_raw_str(val)
+            return cls.translate_str(val)
+        # Needs to be before integer checks
+        elif isinstance(val, bool):
+            return cls.translate_bool(val)
+        elif isinstance(val, int):
+            return cls.translate_int(val)
+        elif isinstance(val, float):
+            return cls.translate_float(val)
+        elif isinstance(val, dict):
+            return cls.translate_dict(val)
+        elif isinstance(val, list):
+            return cls.translate_list(val)
+
+        # Use this generic translation as a last resort
+        return cls.translate_escaped_str(val)
+
+    @classmethod
+    def comment(cls, cmt_str):
+        return f"/ {cmt_str}"
+
+    @classmethod
+    def assign(cls, name, str_val):
+        return f"{name}: {str_val};"
+
+    PARAMETER_PATTERN = re.compile(
+        r"^(?P<target>\w[\w_]*)\s*:\s*(?P<value>.*?);?(\s\/+(?P<help>.*))?$"
+    )
+    @classmethod
+    def inspect(cls, parameters_cell):
+        params = []
+        src = parameters_cell["source"]
+
+        logical_lines = []
+        current_line = ""
+        for _, line in enumerate(src.splitlines()):
+            if len(line.strip()) == 0 or line.strip().startswith("/"):
+                continue  # Skip blank and comment
+
+            current_line += line
+            if not line.startswith(" "):
+                logical_lines.append(current_line)
+                current_line = ""
+
+        for line in logical_lines:
+            if len(line) == 0:
+                continue
+
+            match = re.match(cls.PARAMETER_PATTERN, line)
+            if match is not None:
+                attr = match.groupdict()
+                if attr["target"] is None:  # Fail to get variable name
+                    continue
+
+                params.append(
+                    Parameter(
+                        name=attr["target"].strip(),
+                        inferred_type_name="",
+                        default=str(attr["value"]).strip(),
+                        help=str(attr["help"] or "").strip(),
+                    )
+                )
+
+        return params
+
+
 # Instantiate a PapermillIO instance and register Handlers.
 papermill_translators = PapermillTranslators()
 papermill_translators.register("python", PythonTranslator)
@@ -559,6 +670,7 @@ papermill_translators.register("pysparkkernel", PythonTranslator)
 papermill_translators.register("sparkkernel", ScalaTranslator)
 papermill_translators.register("sparkrkernel", RTranslator)
 papermill_translators.register("bash", BashTranslator)
+papermill_translators.register("q", QTranslator)
 
 
 def translate_parameters(kernel_name, language, parameters, comment='Parameters'):
