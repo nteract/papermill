@@ -1,3 +1,4 @@
+from copy import deepcopy
 from datetime import datetime, timezone
 from uuid import uuid4
 
@@ -92,15 +93,21 @@ def parameterize_notebook(
     # Upgrade the Notebook to the latest v4 before writing into it
     nb = nbformat.v4.upgrade(nb)
 
-    newcell = nbformat.v4.new_code_cell(source=param_content)
-    newcell.metadata['tags'] = ['injected-parameters']
-
-    if report_mode:
-        newcell.metadata['jupyter'] = newcell.get('jupyter', {})
-        newcell.metadata['jupyter']['source_hidden'] = True
-
     param_cell_index = find_first_tagged_cell_index(nb, 'parameters')
     injected_cell_index = find_first_tagged_cell_index(nb, 'injected-parameters')
+
+    newcell = nbformat.v4.new_code_cell(source=param_content)
+    if param_cell_index >= 0:
+        newcell.metadata = deepcopy(nb.cells[param_cell_index].metadata)
+
+    tags = [tag for tag in newcell.metadata.get('tags', []) if tag != 'parameters']
+    if 'injected-parameters' not in tags:
+        tags.append('injected-parameters')
+    newcell.metadata['tags'] = tags
+
+    if report_mode:
+        newcell.metadata.setdefault('jupyter', {})['source_hidden'] = True
+
     if injected_cell_index >= 0:
         # Replace the injected cell with a new version
         before = nb.cells[:injected_cell_index]

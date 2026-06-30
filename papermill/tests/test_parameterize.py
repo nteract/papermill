@@ -11,20 +11,23 @@ class TestNotebookParametrizing(unittest.TestCase):
     def count_nb_injected_parameter_cells(self, nb):
         return len([c for c in nb.cells if 'injected-parameters' in c.get('metadata', {}).get('tags', [])])
 
-    def test_no_tag_copying(self):
-        # Test that injected cell does not copy other tags
+    def test_parameter_cell_metadata_is_copied(self):
         test_nb = load_notebook_node(get_notebook_path("simple_execute.ipynb"))
         test_nb.cells[0]['metadata']['tags'].append('some tag')
+        test_nb.cells[0]['metadata']['slideshow'] = {'slide_type': 'skip'}
 
         test_nb = parameterize_notebook(test_nb, {'msg': 'Hello'})
 
         cell_zero = test_nb.cells[0]
         self.assertTrue('some tag' in cell_zero.get('metadata').get('tags'))
         self.assertTrue('parameters' in cell_zero.get('metadata').get('tags'))
+        self.assertEqual({'slide_type': 'skip'}, cell_zero.get('metadata').get('slideshow'))
 
         cell_one = test_nb.cells[1]
-        self.assertTrue('some tag' not in cell_one.get('metadata').get('tags'))
+        self.assertTrue('some tag' in cell_one.get('metadata').get('tags'))
+        self.assertTrue('parameters' not in cell_one.get('metadata').get('tags'))
         self.assertTrue('injected-parameters' in cell_one.get('metadata').get('tags'))
+        self.assertEqual({'slide_type': 'skip'}, cell_one.get('metadata').get('slideshow'))
 
         self.assertEqual(self.count_nb_injected_parameter_cells(test_nb), 1)
 
