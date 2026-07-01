@@ -68,6 +68,8 @@ def test_translate_comment_python(test_input, expected):
     [
         ("a = 2", [Parameter("a", "None", "2", "")]),
         ("a: int = 2", [Parameter("a", "int", "2", "")]),
+        ("a: None | str = None", [Parameter("a", "None | str", "None", "")]),
+        ("a: list[str] | None = None", [Parameter("a", "list[str] | None", "None", "")]),
         ("a = 2 # type:int", [Parameter("a", "int", "2", "")]),
         ("a = False # Nice variable a", [Parameter("a", "None", "False", "Nice variable a")]),
         (
