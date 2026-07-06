@@ -152,7 +152,7 @@ class S3:
                 s3 = session.resource('s3', **session_params)
                 S3.s3_session = (session, client, s3)
 
-        (self.session, self.client, self.s3) = S3.s3_session
+        self.session, self.client, self.s3 = S3.s3_session
 
     def _bucket_name(self, bucket):
         return self._clean(bucket).split('/', 1)[0]

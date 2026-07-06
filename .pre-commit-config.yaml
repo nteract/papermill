@@ -21,13 +21,13 @@ repos:
       - id: detect-private-key
 
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.4.1
+    rev: v2.4.2
     hooks:
       - id: codespell
         additional_dependencies: [tomli]
 
-  - repo: https://github.com/psf/black
-    rev: 25.11.0
+  - repo: https://github.com/psf/black-pre-commit-mirror
+    rev: 26.5.1
     hooks:
       - id: black
         name: Black code
@@ -41,7 +41,7 @@ repos:
           - mdformat-gfm
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.5
+    rev: v0.15.20
     hooks:
       # Run the linter.
       - id: ruff-check
@@ -49,11 +49,11 @@ repos:
       - id: ruff-format
 
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: v2.6.0
+    rev: v2.25.1
     hooks:
       - id: pyproject-fmt
         additional_dependencies: [tox]
   - repo: https://github.com/abravalheri/validate-pyproject
-    rev: v0.24.1
+    rev: v0.25
     hooks:
       - id: validate-pyproject
