@@ -110,6 +110,29 @@ class TestNotebookHelpers(unittest.TestCase):
         )
         self.assertEqual(test_nb.metadata.papermill.parameters, {'foo': r'\\"bar\\"'})
 
+    def test_parameter_default_string_containing_equals_is_known(self):
+        notebook_path = os.path.join(self.test_dir, 'string_equals.ipynb')
+        nb = nbformat.v4.new_notebook(
+            cells=[
+                nbformat.v4.new_code_cell(
+                    source='msg = "a=b"',
+                    metadata={"tags": ["parameters"]},
+                )
+            ],
+            metadata={
+                "kernelspec": {"name": kernel_name, "language": "python", "display_name": "Python 3"},
+                "language_info": {"name": "python"},
+            },
+        )
+        nbformat.write(nb, notebook_path)
+
+        with patch.object(logger, 'warning') as warning_mock:
+            execute_notebook(notebook_path, self.nb_test_executed_fname, {'msg': 'Hello'}, prepare_only=True)
+
+        warning_mock.assert_not_called()
+        test_nb = load_notebook_node(self.nb_test_executed_fname)
+        self.assertEqual(test_nb.metadata.papermill.parameters, {'msg': 'Hello'})
+
     def test_prepare_only(self):
         for example in ['broken1.ipynb', 'keyboard_interrupt.ipynb']:
             path = get_notebook_path(example)

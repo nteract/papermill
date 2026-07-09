@@ -78,6 +78,12 @@ def test_translate_comment_python(test_input, expected):
             "a = 'this is a string' # type: int Nice variable a",
             [Parameter("a", "int", "'this is a string'", "Nice variable a")],
         ),
+        ('a = "this=that"', [Parameter("a", "None", '"this=that"', "")]),
+        ('a = dict(foo="bar=baz")', [Parameter("a", "None", 'dict(foo="bar=baz")', "")]),
+        (
+            'a = dict(\n    foo="bar=baz",\n    bar=1,\n)',
+            [Parameter("a", "None", 'dict(foo="bar=baz",bar=1,)', "")],
+        ),
         (
             "a: List[str] = ['this', 'is', 'a', 'string', 'list'] # Nice variable a",
             [Parameter("a", "List[str]", "['this', 'is', 'a', 'string', 'list']", "Nice variable a")],

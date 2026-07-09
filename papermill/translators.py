@@ -1,7 +1,9 @@
+import io
 import logging
 import math
 import re
 import shlex
+import tokenize
 
 from .exceptions import PapermillException
 from .models import Parameter
@@ -191,6 +193,35 @@ class PythonTranslator(Translator):
         return content
 
     @classmethod
+    def _count_top_level_assignments(cls, line):
+        assignment_count = 0
+        equals_count = 0
+        bracket_delta = 0
+        bracket_depth = 0
+
+        try:
+            tokens = tokenize.generate_tokens(io.StringIO(f"{line}\n").readline)
+            for token in tokens:
+                if token.type != tokenize.OP:
+                    continue
+
+                if token.string in "([{":
+                    bracket_depth += 1
+                    bracket_delta += 1
+                elif token.string in ")]}":
+                    bracket_depth -= 1
+                    bracket_delta -= 1
+                elif token.string == "=" and bracket_depth == 0:
+                    assignment_count += 1
+                    equals_count += 1
+                elif "=" in token.string and bracket_depth == 0:
+                    equals_count += 1
+        except tokenize.TokenError:
+            pass
+
+        return assignment_count, equals_count, bracket_delta
+
+    @classmethod
     def inspect(cls, parameters_cell):
         """Inspect the parameters cell to get a Parameter list
 
@@ -238,19 +269,21 @@ class PythonTranslator(Translator):
         # line definition
         grouped_variable = []
         accumulator = []
+        continuation_depth = 0
         for iline, line in enumerate(src.splitlines()):
             if len(line.strip()) == 0 or line.strip().startswith('#'):
                 continue  # Skip blank and comment
 
-            nequal = line.count("=")
-            if nequal > 0:
+            nassign, nequal, bracket_delta = cls._count_top_level_assignments(line)
+            if continuation_depth == 0 and nassign > 0:
                 grouped_variable.append(flatten_accumulator(accumulator))
                 accumulator = []
-                if nequal > 1:
+                if nassign > 1 or nequal > nassign:
                     logger.warning(f"Unable to parse line {iline + 1} '{line}'.")
                     continue
 
             accumulator.append(line)
+            continuation_depth = max(0, continuation_depth + bracket_delta)
         grouped_variable.append(flatten_accumulator(accumulator))
 
         for definition in grouped_variable:
