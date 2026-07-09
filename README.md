@@ -168,6 +168,23 @@ Read [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on how to setup a local
 
 For development guidelines look in the [DEVELOPMENT_GUIDE.md](./DEVELOPMENT_GUIDE.md) file. This should inform you on how to make particular additions to the code base.
 
+## Citing
+
+If you use papermill in academic work, please cite it as:
+
+```bibtex
+@software{papermill,
+  author = {{nteract team}},
+  title = {papermill: Parameterize, execute, and analyze Jupyter Notebooks},
+  doi = {10.21105/joss.03518},
+  url = {https://github.com/nteract/papermill},
+  version = {2.7.0},
+  year = {2025}
+}
+```
+
+A `CITATION.cff` file is also available in the repository root.
+
 ## Documentation
 
 We host the [Papermill documentation](http://papermill.readthedocs.io)

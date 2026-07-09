@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use papermill in your research, please cite it as below."
+authors:
+  - family-names: "nteract team"
+    given-names: ""
+    affiliation: "nteract"
+title: "papermill: Parameterize, execute, and analyze Jupyter Notebooks"
+version: 2.7.0
+date-released: 2025
+url: "https://github.com/nteract/papermill"
+preferred-citation:
+  type: article
+  authors:
+    - family-names: "nteract team"
+    given-names: ""
+  title: "Papermill: Parameterizing and Executing Jupyter Notebooks"
+  doi: "10.21105/joss.03518"
+  journal: "Journal of Open Source Software"
+  year: 2021
