@@ -1,4 +1,6 @@
 import unittest
+from contextlib import contextmanager
+from io import StringIO
 from unittest.mock import call, patch
 
 import nbformat
@@ -37,3 +39,23 @@ class TestPapermillClientWrapper(unittest.TestCase):
                     call("<matplotlib.figure.Figure at 0x7f830af7b350>"),
                 ]
             )
+
+    def test_kernel_startup_stdout_does_not_leak_to_parent_stdout(self):
+        @contextmanager
+        def noisy_kernel_setup(**kwargs):
+            print("Starting kernel...")
+            yield
+
+        self.client.kc = unittest.mock.Mock()
+        self.client.kc.kernel_info.return_value = 'kernel-info'
+
+        with (
+            patch.object(self.client, 'setup_kernel', noisy_kernel_setup),
+            patch.object(self.client, 'papermill_execute_cells'),
+            patch.object(self.client, 'wait_for_reply', return_value={'content': {'language_info': {}}}),
+            patch.object(self.client, 'set_widgets_metadata'),
+            patch('sys.stdout', new_callable=StringIO) as stdout,
+        ):
+            self.client.execute()
+
+        self.assertEqual(stdout.getvalue(), "")
