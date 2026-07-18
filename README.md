@@ -5,7 +5,7 @@
 [![CI](https://github.com/nteract/papermill/actions/workflows/ci.yml/badge.svg)](https://github.com/nteract/papermill/actions/workflows/ci.yml)
 [![CI](https://github.com/nteract/papermill/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/nteract/papermill/actions/workflows/ci.yml)
 [![image](https://codecov.io/github/nteract/papermill/coverage.svg?branch=main)](https://codecov.io/github/nteract/papermill?branch=main)
-[![Documentation Status](https://readthedocs.org/projects/papermill/badge/?version=latest)](http://papermill.readthedocs.io/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/papermill/badge/?version=latest)](https://papermill.readthedocs.io/en/latest/?badge=latest)
 [![badge](https://tinyurl.com/ybwovtw2)](https://mybinder.org/v2/gh/nteract/papermill/main?filepath=binder%2Fprocess_highlight_dates.ipynb)
 [![badge](https://tinyurl.com/y7uz2eh9)](https://mybinder.org/v2/gh/nteract/papermill/main?)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/papermill)](https://pypi.org/project/papermill/)
@@ -170,5 +170,5 @@ For development guidelines look in the [DEVELOPMENT_GUIDE.md](./DEVELOPMENT_GUID
 
 ## Documentation
 
-We host the [Papermill documentation](http://papermill.readthedocs.io)
+We host the [Papermill documentation](https://papermill.readthedocs.io)
 on ReadTheDocs.
