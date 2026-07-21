@@ -311,6 +311,10 @@ same ``papermill.engine`` entry point described above::
     pip install papermill-tenki
     papermill input.ipynb output.ipynb --engine tenki
 
+Because it runs against the Tenki service, it needs a Tenki account and the
+``TENKI_API_KEY`` and ``TENKI_PROJECT_ID`` environment variables set; see the
+`papermill-tenki`_ README for setup.
+
 .. _`entry points`: https://packaging.python.org/specifications/entry-points/
 .. _`papermill-tenki`: https://github.com/darolpz-luxor/papermill-tenki
 .. _`Tenki Sandbox`: https://tenki.cloud/docs/sandbox/quick-start-sandbox
