@@ -172,3 +172,18 @@ For development guidelines look in the [DEVELOPMENT_GUIDE.md](./DEVELOPMENT_GUID
 
 We host the [Papermill documentation](http://papermill.readthedocs.io)
 on ReadTheDocs.
+
+## Citing Papermill
+
+If you use Papermill in an academic publication, please cite the project and
+its contributors. The following BibTeX entry is a starting point; replace the
+repository URL with the release or commit you used when reproducibility
+requires a version-specific reference:
+
+```bibtex
+@software{nteract_papermill,
+  author = {nteract contributors},
+  title = {Papermill: Parameterize, execute, and analyze notebooks},
+  url = {https://github.com/nteract/papermill}
+}
+```
