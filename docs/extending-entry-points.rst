@@ -299,7 +299,25 @@ engine. As you can see, this adds our "injected" output to each code cell
 
 .. image:: img/custom_execution_engine.png
 
+A real-world engine: remote execution
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The timing engine above is intentionally minimal. For an engine that executes
+notebooks on remote infrastructure, see `papermill-tenki`_, which runs each
+notebook inside a disposable `Tenki Sandbox`_ microVM and returns the executed
+notebook with its outputs. It installs from PyPI and is discovered through the
+same ``papermill.engine`` entry point described above::
+
+    pip install papermill-tenki
+    papermill input.ipynb output.ipynb --engine tenki
+
+Because it runs against the Tenki service, it needs a Tenki account and the
+``TENKI_API_KEY`` environment variable set; see the `papermill-tenki`_ README
+for setup.
+
 .. _`entry points`: https://packaging.python.org/specifications/entry-points/
+.. _`papermill-tenki`: https://github.com/LuxorLabs/papermill-tenki
+.. _`Tenki Sandbox`: https://tenki.cloud/docs/sandbox/quick-start-sandbox
 .. |nbformat.NotebookNode| replace:: ``nbformat.NotebookNode`` object
 .. _nbformat.NotebookNode: https://nbformat.readthedocs.io/en/latest/api.html#notebooknode-objects
 .. _`notebook node object`: https://nbformat.readthedocs.io/en/latest/api.html#module-nbformat.v4
