@@ -316,7 +316,7 @@ Because it runs against the Tenki service, it needs a Tenki account and the
 for setup.
 
 .. _`entry points`: https://packaging.python.org/specifications/entry-points/
-.. _`papermill-tenki`: https://github.com/darolpz-luxor/papermill-tenki
+.. _`papermill-tenki`: https://github.com/LuxorLabs/papermill-tenki
 .. _`Tenki Sandbox`: https://tenki.cloud/docs/sandbox/quick-start-sandbox
 .. |nbformat.NotebookNode| replace:: ``nbformat.NotebookNode`` object
 .. _nbformat.NotebookNode: https://nbformat.readthedocs.io/en/latest/api.html#notebooknode-objects
