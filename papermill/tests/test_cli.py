@@ -72,6 +72,36 @@ def test_is_int(value, expected):
     assert (_is_int(value)) == expected
 
 
+@pytest.mark.parametrize(
+    ('override_flag', 'override_value', 'metadata'),
+    [
+        ('--kernel', 'uvkernel', {'language_info': {'name': 'python'}}),
+        ('--kernel', 'pysparkkernel', {}),
+        ('--language', 'python', {}),
+    ],
+)
+def test_help_notebook_respects_translation_overrides(tmp_path, override_flag, override_value, metadata):
+    input_path = tmp_path / 'no-kernel-metadata.ipynb'
+    nb = nbformat.v4.new_notebook(
+        cells=[
+            nbformat.v4.new_code_cell(
+                source='value = 1',
+                metadata={'tags': ['parameters']},
+            )
+        ],
+        metadata=metadata,
+    )
+    nbformat.write(nb, input_path)
+
+    result = CliRunner().invoke(
+        papermill,
+        ['--help-notebook', override_flag, override_value, str(input_path)],
+    )
+
+    assert result.exit_code == 0, str(result.exception)
+    assert 'value: Unknown type (default 1)' in result.output
+
+
 class TestCLI(unittest.TestCase):
     default_execute_kwargs = dict(
         input_path='input.ipynb',
