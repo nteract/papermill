@@ -229,7 +229,15 @@ def papermill(
         parameters_final[name] = value
 
     if help_notebook:
-        sys.exit(display_notebook_help(click_ctx, notebook_path, parameters_final))
+        sys.exit(
+            display_notebook_help(
+                click_ctx,
+                notebook_path,
+                parameters_final,
+                kernel_name=kernel,
+                language=language,
+            )
+        )
 
     try:
         execute_notebook(

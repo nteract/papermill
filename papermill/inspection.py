@@ -4,6 +4,7 @@ from pathlib import Path
 
 import click
 
+from .exceptions import PapermillException
 from .iorw import get_pretty_path, load_notebook_node, local_file_io_cwd
 from .log import logger
 from .parameterize import add_builtin_parameters, parameterize_path
@@ -27,6 +28,10 @@ def _infer_parameters(nb, name=None, language=None):
     ----------
     nb : nbformat.NotebookNode
         Notebook
+    name : str, optional
+        Kernel name override
+    language : str, optional
+        Language override
 
     Returns
     -------
@@ -41,18 +46,22 @@ def _infer_parameters(nb, name=None, language=None):
     parameter_cell = nb.cells[parameter_cell_idx]
 
     kernel_name = nb_kernel_name(nb, name)
-    language = nb_language(nb, language)
-
-    translator = papermill_translators.find_translator(kernel_name, language)
+    try:
+        translator = papermill_translators.find_translator(kernel_name, None)
+        translator_name = kernel_name
+    except PapermillException:
+        language = nb_language(nb, language)
+        translator = papermill_translators.find_translator(kernel_name, language)
+        translator_name = language
     try:
         params = translator.inspect(parameter_cell)
     except NotImplementedError:
-        logger.warning(f"Translator for '{language}' language does not support parameter introspection.")
+        logger.warning(f"Translator for '{translator_name}' does not support parameter introspection.")
 
     return params
 
 
-def display_notebook_help(ctx, notebook_path, parameters):
+def display_notebook_help(ctx, notebook_path, parameters, kernel_name=None, language=None):
     """Display help on notebook parameters.
 
     Parameters
@@ -61,6 +70,12 @@ def display_notebook_help(ctx, notebook_path, parameters):
         Click context
     notebook_path : str
         Path to the notebook to be inspected
+    parameters : dict
+        Parameters used to resolve the notebook path
+    kernel_name : str, optional
+        Kernel name override
+    language : str, optional
+        Language override
     """
     nb = _open_notebook(notebook_path, parameters)
     click.echo(ctx.command.get_usage(ctx))
@@ -71,7 +86,7 @@ def display_notebook_help(ctx, notebook_path, parameters):
         click.echo("\n  No cell tagged 'parameters'")
         return 1
 
-    params = _infer_parameters(nb)
+    params = _infer_parameters(nb, name=kernel_name, language=language)
     if params:
         for param in params:
             p = param._asdict()
