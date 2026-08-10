@@ -83,6 +83,28 @@ def test_translate_comment_python(test_input, expected):
             [Parameter("a", "List[str]", "['this', 'is', 'a', 'string', 'list']", "Nice variable a")],
         ),
         (
+            'swallow: Literal["african", "european", "unknown"] = "unknown"',
+            [
+                Parameter(
+                    "swallow",
+                    'Literal["african", "european", "unknown"]',
+                    '"unknown"',
+                    "",
+                )
+            ],
+        ),
+        (
+            'mode: "typing.Literal[\'read-only\', \'write\']" = "read-only"',
+            [
+                Parameter(
+                    "mode",
+                    "typing.Literal['read-only', 'write']",
+                    '"read-only"',
+                    "",
+                )
+            ],
+        ),
+        (
             "a: List[str] = [\n    'this', # First\n    'is',\n    'a',\n    'string',\n    'list' # Last\n] # Nice variable a",  # noqa
             [Parameter("a", "List[str]", "['this','is','a','string','list']", "Nice variable a")],
         ),

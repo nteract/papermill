@@ -142,8 +142,9 @@ class Translator:
 
 class PythonTranslator(Translator):
     # Pattern to capture parameters within cell input
+    # Annotations are opaque here, so accept any text up to the assignment delimiter.
     PARAMETER_PATTERN = re.compile(
-        r"^(?P<target>\w[\w_]*)\s*(:\s*[\"']?(?P<annotation>\w[\w_\[\],\s]*)[\"']?\s*)?=\s*(?P<value>.*?)(\s*#\s*(type:\s*(?P<type_comment>[^\s]*)\s*)?(?P<help>.*))?$"
+        r"^(?P<target>\w[\w_]*)\s*(:\s*[\"']?(?P<annotation>[^=]+?)[\"']?\s*)?=\s*(?P<value>.*?)(\s*#\s*(type:\s*(?P<type_comment>[^\s]*)\s*)?(?P<help>.*))?$"
     )
 
     @classmethod
