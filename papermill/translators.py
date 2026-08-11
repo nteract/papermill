@@ -256,11 +256,14 @@ class PythonTranslator(Translator):
                 return source.strip()
 
             comment_columns = {}
+            string_continuation_lines = set()
             try:
                 tokens = tokenize.generate_tokens(io.StringIO(source).readline)
                 for token in tokens:
                     if token.type == tokenize.COMMENT:
                         comment_columns[token.start[0]] = token.start[1]
+                    elif token.type == tokenize.STRING and token.start[0] < token.end[0]:
+                        string_continuation_lines.update(range(token.start[0], token.end[0]))
             except (IndentationError, tokenize.TokenError):
                 return flatten_accumulator(source.splitlines())
 
@@ -270,7 +273,7 @@ class PythonTranslator(Translator):
                 if comment_column is not None:
                     line = line[:comment_column]
                 piece = line.strip()
-                if piece.endswith("\\"):
+                if piece.endswith("\\") and line_number not in string_continuation_lines:
                     piece = piece[:-1]
                 flattened.append(piece)
             return "".join(flattened)
@@ -372,7 +375,10 @@ class PythonTranslator(Translator):
                 ]
 
                 if significant and (significant[0].string in ("%", "!", "?") or significant[-1].string == "?"):
-                    masked_lines.append(" " * len(content) + line_ending)
+                    start = significant[0].start[1]
+                    byte_width = len(content[start:].encode("utf-8"))
+                    placeholder = "0" + " " * (byte_width - 1)
+                    masked_lines.append(content[:start] + placeholder + line_ending)
                     changed = True
                     continue
 
@@ -386,9 +392,12 @@ class PythonTranslator(Translator):
                 )
                 if assignment_magic is not None:
                     start = assignment_magic.start[1]
-                    byte_width = len(content[start:].encode("utf-8"))
+                    command_end = len(content)
+                    if comment is not None and comment.start[1] > start and content[comment.start[1] - 1].isspace():
+                        command_end = comment.start[1]
+                    byte_width = len(content[start:command_end].encode("utf-8"))
                     placeholder = "0" if byte_width == 1 else '"' + " " * (byte_width - 2) + '"'
-                    masked_lines.append(content[:start] + placeholder + line_ending)
+                    masked_lines.append(content[:start] + placeholder + content[command_end:] + line_ending)
                     changed = True
                     continue
 

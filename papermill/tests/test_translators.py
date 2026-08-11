@@ -169,11 +169,26 @@ def test_translate_comment_python(test_input, expected):
             ],
         ),
         (
+            'if enabled:\n    %time run()\nmode: Literal["a", "b"] = "a"',
+            [Parameter("mode", 'Literal["a", "b"]', '"a"', "")],
+        ),
+        (
             'url = !echo https://example/#frag\nmode: Literal["a", "b"] = "a"',
             [
                 Parameter("url", "None", "!echo https://example/#frag", ""),
                 Parameter("mode", 'Literal["a", "b"]', '"a"', ""),
             ],
+        ),
+        (
+            'files = !ls  # files to process\nmode: Literal["a", "b"] = "a"',
+            [
+                Parameter("files", "None", "!ls", "files to process"),
+                Parameter("mode", 'Literal["a", "b"]', '"a"', ""),
+            ],
+        ),
+        (
+            'value = r"""foo\\\nbar"""',
+            [Parameter("value", "None", 'r"""foo\\bar"""', "")],
         ),
         (
             "item: Foo | \\\n    Bar = None",
