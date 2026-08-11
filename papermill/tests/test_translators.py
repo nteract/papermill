@@ -83,6 +83,153 @@ def test_translate_comment_python(test_input, expected):
             [Parameter("a", "List[str]", "['this', 'is', 'a', 'string', 'list']", "Nice variable a")],
         ),
         (
+            'swallow: Literal["african", "european", "unknown"] = "unknown"',
+            [
+                Parameter(
+                    "swallow",
+                    'Literal["african", "european", "unknown"]',
+                    '"unknown"',
+                    "",
+                )
+            ],
+        ),
+        (
+            'mode: "typing.Literal[\'read-only\', \'write\']" = "read-only"',
+            [
+                Parameter(
+                    "mode",
+                    "typing.Literal['read-only', 'write']",
+                    '"read-only"',
+                    "",
+                )
+            ],
+        ),
+        (
+            'mode: "Literal[\\"read-only\\", \\"write\\"]" = "read-only"',
+            [
+                Parameter(
+                    "mode",
+                    'Literal["read-only", "write"]',
+                    '"read-only"',
+                    "",
+                )
+            ],
+        ),
+        (
+            'item: int | "Node" = None',
+            [Parameter("item", 'int | "Node"', "None", "")],
+        ),
+        (
+            'item: "Node" | int = None',
+            [Parameter("item", '"Node" | int', "None", "")],
+        ),
+        (
+            'mode: Literal["key=value", "disabled"] = "disabled"',
+            [
+                Parameter(
+                    "mode",
+                    'Literal["key=value", "disabled"]',
+                    '"disabled"',
+                    "",
+                )
+            ],
+        ),
+        (
+            "limit: Annotated[int, Field(gt=0)] = 10",
+            [Parameter("limit", "Annotated[int, Field(gt=0)]", "10", "")],
+        ),
+        (
+            '%matplotlib inline\nmode: Literal["a", "b"] = "a"',
+            [Parameter("mode", 'Literal["a", "b"]', '"a"', "")],
+        ),
+        (
+            '%matplotlib inline\nanswer = 42  # Why?\nmode: Literal["a", "b"] = "a"',
+            [
+                Parameter("answer", "None", "42", "Why?"),
+                Parameter("mode", 'Literal["a", "b"]', '"a"', ""),
+            ],
+        ),
+        (
+            'len?\nstr??\nmode: Literal["a", "b"] = "a"',
+            [Parameter("mode", 'Literal["a", "b"]', '"a"', "")],
+        ),
+        (
+            'files = !ls\nelapsed = %timeit -o f()\nmode: Literal["a", "b"] = "a"',
+            [
+                Parameter("files", "None", "!ls", ""),
+                Parameter("elapsed", "None", "%timeit -o f()", ""),
+                Parameter("mode", 'Literal["a", "b"]', '"a"', ""),
+            ],
+        ),
+        (
+            'files = !echo café\nmode: Literal["a", "b"] = "a"',
+            [
+                Parameter("files", "None", "!echo café", ""),
+                Parameter("mode", 'Literal["a", "b"]', '"a"', ""),
+            ],
+        ),
+        (
+            'if enabled:\n    %time run()\nmode: Literal["a", "b"] = "a"',
+            [Parameter("mode", 'Literal["a", "b"]', '"a"', "")],
+        ),
+        (
+            'url = !echo https://example/#frag\nmode: Literal["a", "b"] = "a"',
+            [
+                Parameter("url", "None", "!echo https://example/#frag", ""),
+                Parameter("mode", 'Literal["a", "b"]', '"a"', ""),
+            ],
+        ),
+        (
+            'files = !ls  # files to process\nmode: Literal["a", "b"] = "a"',
+            [
+                Parameter("files", "None", "!ls", "files to process"),
+                Parameter("mode", 'Literal["a", "b"]', '"a"', ""),
+            ],
+        ),
+        (
+            'value = r"""foo\\\nbar"""',
+            [Parameter("value", "None", 'r"""foo\\bar"""', "")],
+        ),
+        (
+            "item: Foo | \\\n    Bar = None",
+            [Parameter("item", "Foo | Bar", "None", "")],
+        ),
+        (
+            'mode: Literal[\n    "C#",\n    "Python",\n] = "C#"',
+            [
+                Parameter(
+                    "mode",
+                    'Literal["C#","Python",]',
+                    '"C#"',
+                    "",
+                )
+            ],
+        ),
+        (
+            "if production:\n    batch_size = 100",
+            [Parameter("batch_size", "None", "100", "")],
+        ),
+        (
+            "def build(): batch_size = 100\nvisible = 1",
+            [Parameter("visible", "None", "1", "")],
+        ),
+        (
+            "seed = (resolved_seed := 1)",
+            [Parameter("seed", "None", "(resolved_seed := 1)", "")],
+        ),
+        (
+            "a: lambda x=1: x = 2",
+            [Parameter("a", "lambda x=1: x", "2", "")],
+        ),
+        (
+            "a: (T := int) = 1",
+            [Parameter("a", "(T := int)", "1", "")],
+        ),
+        (
+            'declared: int; actual = 1',
+            [Parameter("actual", "None", "1", "")],
+        ),
+        (
             "a: List[str] = [\n    'this', # First\n    'is',\n    'a',\n    'string',\n    'list' # Last\n] # Nice variable a",  # noqa
             [Parameter("a", "List[str]", "['this','is','a','string','list']", "Nice variable a")],
         ),

@@ -1,7 +1,10 @@
+import ast
+import io
 import logging
 import math
 import re
 import shlex
+import tokenize
 
 from .exceptions import PapermillException
 from .models import Parameter
@@ -230,6 +233,249 @@ class PythonTranslator(Translator):
             if len(accumulator):
                 flat_string += accumulator[-1].strip()
             return flat_string
+
+        def trailing_comment(statement):
+            """Return a statement's optional type comment and help text."""
+            if statement.end_lineno is None or statement.end_col_offset is None:
+                return None, ""
+
+            line = src.splitlines()[statement.end_lineno - 1]
+            # AST columns are UTF-8 byte offsets, not character offsets.
+            tail = line.encode("utf-8")[statement.end_col_offset :].decode("utf-8")
+            match = re.match(
+                r"^\s*#\s*(type:\s*(?P<type_comment>[^\s]*)\s*)?(?P<help>.*)$",
+                tail,
+            )
+            if match is None:
+                return None, ""
+            return match.group("type_comment"), match.group("help").strip()
+
+        def flatten_python_source(source):
+            """Flatten parsed Python without treating hashes in strings as comments."""
+            if source.lstrip().startswith(("!", "%")):
+                return source.strip()
+
+            comment_columns = {}
+            string_continuation_lines = set()
+            try:
+                tokens = tokenize.generate_tokens(io.StringIO(source).readline)
+                for token in tokens:
+                    if token.type == tokenize.COMMENT:
+                        comment_columns[token.start[0]] = token.start[1]
+                    elif token.type == tokenize.STRING and token.start[0] < token.end[0]:
+                        string_continuation_lines.update(range(token.start[0], token.end[0]))
+            except (IndentationError, tokenize.TokenError):
+                return flatten_accumulator(source.splitlines())
+
+            flattened = []
+            for line_number, line in enumerate(source.splitlines(), start=1):
+                comment_column = comment_columns.get(line_number)
+                if comment_column is not None:
+                    line = line[:comment_column]
+                piece = line.strip()
+                if piece.endswith("\\") and line_number not in string_continuation_lines:
+                    piece = piece[:-1]
+                flattened.append(piece)
+            return "".join(flattened)
+
+        def character_column(line_number, byte_column):
+            """Convert an AST UTF-8 byte column to a tokenize character column."""
+            line = src.splitlines()[line_number - 1]
+            return len(line.encode("utf-8")[:byte_column].decode("utf-8"))
+
+        def relative_position(node, statement):
+            """Return a node start position relative to a statement source segment."""
+            line = node.lineno - statement.lineno + 1
+            column = character_column(node.lineno, node.col_offset)
+            if line == 1:
+                column -= character_column(statement.lineno, statement.col_offset)
+            return line, column
+
+        def source_offset(lines, position):
+            """Convert a tokenize position to a character offset."""
+            line, column = position
+            return sum(len(value) for value in lines[: line - 1]) + column
+
+        def assignment_parts(statement, value_node):
+            """Find the assignment token that precedes the parsed value node."""
+            statement_source = ast.get_source_segment(src, statement)
+            if statement_source is None:
+                return None
+
+            try:
+                tokens = list(tokenize.generate_tokens(io.StringIO(statement_source).readline))
+                assignment = None
+                value_start = relative_position(value_node, statement)
+                for token in tokens:
+                    if token.type == tokenize.OP and token.string == "=" and token.end <= value_start:
+                        assignment = token
+            except (IndentationError, tokenize.TokenError):
+                return None
+            if assignment is None:
+                return None
+
+            return statement_source, tokens, assignment
+
+        def assignment_value_source(parts):
+            """Extract the complete RHS, including parentheses omitted by value nodes."""
+            statement_source, _, assignment = parts
+
+            lines = statement_source.splitlines(keepends=True)
+            offset = source_offset(lines, assignment.end)
+            return statement_source[offset:]
+
+        def annotation_source(parts):
+            """Extract the complete annotation, including syntax-required parentheses."""
+            statement_source, tokens, assignment = parts
+            separator = next(
+                (
+                    token
+                    for token in tokens
+                    if token.type == tokenize.OP and token.string == ":" and token.start < assignment.start
+                ),
+                None,
+            )
+            if separator is None:
+                return None
+
+            lines = statement_source.splitlines(keepends=True)
+            start = source_offset(lines, separator.end)
+            end = source_offset(lines, assignment.start)
+            return statement_source[start:end]
+
+        def mask_notebook_syntax(source):
+            """Mask IPython commands while preserving source positions."""
+            masked_lines = []
+            changed = False
+            for line in source.splitlines(keepends=True):
+                content = line.rstrip("\r\n")
+                line_ending = line[len(content) :]
+                tokens = []
+                try:
+                    tokens.extend(tokenize.generate_tokens(io.StringIO(content + "\n").readline))
+                except (IndentationError, tokenize.TokenError):
+                    pass
+
+                comment = next((token for token in tokens if token.type == tokenize.COMMENT), None)
+                code_end = comment.start[1] if comment is not None else len(content)
+                ignored = {
+                    tokenize.COMMENT,
+                    tokenize.DEDENT,
+                    tokenize.ENDMARKER,
+                    tokenize.INDENT,
+                    tokenize.NEWLINE,
+                    tokenize.NL,
+                }
+                significant = [
+                    token
+                    for token in tokens
+                    if token.type not in ignored
+                    and not (token.type == tokenize.ERRORTOKEN and token.string.isspace())
+                    and token.start[1] < code_end
+                ]
+
+                if significant and (significant[0].string in ("%", "!", "?") or significant[-1].string == "?"):
+                    start = significant[0].start[1]
+                    byte_width = len(content[start:].encode("utf-8"))
+                    placeholder = "0" + " " * (byte_width - 1)
+                    masked_lines.append(content[:start] + placeholder + line_ending)
+                    changed = True
+                    continue
+
+                assignment_magic = next(
+                    (
+                        significant[index + 1]
+                        for index, token in enumerate(significant[:-1])
+                        if token.string == "=" and significant[index + 1].string in ("%", "!")
+                    ),
+                    None,
+                )
+                if assignment_magic is not None:
+                    start = assignment_magic.start[1]
+                    command_end = len(content)
+                    if comment is not None and comment.start[1] > start and content[comment.start[1] - 1].isspace():
+                        command_end = comment.start[1]
+                    byte_width = len(content[start:command_end].encode("utf-8"))
+                    placeholder = "0" if byte_width == 1 else '"' + " " * (byte_width - 2) + '"'
+                    masked_lines.append(content[:start] + placeholder + content[command_end:] + line_ending)
+                    changed = True
+                    continue
+
+                masked_lines.append(line)
+            return "".join(masked_lines) if changed else None
+
+        def parameter_statements(tree):
+            """Collect assignments through control flow, but not nested scopes."""
+            statements = []
+
+            def collect(node):
+                if isinstance(node, (ast.AsyncFunctionDef, ast.ClassDef, ast.FunctionDef, ast.Lambda)):
+                    return
+                if isinstance(node, (ast.AnnAssign, ast.Assign)):
+                    statements.append(node)
+                    return
+                for child in ast.iter_child_nodes(node):
+                    collect(child)
+
+            collect(tree)
+            return sorted(statements, key=lambda node: (node.lineno, node.col_offset))
+
+        try:
+            tree = ast.parse(src)
+        except SyntaxError:
+            masked_src = mask_notebook_syntax(src)
+            if masked_src is not None:
+                try:
+                    tree = ast.parse(masked_src)
+                except SyntaxError:
+                    tree = None
+            else:
+                tree = None
+
+        if tree is not None:
+            for statement in parameter_statements(tree):
+                annotation_node = None
+                if isinstance(statement, ast.AnnAssign):
+                    target = statement.target
+                    annotation_node = statement.annotation
+                    value_node = statement.value
+                elif isinstance(statement, ast.Assign) and len(statement.targets) == 1:
+                    target = statement.targets[0]
+                    value_node = statement.value
+                else:
+                    continue
+
+                if not isinstance(target, ast.Name) or value_node is None:
+                    continue
+
+                parts = assignment_parts(statement, value_node)
+                if parts is None:
+                    continue
+                value_source = assignment_value_source(parts)
+                if value_source is None:
+                    continue
+                value = flatten_python_source(value_source)
+
+                annotation = None
+                if annotation_node is not None:
+                    if isinstance(annotation_node, ast.Constant) and isinstance(annotation_node.value, str):
+                        annotation = annotation_node.value
+                    else:
+                        annotation_value = annotation_source(parts)
+                        if annotation_value is not None:
+                            annotation = flatten_python_source(annotation_value)
+
+                type_comment, help_text = trailing_comment(statement)
+                type_name = str(annotation or type_comment or None)
+                params.append(
+                    Parameter(
+                        name=target.id,
+                        inferred_type_name=type_name.strip(),
+                        default=value.strip(),
+                        help=help_text,
+                    )
+                )
+            return params
 
         # Some common type like dictionaries or list can be expressed over multiline.
         # To support the parsing of such case, the cell lines are grouped between line
