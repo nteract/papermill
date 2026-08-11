@@ -266,7 +266,10 @@ class PythonTranslator(Translator):
                 comment_column = comment_columns.get(line_number)
                 if comment_column is not None:
                     line = line[:comment_column]
-                flattened.append(line.strip())
+                piece = line.strip()
+                if piece.endswith("\\"):
+                    piece = piece[:-1]
+                flattened.append(piece)
             return "".join(flattened)
 
         def character_column(line_number, byte_column):
@@ -335,18 +338,58 @@ class PythonTranslator(Translator):
             return statement_source[start:end]
 
         def mask_notebook_syntax(source):
-            """Blank standalone IPython commands while preserving source positions."""
+            """Mask IPython commands while preserving source positions."""
             masked_lines = []
             changed = False
             for line in source.splitlines(keepends=True):
                 content = line.rstrip("\r\n")
                 line_ending = line[len(content) :]
-                stripped = content.strip()
-                if stripped.startswith(("%", "!", "?")) or stripped.endswith("?"):
+                tokens = []
+                try:
+                    tokens.extend(tokenize.generate_tokens(io.StringIO(content + "\n").readline))
+                except (IndentationError, tokenize.TokenError):
+                    pass
+
+                comment = next((token for token in tokens if token.type == tokenize.COMMENT), None)
+                code_end = comment.start[1] if comment is not None else len(content)
+                ignored = {
+                    tokenize.COMMENT,
+                    tokenize.DEDENT,
+                    tokenize.ENDMARKER,
+                    tokenize.INDENT,
+                    tokenize.NEWLINE,
+                    tokenize.NL,
+                }
+                significant = [
+                    token
+                    for token in tokens
+                    if token.type not in ignored
+                    and not (token.type == tokenize.ERRORTOKEN and token.string.isspace())
+                    and token.start[1] < code_end
+                ]
+
+                if significant and (significant[0].string in ("%", "!", "?") or significant[-1].string == "?"):
                     masked_lines.append(" " * len(content) + line_ending)
                     changed = True
-                else:
-                    masked_lines.append(line)
+                    continue
+
+                assignment_magic = next(
+                    (
+                        significant[index + 1]
+                        for index, token in enumerate(significant[:-1])
+                        if token.string == "=" and significant[index + 1].string in ("%", "!")
+                    ),
+                    None,
+                )
+                if assignment_magic is not None:
+                    start = assignment_magic.start[1]
+                    width = code_end - start
+                    placeholder = '"' + " " * (width - 2) + '"'
+                    masked_lines.append(content[:start] + placeholder + content[code_end:] + line_ending)
+                    changed = True
+                    continue
+
+                masked_lines.append(line)
             return "".join(masked_lines) if changed else None
 
         def parameter_statements(tree):

@@ -143,8 +143,27 @@ def test_translate_comment_python(test_input, expected):
             [Parameter("mode", 'Literal["a", "b"]', '"a"', "")],
         ),
         (
+            '%matplotlib inline\nanswer = 42  # Why?\nmode: Literal["a", "b"] = "a"',
+            [
+                Parameter("answer", "None", "42", "Why?"),
+                Parameter("mode", 'Literal["a", "b"]', '"a"', ""),
+            ],
+        ),
+        (
             'len?\nstr??\nmode: Literal["a", "b"] = "a"',
             [Parameter("mode", 'Literal["a", "b"]', '"a"', "")],
+        ),
+        (
+            'files = !ls\nelapsed = %timeit -o f()\nmode: Literal["a", "b"] = "a"',
+            [
+                Parameter("files", "None", "!ls", ""),
+                Parameter("elapsed", "None", "%timeit -o f()", ""),
+                Parameter("mode", 'Literal["a", "b"]', '"a"', ""),
+            ],
+        ),
+        (
+            "item: Foo | \\\n    Bar = None",
+            [Parameter("item", "Foo | Bar", "None", "")],
         ),
         (
             'mode: Literal[\n    "C#",\n    "Python",\n] = "C#"',
