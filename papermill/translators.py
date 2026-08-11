@@ -250,13 +250,6 @@ class PythonTranslator(Translator):
                 return None, ""
             return match.group("type_comment"), match.group("help").strip()
 
-        def strip_annotation_quotes(annotation):
-            """Strip quotes only when they surround the whole annotation."""
-            for quote in ('"""', "'''", '"', "'"):
-                if annotation.startswith(quote) and annotation.endswith(quote):
-                    return annotation[len(quote) : -len(quote)]
-            return annotation
-
         def flatten_python_source(source):
             """Flatten parsed Python without treating hashes in strings as comments."""
             comment_columns = {}
@@ -319,6 +312,22 @@ class PythonTranslator(Translator):
                     masked_lines.append(line)
             return "".join(masked_lines) if changed else None
 
+        def parameter_statements(tree):
+            """Collect assignments through control flow, but not nested scopes."""
+            statements = []
+
+            def collect(node):
+                if isinstance(node, (ast.AsyncFunctionDef, ast.ClassDef, ast.FunctionDef, ast.Lambda)):
+                    return
+                if isinstance(node, (ast.AnnAssign, ast.Assign)):
+                    statements.append(node)
+                    return
+                for child in ast.iter_child_nodes(node):
+                    collect(child)
+
+            collect(tree)
+            return sorted(statements, key=lambda node: (node.lineno, node.col_offset))
+
         try:
             tree = ast.parse(src)
         except SyntaxError:
@@ -332,11 +341,7 @@ class PythonTranslator(Translator):
                 tree = None
 
         if tree is not None:
-            statements = sorted(
-                (node for node in ast.walk(tree) if isinstance(node, (ast.AnnAssign, ast.Assign))),
-                key=lambda node: (node.lineno, node.col_offset),
-            )
-            for statement in statements:
+            for statement in parameter_statements(tree):
                 annotation_node = None
                 if isinstance(statement, ast.AnnAssign):
                     target = statement.target
@@ -358,9 +363,12 @@ class PythonTranslator(Translator):
 
                 annotation = None
                 if annotation_node is not None:
-                    annotation_source = ast.get_source_segment(src, annotation_node)
-                    if annotation_source is not None:
-                        annotation = strip_annotation_quotes(flatten_python_source(annotation_source))
+                    if isinstance(annotation_node, ast.Constant) and isinstance(annotation_node.value, str):
+                        annotation = annotation_node.value
+                    else:
+                        annotation_source = ast.get_source_segment(src, annotation_node)
+                        if annotation_source is not None:
+                            annotation = flatten_python_source(annotation_source)
 
                 type_comment, help_text = trailing_comment(statement)
                 type_name = str(annotation or type_comment or None)

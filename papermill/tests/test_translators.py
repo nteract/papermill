@@ -105,6 +105,17 @@ def test_translate_comment_python(test_input, expected):
             ],
         ),
         (
+            'mode: "Literal[\\"read-only\\", \\"write\\"]" = "read-only"',
+            [
+                Parameter(
+                    "mode",
+                    'Literal["read-only", "write"]',
+                    '"read-only"',
+                    "",
+                )
+            ],
+        ),
+        (
             'item: int | "Node" = None',
             [Parameter("item", 'int | "Node"', "None", "")],
         ),
@@ -145,6 +156,10 @@ def test_translate_comment_python(test_input, expected):
         (
             "if production:\n    batch_size = 100",
             [Parameter("batch_size", "None", "100", "")],
+        ),
+        (
+            "def build(): batch_size = 100\nvisible = 1",
+            [Parameter("visible", "None", "1", "")],
         ),
         (
             "seed = (resolved_seed := 1)",
