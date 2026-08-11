@@ -105,6 +105,29 @@ def test_translate_comment_python(test_input, expected):
             ],
         ),
         (
+            'item: int | "Node" = None',
+            [Parameter("item", 'int | "Node"', "None", "")],
+        ),
+        (
+            'item: "Node" | int = None',
+            [Parameter("item", '"Node" | int', "None", "")],
+        ),
+        (
+            'mode: Literal["key=value", "disabled"] = "disabled"',
+            [
+                Parameter(
+                    "mode",
+                    'Literal["key=value", "disabled"]',
+                    '"disabled"',
+                    "",
+                )
+            ],
+        ),
+        (
+            'declared: int; actual = 1',
+            [Parameter("actual", "None", "1", "")],
+        ),
+        (
             "a: List[str] = [\n    'this', # First\n    'is',\n    'a',\n    'string',\n    'list' # Last\n] # Nice variable a",  # noqa
             [Parameter("a", "List[str]", "['this','is','a','string','list']", "Nice variable a")],
         ),

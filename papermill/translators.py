@@ -1,3 +1,4 @@
+import ast
 import logging
 import math
 import re
@@ -142,9 +143,8 @@ class Translator:
 
 class PythonTranslator(Translator):
     # Pattern to capture parameters within cell input
-    # Annotations are opaque here, so accept any text up to the assignment delimiter.
     PARAMETER_PATTERN = re.compile(
-        r"^(?P<target>\w[\w_]*)\s*(:\s*[\"']?(?P<annotation>[^=]+?)[\"']?\s*)?=\s*(?P<value>.*?)(\s*#\s*(type:\s*(?P<type_comment>[^\s]*)\s*)?(?P<help>.*))?$"
+        r"^(?P<target>\w[\w_]*)\s*(:\s*[\"']?(?P<annotation>\w[\w_\[\],\s]*)[\"']?\s*)?=\s*(?P<value>.*?)(\s*#\s*(type:\s*(?P<type_comment>[^\s]*)\s*)?(?P<help>.*))?$"
     )
 
     @classmethod
@@ -231,6 +231,75 @@ class PythonTranslator(Translator):
             if len(accumulator):
                 flat_string += accumulator[-1].strip()
             return flat_string
+
+        def trailing_comment(statement):
+            """Return a statement's optional type comment and help text."""
+            if statement.end_lineno is None or statement.end_col_offset is None:
+                return None, ""
+
+            line = src.splitlines()[statement.end_lineno - 1]
+            # AST columns are UTF-8 byte offsets, not character offsets.
+            tail = line.encode("utf-8")[statement.end_col_offset :].decode("utf-8")
+            match = re.match(
+                r"^\s*#\s*(type:\s*(?P<type_comment>[^\s]*)\s*)?(?P<help>.*)$",
+                tail,
+            )
+            if match is None:
+                return None, ""
+            return match.group("type_comment"), match.group("help").strip()
+
+        def strip_annotation_quotes(annotation):
+            """Strip quotes only when they surround the whole annotation."""
+            for quote in ('"""', "'''", '"', "'"):
+                if annotation.startswith(quote) and annotation.endswith(quote):
+                    return annotation[len(quote) : -len(quote)]
+            return annotation
+
+        try:
+            statements = ast.parse(src).body
+        except SyntaxError:
+            # Preserve the previous best-effort behavior for cells containing
+            # notebook syntax or otherwise invalid Python.
+            statements = None
+
+        if statements is not None:
+            for statement in statements:
+                annotation_node = None
+                if isinstance(statement, ast.AnnAssign):
+                    target = statement.target
+                    annotation_node = statement.annotation
+                    value_node = statement.value
+                elif isinstance(statement, ast.Assign) and len(statement.targets) == 1:
+                    target = statement.targets[0]
+                    value_node = statement.value
+                else:
+                    continue
+
+                if not isinstance(target, ast.Name) or value_node is None:
+                    continue
+
+                value_source = ast.get_source_segment(src, value_node)
+                if value_source is None:
+                    continue
+                value = flatten_accumulator(value_source.splitlines())
+
+                annotation = None
+                if annotation_node is not None:
+                    annotation_source = ast.get_source_segment(src, annotation_node)
+                    if annotation_source is not None:
+                        annotation = strip_annotation_quotes(flatten_accumulator(annotation_source.splitlines()))
+
+                type_comment, help_text = trailing_comment(statement)
+                type_name = str(annotation or type_comment or None)
+                params.append(
+                    Parameter(
+                        name=target.id,
+                        inferred_type_name=type_name.strip(),
+                        default=value.strip(),
+                        help=help_text,
+                    )
+                )
+            return params
 
         # Some common type like dictionaries or list can be expressed over multiline.
         # To support the parsing of such case, the cell lines are grouped between line
