@@ -252,6 +252,9 @@ class PythonTranslator(Translator):
 
         def flatten_python_source(source):
             """Flatten parsed Python without treating hashes in strings as comments."""
+            if source.lstrip().startswith(("!", "%")):
+                return source.strip()
+
             comment_columns = {}
             try:
                 tokens = tokenize.generate_tokens(io.StringIO(source).readline)
@@ -383,9 +386,9 @@ class PythonTranslator(Translator):
                 )
                 if assignment_magic is not None:
                     start = assignment_magic.start[1]
-                    width = code_end - start
-                    placeholder = '"' + " " * (width - 2) + '"'
-                    masked_lines.append(content[:start] + placeholder + content[code_end:] + line_ending)
+                    byte_width = len(content[start:].encode("utf-8"))
+                    placeholder = "0" if byte_width == 1 else '"' + " " * (byte_width - 2) + '"'
+                    masked_lines.append(content[:start] + placeholder + line_ending)
                     changed = True
                     continue
 

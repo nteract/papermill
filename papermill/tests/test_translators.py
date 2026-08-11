@@ -162,6 +162,20 @@ def test_translate_comment_python(test_input, expected):
             ],
         ),
         (
+            'files = !echo café\nmode: Literal["a", "b"] = "a"',
+            [
+                Parameter("files", "None", "!echo café", ""),
+                Parameter("mode", 'Literal["a", "b"]', '"a"', ""),
+            ],
+        ),
+        (
+            'url = !echo https://example/#frag\nmode: Literal["a", "b"] = "a"',
+            [
+                Parameter("url", "None", "!echo https://example/#frag", ""),
+                Parameter("mode", 'Literal["a", "b"]', '"a"', ""),
+            ],
+        ),
+        (
             "item: Foo | \\\n    Bar = None",
             [Parameter("item", "Foo | Bar", "None", "")],
         ),
