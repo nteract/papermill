@@ -143,6 +143,10 @@ def test_translate_comment_python(test_input, expected):
             [Parameter("mode", 'Literal["a", "b"]', '"a"', "")],
         ),
         (
+            'len?\nstr??\nmode: Literal["a", "b"] = "a"',
+            [Parameter("mode", 'Literal["a", "b"]', '"a"', "")],
+        ),
+        (
             'mode: Literal[\n    "C#",\n    "Python",\n] = "C#"',
             [
                 Parameter(
@@ -164,6 +168,14 @@ def test_translate_comment_python(test_input, expected):
         (
             "seed = (resolved_seed := 1)",
             [Parameter("seed", "None", "(resolved_seed := 1)", "")],
+        ),
+        (
+            "a: lambda x=1: x = 2",
+            [Parameter("a", "lambda x=1: x", "2", "")],
+        ),
+        (
+            "a: (T := int) = 1",
+            [Parameter("a", "(T := int)", "1", "")],
         ),
         (
             'declared: int; actual = 1',

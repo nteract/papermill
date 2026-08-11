@@ -269,34 +269,70 @@ class PythonTranslator(Translator):
                 flattened.append(line.strip())
             return "".join(flattened)
 
-        def assignment_value_source(statement):
-            """Extract the complete RHS, including parentheses omitted by value nodes."""
+        def character_column(line_number, byte_column):
+            """Convert an AST UTF-8 byte column to a tokenize character column."""
+            line = src.splitlines()[line_number - 1]
+            return len(line.encode("utf-8")[:byte_column].decode("utf-8"))
+
+        def relative_position(node, statement):
+            """Return a node start position relative to a statement source segment."""
+            line = node.lineno - statement.lineno + 1
+            column = character_column(node.lineno, node.col_offset)
+            if line == 1:
+                column -= character_column(statement.lineno, statement.col_offset)
+            return line, column
+
+        def source_offset(lines, position):
+            """Convert a tokenize position to a character offset."""
+            line, column = position
+            return sum(len(value) for value in lines[: line - 1]) + column
+
+        def assignment_parts(statement, value_node):
+            """Find the assignment token that precedes the parsed value node."""
             statement_source = ast.get_source_segment(src, statement)
             if statement_source is None:
                 return None
 
             try:
-                tokens = tokenize.generate_tokens(io.StringIO(statement_source).readline)
-                depth = 0
+                tokens = list(tokenize.generate_tokens(io.StringIO(statement_source).readline))
                 assignment = None
+                value_start = relative_position(value_node, statement)
                 for token in tokens:
-                    if token.type != tokenize.OP:
-                        continue
-                    if token.string in "([{":
-                        depth += 1
-                    elif token.string in ")]}":
-                        depth -= 1
-                    elif token.string == "=" and depth == 0:
+                    if token.type == tokenize.OP and token.string == "=" and token.end <= value_start:
                         assignment = token
-                        break
             except (IndentationError, tokenize.TokenError):
                 return None
             if assignment is None:
                 return None
 
+            return statement_source, tokens, assignment
+
+        def assignment_value_source(parts):
+            """Extract the complete RHS, including parentheses omitted by value nodes."""
+            statement_source, _, assignment = parts
+
             lines = statement_source.splitlines(keepends=True)
-            offset = sum(len(line) for line in lines[: assignment.end[0] - 1]) + assignment.end[1]
+            offset = source_offset(lines, assignment.end)
             return statement_source[offset:]
+
+        def annotation_source(parts):
+            """Extract the complete annotation, including syntax-required parentheses."""
+            statement_source, tokens, assignment = parts
+            separator = next(
+                (
+                    token
+                    for token in tokens
+                    if token.type == tokenize.OP and token.string == ":" and token.start < assignment.start
+                ),
+                None,
+            )
+            if separator is None:
+                return None
+
+            lines = statement_source.splitlines(keepends=True)
+            start = source_offset(lines, separator.end)
+            end = source_offset(lines, assignment.start)
+            return statement_source[start:end]
 
         def mask_notebook_syntax(source):
             """Blank standalone IPython commands while preserving source positions."""
@@ -305,7 +341,8 @@ class PythonTranslator(Translator):
             for line in source.splitlines(keepends=True):
                 content = line.rstrip("\r\n")
                 line_ending = line[len(content) :]
-                if content.lstrip().startswith(("%", "!", "?")):
+                stripped = content.strip()
+                if stripped.startswith(("%", "!", "?")) or stripped.endswith("?"):
                     masked_lines.append(" " * len(content) + line_ending)
                     changed = True
                 else:
@@ -356,7 +393,10 @@ class PythonTranslator(Translator):
                 if not isinstance(target, ast.Name) or value_node is None:
                     continue
 
-                value_source = assignment_value_source(statement)
+                parts = assignment_parts(statement, value_node)
+                if parts is None:
+                    continue
+                value_source = assignment_value_source(parts)
                 if value_source is None:
                     continue
                 value = flatten_python_source(value_source)
@@ -366,9 +406,9 @@ class PythonTranslator(Translator):
                     if isinstance(annotation_node, ast.Constant) and isinstance(annotation_node.value, str):
                         annotation = annotation_node.value
                     else:
-                        annotation_source = ast.get_source_segment(src, annotation_node)
-                        if annotation_source is not None:
-                            annotation = flatten_python_source(annotation_source)
+                        annotation_value = annotation_source(parts)
+                        if annotation_value is not None:
+                            annotation = flatten_python_source(annotation_value)
 
                 type_comment, help_text = trailing_comment(statement)
                 type_name = str(annotation or type_comment or None)
