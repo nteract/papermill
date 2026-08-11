@@ -1,6 +1,7 @@
 import os
 import shutil
 import tempfile
+import threading
 import unittest
 from copy import deepcopy
 from functools import partial
@@ -262,6 +263,48 @@ class TestCWD(unittest.TestCase):
                 cwd=Path(self.test_dir),
             )
         self.assertTrue(Path(self.base_test_dir).joinpath(self.nb_test_executed_fname).exists())
+
+    def test_concurrent_cwd_isolation(self):
+        # Two notebooks run concurrently, each with its own cwd holding its own check.txt.
+        # A process-global chdir leaks one run's cwd into the other's kernel.
+        dir_a = tempfile.mkdtemp()
+        dir_b = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, dir_a)
+        self.addCleanup(shutil.rmtree, dir_b)
+        for d in (dir_a, dir_b):
+            with open(os.path.join(d, 'check.txt'), 'w', encoding='utf-8') as f:
+                f.write('exists')
+
+        # Force the runs to interleave at kernel setup: both hold at notebook_start until each
+        # has entered (on stock, each already inside its own global chdir), so a shared process
+        # cwd makes the first kernel start in the other run's directory.
+        barrier = threading.Barrier(2, timeout=30)
+        orig_notebook_start = engines.NotebookExecutionManager.notebook_start
+
+        def interleaved_notebook_start(inner_self, *args, **kwargs):
+            barrier.wait()
+            return orig_notebook_start(inner_self, *args, **kwargs)
+
+        errors = {}
+
+        def run(tag, cwd):
+            out_path = os.path.join(cwd, f'out_{tag}.ipynb')
+            try:
+                execute_notebook(self.check_notebook_path, out_path, cwd=cwd)
+            except Exception as exc:
+                errors[tag] = exc
+
+        with patch.object(engines.NotebookExecutionManager, 'notebook_start', interleaved_notebook_start):
+            threads = [
+                threading.Thread(target=run, args=('a', dir_a)),
+                threading.Thread(target=run, args=('b', dir_b)),
+            ]
+            for t in threads:
+                t.start()
+            for t in threads:
+                t.join(120)
+
+        self.assertEqual(errors, {}, f'concurrent cwd leaked between runs: {errors}')
 
 
 class TestSysExit(unittest.TestCase):

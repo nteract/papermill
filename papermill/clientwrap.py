@@ -16,7 +16,7 @@ class PapermillNotebookClient(NotebookClient):
     stdout_file = Instance(object, default_value=None).tag(config=True)
     stderr_file = Instance(object, default_value=None).tag(config=True)
 
-    def __init__(self, nb_man, km=None, raise_on_iopub_timeout=True, **kw):
+    def __init__(self, nb_man, km=None, raise_on_iopub_timeout=True, cwd=None, **kw):
         """Initializes the execution manager.
 
         Parameters
@@ -26,7 +26,14 @@ class PapermillNotebookClient(NotebookClient):
         km : KernerlManager (optional)
             Optional kernel manager. If none is provided, a kernel manager will
             be created.
+        cwd : str (optional)
+            Working directory to run the kernel in. Passed to nbclient via
+            ``resources`` so the kernel starts there without changing the
+            papermill process working directory (thread-safe).
         """
+        if cwd is not None:
+            resources = kw.setdefault('resources', {})
+            resources.setdefault('metadata', {})['path'] = cwd
         super().__init__(nb_man.nb, km=km, raise_on_iopub_timeout=raise_on_iopub_timeout, **kw)
         self.nb_man = nb_man
 
