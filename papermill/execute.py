@@ -8,7 +8,6 @@ from .inspection import _infer_parameters
 from .iorw import get_pretty_path, load_notebook_node, local_file_io_cwd, write_ipynb
 from .log import logger
 from .parameterize import add_builtin_parameters, parameterize_notebook, parameterize_path
-from .utils import chdir
 
 
 def execute_notebook(
@@ -112,20 +111,20 @@ def execute_notebook(
             # Dropdown to the engine to fetch the kernel name from the notebook document
             kernel_name = papermill_engines.nb_kernel_name(engine_name=engine_name, nb=nb, name=kernel_name)
             # Execute the Notebook in `cwd` if it is set
-            with chdir(cwd):
-                nb = papermill_engines.execute_notebook_with_engine(
-                    engine_name,
-                    nb,
-                    input_path=input_path,
-                    output_path=output_path if request_save_on_cell_execute else None,
-                    kernel_name=kernel_name,
-                    progress_bar=progress_bar,
-                    log_output=log_output,
-                    start_timeout=start_timeout,
-                    stdout_file=stdout_file,
-                    stderr_file=stderr_file,
-                    **engine_kwargs,
-                )
+            nb = papermill_engines.execute_notebook_with_engine(
+                engine_name,
+                nb,
+                input_path=input_path,
+                output_path=output_path if request_save_on_cell_execute else None,
+                kernel_name=kernel_name,
+                progress_bar=progress_bar,
+                log_output=log_output,
+                start_timeout=start_timeout,
+                stdout_file=stdout_file,
+                stderr_file=stderr_file,
+                cwd=cwd,
+                **engine_kwargs,
+            )
 
             # Check for errors first (it saves on error before raising)
             raise_for_execution_errors(nb, output_path)
