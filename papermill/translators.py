@@ -1,8 +1,10 @@
 import ast
+import io
 import logging
 import math
 import re
 import shlex
+import tokenize
 
 from .exceptions import PapermillException
 from .models import Parameter
@@ -255,14 +257,85 @@ class PythonTranslator(Translator):
                     return annotation[len(quote) : -len(quote)]
             return annotation
 
-        try:
-            statements = ast.parse(src).body
-        except SyntaxError:
-            # Preserve the previous best-effort behavior for cells containing
-            # notebook syntax or otherwise invalid Python.
-            statements = None
+        def flatten_python_source(source):
+            """Flatten parsed Python without treating hashes in strings as comments."""
+            comment_columns = {}
+            try:
+                tokens = tokenize.generate_tokens(io.StringIO(source).readline)
+                for token in tokens:
+                    if token.type == tokenize.COMMENT:
+                        comment_columns[token.start[0]] = token.start[1]
+            except (IndentationError, tokenize.TokenError):
+                return flatten_accumulator(source.splitlines())
 
-        if statements is not None:
+            flattened = []
+            for line_number, line in enumerate(source.splitlines(), start=1):
+                comment_column = comment_columns.get(line_number)
+                if comment_column is not None:
+                    line = line[:comment_column]
+                flattened.append(line.strip())
+            return "".join(flattened)
+
+        def assignment_value_source(statement):
+            """Extract the complete RHS, including parentheses omitted by value nodes."""
+            statement_source = ast.get_source_segment(src, statement)
+            if statement_source is None:
+                return None
+
+            try:
+                tokens = tokenize.generate_tokens(io.StringIO(statement_source).readline)
+                depth = 0
+                assignment = None
+                for token in tokens:
+                    if token.type != tokenize.OP:
+                        continue
+                    if token.string in "([{":
+                        depth += 1
+                    elif token.string in ")]}":
+                        depth -= 1
+                    elif token.string == "=" and depth == 0:
+                        assignment = token
+                        break
+            except (IndentationError, tokenize.TokenError):
+                return None
+            if assignment is None:
+                return None
+
+            lines = statement_source.splitlines(keepends=True)
+            offset = sum(len(line) for line in lines[: assignment.end[0] - 1]) + assignment.end[1]
+            return statement_source[offset:]
+
+        def mask_notebook_syntax(source):
+            """Blank standalone IPython commands while preserving source positions."""
+            masked_lines = []
+            changed = False
+            for line in source.splitlines(keepends=True):
+                content = line.rstrip("\r\n")
+                line_ending = line[len(content) :]
+                if content.lstrip().startswith(("%", "!", "?")):
+                    masked_lines.append(" " * len(content) + line_ending)
+                    changed = True
+                else:
+                    masked_lines.append(line)
+            return "".join(masked_lines) if changed else None
+
+        try:
+            tree = ast.parse(src)
+        except SyntaxError:
+            masked_src = mask_notebook_syntax(src)
+            if masked_src is not None:
+                try:
+                    tree = ast.parse(masked_src)
+                except SyntaxError:
+                    tree = None
+            else:
+                tree = None
+
+        if tree is not None:
+            statements = sorted(
+                (node for node in ast.walk(tree) if isinstance(node, (ast.AnnAssign, ast.Assign))),
+                key=lambda node: (node.lineno, node.col_offset),
+            )
             for statement in statements:
                 annotation_node = None
                 if isinstance(statement, ast.AnnAssign):
@@ -278,16 +351,16 @@ class PythonTranslator(Translator):
                 if not isinstance(target, ast.Name) or value_node is None:
                     continue
 
-                value_source = ast.get_source_segment(src, value_node)
+                value_source = assignment_value_source(statement)
                 if value_source is None:
                     continue
-                value = flatten_accumulator(value_source.splitlines())
+                value = flatten_python_source(value_source)
 
                 annotation = None
                 if annotation_node is not None:
                     annotation_source = ast.get_source_segment(src, annotation_node)
                     if annotation_source is not None:
-                        annotation = strip_annotation_quotes(flatten_accumulator(annotation_source.splitlines()))
+                        annotation = strip_annotation_quotes(flatten_python_source(annotation_source))
 
                 type_comment, help_text = trailing_comment(statement)
                 type_name = str(annotation or type_comment or None)

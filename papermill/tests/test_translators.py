@@ -124,6 +124,33 @@ def test_translate_comment_python(test_input, expected):
             ],
         ),
         (
+            "limit: Annotated[int, Field(gt=0)] = 10",
+            [Parameter("limit", "Annotated[int, Field(gt=0)]", "10", "")],
+        ),
+        (
+            '%matplotlib inline\nmode: Literal["a", "b"] = "a"',
+            [Parameter("mode", 'Literal["a", "b"]', '"a"', "")],
+        ),
+        (
+            'mode: Literal[\n    "C#",\n    "Python",\n] = "C#"',
+            [
+                Parameter(
+                    "mode",
+                    'Literal["C#","Python",]',
+                    '"C#"',
+                    "",
+                )
+            ],
+        ),
+        (
+            "if production:\n    batch_size = 100",
+            [Parameter("batch_size", "None", "100", "")],
+        ),
+        (
+            "seed = (resolved_seed := 1)",
+            [Parameter("seed", "None", "(resolved_seed := 1)", "")],
+        ),
+        (
             'declared: int; actual = 1',
             [Parameter("actual", "None", "1", "")],
         ),
