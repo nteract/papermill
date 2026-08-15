@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+title: "Papermill"
+message: "If you use this software, please cite it using the metadata in this file."
+type: software
+authors:
+  - name: "nteract contributors"
+repository-code: "https://github.com/nteract/papermill"
+url: "https://papermill.readthedocs.io"
+license: "BSD-3-Clause"
+keywords:
+  - Jupyter
+  - notebooks
+  - parameterization
