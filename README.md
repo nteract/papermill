@@ -168,6 +168,10 @@ Read [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on how to setup a local
 
 For development guidelines look in the [DEVELOPMENT_GUIDE.md](./DEVELOPMENT_GUIDE.md) file. This should inform you on how to make particular additions to the code base.
 
+## Citing Papermill
+
+If you use Papermill in a publication, use the metadata in [CITATION.cff](./CITATION.cff) to generate a citation in your preferred format.
+
 ## Documentation
 
 We host the [Papermill documentation](http://papermill.readthedocs.io)
