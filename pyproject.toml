@@ -39,7 +39,7 @@ dependencies = [
 ]
 
 optional-dependencies.all = [
-  "azure-datalake-store>=0.0.30,<1.0.0a0",
+  "azure-datalake-store>=1",
   "azure-identity>=1.3.1",
   "azure-storage-blob>=12.1",
   "black>=19.3b0",
@@ -50,7 +50,7 @@ optional-dependencies.all = [
   "requests>=2.21",
 ]
 optional-dependencies.azure = [
-  "azure-datalake-store>=0.0.30,<1.0.0a0",
+  "azure-datalake-store>=1",
   "azure-identity>=1.3.1",
   "azure-storage-blob>=12.1",
   "requests>=2.21",
@@ -58,7 +58,7 @@ optional-dependencies.azure = [
 optional-dependencies.black = [ "black>=19.3b0" ]
 optional-dependencies.dev = [
   "attrs>=17.4",
-  "azure-datalake-store>=0.0.30,<1.0.0a0",
+  "azure-datalake-store>=1",
   "azure-identity>=1.3.1",
   "azure-storage-blob>=12.1",
   "black>=19.3b0",
@@ -90,7 +90,7 @@ optional-dependencies.dev = [
   "wheel>=0.31",
 ]
 optional-dependencies.docs = [
-  "azure-datalake-store>=0.0.30,<1.0.0a0",
+  "azure-datalake-store>=1",
   "azure-identity>=1.3.1",
   "azure-storage-blob>=12.1",
   "black>=19.3b0",
@@ -111,7 +111,7 @@ optional-dependencies.hdfs = [ "pyarrow>=2" ]
 optional-dependencies.s3 = [ "boto3" ]
 optional-dependencies.test = [
   "attrs>=17.4",
-  "azure-datalake-store>=0.0.30,<1.0.0a0",
+  "azure-datalake-store>=1",
   "azure-identity>=1.3.1",
   "azure-storage-blob>=12.1",
   "black>=19.3b0",
