@@ -3,7 +3,6 @@ from unittest.mock import MagicMock, Mock, patch
 
 from ..adl import ADL
 from ..adl import core as adl_core
-from ..adl import lib as adl_lib
 
 
 class ADLTest(unittest.TestCase):
@@ -50,11 +49,14 @@ class ADLTest(unittest.TestCase):
         self.adl.write("hello world", "adl://foo_store.azuredatalakestore.net/path/to/file")
         self.fakeFile.write.assert_called_once_with(b"hello world")
 
-    @patch.object(adl_lib, 'auth', return_value="my_token", create=True)
-    @patch.object(adl_core, 'AzureDLFileSystem', return_value="my_adapter")
-    def test_create_adapter(self, azure_dl_filesystem_mock, auth_mock):
+    @patch("papermill.adl.EnvironmentCredential", return_value="my_token")
+    @patch.object(adl_core, "AzureDLFileSystem", return_value="my_adapter")
+    def test_create_adapter(self, azure_dl_filesystem_mock, credential_mock):
         sut = ADL()
         actual = sut._create_adapter("my_store_name")
         assert actual == "my_adapter"
-        auth_mock.assert_called_once_with()
-        azure_dl_filesystem_mock.assert_called_once_with("my_token", store_name="my_store_name")
+        credential_mock.assert_called_once_with()
+        azure_dl_filesystem_mock.assert_called_once_with(
+            token_credential="my_token",
+            store_name="my_store_name",
+        )

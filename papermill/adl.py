@@ -2,7 +2,8 @@
 
 import re
 
-from azure.datalake.store import core, lib
+from azure.datalake.store import core
+from azure.identity import EnvironmentCredential
 
 
 class ADL:
@@ -30,11 +31,11 @@ class ADL:
 
     def _get_token(self):
         if self.token is None:
-            self.token = lib.auth()
+            self.token = EnvironmentCredential()
         return self.token
 
     def _create_adapter(self, store_name):
-        return core.AzureDLFileSystem(self._get_token(), store_name=store_name)
+        return core.AzureDLFileSystem(token_credential=self._get_token(), store_name=store_name)
 
     def listdir(self, url):
         """Returns a list of the files under the specified path"""
