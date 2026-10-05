@@ -27,7 +27,7 @@ class ADLTest(unittest.TestCase):
         self.assertTrue("Invalid ADL url 'this_is_not_a_valid_url'" in str(context.exception))
 
     def test_split_url_splits_valid_url(self):
-        (store_name, path) = ADL._split_url("adl://foo.azuredatalakestore.net/bar/baz")
+        store_name, path = ADL._split_url("adl://foo.azuredatalakestore.net/bar/baz")
         self.assertEqual(store_name, "foo")
         self.assertEqual(path, "bar/baz")
 

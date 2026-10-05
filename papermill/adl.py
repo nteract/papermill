@@ -38,13 +38,13 @@ class ADL:
 
     def listdir(self, url):
         """Returns a list of the files under the specified path"""
-        (store_name, path) = self._split_url(url)
+        store_name, path = self._split_url(url)
         adapter = self._create_adapter(store_name)
         return [f"adl://{store_name}.azuredatalakestore.net/{path_to_child}" for path_to_child in adapter.ls(path)]
 
     def read(self, url):
         """Read storage at a given url"""
-        (store_name, path) = self._split_url(url)
+        store_name, path = self._split_url(url)
         adapter = self._create_adapter(store_name)
         lines = []
         with adapter.open(path) as f:
@@ -54,7 +54,7 @@ class ADL:
 
     def write(self, buf, url):
         """Write buffer to storage at a given url"""
-        (store_name, path) = self._split_url(url)
+        store_name, path = self._split_url(url)
         adapter = self._create_adapter(store_name)
         with adapter.open(path, 'wb') as f:
             f.write(buf.encode())
