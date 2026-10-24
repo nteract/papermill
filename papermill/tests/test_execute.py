@@ -209,6 +209,20 @@ class TestReportMode(unittest.TestCase):
             if cell.cell_type == 'code':
                 self.assertEqual(cell.metadata.get('jupyter', {}).get('source_hidden'), True)
 
+    def test_report_mode_preserves_jupyter_metadata(self):
+        for report_mode in [False, True]:
+            with self.subTest(report_mode=report_mode):
+                nb = load_notebook_node(self.notebook_path)
+                nb.cells[1].metadata['jupyter'] = {'outputs_hidden': True, 'source_hidden': False}
+
+                execute_notebook(nb, self.nb_test_executed_fname, prepare_only=True, report_mode=report_mode)
+
+                saved_nb = load_notebook_node(self.nb_test_executed_fname)
+                self.assertEqual(
+                    saved_nb.cells[1].metadata['jupyter'],
+                    {'outputs_hidden': True, 'source_hidden': report_mode},
+                )
+
 
 class TestOutputPathNone(unittest.TestCase):
     def test_output_path_of_none(self):

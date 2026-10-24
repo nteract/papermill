@@ -154,7 +154,7 @@ def prepare_notebook_metadata(nb, input_path, output_path, report_mode=False):
     if report_mode:
         for cell in nb.cells:
             if cell.cell_type == 'code':
-                cell.metadata['jupyter'] = cell.get('jupyter', {})
+                cell.metadata['jupyter'] = cell.metadata.get('jupyter', {})
                 cell.metadata['jupyter']['source_hidden'] = True
 
     # Record specified environment variable values.
