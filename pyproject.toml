@@ -31,7 +31,12 @@ dependencies = [
   "click",
   "entrypoints",
   "nbclient>=0.2",
-  "nbformat>=5.2",
+  # nbformat 5.10.4 sets minimum versions for its own dependencies
+  # (jupyter_core, traitlets, jsonschema, fastjsonschema) that are compatible
+  # with numpy v2 / Python 3.12. Older resolvable versions can drag in a stale
+  # jupyter stack that breaks under numpy 2.0 with `AttributeError: _ARRAY_API
+  # not found` (see nteract/papermill#800 and numpy/numpy#26710).
+  "nbformat>=5.10.4",
   "pyyaml",
   "requests",
   "tenacity>=5.0.2",
@@ -74,6 +79,9 @@ optional-dependencies.dev = [
   "ipywidgets",
   "moto>=5,<5.1",
   "notebook",
+  # Exercise the test suite under numpy v2 so that numpy-2 regressions in the
+  # execute/inspect/parameterize paths are caught in CI (nteract/papermill#800).
+  "numpy>=2",
   "pip>=18.1",
   "pre-commit",
   "pyarrow>=2",
@@ -127,6 +135,9 @@ optional-dependencies.test = [
   "ipywidgets",
   "moto>=5,<5.1",
   "notebook",
+  # Exercise the test suite under numpy v2 so that numpy-2 regressions in the
+  # execute/inspect/parameterize paths are caught in CI (nteract/papermill#800).
+  "numpy>=2",
   "pip>=18.1",
   "pre-commit",
   "pyarrow>=2",
